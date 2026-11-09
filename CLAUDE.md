@@ -43,7 +43,7 @@ npm run build            # 타입 검사 + 빌드
 
 ## API 응답 형식 (BE와 반드시 동일하게 유지)
 ```ts
-// 06 API 명세서 v1.2 기준 (기존 success 필드 형식에서 변경 — BE CLAUDE.md 동기화 필요)
+// 06 API 명세서 v1.2 기준 (BE CLAUDE.md와 동기화 완료)
 type ApiResponse<T> = {
   data: T | null;
   meta: { source?: string[]; effective_as_of?: string; /* … */ } | null;
@@ -53,7 +53,7 @@ type ApiResponse<T> = {
 - 이 타입은 `src/types/api.ts`에 두고 모든 API 함수가 사용 (`src/api/client.ts`의 `apiGet`/`apiPost`)
 - API 명세서 v1.2가 FE↔BE 계약 기준. 필드·파라미터를 바꾸려면 명세서 수정 → FE·BE 합의 → 코드 수정 순서
 - 형식을 바꾸면 `../SpotON-BE/CLAUDE.md`도 함께 수정한다
-- API 경로는 `/api/v1/...`, 기본 주소는 `import.meta.env.VITE_API_BASE_URL`
+- API 경로는 `/api/...` (예: `/api/geocode`), 기본 주소는 `import.meta.env.VITE_API_BASE_URL`
 
 ## 코딩 규칙
 - `any` 사용 금지, props와 API 응답에 타입 명시
@@ -72,9 +72,9 @@ type ApiResponse<T> = {
 - 반경·업종·시설 규모 등 진단 조건 값은 `src/constants/diagnosis.ts`만 수정한다
 
 ## Git 규칙
-- 브랜치: `main`(최종) ← `dev`(통합) ← `feat/기능명`, `fix/버그명`, `docs/문서명`
-- `main`, `dev`에 직접 커밋·push 하지 않는다. 작업은 항상 새 브랜치에서
-- 커밋 메시지: `타입: 내용` (예: `feat: 입지 진단 결과 화면 추가`)
+- 브랜치: `main`(최종) ← `develop`(통합) ← `feat/...`, `fix/...`, `docs/...`
+- `main`, `develop`에 직접 커밋·push 하지 않는다. 최신 `develop`에서 새 브랜치를 만든다
+- 커밋 메시지: `타입(fe): 내용` (예: `feat(fe): 입지 진단 결과 화면 추가`, `fix(fe): 반경 선택 오류 수정`)
   - 타입: feat, fix, refactor, docs, style, chore
 
 ## 절대 하지 말 것
