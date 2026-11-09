@@ -1,0 +1,15 @@
+@import 'tailwindcss';
+
+/* 디자인 시안 확정 후 색상·글꼴 토큰을 @theme 에 정의한다 */
+@theme {
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', 'Malgun Gothic', system-ui, sans-serif;
+}
