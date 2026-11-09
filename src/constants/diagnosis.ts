@@ -1,7 +1,7 @@
 /**
  * Spot:ON 진단 조건 상수
- * 기준: 팀 회의 논의사항(API 명세서 v1.2 업종 ID) · 분석 로직 정의서 4-4
- * ⚠️ 회의 확정 전 값 포함 — 확정되면 이 파일만 수정한다.
+ * 지원 업종 기준: SpotON-BE/docs/be-work-plan.md의 최종 개발 범위
+ * 반경·시설 규모 등 나머지 조건은 API 명세서 v1.2와 대조 후 확정한다.
  */
 
 /** 반경 선택값(m). 모든 수치의 공간 기준 */
@@ -22,21 +22,10 @@ export const RESTAURANT_SUB_CATEGORIES = [
   { id: 'chinese', label: '중식' },
   { id: 'japanese', label: '일식' },
   { id: 'western', label: '양식' },
-  { id: 'snack', label: '분식' },
-  { id: 'chicken', label: '치킨·호프' }, // 표시명 회의 확정 필요
-  { id: 'pub', label: '주점' },
-  { id: 'etc', label: '기타' },
 ] as const
 
-/** 카페 세부 업종. kids_cafe·live_cafe는 사용자가 직접 선택할 때만 포함 */
-export const CAFE_SUB_CATEGORIES = [
-  { id: 'cafe', label: '카페', defaultSelected: true },
-  { id: 'kids_cafe', label: '키즈카페', defaultSelected: false },
-  { id: 'live_cafe', label: '라이브카페', defaultSelected: false },
-] as const
-
-export type SubCategory =
-  (typeof RESTAURANT_SUB_CATEGORIES)[number]['id'] | (typeof CAFE_SUB_CATEGORIES)[number]['id']
+/** 카페는 별도 세부 업종을 선택하지 않는다. */
+export type SubCategory = (typeof RESTAURANT_SUB_CATEGORIES)[number]['id']
 
 /** 시설 규모 구간 (신고 면적 기준, 경계: 이상·미만) */
 export const FACILITY_SIZE_OPTIONS = [

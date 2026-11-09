@@ -2,8 +2,8 @@ import type { ApiMeta, ApiResponse } from '../types/api'
 import { getMockResponse } from './mocks'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
-/** API 경로 접두사 (CLAUDE.md: /api/v1/...) */
-export const API_PREFIX = '/api/v1'
+/** API 경로 접두사 (BE 작업계획서와 공통 기준) */
+export const API_PREFIX = '/api'
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 const TIMEOUT_MS = 15000
 

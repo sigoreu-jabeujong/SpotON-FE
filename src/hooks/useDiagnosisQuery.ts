@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 import {
   CATEGORIES,
-  CAFE_SUB_CATEGORIES,
   DEFAULT_RADIUS,
   FACILITY_SIZE_OPTIONS,
   FRANCHISE_OPTIONS,
@@ -16,10 +15,7 @@ import {
 } from '../constants/diagnosis'
 import type { DiagnosisQuery } from '../types/diagnosis'
 
-const SUB_IDS: readonly string[] = [
-  ...RESTAURANT_SUB_CATEGORIES.map((s) => s.id),
-  ...CAFE_SUB_CATEGORIES.map((s) => s.id),
-]
+const SUB_IDS: readonly string[] = RESTAURANT_SUB_CATEGORIES.map((s) => s.id)
 
 const isCategory = (v: string | null): v is Category => CATEGORIES.some((c) => c.id === v)
 const isRadius = (v: number): v is RadiusMeters => (RADIUS_OPTIONS as readonly number[]).includes(v)
@@ -38,7 +34,8 @@ export function parseDiagnosisQuery(params: URLSearchParams): DiagnosisQuery {
   return {
     address: params.get('address') ?? '',
     category: isCategory(category) ? category : null,
-    subCategories: (params.get('sub') ?? '').split(',').filter(isSub),
+    subCategories:
+      category === 'restaurant' ? (params.get('sub') ?? '').split(',').filter(isSub) : [],
     radius: isRadius(radius) ? radius : DEFAULT_RADIUS,
     asOf: isYearMonth(asOf) ? asOf : null,
     facilitySizes: (params.get('size') ?? '').split(',').filter(isFacility),
@@ -51,7 +48,8 @@ export function toDiagnosisSearch(q: DiagnosisQuery): string {
   const p = new URLSearchParams()
   if (q.address) p.set('address', q.address)
   if (q.category) p.set('category', q.category)
-  if (q.subCategories.length) p.set('sub', q.subCategories.join(','))
+  const subCategories = q.category === 'restaurant' ? q.subCategories.filter(isSub) : []
+  if (subCategories.length) p.set('sub', subCategories.join(','))
   if (q.radius !== DEFAULT_RADIUS) p.set('radius', String(q.radius))
   if (q.asOf) p.set('asOf', q.asOf)
   if (q.facilitySizes.length) p.set('size', q.facilitySizes.join(','))

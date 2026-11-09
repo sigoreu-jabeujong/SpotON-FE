@@ -53,7 +53,9 @@ type ApiResponse<T> = {
 - 이 타입은 `src/types/api.ts`에 두고 모든 API 함수가 사용 (`src/api/client.ts`의 `apiGet`/`apiPost`)
 - API 명세서 v1.2가 FE↔BE 계약 기준. 필드·파라미터를 바꾸려면 명세서 수정 → FE·BE 합의 → 코드 수정 순서
 - 형식을 바꾸면 `../SpotON-BE/CLAUDE.md`도 함께 수정한다
-- API 경로는 `/api/v1/...`, 기본 주소는 `import.meta.env.VITE_API_BASE_URL`
+- API 경로는 `/api/...` (예: `/api/geocode`), 기본 주소는 `import.meta.env.VITE_API_BASE_URL` (경로 접두사 없이 서버 주소만 지정)
+- 지원 업종은 카페와 음식점(한식·중식·일식·양식)이다. 카페는 별도 세부 업종을 선택하지 않는다.
+- 키즈카페·라이브카페·분식·치킨·주점·기타 음식점·제과점은 분석 대상에서 제외한다.
 
 ## 코딩 규칙
 - `any` 사용 금지, props와 API 응답에 타입 명시
