@@ -2,11 +2,11 @@ import { Check, ClipboardList, Download, MapPin, Search, type LucideIcon } from 
 import type { MouseEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { CATEGORIES, RESTAURANT_SUB_CATEGORIES } from '../../constants/diagnosis'
-import { MESSAGES } from '../../constants/messages'
 import { ANALYSIS_SECTIONS, RESULT_STEPS, ROUTES } from '../../constants/routes'
 import { useActiveSection } from '../../hooks/useActiveSection'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { cn } from '../../utils/cn'
+import Logo from '../common/Logo'
 
 const STEP_ICON: Record<number, LucideIcon> = {
   1: MapPin,
@@ -51,13 +51,7 @@ export default function ResultSidebar() {
   return (
     <aside className="sticky top-0 flex h-screen w-sidebar shrink-0 flex-col border-r border-gray-300 bg-gray-0">
       <div className="border-b border-gray-300 px-7 py-6">
-        <Link
-          to={ROUTES.landing}
-          aria-label={MESSAGES.layout.logoLabel}
-          className="text-title font-extrabold tracking-tight text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500"
-        >
-          SPOT<span className="text-blue-500">:ON</span>
-        </Link>
+        <Logo />
       </div>
 
       <nav aria-label="진단 단계" className="flex-1 overflow-y-auto px-7 py-8">

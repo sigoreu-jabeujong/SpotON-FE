@@ -1,5 +1,15 @@
 /** 화면에 보이는 안내·오류·면책 문구 (한곳에서 관리) */
 export const MESSAGES = {
+  /** ① 랜딩 */
+  landing: {
+    slogan: 'Is your spot on? — 내 자리, 딱 맞는 자리일까요?',
+    titleLine1: '창업 전,',
+    titleLine2: '그 자리의 과거를 확인하세요',
+    description: '주소를 입력하고 입지 진단을 시작해 보세요.',
+    start: '진단 시작하기',
+    scope: '현재 서울특별시 카페·음식점(한식·중식·일식·양식)을 진단할 수 있어요',
+    mapAlt: '전국 지도 그림',
+  },
   input: {
     addressRequired: '점포 주소를 입력해 주세요',
     addressNotFound: '주소를 찾을 수 없어요. 도로명 또는 지번 주소를 다시 확인해 주세요',
