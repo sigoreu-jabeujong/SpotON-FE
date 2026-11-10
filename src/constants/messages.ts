@@ -72,9 +72,28 @@ export const MESSAGES = {
     submit: '조회',
     scopeNotice: '이 조건은 지도·시점 조회·상권 활동·종합 진단에 함께 적용돼요',
     unchanged: '바뀐 조건이 없어요',
+    asOf: '기준 시점',
+    asOfCurrent: '현재',
+    asOfYear: '연도',
+    asOfMonth: '월',
+    asOfYearOption: (y: number) => `${y}년`,
+    asOfMonthOption: (m: number) => `${m}월`,
+    asOfQuick: [
+      { label: '1년 전', months: 12 },
+      { label: '3년 전', months: 36 },
+      { label: '5년 전', months: 60 },
+    ],
+    asOfBackToCurrent: '현재로 돌아가기',
+    asOfRange: (min: string, max: string) => `선택할 수 있는 기간은 ${min} ~ ${max}이에요`,
+    asOfLoading: '선택할 수 있는 기간을 불러오는 중이에요',
+    asOfUnavailable: '선택할 수 있는 기간을 불러오지 못해 지금은 현재 기준으로만 볼 수 있어요',
+    asOfOutOfRangeHint: '범위 밖',
   },
   /** STEP 02 ② 주변 점포 분석 */
   nearby: {
+    pastView: (ym: string) => `${ym} 기준으로 보고 있어요`,
+    pastViewHint: '지도·점포 표·시점 조회가 이 시점에 영업하던 점포를 기준으로 바뀌었어요.',
+    pastBadge: (ym: string) => `${ym} 기준`,
     mapTitle: '주변 점포 분포',
     tableTitle: '점포 상세 조회',
     mapBadge: (radius: number, asOf: string | null) =>
@@ -109,6 +128,31 @@ export const MESSAGES = {
       status: '현재 상태',
       franchise: '프랜차이즈',
     },
+  },
+  /** STEP 02 ② 안의 시점 조회 (F-05) */
+  snapshot: {
+    title: '시점 조회',
+    guide: '과거 시점을 고르면 그때 영업하던 점포가 지금 어떻게 됐는지 볼 수 있어요',
+    quickTitle: '빠른 선택',
+    cards: {
+      total: '그 시점 동일 업종 점포',
+      stillOpen: '지금도 운영 중',
+      closedSince: '이후 폐업',
+      other: '기타(휴업 등)',
+    },
+    notice: '폐업은 행정상 신고 기록 기준이라 실제 영업 종료 시점과 다를 수 있어요',
+    caption: (ym: string) => `${ym}에 영업하던 같은 업종 점포와 지금 상태`,
+    columns: {
+      no: '번호',
+      name: '점포명',
+      category: '업종',
+      openDate: '개업일',
+      closeDate: '폐업일',
+      period: '영업 기간',
+      status: '현재 상태',
+    },
+    noCloseDate: '폐업일 없음',
+    emptyStores: '그 시점에 조건에 맞는 점포가 없어요',
   },
   /** 메타 정보 줄 */
   meta: {
@@ -179,6 +223,22 @@ const isErrorCode = (code: string): code is ErrorCode => code in ERROR_MESSAGES
 /** 오류 코드 → 안내 문구. 모르는 코드면 공통 오류 문구 */
 export function getErrorMessage(code: string | null | undefined): string {
   return code && isErrorCode(code) ? ERROR_MESSAGES[code] : MESSAGES.common.error
+}
+
+/**
+ * AS_OF_OUT_OF_RANGE 오류면 error.detail의 min_month·max_month로
+ * "선택할 수 있는 기간은 YYYY.MM ~ YYYY.MM이에요"를 만든다. 다른 오류·detail 없음이면 null
+ */
+export function getAsOfRangeMessage(error: unknown): string | null {
+  if (typeof error !== 'object' || error === null) return null
+  if (!('code' in error) || error.code !== 'AS_OF_OUT_OF_RANGE') return null
+  const detail = 'detail' in error ? error.detail : null
+  if (typeof detail !== 'object' || detail === null) return ERROR_MESSAGES.AS_OF_OUT_OF_RANGE
+  const min = 'min_month' in detail ? detail.min_month : null
+  const max = 'max_month' in detail ? detail.max_month : null
+  if (typeof min !== 'string' || typeof max !== 'string') return ERROR_MESSAGES.AS_OF_OUT_OF_RANGE
+  const dot = (ym: string) => ym.replace('-', '.')
+  return MESSAGES.filter.asOfRange(dot(min), dot(max))
 }
 
 /** 잡힌 오류 객체(ApiRequestError 등)에서 code를 꺼내 안내 문구를 찾는다 */
