@@ -72,6 +72,22 @@ export const MESSAGES = {
     submit: '조회',
     scopeNotice: '이 조건은 지도·시점 조회·상권 활동·종합 진단에 함께 적용돼요',
     unchanged: '바뀐 조건이 없어요',
+    asOf: '기준 시점',
+    asOfCurrent: '현재',
+    asOfYear: '연도',
+    asOfMonth: '월',
+    asOfYearOption: (y: number) => `${y}년`,
+    asOfMonthOption: (m: number) => `${m}월`,
+    asOfQuick: [
+      { label: '1년 전', months: 12 },
+      { label: '3년 전', months: 36 },
+      { label: '5년 전', months: 60 },
+    ],
+    asOfBackToCurrent: '현재로 돌아가기',
+    asOfRange: (min: string, max: string) => `선택할 수 있는 기간은 ${min} ~ ${max}이에요`,
+    asOfLoading: '선택할 수 있는 기간을 불러오는 중이에요',
+    asOfUnavailable: '선택할 수 있는 기간을 불러오지 못해 지금은 현재 기준으로만 볼 수 있어요',
+    asOfOutOfRangeHint: '범위 밖',
   },
   /** STEP 02 ② 주변 점포 분석 */
   nearby: {

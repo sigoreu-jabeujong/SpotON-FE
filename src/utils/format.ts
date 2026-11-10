@@ -72,3 +72,9 @@ export function formatArea(m2: Maybe<number>): string | null {
   if (m2 === null || m2 === undefined || !Number.isFinite(m2)) return null
   return `${m2.toFixed(1)}㎡ (약 ${(m2 / M2_PER_PYEONG).toFixed(1)}평)`
 }
+
+/** "YYYY-MM" 또는 "YYYY-MM-DD" → "2023년 10월" */
+export function formatYearMonthKo(value: Maybe<string>): string | null {
+  const m = value ? /^(\d{4})-(\d{2})/.exec(value) : null
+  return m ? `${m[1]}년 ${Number(m[2])}월` : null
+}

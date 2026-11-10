@@ -11,15 +11,17 @@ import {
   type SubCategory,
 } from '../../constants/diagnosis'
 import { MESSAGES } from '../../constants/messages'
+import { useDataRange } from '../../hooks/useDataRange'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import type { DiagnosisQuery } from '../../types/diagnosis'
 import { cn } from '../../utils/cn'
+import AsOfPicker from './AsOfPicker'
 
 const T = MESSAGES.filter
 
 type Draft = Pick<
   DiagnosisQuery,
-  'radius' | 'subCategories' | 'area' | 'franchise' | 'includeUnknown'
+  'radius' | 'subCategories' | 'area' | 'franchise' | 'includeUnknown' | 'asOf'
 >
 
 const sameDraft = (a: Draft, b: Draft) =>
@@ -27,10 +29,11 @@ const sameDraft = (a: Draft, b: Draft) =>
   a.area === b.area &&
   a.franchise === b.franchise &&
   a.includeUnknown === b.includeUnknown &&
+  a.asOf === b.asOf &&
   [...a.subCategories].sort().join(',') === [...b.subCategories].sort().join(',')
 
 /**
- * 진단 조건 필터 바 — 반경·세부 업종(음식점만)·시설 규모·프랜차이즈·정보 없음 포함.
+ * 진단 조건 필터 바 — 반경·세부 업종(음식점만)·시설 규모·프랜차이즈·기준 시점·정보 없음 포함.
  * "조회"를 눌러야 URL 쿼리가 바뀐다. 이력 섹션을 뺀 모든 섹션에 적용된다.
  * 값 목록은 constants/diagnosis.ts에서만 가져온다.
  */
@@ -53,8 +56,11 @@ function FilterForm({
     area: query.area,
     franchise: query.franchise,
     includeUnknown: query.includeUnknown,
+    asOf: query.asOf,
   }
   const [draft, setDraft] = useState<Draft>(applied)
+  // 기준 시점 선택 가능 범위 (로딩·오류면 시점 선택만 비활성)
+  const dataRange = useDataRange(query.category ? { category: query.category } : null)
   const changed = !sameDraft(draft, applied)
   const isRestaurant = query.category === 'restaurant'
 
@@ -133,6 +139,15 @@ function FilterForm({
               {f.label}
             </Choice>
           ))}
+        </Group>
+
+        <Group legend={T.asOf}>
+          <AsOfPicker
+            value={draft.asOf}
+            onChange={(asOf) => setDraft((d) => ({ ...d, asOf }))}
+            range={dataRange.data?.data ?? null}
+            status={dataRange.isPending ? 'loading' : dataRange.isError ? 'error' : 'ready'}
+          />
         </Group>
       </div>
 
