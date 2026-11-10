@@ -1,16 +1,9 @@
-import {
-  Bot,
-  CircleHelp,
-  FileText,
-  Info,
-  ThumbsDown,
-  ThumbsUp,
-  type LucideIcon,
-} from 'lucide-react'
+import { CircleHelp, FileText, Info, ThumbsDown, ThumbsUp, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { MESSAGES } from '../../../constants/messages'
 import type { RiskInterpretation } from '../../../types/risk'
 import { formatDateTime } from '../../../utils/format'
+import RobotArt from '../../common/RobotArt'
 import EvidenceChips from './EvidenceChips'
 
 const T = MESSAGES.ai
@@ -33,9 +26,7 @@ export default function AiResultCard({
       className="flex flex-col gap-6 rounded-card border border-blue-500/30 bg-blue-100/50 p-6"
     >
       <header className="flex items-center gap-3">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-gray-0 text-blue-500 shadow-card">
-          <Bot className="size-6" aria-hidden="true" />
-        </span>
+        <RobotArt className="size-16" />
         <span className="rounded-full bg-blue-500 px-3 py-1 text-caption font-bold text-white">
           {result.label}
         </span>

@@ -25,7 +25,6 @@ export const MESSAGES = {
     description: '주소를 입력하고 입지 진단을 시작해 보세요.',
     start: '진단 시작하기',
     scope: '현재 서울특별시 카페·음식점(한식·중식·일식·양식)을 진단할 수 있어요',
-    mapAlt: '전국 지도 그림',
   },
   /** ② 주소·업종 입력 (주소 검색 API 오류 문구는 ERROR_MESSAGES 사용) */
   input: {
@@ -395,7 +394,7 @@ export const MESSAGES = {
     ageNotice: '만 18세 이상 예비창업자를 대상으로 해요.',
     baselinePending: '데이터 기준일은 결과를 불러오면 표시돼요.',
     skipToContent: '본문 바로가기',
-    logoLabel: 'Spot:ON 처음 화면으로',
+    logoLabel: 'Spot:ON 처음으로',
     stepsNav: '진단 단계',
     stepDone: '(완료)',
     stepCurrent: '(현재 단계)',

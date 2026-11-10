@@ -12,6 +12,7 @@ import type { Risk, RiskInterpretRequest } from '../../../types/risk'
 import type { StoreHistory } from '../../../types/stores'
 import Button from '../../common/Button'
 import SubTitle from '../../common/SubTitle'
+import RobotArt from '../../common/RobotArt'
 import AiChecklist from './AiChecklist'
 import AiFailure from './AiFailure'
 import AiResultCard from './AiResultCard'
@@ -93,9 +94,7 @@ export default function AiInterpretation({ risk, params, onReloadIndicators }: P
       {interpret.isIdle && (
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-card bg-blue-100 px-6 py-5">
           <div className="flex items-center gap-3">
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-gray-0 text-blue-500 shadow-card">
-              <Bot className="size-6" aria-hidden="true" />
-            </span>
+            <RobotArt className="size-20" />
             <p className="text-body text-gray-900">{T.intro}</p>
           </div>
           <div className="flex items-center gap-3">
