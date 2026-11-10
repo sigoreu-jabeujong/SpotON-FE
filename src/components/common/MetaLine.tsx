@@ -54,7 +54,7 @@ export default function MetaLine({
       key: 'source',
       node: (
         <>
-          출처{' '}
+          {MESSAGES.meta.source}{' '}
           {ids.map((id, i) => (
             <span key={id}>
               {i > 0 && '·'}
@@ -73,13 +73,13 @@ export default function MetaLine({
   }
   if (baseline) parts.push({ key: 'baseline', node: baseline })
   const date = formatDate(asOf)
-  if (date) parts.push({ key: 'asOf', node: `기준일 ${date}` })
+  if (date) parts.push({ key: 'asOf', node: `${MESSAGES.meta.asOf} ${date}` })
   const periodText = formatPeriod(period)
-  if (periodText) parts.push({ key: 'period', node: `기간 ${periodText}` })
+  if (periodText) parts.push({ key: 'period', node: `${MESSAGES.meta.period} ${periodText}` })
   const spaceName = spaceLabel ?? formatSpace(space)
   if (spaceName) parts.push({ key: 'space', node: spaceName })
-  const sample = formatCount(denominator, '곳')
-  if (sample) parts.push({ key: 'denominator', node: `표본 ${sample}` })
+  const sample = formatCount(denominator, MESSAGES.units.store)
+  if (sample) parts.push({ key: 'denominator', node: `${MESSAGES.meta.sample} ${sample}` })
 
   if (parts.length === 0 && !isDemo) return null
   return (

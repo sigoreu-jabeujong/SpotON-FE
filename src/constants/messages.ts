@@ -1,5 +1,22 @@
 /** 화면에 보이는 안내·오류·면책 문구 (한곳에서 관리) */
+const BRAND = 'Spot:ON'
+const withBrand = (name: string) => `${name} | ${BRAND}`
+
 export const MESSAGES = {
+  /** 브라우저 탭 제목 (document.title) */
+  titles: {
+    landing: `${BRAND} — 내 자리, 딱 맞는 자리일까요?`,
+    input: withBrand('주소·업종 입력'),
+    analysis: {
+      history: withBrand('과거 점포 이력'),
+      nearby: withBrand('주변 점포 분석'),
+      activity: withBrand('상권 활동 분석'),
+    },
+    summary: withBrand('종합 진단 결과'),
+    share: withBrand('결과 저장 및 상담'),
+    report: withBrand('입지 진단서'),
+    notFound: withBrand('페이지를 찾을 수 없어요'),
+  },
   /** ① 랜딩 */
   landing: {
     slogan: 'Is your spot on? — 내 자리, 딱 맞는 자리일까요?',
@@ -102,6 +119,7 @@ export const MESSAGES = {
     excludedNoCoord: (n: number) =>
       `좌표 정보가 없어 지도에서 제외된 점포 ${n.toLocaleString('ko-KR')}곳`,
     legendTitle: '현재 상태',
+    legendRadius: '진단 위치 반경',
     sortNearest: '가까운 순',
     caption: '반경 안 같은 업종 점포 목록. 점포명을 누르면 지도에서 위치를 보여줘요',
     columns: {
@@ -248,6 +266,20 @@ export const MESSAGES = {
     imageNeedsData: '진단 결과를 불러온 뒤 다시 눌러 주세요',
     imageFooter: 'Spot:ON · 공공데이터 기반 창업 입지 진단 (참고용)',
     imageFileName: 'spoton-summary.png',
+    image: {
+      heading: '입지 진단 요약',
+      conditions: (category: string, radius: number, asOf: string) =>
+        `${category} · 반경 ${radius.toLocaleString('ko-KR')}m · ${asOf} 기준`,
+      asOfCurrent: '현재',
+      competitor: '반경 안 동종업체 수 (참고지표)',
+      competitorNote: (radius: number) => `반경 ${radius.toLocaleString('ko-KR')}m`,
+      opened: '최근 12개월 개업 · 폐업',
+      referenceClosure: '참고 폐업률 (최근 12개월, 참고지표)',
+      referenceClosureNote: '반경 기준 · Spot:ON 계산',
+      officialClosure: '서울시 공식 폐업률',
+      officialClosureNote: '상권 기준 · 서울시 공표값',
+      sources: (names: string) => `출처: ${names}`,
+    },
     consultingTitle: '공공 창업 상담센터',
     supportTitle: '소상공인 지원사업',
     linksEmpty: '안내할 기관 링크가 아직 없어요',
@@ -287,10 +319,30 @@ export const MESSAGES = {
     colBasis: '기간·공간·표본',
     brand: 'Spot:ON · 공공데이터 기반 창업 입지 진단',
     demoNotice: '시연 데이터: 이 진단서의 수치는 시연용 가상 값이에요.',
+    nearbyBasis: (space: string, date: string) => `${space}, 기준일 ${date}`,
+    noData: '자료 없음',
+    infoMissing: '정보 없음',
+    livingSummary: (people: string, estimate: string, date: string, missing: number) =>
+      `${people} (${estimate}, ${date}, 결측 격자 ${missing}개)`,
+    sample: (n: number) => `표본 ${n.toLocaleString('ko-KR')}곳`,
+    seoulAvg: (v: string) => `서울 평균 ${v}`,
+    sources: (names: string) => `출처: ${names}`,
   },
   /** 메타 정보 줄 */
   meta: {
     demo: '시연 데이터',
+    source: '출처',
+    asOf: '기준일',
+    period: '기간',
+    sample: '표본',
+  },
+  /** 찾을 수 없는 페이지 */
+  notFound: {
+    code: '404',
+    title: '페이지를 찾을 수 없어요',
+    description: '주소가 바뀌었거나 없는 페이지예요. 처음 화면에서 다시 시작해 주세요.',
+    home: '처음으로',
+    start: '진단 시작하기',
   },
   /** 목록 공통 */
   list: {
@@ -298,7 +350,12 @@ export const MESSAGES = {
     /** 화면 읽기 프로그램용: "7건 중 5건 표시" */
     shownCount: (shown: number, total: number) => `${total}건 중 ${shown}건 표시`,
   },
+  /** 단위·공통 글자 */
+  units: {
+    store: '곳',
+  },
   common: {
+    retry: '다시 시도',
     loading: '불러오는 중이에요',
     error: '정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요',
     empty: '조건에 맞는 결과가 없어요',
@@ -339,6 +396,11 @@ export const MESSAGES = {
     baselinePending: '데이터 기준일은 결과를 불러오면 표시돼요.',
     skipToContent: '본문 바로가기',
     logoLabel: 'Spot:ON 처음 화면으로',
+    stepsNav: '진단 단계',
+    stepDone: '(완료)',
+    stepCurrent: '(현재 단계)',
+    addressTerm: '진단 주소',
+    categoryTerm: '업종',
   },
   /** 결과 화면별 머리 제목·설명 */
   resultPages: {

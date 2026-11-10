@@ -25,17 +25,20 @@
 
 ### 화면
 
-화면 캡처는 추후 추가 예정이에요.
+화면 7종의 기능을 디자인의 4단계(사이드바 STEP 01~04)로 묶었어요. 화면 캡처는 추후 추가 예정이에요.
 
-| 경로 | 화면 |
-|---|---|
-| `/` | ① 랜딩 |
-| `/diagnose` | ② 주소·업종 입력 |
-| `/result/history` | ③ 과거 점포 이력 |
-| `/result/nearby` | ④ 주변 점포 현황 (지도·필터·시점 조회) |
-| `/result/activity` | ⑤ 상권 활동 분석 |
-| `/result/risk` | ⑥ 창업 위험도 분석 (공식/참고 지표, AI 해석) |
-| `/result/share` | ⑦ 저장·공유·상담 |
+| 경로 | 단계 | 화면 | 기능 |
+|---|---|---|---|
+| `/` | — | ① 랜딩 | 서비스 소개, 진단 시작 |
+| `/diagnose` | STEP 01 | ② 주소·업종 입력 | 주소 검색(후보 선택), 카페/음식점 선택 (F-01) |
+| `/result/analysis#history` | STEP 02 | ③ 과거 점포 이력 | 같은 건물 점포의 개·폐업 이력, 위치 일치 여부 (F-02) |
+| `/result/analysis#nearby` | STEP 02 | ④ 주변 점포 분석 | 조회 조건 필터, 카카오 지도, 점포 표, 시점 조회 (F-03~F-05) |
+| `/result/analysis#activity` | STEP 02 | ⑤ 상권 활동 분석 | 점포 현황 카드, 연도별 개·폐업 차트, 추정매출·생활인구 (F-06) |
+| `/result/summary` | STEP 03 | ⑥ 종합 진단 결과 | 상권 판정, 서울시 공식 지표 / Spot:ON 참고지표, AI 해석·체크리스트 (F-07·F-08) |
+| `/result/share` | STEP 04 | ⑦ 결과 저장 및 상담 | PDF 진단서, 요약 이미지, 상담·지원 링크, 새 주소 재진단 (F-09·F-10) |
+| `/result/report` | — | 인쇄용 진단서 | `window.print()`로 PDF 저장 (A4 2장 이내) |
+
+예전 경로(`/result/history`·`nearby`·`activity`·`risk`)는 새 경로로 자동 이동해요. 결과 화면은 URL에 `address`·`category`·`lat`·`lng`·`bk`가 있어야 열리고, 없으면 입력 화면으로 돌아가요.
 
 ## 기술 스택
 
@@ -43,9 +46,12 @@
 |---|---|
 | 프레임워크 | React 19 + TypeScript 5.9, Vite |
 | 스타일 | Tailwind CSS v4 (디자인 토큰: `src/index.css`의 `@theme`) |
-| 라우팅 | React Router |
+| 라우팅 | React Router (화면별로 나눠 불러오기) |
 | 서버 데이터 | TanStack Query |
-| 지도 | 카카오맵 JavaScript SDK (연동 예정) |
+| 지도 | 카카오맵 JavaScript SDK (직접 로드, 필요한 부분만 타입 선언) |
+| 차트 | recharts (상권 활동 섹션에서만 불러옴) |
+| 요약 이미지 | html2canvas (저장 버튼을 누를 때만 불러옴) |
+| 아이콘·글꼴 | lucide-react, Pretendard (npm 패키지, 외부 CDN 없음) |
 | 검사 도구 | ESLint, Prettier, TypeScript 타입 검사 |
 | 패키지 매니저 | npm (`package-lock.json` 커밋) |
 
@@ -59,10 +65,14 @@ npm install
 
 # 2. 환경변수 파일 만들기 (.env는 커밋하지 않아요)
 cp .env.example .env
+#    백엔드 없이 화면만 볼 때는 .env에 VITE_USE_MOCK=true
+#    지도를 보려면 .env에 VITE_KAKAO_JS_KEY=카카오맵 JavaScript 키
 
 # 3. 개발 서버 실행 → http://localhost:5173
 npm run dev
 ```
+
+`.env`를 바꾼 뒤에는 개발 서버를 다시 켜야 반영돼요.
 
 5173 포트를 이미 다른 프로그램이 쓰고 있다면 다른 포트로 실행하세요.
 
@@ -76,9 +86,20 @@ npx vite --port 5180
 |---|---|
 | `VITE_API_BASE_URL` | 백엔드 서버 주소만 적어요 (예: `http://localhost:8000`). `/api`는 코드가 붙여요 |
 | `VITE_USE_MOCK` | `true`면 백엔드 없이 `src/api/mocks/`의 예시 응답으로 화면을 개발할 수 있어요 |
-| `VITE_KAKAO_JS_KEY` | (지도 연동 시 추가 예정) 카카오맵 JavaScript 키. 브라우저 공개용 키라서 카카오 개발자 콘솔에 **허용 도메인을 꼭 등록**해요 |
+| `VITE_KAKAO_JS_KEY` | 카카오맵 JavaScript 키 (주변 점포 지도). 브라우저 공개용 키라서 카카오 개발자 콘솔에 **허용 도메인(개발 `localhost`, 배포 도메인)을 꼭 등록**해요. 없으면 지도 자리에 안내만 나오고 표는 그대로 보여요 |
 
 > ⚠️ `VITE_`로 시작하는 값은 브라우저에 그대로 보여요. 카카오맵 JavaScript 키를 뺀 나머지 API 키·비밀값은 절대 넣지 말고 백엔드에서 처리해요.
+
+### 목업 모드로 확인할 때 쓸 수 있는 입력 (시연용 가상 값)
+
+| 입력 | 결과 |
+|---|---|
+| 주소에 `없는` | 주소를 찾지 못함 (404) |
+| 주소에 서울 외 지역명 (예: `경기도`) | 서울 외 주소 (422) |
+| 주소에 `여러` | 주소 후보 목록 |
+| 반경 300m | 표본 부족(판단 보류), AI 해석 검증 실패 |
+| 반경 1,000m | AI 해석 실패(503) |
+| 기준 시점 2025년 이전 / 2021년 이전 | 추정매출 / 생활인구 "자료 없음" |
 
 ### 자주 쓰는 명령어
 
@@ -97,12 +118,12 @@ SpotON-FE/
 ├── public/
 └── src/
     ├── pages/         # 화면 단위 컴포넌트 (라우트 1개 = 파일 1개)
-    ├── components/    # 재사용 UI 컴포넌트 (layout/, common/ 등)
+    ├── components/    # UI 컴포넌트 (common/, layout/, input/, analysis/, map/, summary/, share/)
     ├── api/           # 백엔드 호출 함수 (client.ts, mocks/)
     ├── types/         # API 응답 등 공통 타입
     ├── hooks/         # 커스텀 훅 (useDiagnosisQuery: 진단 조건을 URL에 유지)
     ├── constants/     # 진단 조건, 상태 라벨, 화면 문구, 경로
-    ├── utils/         # 순수 함수 유틸 (필요할 때 추가)
+    ├── utils/         # 순수 함수 (날짜·숫자 형식 변환 등 — 지표 계산은 하지 않음)
     └── router.tsx     # 화면 경로 정의
 ```
 

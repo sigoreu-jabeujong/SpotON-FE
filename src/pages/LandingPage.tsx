@@ -4,11 +4,13 @@ import { IMAGES } from '../assets/images'
 import Logo from '../components/common/Logo'
 import { MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const T = MESSAGES.landing
 
 /** ① 랜딩 — 로고, 제목, 시작 버튼, 오른쪽 전국 지도 그림 (1.Home) */
 export default function LandingPage() {
+  usePageTitle(MESSAGES.titles.landing)
   return (
     <div className="relative flex min-h-full flex-col overflow-hidden bg-gray-0">
       <LandingMap />
@@ -18,7 +20,7 @@ export default function LandingPage() {
       </header>
 
       <main className="relative mx-auto flex w-full max-w-[1200px] flex-1 flex-col px-10 pt-16">
-        <p className="text-caption font-semibold text-blue-500">{T.slogan}</p>
+        <p className="text-caption font-semibold text-blue-700">{T.slogan}</p>
         <h1 className="mt-3 text-[2.5rem] leading-tight font-bold text-gray-900">
           {T.titleLine1}
           <br />

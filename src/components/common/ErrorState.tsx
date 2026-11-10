@@ -19,7 +19,7 @@ export default function ErrorState({ error, message, onRetry }: Props) {
       <p className="text-body text-gray-900">{text}</p>
       {onRetry && (
         <Button variant="secondary" onClick={onRetry} iconRight={<RotateCw className="size-4" />}>
-          다시 시도
+          {MESSAGES.common.retry}
         </Button>
       )}
     </div>

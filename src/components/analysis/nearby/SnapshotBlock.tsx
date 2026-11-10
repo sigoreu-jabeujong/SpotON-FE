@@ -55,7 +55,7 @@ function SnapshotResult({
   data: NonNullable<ReturnType<typeof useStoreSnapshot>['data']>
   periodLabel: string
 }) {
-  const count = (n: number) => formatCount(n, '곳')
+  const count = (n: number) => formatCount(n, MESSAGES.units.store)
   return (
     <>
       {/* 서버 summary_text 그대로 */}

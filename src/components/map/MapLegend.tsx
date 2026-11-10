@@ -29,7 +29,7 @@ export default function MapLegend() {
             aria-hidden="true"
             className="size-3 rounded-full border-2 border-dashed border-blue-500 bg-blue-500/10"
           />
-          {MESSAGES.nearby.myLocation} 반경
+          {MESSAGES.nearby.legendRadius}
         </li>
       </ul>
     </div>

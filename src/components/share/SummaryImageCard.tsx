@@ -57,26 +57,26 @@ const SummaryImageCard = forwardRef<HTMLDivElement, { data: Data }>(function Sum
 
   const tiles: { label: string; value: string; note: string }[] = [
     {
-      label: '반경 안 동종업체 수 (참고지표)',
+      label: T.image.competitor,
       value: indicatorText(metric('competitor_count')),
-      note: `반경 ${query.radius.toLocaleString('ko-KR')}m`,
+      note: T.image.competitorNote(query.radius),
     },
     {
-      label: '최근 12개월 개업 · 폐업',
+      label: T.image.opened,
       value: activity
-        ? `${formatCount(activity.recent_12m.opened, '곳')} · ${formatCount(activity.recent_12m.closed, '곳')}`
+        ? `${formatCount(activity.recent_12m.opened, MESSAGES.units.store)} · ${formatCount(activity.recent_12m.closed, MESSAGES.units.store)}`
         : '—',
       note: formatPeriod(activity?.recent_12m.period) ?? '',
     },
     {
-      label: '참고 폐업률 (최근 12개월, 참고지표)',
+      label: T.image.referenceClosure,
       value: indicatorText(metric('closure_rate_12m')),
-      note: '반경 기준 · Spot:ON 계산',
+      note: T.image.referenceClosureNote,
     },
     {
-      label: '서울시 공식 폐업률',
+      label: T.image.officialClosure,
       value: indicatorText(metric('official_closure_rate')),
-      note: '상권 기준 · 서울시 공표값',
+      note: T.image.officialClosureNote,
     },
   ]
 
@@ -104,13 +104,16 @@ const SummaryImageCard = forwardRef<HTMLDivElement, { data: Data }>(function Sum
       </div>
 
       <div>
-        <div style={{ fontSize: 30, color: C.blue, fontWeight: 700 }}>입지 진단 요약</div>
+        <div style={{ fontSize: 30, color: C.blue, fontWeight: 700 }}>{T.image.heading}</div>
         <div style={{ fontSize: 46, fontWeight: 800, marginTop: 12, lineHeight: 1.3 }}>
           {query.address}
         </div>
         <div style={{ fontSize: 30, color: C.gray600, marginTop: 14 }}>
-          {CATEGORIES.find((c) => c.id === query.category)?.label} · 반경{' '}
-          {query.radius.toLocaleString('ko-KR')}m · {formatYearMonthKo(query.asOf) ?? '현재'} 기준
+          {T.image.conditions(
+            CATEGORIES.find((c) => c.id === query.category)?.label ?? '',
+            query.radius,
+            formatYearMonthKo(query.asOf) ?? T.image.asOfCurrent,
+          )}
         </div>
         {history && (
           <div style={{ fontSize: 28, marginTop: 20, ...pill(C.blueLight, C.blueDark) }}>
@@ -138,7 +141,7 @@ const SummaryImageCard = forwardRef<HTMLDivElement, { data: Data }>(function Sum
 
       <div style={{ marginTop: 'auto', fontSize: 21, color: C.gray600, lineHeight: 1.5 }}>
         {baseline && <div>{baseline}</div>}
-        <div>출처: {sources}</div>
+        <div>{T.image.sources(sources)}</div>
         <div style={{ marginTop: 12, color: C.gray900, fontWeight: 600 }}>
           {MESSAGES.disclaimer}
         </div>

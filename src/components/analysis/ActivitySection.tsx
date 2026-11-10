@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { ACTIVITY_INCLUDE, toCommonQueryParams } from '../../api/params'
 import { getAsOfRangeMessage, MESSAGES } from '../../constants/messages'
 import { getCoordinates, useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
@@ -11,10 +12,11 @@ import SubTitle from '../common/SubTitle'
 import AnalysisSection from './AnalysisSection'
 import ConditionalBlocks from './activity/ConditionalBlocks'
 import StoreStatusCards from './activity/StoreStatusCards'
-import YearlyTrendChart from './activity/YearlyTrendChart'
 import PastViewNote from './nearby/PastViewNote'
 
 const T = MESSAGES.activity
+/** 차트 라이브러리(recharts)는 이 섹션이 그려질 때만 따로 불러온다 */
+const YearlyTrendChart = lazy(() => import('./activity/YearlyTrendChart'))
 
 /** STEP 02 ③ 상권 활동 분석 (F-06) — /market/activity + /risk의 competitor_count */
 export default function ActivitySection() {
@@ -62,7 +64,9 @@ export default function ActivitySection() {
 
             <div className="flex flex-col gap-3">
               <SubTitle>{T.trendTitle}</SubTitle>
-              <YearlyTrendChart trend={activity.data.data.yearly_trend} />
+              <Suspense fallback={<LoadingState />}>
+                <YearlyTrendChart trend={activity.data.data.yearly_trend} />
+              </Suspense>
             </div>
 
             <ConditionalBlocks activity={activity.data.data} />

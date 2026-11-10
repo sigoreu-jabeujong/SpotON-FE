@@ -10,9 +10,11 @@ import { ROUTES } from '../constants/routes'
 import { toDiagnosisSearch, useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
 import { useGeocodeSearch } from '../hooks/useGeocode'
 import type { GeocodeCandidate } from '../types/geocode'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 /** ② 주소·업종 입력 (STEP 01) — 2-1 기본 / 2-2 오류 / 2-3 완료. 사이드바 없음 */
 export default function InputPage() {
+  usePageTitle(MESSAGES.titles.input)
   const navigate = useNavigate()
   // 결과 화면 STEP 01 링크로 돌아오면 이전 주소·업종을 채워 둔다
   const { query } = useDiagnosisQuery()

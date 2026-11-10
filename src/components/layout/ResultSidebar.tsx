@@ -2,8 +2,8 @@ import { Check, ClipboardList, Download, MapPin, Search, type LucideIcon } from 
 import type { MouseEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { CATEGORIES, RESTAURANT_SUB_CATEGORIES } from '../../constants/diagnosis'
+import { MESSAGES } from '../../constants/messages'
 import { ANALYSIS_SECTIONS, RESULT_STEPS, ROUTES } from '../../constants/routes'
-import { useActiveSection } from '../../hooks/useActiveSection'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { cn } from '../../utils/cn'
 import Logo from '../common/Logo'
@@ -14,7 +14,6 @@ const STEP_ICON: Record<number, LucideIcon> = {
   3: ClipboardList,
   4: Download,
 }
-const SECTION_IDS = ANALYSIS_SECTIONS.map((s) => s.id)
 
 /** 현재 경로 → 진행 중인 단계 번호 */
 function currentStepOf(pathname: string): number {
@@ -24,13 +23,12 @@ function currentStepOf(pathname: string): number {
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 /** 결과 화면 왼쪽 고정 사이드바: 로고 + STEP 01~04 진행 표시 */
-export default function ResultSidebar() {
+export default function ResultSidebar({ activeSection }: { activeSection: string | null }) {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const { query, search } = useDiagnosisQuery()
   const currentStep = currentStepOf(pathname)
   const onAnalysis = pathname === ROUTES.analysis
-  const activeSection = useActiveSection(SECTION_IDS, onAnalysis)
 
   const categoryLabel = CATEGORIES.find((c) => c.id === query.category)?.label
   const subLabels = RESTAURANT_SUB_CATEGORIES.filter((s) => query.subCategories.includes(s.id))
@@ -54,7 +52,7 @@ export default function ResultSidebar() {
         <Logo />
       </div>
 
-      <nav aria-label="진단 단계" className="flex-1 overflow-y-auto px-7 py-8">
+      <nav aria-label={MESSAGES.layout.stepsNav} className="flex-1 overflow-y-auto px-7 py-8">
         <ol className="flex flex-col">
           {RESULT_STEPS.map((step, index) => {
             const done = step.step < currentStep
@@ -87,17 +85,17 @@ export default function ResultSidebar() {
                     <span
                       className={cn(
                         'block text-micro font-semibold',
-                        done || current ? 'text-blue-500' : 'text-gray-600',
+                        done || current ? 'text-blue-700' : 'text-gray-600',
                       )}
                     >
                       STEP {String(step.step).padStart(2, '0')}
-                      {done && <span className="sr-only"> (완료)</span>}
-                      {current && <span className="sr-only"> (현재 단계)</span>}
+                      {done && <span className="sr-only"> {MESSAGES.layout.stepDone}</span>}
+                      {current && <span className="sr-only"> {MESSAGES.layout.stepCurrent}</span>}
                     </span>
                     <span
                       className={cn(
                         'block text-body font-bold group-hover:text-blue-700',
-                        current ? 'text-blue-500' : 'text-gray-900',
+                        current ? 'text-blue-700' : 'text-gray-900',
                       )}
                     >
                       {step.label}
@@ -106,9 +104,9 @@ export default function ResultSidebar() {
 
                   {step.step === 1 && (query.address || categoryLabel) && (
                     <dl className="mt-2 space-y-1 text-caption text-gray-600">
-                      <dt className="sr-only">진단 주소</dt>
+                      <dt className="sr-only">{MESSAGES.layout.addressTerm}</dt>
                       <dd className="break-keep">{query.address}</dd>
-                      <dt className="sr-only">업종</dt>
+                      <dt className="sr-only">{MESSAGES.layout.categoryTerm}</dt>
                       <dd>
                         {categoryLabel}
                         {subLabels && ` (${subLabels})`}
@@ -129,7 +127,7 @@ export default function ResultSidebar() {
                               className={cn(
                                 'block rounded border-l-2 py-0.5 pl-2.5 text-caption focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
                                 active
-                                  ? 'border-blue-500 font-semibold text-blue-500'
+                                  ? 'border-blue-500 font-semibold text-blue-700'
                                   : 'border-transparent text-gray-600 hover:text-blue-700',
                               )}
                             >

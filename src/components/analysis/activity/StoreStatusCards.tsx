@@ -37,7 +37,7 @@ export default function StoreStatusCards({ activity, risk }: Props) {
               : risk.isError
                 ? T.failedValue
                 : typeof competitor?.value === 'number' && competitor.status === 'fact'
-                  ? formatCount(competitor.value, '곳')
+                  ? formatCount(competitor.value, MESSAGES.units.store)
                   : null
           }
           footer={
@@ -49,13 +49,13 @@ export default function StoreStatusCards({ activity, risk }: Props) {
         <StatCard
           icon={CirclePlus}
           label={T.opened12m}
-          value={formatCount(activity.recent_12m.opened, '곳')}
+          value={formatCount(activity.recent_12m.opened, MESSAGES.units.store)}
           footer={period && T.periodLabel(period)}
         />
         <StatCard
           icon={CircleX}
           label={T.closed12m}
-          value={formatCount(activity.recent_12m.closed, '곳')}
+          value={formatCount(activity.recent_12m.closed, MESSAGES.units.store)}
           footer={period && T.periodLabel(period)}
         />
         <StatCard icon={Clock} label={T.avgPeriod} footer={T.avgPeriodHint}>
