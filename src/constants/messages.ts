@@ -33,6 +33,32 @@ export const MESSAGES = {
     candidateJibun: '지번',
     scope: '현재 서울특별시 카페·음식점(한식·중식·일식·양식)을 진단할 수 있어요',
   },
+  /** STEP 02 ① 과거 점포 이력 */
+  history: {
+    summary: (total: number) => `이 건물에서 확인된 음식점·카페 인허가 기록 ${total}건`,
+    noFloor: '입력한 주소에 층·호실이 없어 건물 단위 이력으로 보여줘요',
+    sortLabel: '최근 개업 순',
+    caption: '이 건물을 거쳐 간 음식점·카페 점포 이력 (최근 개업 순)',
+    columns: {
+      no: '번호',
+      name: '점포명',
+      category: '업종',
+      openDate: '개업일',
+      closeDate: '폐업일',
+      period: '영업 기간',
+      status: '상태',
+      location: '위치',
+      franchise: '프랜차이즈',
+    },
+    noCloseDate: '폐업일 없음',
+    notices: [
+      '공공데이터 기반 정보로 실제 현황과 다를 수 있어요.',
+      '폐업일은 행정상 신고 기록 기준이에요.',
+      '프랜차이즈 여부는 공정위 가맹정보와 상호를 비교한 추정값이에요.',
+    ],
+    noticeTitle: '이력 확인 시 참고하세요',
+    spaceBuilding: '건물 단위',
+  },
   /** 목록 공통 */
   list: {
     showMore: '더보기',

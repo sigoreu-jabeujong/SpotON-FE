@@ -20,3 +20,33 @@ export const INDICATOR_TYPE = {
   reference: 'Spot:ON 참고지표',
 } as const
 export type IndicatorType = keyof typeof INDICATOR_TYPE
+
+/** 업종 표시 이름 (API sub_category / category) — 지원 업종만 */
+export const SUB_CATEGORY_LABEL = {
+  cafe: '카페',
+  korean: '한식',
+  chinese: '중식',
+  japanese: '일식',
+  western: '양식',
+} as const
+
+/** 점포 영업 상태 (API store_status·current_status) */
+export const STORE_STATUS_LABEL = {
+  open: '영업 중',
+  closed: '폐업',
+  other: '기타(휴업 등)',
+} as const
+
+/** 위치 일치 (API location_match). unverified는 StatusLabel(location_unverified)로 표시 */
+export const LOCATION_MATCH_LABEL = {
+  same_spot: '같은 자리',
+  same_building: '같은 건물 다른 위치',
+  unverified: '상세 위치 미확인',
+} as const
+
+/** 프랜차이즈 (API franchise). "가맹/비가맹" 표현은 쓰지 않는다 */
+export const FRANCHISE_LABEL = {
+  franchise: '프랜차이즈(추정)',
+  independent: '개인 매장',
+  unknown: '정보 없음',
+} as const
