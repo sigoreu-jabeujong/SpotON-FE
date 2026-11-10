@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { MESSAGES } from '../../constants/messages'
 import { parseSourceIds, SOURCES } from '../../constants/sources'
 import { cn } from '../../utils/cn'
-import { formatCount, formatDate, formatSpace } from '../../utils/format'
+import { formatCount, formatDate, formatPeriod, formatSpace } from '../../utils/format'
 import Badge from './Badge'
 
 type Props = {
@@ -24,6 +24,8 @@ type Props = {
   denominator?: number | null
   /** meta.is_demo — true면 "시연 데이터" 배지 */
   isDemo?: boolean | null
+  /** 여러 메타 줄이 붙어 있을 때 어느 값의 정보인지 앞에 붙이는 이름 (예: "동종업체 수") */
+  label?: string
   className?: string
 }
 
@@ -41,6 +43,7 @@ export default function MetaLine({
   spaceLabel,
   denominator,
   isDemo,
+  label,
   className,
 }: Props) {
   const ids = parseSourceIds(source)
@@ -71,7 +74,8 @@ export default function MetaLine({
   if (baseline) parts.push({ key: 'baseline', node: baseline })
   const date = formatDate(asOf)
   if (date) parts.push({ key: 'asOf', node: `기준일 ${date}` })
-  if (period) parts.push({ key: 'period', node: `기간 ${period}` })
+  const periodText = formatPeriod(period)
+  if (periodText) parts.push({ key: 'period', node: `기간 ${periodText}` })
   const spaceName = spaceLabel ?? formatSpace(space)
   if (spaceName) parts.push({ key: 'space', node: spaceName })
   const sample = formatCount(denominator, '곳')
@@ -85,6 +89,7 @@ export default function MetaLine({
         className,
       )}
     >
+      {label && <span className="mr-1.5 font-semibold text-gray-900">{label}</span>}
       {isDemo && (
         <Badge tone="orange" className="mr-2">
           {MESSAGES.meta.demo}

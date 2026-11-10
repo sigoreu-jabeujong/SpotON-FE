@@ -78,3 +78,19 @@ export function formatYearMonthKo(value: Maybe<string>): string | null {
   const m = value ? /^(\d{4})-(\d{2})/.exec(value) : null
   return m ? `${m[1]}년 ${Number(m[2])}월` : null
 }
+
+/** 서버 기간 문자열 "2025-11~2026-10" → "2025.11 ~ 2026.10" (모양만 바꿈) */
+export function formatPeriod(value: Maybe<string>): string | null {
+  if (!value) return null
+  return value
+    .split('~')
+    .map((part) => part.trim().replace(/-/g, '.'))
+    .join(' ~ ')
+}
+
+/** 원 단위 금액 → "약 15.2억 원" / "약 3,840만 원" (단위 환산만, 합산하지 않음) */
+export function formatKrwApprox(won: Maybe<number>): string | null {
+  if (won === null || won === undefined || !Number.isFinite(won)) return null
+  if (won >= 1e8) return `약 ${(won / 1e8).toFixed(1)}억 원`
+  return `약 ${countFormatter.format(Math.round(won / 1e4))}만 원`
+}
