@@ -129,6 +129,31 @@ export const MESSAGES = {
       franchise: '프랜차이즈',
     },
   },
+  /** STEP 02 ② 안의 시점 조회 (F-05) */
+  snapshot: {
+    title: '시점 조회',
+    guide: '과거 시점을 고르면 그때 영업하던 점포가 지금 어떻게 됐는지 볼 수 있어요',
+    quickTitle: '빠른 선택',
+    cards: {
+      total: '그 시점 동일 업종 점포',
+      stillOpen: '지금도 운영 중',
+      closedSince: '이후 폐업',
+      other: '기타(휴업 등)',
+    },
+    notice: '폐업은 행정상 신고 기록 기준이라 실제 영업 종료 시점과 다를 수 있어요',
+    caption: (ym: string) => `${ym}에 영업하던 같은 업종 점포와 지금 상태`,
+    columns: {
+      no: '번호',
+      name: '점포명',
+      category: '업종',
+      openDate: '개업일',
+      closeDate: '폐업일',
+      period: '영업 기간',
+      status: '현재 상태',
+    },
+    noCloseDate: '폐업일 없음',
+    emptyStores: '그 시점에 조건에 맞는 점포가 없어요',
+  },
   /** 메타 정보 줄 */
   meta: {
     demo: '시연 데이터',

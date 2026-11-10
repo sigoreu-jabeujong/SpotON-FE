@@ -15,10 +15,11 @@ import AnalysisSection from './AnalysisSection'
 import ConditionFilterBar from './ConditionFilterBar'
 import NearbyTable from './nearby/NearbyTable'
 import PastViewBanner from './nearby/PastViewBanner'
+import SnapshotBlock from './nearby/SnapshotBlock'
 
 const T = MESSAGES.nearby
 
-/** STEP 02 ② 주변 점포 분석 (F-03 지도 · F-04 필터) — /stores/nearby. 시점 조회(F-05)는 다음 작업 */
+/** STEP 02 ② 주변 점포 분석 — F-03 지도 · F-04 필터 (/stores/nearby) · F-05 시점 조회 (/stores/snapshot) */
 export default function NearbySection() {
   const { query } = useDiagnosisQuery()
   const coords = getCoordinates(query)
@@ -102,6 +103,11 @@ export default function NearbySection() {
               </>
             )
           )}
+        </div>
+
+        {/* 시점 조회 (F-05) — 지도·표가 실패해도 따로 보인다 */}
+        <div className="mt-4">
+          <SnapshotBlock />
         </div>
       </div>
     </AnalysisSection>
