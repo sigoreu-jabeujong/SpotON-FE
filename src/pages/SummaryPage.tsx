@@ -9,6 +9,8 @@ import SubTitle from '../components/common/SubTitle'
 import MarketCard from '../components/summary/MarketCard'
 import OfficialIndicators from '../components/summary/OfficialIndicators'
 import ReferenceIndicators from '../components/summary/ReferenceIndicators'
+import SeoulCompare from '../components/summary/SeoulCompare'
+import SummaryInfoGrid from '../components/summary/SummaryInfoGrid'
 import { getAsOfRangeMessage, MESSAGES } from '../constants/messages'
 import { getCoordinates, useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
 import { useRisk } from '../hooks/useRisk'
@@ -55,6 +57,7 @@ export default function SummaryPage() {
             query={risk.data.data.query}
           />
           <ReferenceIndicators indicators={risk.data.data.indicators} />
+          <SeoulCompare indicators={risk.data.data.indicators} />
         </>
       )}
 
@@ -68,6 +71,8 @@ export default function SummaryPage() {
         </SubTitle>
         <PagePlaceholder title={T.aiTitle} description={T.aiPlaceholder} />
       </div>
+
+      <SummaryInfoGrid meta={risk.data?.meta} />
     </Card>
   )
 }
