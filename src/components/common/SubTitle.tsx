@@ -13,7 +13,7 @@ export default function SubTitle({ children, right, id }: Props) {
     <div className="flex items-center justify-between gap-3">
       <h3
         id={id}
-        className="text-subtitle border-l-[3px] border-blue-500 pl-2 leading-tight font-bold text-gray-900"
+        className="border-l-[3px] border-blue-500 pl-2 text-subtitle leading-tight font-bold text-gray-900"
       >
         {children}
       </h3>

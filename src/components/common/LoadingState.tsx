@@ -9,7 +9,7 @@ export default function LoadingState({ message = MESSAGES.common.loading }: Prop
     <div
       role="status"
       aria-live="polite"
-      className="text-caption flex flex-col items-center justify-center gap-2 py-10 text-gray-600"
+      className="flex flex-col items-center justify-center gap-2 py-10 text-caption text-gray-600"
     >
       <LoaderCircle className="size-6 animate-spin text-blue-500" aria-hidden="true" />
       <span>{message}</span>

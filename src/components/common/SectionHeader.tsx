@@ -19,7 +19,7 @@ export default function SectionHeader({ number, title, description, id }: Props)
           <span className="sr-only">{number} </span>
           {title}
         </h2>
-        {description && <p className="text-caption mt-0.5 text-gray-600">{description}</p>}
+        {description && <p className="mt-0.5 text-caption text-gray-600">{description}</p>}
       </div>
     </div>
   )

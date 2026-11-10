@@ -15,7 +15,7 @@ export default function ErrorState({ error, message, onRetry }: Props) {
   const text = message ?? (error ? getErrorMessageFrom(error) : MESSAGES.common.error)
   return (
     <div role="alert" className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-      <CircleAlert className="text-danger size-7" aria-hidden="true" />
+      <CircleAlert className="size-7 text-danger" aria-hidden="true" />
       <p className="text-body text-gray-900">{text}</p>
       {onRetry && (
         <Button variant="secondary" onClick={onRetry} iconRight={<RotateCw className="size-4" />}>
