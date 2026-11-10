@@ -20,4 +20,15 @@ export type DiagnosisQuery = {
   franchise: FranchiseFilter
   /** 면적·프랜차이즈 "정보 없음" 점포 포함 여부 (기본 true) */
   includeUnknown: boolean
+  /* ── /geocode 결과 (입력 화면에서 채움, URL: lat·lng·bk·floor·gu) ── */
+  /** WGS84 위도 */
+  lat: number | null
+  /** WGS84 경도 */
+  lng: number | null
+  /** 지번 기준 건물 키 (URL: bk) */
+  buildingKey: string | null
+  /** 층·호실 (URL: floor) */
+  floorUnit: string | null
+  /** 자치구 (URL: gu) — 상담 링크 정렬 */
+  sigungu: string | null
 }

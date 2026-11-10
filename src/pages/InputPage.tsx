@@ -37,8 +37,14 @@ export default function InputPage() {
       area: DEFAULT_AREA,
       franchise: 'all',
       includeUnknown: DEFAULT_INCLUDE_UNKNOWN,
+      // TODO(다음 작업): /geocode 결과로 채운다. 지금은 비어 있어 결과 화면이 입력 화면으로 되돌린다
+      lat: null,
+      lng: null,
+      buildingKey: null,
+      floorUnit: null,
+      sigungu: null,
     })
-    navigate({ pathname: ROUTES.history, search })
+    navigate({ pathname: ROUTES.analysis, search })
   }
 
   return (

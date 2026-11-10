@@ -1,14 +1,22 @@
+import { cn } from '../../utils/cn'
+
 type Props = {
   title: string
   description: string
+  className?: string
 }
 
-/** 디자인 시안 반영 전 임시 화면. 각 페이지 구현 시 교체한다 */
-export default function PagePlaceholder({ title, description }: Props) {
+/** 화면 내용 구현 전 임시 자리 표시. 각 화면 구현 시 교체한다 */
+export default function PagePlaceholder({ title, description, className }: Props) {
   return (
-    <div className="rounded-xl border border-dashed border-gray-300 p-6">
-      <h1 className="text-xl font-bold">{title}</h1>
-      <p className="mt-2 text-sm text-gray-600">{description}</p>
+    <div
+      className={cn(
+        'rounded-control border border-dashed border-gray-300 bg-gray-100 p-6',
+        className,
+      )}
+    >
+      <p className="text-body font-semibold text-gray-900">{title}</p>
+      <p className="mt-1 text-caption text-gray-600">{description}</p>
     </div>
   )
 }

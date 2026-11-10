@@ -29,27 +29,30 @@
 | `7.Share&Consultation` (2종) | 결과 저장·상담 |
 | `Spot:ON_Color` | 색상 페이지 (디자인 토큰 기준) |
 
-### 1-3. 현재 라우트 ↔ 디자인 단계
+### 1-3. 라우트 ↔ 디자인 단계
 
-| 현재 라우트 | 화면 (최종본 6번) | 디자인 단계 | Figma 프레임 |
+2026-11-10에 결과 라우트를 디자인 4단계로 재구성했다. **화면 7종의 기능은 그대로**이고, 라우트만 4단계로 묶었다.
+
+| 라우트 | 화면 (최종본 6번) | 디자인 단계 | Figma 프레임 |
 |---|---|---|---|
 | `/` | ① 랜딩 | (사이드바 밖) | 1.Home |
 | `/diagnose` | ② 주소·업종 입력 | STEP 01 | 2-1 / 2-2 / 2-3 |
-| `/result/history` | ③ 과거 점포 이력 | STEP 02 | 3.Store History |
-| `/result/nearby` | ④ 주변 점포 현황 | STEP 02 | 3.Store History |
-| `/result/activity` | ⑤ 상권 활동 분석 | STEP 02 | 3.Store History |
-| `/result/risk` | ⑥ 창업 위험도 분석 | STEP 03 | 6.Business Risk Analysis |
+| `/result/analysis#history` | ③ 과거 점포 이력 | STEP 02 | 3.Store History |
+| `/result/analysis#nearby` | ④ 주변 점포 현황 | STEP 02 | 3.Store History |
+| `/result/analysis#activity` | ⑤ 상권 활동 분석 | STEP 02 | 3.Store History |
+| `/result/summary` | ⑥ 창업 위험도 분석 → "종합 진단 결과" | STEP 03 | 6.Business Risk Analysis |
 | `/result/share` | ⑦ 저장·공유·상담 | STEP 04 | 7.Share&Consultation |
 
-- 디자인은 ③④⑤를 STEP 02 **한 화면(긴 스크롤)** 으로 묶은 것으로 보인다. 라우트를 합칠지(예: `/result/analysis` 하나로) 그대로 둘지는 **디자인 확정 후 결정**한다. 그때까지 현재 라우트를 유지한다.
-- 진단 조건(주소·업종·반경·기준 시점·필터)은 라우트와 상관없이 URL 쿼리로 유지한다 (`useDiagnosisQuery`).
+- STEP 02는 **한 페이지에 섹션 3개를 세로로** 둔다. 섹션 컴포넌트: `src/components/analysis/{History,Nearby,Activity}Section.tsx`. 사이드바 하위 메뉴를 누르면 해당 섹션으로 부드럽게 스크롤하고, 보고 있는 섹션을 강조한다.
+- 예전 경로는 새 경로로 리다이렉트한다 (쿼리 유지): `/result/history|nearby|activity` → `/result/analysis#해당 섹션`, `/result/risk` → `/result/summary`.
+- 진단 조건(주소·업종·반경·기준 시점·필터)과 `/geocode` 결과(`lat`·`lng`·`bk`·`floor`·`gu`)는 URL 쿼리로 유지한다 (`useDiagnosisQuery`). 결과 화면은 `address`·`category`·`lat`·`lng`·`bk`가 모두 있어야 열린다.
 
 ## 2. 모든 결과 화면 공통
 
 - 상태 4가지를 항상 처리한다: **로딩 / 오류 / 빈 결과 / 판단 보류(`pending`)**. 문구는 `src/constants/messages.ts`에 둔다.
 - 모든 수치에 출처·기준일·공간 단위·분모·상태 라벨을 붙인다 → [display-rules.md](display-rules.md)
 - 화면 아래에 면책 문구, `is_demo`면 "시연 데이터" 표시.
-- 진단 조건이 없으면 입력 화면으로 보낸다 (`ResultLayout` 동작 유지).
+- 진단 조건(주소·업종·좌표·건물 키)이 없으면 입력 화면으로 보낸다 (`ResultLayout`).
 
 ## 3. 화면별 요구사항
 
@@ -76,7 +79,7 @@
 | 필수 문구 | "지금은 서울특별시 주소만 진단할 수 있어요", 도로명·지번 예시 |
 | 메모 | 음식점 세부 업종(한식·중식·일식·양식)은 F-04 필터에서 고른다. 카페는 세부 업종 없음. `geocode` 결과의 `lat`·`lng`·`building_key`·`floor_unit`·`sigungu`를 이후 화면에서 쓰므로 URL 쿼리에 담을 방법을 API 연동 작업에서 정한다 |
 
-### ③ 과거 점포 이력 `/result/history` — STEP 02
+### ③ 과거 점포 이력 `/result/analysis#history` — STEP 02
 
 | 항목 | 내용 |
 |---|---|
@@ -90,7 +93,7 @@
 | 필수 문구 | "폐업은 행정상 신고 기록 기준이에요", 건물 주소가 같아도 층·호실이 다르면 다른 자리라는 안내 |
 | 메모 | 이력에는 진단 업종과 다른 지원 업종 점포도 나올 수 있다 (BE 기준, 확인 대기) |
 
-### ④ 주변 점포 현황 `/result/nearby` — STEP 02
+### ④ 주변 점포 현황 `/result/analysis#nearby` — STEP 02
 
 | 항목 | 내용 |
 |---|---|
@@ -105,7 +108,7 @@
 | 정보 없음 | 면적·프랜차이즈 값이 없는 점포 → "정보 없음" |
 | 필수 문구 | 기준일, 반경, `excluded_no_coord` > 0이면 "좌표가 없어 지도에서 제외된 점포 n곳" |
 
-### ⑤ 상권 활동 분석 `/result/activity` — STEP 02
+### ⑤ 상권 활동 분석 `/result/analysis#activity` — STEP 02
 
 | 항목 | 내용 |
 |---|---|
@@ -118,7 +121,7 @@
 | 판단 보류·자료 없음 | `sales`/`living_pop`이 `null`이거나 `flags.missing`에 있으면 "자료 없음" 또는 `pending`이면 "판단 보류" + 사유. 0으로 그리지 않는다 |
 | 필수 문구 | 점포 수(반경)·매출(상권)·생활인구(격자) **카드 분리**, 단위명을 카드 제목에. 매출·생활인구에 "추정치"와 상권명/격자·기준일. "점포의 실제 매출·실제 고객 수가 아니에요". 생활인구 `missing_grid_count` 표시 |
 
-### ⑥ 창업 위험도 분석 `/result/risk` — STEP 03
+### ⑥ 종합 진단 결과 `/result/summary` — STEP 03
 
 | 항목 | 내용 |
 |---|---|

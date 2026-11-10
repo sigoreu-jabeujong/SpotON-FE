@@ -16,6 +16,29 @@ export const MESSAGES = {
   },
   disclaimer:
     '이 결과는 공공데이터 기반 참고 정보이며 창업의 성공·실패를 판단하지 않아요. 개별 사업주의 역량은 반영하지 않았어요.',
+  /** 결과 화면 공통 틀 */
+  layout: {
+    eyebrow: 'DATA - BASED INSIGHT',
+    ageNotice: '만 18세 이상 예비창업자를 대상으로 해요.',
+    baselinePending: '데이터 기준일은 결과를 불러오면 표시돼요.',
+    skipToContent: '본문 바로가기',
+    logoLabel: 'Spot:ON 처음 화면으로',
+  },
+  /** 결과 화면별 머리 제목·설명 */
+  resultPages: {
+    analysis: {
+      title: '창업 전, 이 자리를 더 자세히 살펴보세요.',
+      description: '과거 점포 이력과 주변 상권 정보를 한눈에 확인해 보세요.',
+    },
+    summary: {
+      title: '종합 진단 결과',
+      description: '서울시 공식 지표와 참고지표, AI 해석으로 계약 전에 살펴볼 점을 확인해 보세요.',
+    },
+    share: {
+      title: '결과 저장 및 상담',
+      description: '진단 결과를 저장하고 창업에 필요한 상담·지원 정보를 확인해 보세요.',
+    },
+  },
 } as const
 
 /**

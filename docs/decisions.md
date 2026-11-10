@@ -17,6 +17,9 @@
 | 2026-11-10 | 통합 브랜치는 **`develop`** (원격 `dev` 삭제됨). FE PR 대상은 `develop` | CLAUDE.md 반영 |
 | 2026-11-10 | 기준 우선순위: 팀 최신 결정 > BE 작업계획서 > PDF | [README.md](README.md) |
 | 2026-11-10 | 시설 규모 필터는 **하나만 선택** (기본: 전체 `all`). 값은 API `area`와 같은 `lt33`/`33to66`/`66to99`/`gte99`. "정보 없음 포함"은 별도 옵션(`include_unknown`, 기본 `true`) | API `area`가 하나만 받기 때문. **여러 개 선택은 BE 확인 후 결정**. URL 쿼리: `area`(전체면 생략), `includeUnknown=false`(기본값이면 생략) |
+| 2026-11-10 | **결과 라우트를 디자인 4단계로 재구성**: `/result/analysis`(STEP 02, `#history`·`#nearby`·`#activity`) · `/result/summary`(STEP 03) · `/result/share`(STEP 04) | 화면 7종 기능은 그대로. 예전 `/result/history|nearby|activity|risk`는 쿼리를 유지한 채 새 경로로 리다이렉트 → [screens.md](screens.md) |
+| 2026-11-10 | 결과 화면은 URL 쿼리 `address`·`category`·`lat`·`lng`·`bk`가 모두 있어야 열린다 (`floor`·`gu`는 선택) | 입력 화면에서 `/geocode` 결과로 채운다 |
+| 2026-11-10 | 디자인 6번의 "창업 위험도 점수(72.6점)·⚠주의 등급"과 참고지표의 빨강·초록 배경은 **만들지 않는다** | 자체 종합 점수·등급 금지, 참고지표 등급 색 금지 원칙. 공식/참고 지표 카드 분리 + 중립 색 + 상태 라벨로 대신 |
 
 ## 2. BE 확인 대기
 
