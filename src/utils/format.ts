@@ -42,6 +42,20 @@ export function formatCount(value: Maybe<number>, unit = ''): string | null {
   return `${countFormatter.format(value)}${unit}`
 }
 
+/** 공간 단위 → 화면 이름 (radius_500m → "반경 500m", market → "상권", grid → "250m 격자") */
+export function formatSpace(space: Maybe<string>): string | null {
+  if (!space) return null
+  const radius = /^radius_(\d+)m$/.exec(space)
+  if (radius) return `반경 ${countFormatter.format(Number(radius[1]))}m`
+  const names: Record<string, string> = {
+    point: '주소 지점',
+    market: '상권',
+    grid: '250m 격자',
+    seoul: '서울 전체',
+  }
+  return names[space] ?? space
+}
+
 /** meta → "데이터 기준일 YYYY.MM.DD (수집 YYYY.MM.DD)". 기준일이 없으면 null */
 export function formatDataBaseline(meta: Maybe<ApiMeta>): string | null {
   const updated = formatDate(meta?.data_updated_at)
