@@ -24,6 +24,8 @@ type Props = {
   denominator?: number | null
   /** meta.is_demo — true면 "시연 데이터" 배지 */
   isDemo?: boolean | null
+  /** 여러 메타 줄이 붙어 있을 때 어느 값의 정보인지 앞에 붙이는 이름 (예: "동종업체 수") */
+  label?: string
   className?: string
 }
 
@@ -41,6 +43,7 @@ export default function MetaLine({
   spaceLabel,
   denominator,
   isDemo,
+  label,
   className,
 }: Props) {
   const ids = parseSourceIds(source)
@@ -85,6 +88,7 @@ export default function MetaLine({
         className,
       )}
     >
+      {label && <span className="mr-1.5 font-semibold text-gray-900">{label}</span>}
       {isDemo && (
         <Badge tone="orange" className="mr-2">
           {MESSAGES.meta.demo}
