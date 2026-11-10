@@ -1,11 +1,10 @@
-import { Bot, TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
 import { toCommonQueryParams } from '../api/params'
 import PastViewNote from '../components/analysis/nearby/PastViewNote'
 import Card from '../components/common/Card'
 import ErrorState from '../components/common/ErrorState'
 import LoadingState from '../components/common/LoadingState'
-import PagePlaceholder from '../components/common/PagePlaceholder'
-import SubTitle from '../components/common/SubTitle'
+import AiInterpretation from '../components/summary/ai/AiInterpretation'
 import MarketCard from '../components/summary/MarketCard'
 import OfficialIndicators from '../components/summary/OfficialIndicators'
 import ReferenceIndicators from '../components/summary/ReferenceIndicators'
@@ -22,7 +21,7 @@ const T = MESSAGES.summary
  * 디자인의 "창업 위험도 점수·등급"은 만들지 않는다 (자체 종합 점수·등급 금지, docs/decisions.md)
  */
 export default function SummaryPage() {
-  const { query } = useDiagnosisQuery()
+  const { query, search } = useDiagnosisQuery()
   const coords = getCoordinates(query)
   const params = coords ? toCommonQueryParams(query, coords) : null
   // 상권 활동 섹션과 같은 쿼리 키 → 캐시 공유
@@ -61,16 +60,15 @@ export default function SummaryPage() {
         </>
       )}
 
-      {/* AI 해석은 다음 작업에서 연결 (지표 오류와 상관없이 자리는 유지) */}
-      <div className="flex flex-col gap-3">
-        <SubTitle>
-          <span className="inline-flex items-center gap-1.5">
-            <Bot className="size-4 text-blue-500" aria-hidden="true" />
-            {T.aiTitle}
-          </span>
-        </SubTitle>
-        <PagePlaceholder title={T.aiTitle} description={T.aiPlaceholder} />
-      </div>
+      {/* AI 해석 — 지표를 불러온 뒤에만. 조건(search)이 바뀌면 key로 새로 만들어 이전 결과를 지운다 */}
+      {risk.data && params && (
+        <AiInterpretation
+          key={search}
+          risk={risk.data.data}
+          params={params}
+          onReloadIndicators={() => void risk.refetch()}
+        />
+      )}
 
       <SummaryInfoGrid meta={risk.data?.meta} />
     </Card>

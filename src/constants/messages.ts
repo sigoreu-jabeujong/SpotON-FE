@@ -233,7 +233,6 @@ export const MESSAGES = {
     infoOwner: '사업주 역량 미반영',
     infoOwnerText: '사업주의 경험·역량·운영 방식은 반영하지 않았어요',
     aiTitle: 'AI 해석',
-    aiPlaceholder: 'AI 해석과 계약 전 체크리스트는 다음 작업에서 연결돼요.',
   },
   /** 메타 정보 줄 */
   meta: {
@@ -252,6 +251,30 @@ export const MESSAGES = {
   },
   ai: {
     unavailable: 'AI 해석을 불러오지 못했어요. 계산된 지표는 그대로 확인할 수 있어요',
+    intro: '위 지표를 바탕으로 유리·불리하게 볼 점과 계약 전 확인할 일을 AI가 정리해 드려요.',
+    start: 'AI 해석 보기',
+    startNotice: '만 18세 이상 대상 · 참고용 해석이에요',
+    loading: 'AI가 해석을 만들고 있어요 (최대 20초)',
+    retry: '다시 시도',
+    reloadedIndicators: '지표가 바뀌었을 수 있어 다시 불러왔어요. 다시 시도해 주세요.',
+    verifyFailed: '해석 문장을 검증하지 못해 보여드리지 않아요.',
+    sections: {
+      official: '공식 통계·계산값 요약',
+      favorable: '유리하게 볼 요인',
+      unfavorable: '불리하게 볼 요인',
+      missing: '판단에 부족한 자료',
+      checklist: '계약 전 현장 확인사항',
+    },
+    evidence: '근거 지표',
+    sources: '출처',
+    goToIndicator: (name: string) => `${name} 카드로 이동`,
+    checklistHint: '확인한 항목을 체크해 보세요. 체크 상태는 저장되지 않아요.',
+    checklistDone: (done: number, total: number) => `${total}개 중 ${done}개 확인`,
+    model: '모델',
+    generatedAt: '생성 시각',
+    notice:
+      '이 해석은 서버가 계산한 지표만 바탕으로 만든 참고 문장이며, 창업 성공·실패를 판정하지 않아요.',
+    empty: '해당 내용이 없어요',
   },
   disclaimer:
     '이 결과는 공공데이터 기반 참고 정보이며 창업의 성공·실패를 판단하지 않아요. 개별 사업주의 역량은 반영하지 않았어요.',

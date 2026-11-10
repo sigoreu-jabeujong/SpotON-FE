@@ -4,6 +4,7 @@ import { CATEGORIES } from '../../constants/diagnosis'
 import { INDICATOR_NAME } from '../../constants/labels'
 import { MESSAGES } from '../../constants/messages'
 import type {
+  IndicatorId,
   MarketJudgement,
   MetricIndicator,
   OfficialRiskIndicator,
@@ -13,7 +14,7 @@ import type {
 import MetaLine from '../common/MetaLine'
 import StatusLabel from '../common/StatusLabel'
 import IndicatorArea from './IndicatorArea'
-import { formatIndicatorValue } from './indicatorFormat'
+import { formatIndicatorValue, indicatorAnchorId } from './indicatorFormat'
 
 const T = MESSAGES.summary
 
@@ -37,16 +38,23 @@ export default function OfficialIndicators({ indicators, market, query }: Props)
 }
 
 function CardShell({
+  id,
   icon: Icon,
   title,
   children,
 }: {
+  /** 지표 id — AI 해석 근거 칩에서 이 카드로 이동할 때 쓴다 */
+  id: IndicatorId
   icon: typeof Landmark
   title: string
   children: ReactNode
 }) {
   return (
-    <article className="flex flex-col gap-2 rounded-control border border-gray-300 bg-gray-0 p-5">
+    <article
+      id={indicatorAnchorId(id)}
+      tabIndex={-1}
+      className="flex scroll-mt-8 flex-col gap-2 rounded-control border border-gray-300 bg-gray-0 p-5 focus:outline-2 focus:outline-blue-500"
+    >
       <h3 className="flex items-center gap-1.5 text-body font-bold text-gray-900">
         <Icon className="size-4 text-blue-500" aria-hidden="true" />
         {title}
@@ -60,7 +68,11 @@ function CardShell({
 function OfficialClosureCard({ ind, market }: { ind: MetricIndicator; market: MarketJudgement }) {
   const value = formatIndicatorValue(ind)
   return (
-    <CardShell icon={Landmark} title={INDICATOR_NAME.official_closure_rate}>
+    <CardShell
+      id="official_closure_rate"
+      icon={Landmark}
+      title={INDICATOR_NAME.official_closure_rate}
+    >
       {value ? (
         <p className="text-title font-bold text-gray-900">{value}</p>
       ) : (
@@ -117,7 +129,7 @@ function OfficialRiskCard({
   }
 
   return (
-    <CardShell icon={Landmark} title={INDICATOR_NAME.official_risk}>
+    <CardShell id="official_risk" icon={Landmark} title={INDICATOR_NAME.official_risk}>
       {quoted ? (
         <p className="text-title font-bold text-gray-900">{quoted}</p>
       ) : (
@@ -164,7 +176,7 @@ function OfficialRiskCard({
 function MarketChangeCard({ ind }: { ind: MetricIndicator }) {
   const value = formatIndicatorValue(ind)
   return (
-    <CardShell icon={Shuffle} title={INDICATOR_NAME.market_change}>
+    <CardShell id="market_change" icon={Shuffle} title={INDICATOR_NAME.market_change}>
       {value ? (
         <>
           <p className="text-title font-bold text-gray-900">{value}</p>

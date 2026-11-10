@@ -5,7 +5,7 @@ import type { IndicatorId, MetricIndicator, RiskIndicator } from '../../types/ri
 import MetaLine from '../common/MetaLine'
 import StatusLabel from '../common/StatusLabel'
 import IndicatorArea from './IndicatorArea'
-import { formatIndicatorValue, formatSeoulAvg } from './indicatorFormat'
+import { formatIndicatorValue, formatSeoulAvg, indicatorAnchorId } from './indicatorFormat'
 
 const T = MESSAGES.summary
 
@@ -40,7 +40,11 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
   const seoul = formatSeoulAvg(ind)
   const name = INDICATOR_NAME[ind.id as keyof typeof INDICATOR_NAME] ?? ind.id
   return (
-    <article className="flex flex-col gap-2 rounded-control border border-gray-300 bg-gray-0 p-5">
+    <article
+      id={indicatorAnchorId(ind.id)}
+      tabIndex={-1}
+      className="flex scroll-mt-8 flex-col gap-2 rounded-control border border-gray-300 bg-gray-0 p-5 focus:outline-2 focus:outline-blue-500"
+    >
       <h3 className="flex items-center gap-1.5 text-body font-bold text-gray-900">
         <Calculator className="size-4 text-gray-600" aria-hidden="true" />
         {name}
