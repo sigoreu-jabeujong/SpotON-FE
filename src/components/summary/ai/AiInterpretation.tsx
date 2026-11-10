@@ -65,6 +65,11 @@ export default function AiInterpretation({ risk, params, onReloadIndicators }: P
     }
     const context = buildContext()
     interpret.mutate(context ? { ...body, context } : body, {
+      onSuccess: (res) => {
+        // 검증을 통과한 해석만 같은 조건 키로 저장 → 진단서(PDF)에서 다시 요청하지 않고 쓴다
+        if (res.data.verification.passed !== false)
+          queryClient.setQueryData(queryKeys.riskInterpretation(params), res)
+      },
       onError: (error) => {
         // 서버 재계산 값과 맞지 않으면 지표를 다시 불러와 최신 값으로 다시 시도하게 한다
         if (typeof error === 'object' && 'code' in error && error.code === 'INVALID_PARAM')

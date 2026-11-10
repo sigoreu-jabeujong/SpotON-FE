@@ -17,3 +17,6 @@ export const queryClient = new QueryClient({
     },
   },
 })
+
+/** 받아 둔 AI 해석은 화면을 옮겨도(진단서·요약 이미지) 30분 동안 남긴다 — 다시 요청하지 않기 위해 */
+queryClient.setQueryDefaults(['risk', 'interpret'], { gcTime: 30 * 60 * 1000 })

@@ -6,6 +6,7 @@ import AnalysisPage from './pages/AnalysisPage'
 import InputPage from './pages/InputPage'
 import LandingPage from './pages/LandingPage'
 import NotFoundPage from './pages/NotFoundPage'
+import ReportPage from './pages/ReportPage'
 import SharePage from './pages/SharePage'
 import SummaryPage from './pages/SummaryPage'
 import { LEGACY_RESULT_REDIRECTS, ROUTES } from './constants/routes'
@@ -18,6 +19,8 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [{ path: '*', element: <NotFoundPage /> }],
   },
+  // 인쇄용 진단서 — 사이드바 없이 A4 지면만 (PDF 저장)
+  { path: ROUTES.report, element: <ReportPage /> },
   {
     // 결과 화면(STEP 02~04): 왼쪽 사이드바 레이아웃
     element: <ResultLayout />,

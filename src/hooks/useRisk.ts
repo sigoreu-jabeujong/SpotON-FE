@@ -1,8 +1,9 @@
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
+import type { ApiResult } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { getRisk, postRiskInterpret } from '../api/risk'
 import type { CommonQueryParams } from '../types/api'
-import type { RiskInclude } from '../types/risk'
+import type { RiskInclude, RiskInterpretation } from '../types/risk'
 
 /** F-07 공식 지표 + 참고지표 */
 export function useRisk(params: CommonQueryParams | null, include: RiskInclude[] = []) {
@@ -19,4 +20,16 @@ export function useRisk(params: CommonQueryParams | null, include: RiskInclude[]
  */
 export function useRiskInterpret() {
   return useMutation({ mutationFn: postRiskInterpret })
+}
+
+/**
+ * 이미 받아 둔 AI 해석 (종합 진단 화면에서 "AI 해석 보기"로 받은 결과).
+ * 새로 요청하지 않는다 — 받은 적이 없으면 data가 undefined다.
+ */
+export function useCachedInterpretation(params: CommonQueryParams | null) {
+  return useQuery<ApiResult<RiskInterpretation>>({
+    queryKey: queryKeys.riskInterpretation(params),
+    queryFn: skipToken,
+    staleTime: Infinity,
+  })
 }

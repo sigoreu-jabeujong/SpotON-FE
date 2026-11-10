@@ -283,6 +283,8 @@ export const MESSAGES = {
     colName: '지표',
     colValue: '값·상태',
     colBasis: '기간·공간·표본',
+    brand: 'Spot:ON · 공공데이터 기반 창업 입지 진단',
+    demoNotice: '시연 데이터: 이 진단서의 수치는 시연용 가상 값이에요.',
   },
   /** 메타 정보 줄 */
   meta: {
