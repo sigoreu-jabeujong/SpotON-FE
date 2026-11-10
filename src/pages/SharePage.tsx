@@ -1,9 +1,12 @@
 import { FileDown, Handshake, Headset, ImageDown, type LucideIcon } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import Card from '../components/common/Card'
+import SummaryImageCard from '../components/share/SummaryImageCard'
+import { useSummaryImage } from '../components/share/useSummaryImage'
 import { MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
 import { useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
+import { useReportData } from '../hooks/useReportData'
 import { cn } from '../utils/cn'
 
 const T = MESSAGES.share
@@ -20,6 +23,10 @@ const TONE: Record<CardTone, { bg: string; icon: string }> = {
 export default function SharePage() {
   const navigate = useNavigate()
   const { search } = useDiagnosisQuery()
+  // 진단서·요약 이미지에 쓰는 데이터 (결과 화면과 같은 캐시, 없으면 불러옴)
+  const report = useReportData()
+  const { cardRef, status: imageStatus, save: saveImage } = useSummaryImage(T.imageFileName)
+  const imageReady = !report.loading && !!report.risk.data && !!report.activity.data
 
   const scrollTo = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -38,7 +45,9 @@ export default function SharePage() {
           tone="green"
           icon={ImageDown}
           title={T.cards.image.title}
-          desc={T.cards.image.desc}
+          desc={imageStatus === 'making' ? T.imageMaking : T.cards.image.desc}
+          disabled={imageStatus === 'making'}
+          onClick={() => void saveImage()}
         />
         <ActionCard
           tone="orange"
@@ -55,6 +64,20 @@ export default function SharePage() {
           onClick={() => scrollTo('links-support')}
         />
       </div>
+
+      <p aria-live="polite" className="-mt-6 text-center text-caption font-semibold">
+        {imageStatus === 'done' && <span className="text-blue-700">{T.imageDone}</span>}
+        {imageStatus === 'failed' && (
+          <span className="text-danger">{imageReady ? T.imageFailed : T.imageNeedsData}</span>
+        )}
+      </p>
+
+      {/* 요약 이미지용 카드 — 화면 밖에 그려 두고 html2canvas가 읽는다 */}
+      {imageReady && (
+        <div aria-hidden="true" className="pointer-events-none fixed top-0 -left-[20000px]">
+          <SummaryImageCard ref={cardRef} data={report} />
+        </div>
+      )}
     </Card>
   )
 }

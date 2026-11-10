@@ -246,6 +246,8 @@ export const MESSAGES = {
     imageDone: '요약 이미지를 저장했어요',
     imageFailed: '요약 이미지를 만들지 못했어요. 다시 시도해 주세요',
     imageNeedsData: '진단 결과를 불러온 뒤 다시 눌러 주세요',
+    imageFooter: 'Spot:ON · 공공데이터 기반 창업 입지 진단 (참고용)',
+    imageFileName: 'spoton-summary.png',
     consultingTitle: '공공 창업 상담센터',
     supportTitle: '소상공인 지원사업',
     linksEmpty: '안내할 기관 링크가 아직 없어요',
