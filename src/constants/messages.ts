@@ -33,6 +33,12 @@ export const MESSAGES = {
     candidateJibun: '지번',
     scope: '현재 서울특별시 카페·음식점(한식·중식·일식·양식)을 진단할 수 있어요',
   },
+  /** 목록 공통 */
+  list: {
+    showMore: '더보기',
+    /** 화면 읽기 프로그램용: "7건 중 5건 표시" */
+    shownCount: (shown: number, total: number) => `${total}건 중 ${shown}건 표시`,
+  },
   common: {
     loading: '불러오는 중이에요',
     error: '정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요',
