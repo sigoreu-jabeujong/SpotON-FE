@@ -1,6 +1,7 @@
 import { FileDown, Handshake, Headset, ImageDown, type LucideIcon } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import Card from '../components/common/Card'
+import RediagnoseBanner from '../components/share/RediagnoseBanner'
 import SummaryImageCard from '../components/share/SummaryImageCard'
 import SupportLinksSection from '../components/share/SupportLinksSection'
 import { useSummaryImage } from '../components/share/useSummaryImage'
@@ -74,6 +75,8 @@ export default function SharePage() {
       </p>
 
       <SupportLinksSection />
+
+      <RediagnoseBanner />
 
       {/* 요약 이미지용 카드 — 화면 밖에 그려 두고 html2canvas가 읽는다 */}
       {imageReady && (
