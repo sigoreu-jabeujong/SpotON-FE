@@ -170,6 +170,7 @@ export const MESSAGES = {
     trendOpened: '개업',
     trendClosed: '폐업',
     trendYear: (y: number) => `${y}년`,
+    trendYearHeader: '연도',
     trendShowTable: '표로 보기',
     trendHideTable: '표 숨기기',
     trendCaption: '연도별 개업·폐업 수 (데이터가 있는 연도만)',

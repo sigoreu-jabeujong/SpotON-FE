@@ -11,6 +11,7 @@ import MetaLine from '../common/MetaLine'
 import SubTitle from '../common/SubTitle'
 import AnalysisSection from './AnalysisSection'
 import StoreStatusCards from './activity/StoreStatusCards'
+import YearlyTrendChart from './activity/YearlyTrendChart'
 import PastViewNote from './nearby/PastViewNote'
 
 const T = MESSAGES.activity
@@ -59,6 +60,11 @@ export default function ActivitySection() {
                 denominator={meta?.denominator}
                 isDemo={meta?.is_demo}
               />
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <SubTitle>{T.trendTitle}</SubTitle>
+              <YearlyTrendChart trend={activity.data.data.yearly_trend} />
             </div>
           </>
         )}
