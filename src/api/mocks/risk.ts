@@ -225,6 +225,11 @@ const INTERPRETATION: RiskInterpretation = {
       indicator_ids: ['competitor_count'],
       sources: ['R5', 'R6'],
     },
+    {
+      text: '반경 500m 1년 생존율은 81.8%(11곳 중 9곳)로, 최근 문을 연 점포 상당수가 1년 넘게 영업을 이어 갔습니다.',
+      indicator_ids: ['survival_rate_1y'],
+      sources: ['R5', 'R6'],
+    },
   ],
   unfavorable: [
     {
@@ -246,20 +251,57 @@ const INTERPRETATION: RiskInterpretation = {
       item: '평일·주말, 낮·저녁 시간대 유동 인구를 현장에서 직접 관찰',
       why: '생활인구 자료 없음',
     },
+    {
+      item: '반경 안 같은 업종 점포의 메뉴·가격대·영업시간을 직접 둘러보기',
+      why: '동종업체 38곳 — 경쟁 정도는 숫자만으로 알 수 없음',
+    },
+    {
+      item: '초기 6개월 이상 운영할 수 있는 자금 계획 세우기',
+      why: '최근 12개월 참고 폐업률 17.4%',
+    },
   ],
   verification: { passed: true, checked_numbers: 6, mismatches: [], regenerated: false },
   model: '(AI 설계서에서 확정)',
   generated_at: '2026-11-09T14:02:11+09:00',
 }
 
+/** AI가 해석을 만드는 시간 흉내 (1~2초) */
+const AI_DELAY_MS = 1500
+
+/**
+ * POST /api/risk/interpret 목업 — 화면 확인용 규칙
+ * - query.radius_m = 1000 → 503 AI_UNAVAILABLE (AI 실패 안내·다시 시도 확인)
+ * - query.radius_m = 300 → 200이지만 verification.passed = false (화면은 실패로 처리해야 함)
+ * - 본문에 query·indicators가 없으면 400 INVALID_PARAM
+ */
 export const riskInterpretMock: MockHandler = (_query, body) => {
   const req = body as Partial<RiskInterpretRequest> | null
   if (!req?.query || !req.indicators)
-    return fail(400, 'INVALID_PARAM', '입력값을 다시 확인해 주세요.')
-  return ok(INTERPRETATION, {
-    ...DEMO_META,
-    source: ['R2', 'R5', 'R6'],
-    as_of: req.query.as_of,
-    denominator: 46,
-  })
+    return { ...fail(400, 'INVALID_PARAM', '입력값을 다시 확인해 주세요.'), delayMs: AI_DELAY_MS }
+  if (req.query.radius_m === 1000)
+    return {
+      ...fail(503, 'AI_UNAVAILABLE', 'AI 해석을 불러오지 못했어요.'),
+      delayMs: AI_DELAY_MS,
+    }
+  const data: RiskInterpretation =
+    req.query.radius_m === 300
+      ? {
+          ...INTERPRETATION,
+          verification: {
+            passed: false,
+            checked_numbers: 6,
+            mismatches: ['17.4%'],
+            regenerated: true,
+          },
+        }
+      : INTERPRETATION
+  return {
+    ...ok(data, {
+      ...DEMO_META,
+      source: ['R2', 'R5', 'R6'],
+      as_of: req.query.as_of,
+      denominator: 46,
+    }),
+    delayMs: AI_DELAY_MS,
+  }
 }
