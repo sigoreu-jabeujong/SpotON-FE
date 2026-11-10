@@ -25,6 +25,7 @@ export interface KakaoMap {
 
 export interface KakaoMarker {
   setMap(map: KakaoMap | null): void
+  setPosition(latlng: KakaoLatLng): void
   setZIndex(z: number): void
 }
 
