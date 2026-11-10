@@ -99,3 +99,27 @@ body {
     scroll-behavior: smooth;
   }
 }
+
+/*
+ * 인쇄(PDF 저장) — 진단서 화면(/result/report)
+ * 버튼·도구 막대는 print:hidden, 표·블록은 페이지 중간에서 잘리지 않게, 색이 없어도 상태 라벨 글자로 구분
+ */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .report section,
+  .report table,
+  .report tr {
+    break-inside: avoid;
+  }
+}

@@ -13,6 +13,8 @@ export const ROUTES = {
   summary: '/result/summary',
   /** STEP 04 결과 저장 및 상담 (⑦) */
   share: '/result/share',
+  /** 인쇄용 진단서 (PDF 저장용, 사이드바 없음) */
+  report: '/result/report',
 } as const
 
 /** STEP 02 페이지 안의 섹션 (id = URL #해시) */

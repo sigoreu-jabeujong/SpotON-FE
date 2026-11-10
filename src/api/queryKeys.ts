@@ -16,5 +16,7 @@ export const queryKeys = {
   marketActivity: (p: CommonQueryParams | null, include: ActivityInclude[]) =>
     ['market', 'activity', p, include] as const,
   risk: (p: CommonQueryParams | null, include: RiskInclude[]) => ['risk', p, include] as const,
+  /** 받아 둔 AI 해석 (요청하지 않고 저장만 — 진단서·요약 이미지에서 다시 쓴다) */
+  riskInterpretation: (p: CommonQueryParams | null) => ['risk', 'interpret', p] as const,
   supportLinks: (p: SupportLinksParams | null) => ['support-links', p] as const,
 }
