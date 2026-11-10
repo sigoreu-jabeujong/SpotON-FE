@@ -10,6 +10,7 @@ import LoadingState from '../common/LoadingState'
 import MetaLine from '../common/MetaLine'
 import SubTitle from '../common/SubTitle'
 import AnalysisSection from './AnalysisSection'
+import ConditionalBlocks from './activity/ConditionalBlocks'
 import StoreStatusCards from './activity/StoreStatusCards'
 import YearlyTrendChart from './activity/YearlyTrendChart'
 import PastViewNote from './nearby/PastViewNote'
@@ -66,6 +67,8 @@ export default function ActivitySection() {
               <SubTitle>{T.trendTitle}</SubTitle>
               <YearlyTrendChart trend={activity.data.data.yearly_trend} />
             </div>
+
+            <ConditionalBlocks activity={activity.data.data} />
           </>
         )}
       </div>
