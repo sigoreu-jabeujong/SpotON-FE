@@ -8,6 +8,7 @@ import PagePlaceholder from '../components/common/PagePlaceholder'
 import SubTitle from '../components/common/SubTitle'
 import MarketCard from '../components/summary/MarketCard'
 import OfficialIndicators from '../components/summary/OfficialIndicators'
+import ReferenceIndicators from '../components/summary/ReferenceIndicators'
 import { getAsOfRangeMessage, MESSAGES } from '../constants/messages'
 import { getCoordinates, useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
 import { useRisk } from '../hooks/useRisk'
@@ -53,6 +54,7 @@ export default function SummaryPage() {
             market={risk.data.data.market}
             query={risk.data.data.query}
           />
+          <ReferenceIndicators indicators={risk.data.data.indicators} />
         </>
       )}
 
