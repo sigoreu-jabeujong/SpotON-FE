@@ -1,3 +1,5 @@
+import type { Category, FranchiseFilter, RadiusMeters, SubCategory } from '../constants/diagnosis'
+
 /**
  * API 공통 응답 형식 { data, meta, error }
  * 기준: docs/api-contract.md (06 API 명세서 v1.1 + BE 작업계획서)
@@ -50,4 +52,24 @@ export type ApiResponse<T> = {
   /** 오류 응답에서는 null 또는 {} 일 수 있다 */
   meta: ApiMeta | null
   error: ApiError | null
+}
+
+/* ───────── 공통 조회 파라미터 (docs/api-contract.md 1-2) ───────── */
+
+/** 시설 규모(신고 면적 ㎡) 구간. all = 전체 */
+export type ApiArea = 'all' | 'lt33' | '33to66' | '66to99' | 'gte99'
+
+/** /stores/nearby·/stores/snapshot·/market/activity·/risk 공통 조회 파라미터 */
+export type CommonQueryParams = {
+  lat: number
+  lng: number
+  category: Category
+  radius?: RadiusMeters
+  /** 음식점 세부 업종(쉼표 구분). 생략 = 전체, 카페는 항상 생략 */
+  sub_category?: SubCategory[]
+  /** YYYY-MM. 생략 = 현재 월 */
+  as_of?: string
+  area?: ApiArea
+  franchise?: FranchiseFilter
+  include_unknown?: boolean
 }
