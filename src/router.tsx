@@ -1,15 +1,14 @@
 import { createBrowserRouter } from 'react-router'
 import AppLayout from './components/layout/AppLayout'
+import LegacyRedirect from './components/layout/LegacyRedirect'
 import ResultLayout from './components/layout/ResultLayout'
-import ActivityPage from './pages/ActivityPage'
-import HistoryPage from './pages/HistoryPage'
+import AnalysisPage from './pages/AnalysisPage'
 import InputPage from './pages/InputPage'
 import LandingPage from './pages/LandingPage'
-import NearbyPage from './pages/NearbyPage'
 import NotFoundPage from './pages/NotFoundPage'
-import RiskPage from './pages/RiskPage'
 import SharePage from './pages/SharePage'
-import { ROUTES } from './constants/routes'
+import SummaryPage from './pages/SummaryPage'
+import { LEGACY_RESULT_REDIRECTS, ROUTES } from './constants/routes'
 
 export const router = createBrowserRouter([
   {
@@ -17,17 +16,20 @@ export const router = createBrowserRouter([
     children: [
       { path: ROUTES.landing, element: <LandingPage /> },
       { path: ROUTES.input, element: <InputPage /> },
-      {
-        element: <ResultLayout />,
-        children: [
-          { path: ROUTES.history, element: <HistoryPage /> },
-          { path: ROUTES.nearby, element: <NearbyPage /> },
-          { path: ROUTES.activity, element: <ActivityPage /> },
-          { path: ROUTES.risk, element: <RiskPage /> },
-          { path: ROUTES.share, element: <SharePage /> },
-        ],
-      },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
+  {
+    // 결과 화면(STEP 02~04): 왼쪽 사이드바 레이아웃
+    element: <ResultLayout />,
+    children: [
+      { path: ROUTES.analysis, element: <AnalysisPage /> },
+      { path: ROUTES.summary, element: <SummaryPage /> },
+      { path: ROUTES.share, element: <SharePage /> },
+    ],
+  },
+  ...LEGACY_RESULT_REDIRECTS.map((r) => ({
+    path: r.from,
+    element: <LegacyRedirect to={r.to} hash={r.hash} />,
+  })),
 ])

@@ -38,7 +38,7 @@ export default function InputPage() {
       franchise: 'all',
       includeUnknown: DEFAULT_INCLUDE_UNKNOWN,
     })
-    navigate({ pathname: ROUTES.history, search })
+    navigate({ pathname: ROUTES.analysis, search })
   }
 
   return (
