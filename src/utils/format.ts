@@ -79,9 +79,11 @@ export function formatYearMonthKo(value: Maybe<string>): string | null {
   return m ? `${m[1]}년 ${Number(m[2])}월` : null
 }
 
-/** 서버 기간 문자열 "2025-11~2026-10" → "2025.11 ~ 2026.10" (모양만 바꿈) */
+/** 서버 기간 문자열 "2025-11~2026-10" → "2025.11 ~ 2026.10", "2026-Q2" → "2026년 2분기" (모양만 바꿈) */
 export function formatPeriod(value: Maybe<string>): string | null {
   if (!value) return null
+  const quarter = /^(\d{4})-Q([1-4])$/.exec(value.trim())
+  if (quarter) return `${quarter[1]}년 ${quarter[2]}분기`
   return value
     .split('~')
     .map((part) => part.trim().replace(/-/g, '.'))

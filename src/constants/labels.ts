@@ -57,3 +57,15 @@ export const CURRENT_STATUS_LABEL = {
   closed: '이후 폐업',
   other: '기타(휴업 등)',
 } as const
+
+/** 종합 진단 지표 이름 (API indicators[].id). LQ는 범위 제외라 없다 */
+export const INDICATOR_NAME = {
+  official_closure_rate: '서울시 공식 폐업률',
+  official_risk: '서울시 창업위험도',
+  market_change: '상권변화지표',
+  closure_rate_12m: '참고 폐업률 (최근 12개월)',
+  survival_rate_1y: '1년 생존율',
+  survival_rate_3y: '3년 생존율',
+  competitor_count: '반경 안 동종업체 수',
+  day_night_ratio: '주야간 인구비',
+} as const
