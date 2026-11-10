@@ -1,18 +1,43 @@
 import { useNavigate } from 'react-router'
 import { IMAGES } from '../assets/images'
 import Logo from '../components/common/Logo'
+import CandidateList from '../components/input/CandidateList'
 import DiagnosisForm from '../components/input/DiagnosisForm'
 import InputIntro from '../components/input/InputIntro'
 import { DEFAULT_AREA, DEFAULT_INCLUDE_UNKNOWN, DEFAULT_RADIUS } from '../constants/diagnosis'
-import { MESSAGES } from '../constants/messages'
+import { getErrorMessageFrom, MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
 import { toDiagnosisSearch, useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
+import { useGeocodeSearch } from '../hooks/useGeocode'
+import type { GeocodeCandidate } from '../types/geocode'
 
 /** ② 주소·업종 입력 (STEP 01) — 2-1 기본 / 2-2 오류 / 2-3 완료. 사이드바 없음 */
 export default function InputPage() {
   const navigate = useNavigate()
   // 결과 화면 STEP 01 링크로 돌아오면 이전 주소·업종을 채워 둔다
   const { query } = useDiagnosisQuery()
+  const geocode = useGeocodeSearch()
+  const candidates = geocode.data?.data.candidates ?? []
+
+  /** 선택한 주소(geocode 결과)로 결과 화면 이동. 진단 조건은 기본값에서 시작 */
+  const goToResult = (c: GeocodeCandidate) => {
+    const search = toDiagnosisSearch({
+      address: c.address_road || c.address_jibun,
+      category: c.category,
+      subCategories: [],
+      radius: DEFAULT_RADIUS,
+      asOf: null,
+      area: DEFAULT_AREA,
+      franchise: 'all',
+      includeUnknown: DEFAULT_INCLUDE_UNKNOWN,
+      lat: c.lat,
+      lng: c.lng,
+      buildingKey: c.building_key,
+      floorUnit: c.floor_unit,
+      sigungu: c.sigungu,
+    })
+    navigate({ pathname: ROUTES.analysis, search })
+  }
 
   return (
     <div className="relative flex min-h-full flex-col overflow-hidden bg-bg">
@@ -25,26 +50,26 @@ export default function InputPage() {
         <DiagnosisForm
           initialAddress={query.address}
           initialCategory={query.category}
-          onSubmit={(address, category) => {
-            // TODO: 다음 커밋에서 /geocode 결과(좌표·건물 키)로 채운다
-            const search = toDiagnosisSearch({
-              address,
-              category,
-              subCategories: [],
-              radius: DEFAULT_RADIUS,
-              asOf: null,
-              area: DEFAULT_AREA,
-              franchise: 'all',
-              includeUnknown: DEFAULT_INCLUDE_UNKNOWN,
-              lat: null,
-              lng: null,
-              buildingKey: null,
-              floorUnit: null,
-              sigungu: null,
-            })
-            navigate({ pathname: ROUTES.analysis, search })
+          loading={geocode.isPending}
+          apiError={geocode.error ? getErrorMessageFrom(geocode.error) : null}
+          onChange={() => {
+            // 주소·업종을 바꾸면 이전 검색 결과(후보·오류)를 지운다
+            if (geocode.data || geocode.error) geocode.reset()
           }}
-        />
+          onSubmit={(address, category) =>
+            geocode.mutate(
+              { query: address, category },
+              {
+                onSuccess: ({ data }) => {
+                  // 후보가 여러 개면 목록을 보여주고, 1건이면 바로 결과 화면으로
+                  if (data.candidates.length <= 1) goToResult(data.candidates[0] ?? data)
+                },
+              },
+            )
+          }
+        >
+          {candidates.length > 1 && <CandidateList candidates={candidates} onSelect={goToResult} />}
+        </DiagnosisForm>
       </main>
       <footer className="relative mx-auto w-full max-w-[1200px] px-10 pb-6 text-micro text-gray-600">
         {MESSAGES.layout.ageNotice} {MESSAGES.disclaimer}
