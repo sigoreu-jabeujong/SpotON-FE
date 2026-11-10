@@ -11,6 +11,7 @@ import { CATEGORIES, RESTAURANT_SUB_CATEGORIES } from '../constants/diagnosis'
 import {
   FRANCHISE_LABEL,
   INDICATOR_NAME,
+  INDICATOR_TYPE,
   LOCATION_MATCH_LABEL,
   STORE_STATUS_LABEL,
   SUB_CATEGORY_LABEL,
@@ -189,12 +190,17 @@ function HistoryBlock({ data }: { data: Data }) {
         <p className="text-gray-600">{h.message}</p>
       ) : (
         <table className="w-full border-collapse text-left">
+          <caption className="sr-only">{MESSAGES.history.caption}</caption>
           <thead>
             <tr className="bg-gray-100">
               {Object.values(MESSAGES.history.columns)
                 .filter((c) => c !== MESSAGES.history.columns.no)
                 .map((c) => (
-                  <th key={c} className="border border-gray-300 px-1.5 py-0.5 font-semibold">
+                  <th
+                    key={c}
+                    scope="col"
+                    className="border border-gray-300 px-1.5 py-0.5 font-semibold"
+                  >
                     {c}
                   </th>
                 ))}
@@ -304,9 +310,11 @@ function ActivityBlock({ data }: { data: Data }) {
           <caption className="text-left text-gray-600">{A.trendTitle}</caption>
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-1 py-0.5">{A.trendYearHeader}</th>
+              <th scope="col" className="border border-gray-300 px-1 py-0.5">
+                {A.trendYearHeader}
+              </th>
               {a.yearly_trend.map((y) => (
-                <th key={y.year} className="border border-gray-300 px-1 py-0.5">
+                <th key={y.year} scope="col" className="border border-gray-300 px-1 py-0.5">
                   {y.year}
                 </th>
               ))}
@@ -314,13 +322,17 @@ function ActivityBlock({ data }: { data: Data }) {
           </thead>
           <tbody>
             <tr>
-              <th className="border border-gray-300 px-1 py-0.5">{A.trendOpened}</th>
+              <th scope="row" className="border border-gray-300 px-1 py-0.5">
+                {A.trendOpened}
+              </th>
               {a.yearly_trend.map((y) => (
                 <Td key={y.year}>{y.opened}</Td>
               ))}
             </tr>
             <tr>
-              <th className="border border-gray-300 px-1 py-0.5">{A.trendClosed}</th>
+              <th scope="row" className="border border-gray-300 px-1 py-0.5">
+                {A.trendClosed}
+              </th>
               {a.yearly_trend.map((y) => (
                 <Td key={y.year}>{y.closed}</Td>
               ))}
@@ -361,11 +373,18 @@ function IndicatorTable({ type, rows }: { type: 'official' | 'reference'; rows: 
     <div className="break-inside-avoid">
       <IndicatorTypeLabel type={type} className="mb-1" />
       <table className="w-full border-collapse text-left">
+        <caption className="sr-only">{INDICATOR_TYPE[type]}</caption>
         <thead>
           <tr className="bg-gray-100">
-            <th className="border border-gray-300 px-1.5 py-0.5">{T.colName}</th>
-            <th className="border border-gray-300 px-1.5 py-0.5">{T.colValue}</th>
-            <th className="border border-gray-300 px-1.5 py-0.5">{T.colBasis}</th>
+            <th scope="col" className="border border-gray-300 px-1.5 py-0.5">
+              {T.colName}
+            </th>
+            <th scope="col" className="border border-gray-300 px-1.5 py-0.5">
+              {T.colValue}
+            </th>
+            <th scope="col" className="border border-gray-300 px-1.5 py-0.5">
+              {T.colBasis}
+            </th>
           </tr>
         </thead>
         <tbody>
