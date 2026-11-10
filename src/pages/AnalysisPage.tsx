@@ -21,7 +21,8 @@ export default function AnalysisPage() {
     // 위쪽 섹션(지도·표·차트)이 늦게 불러와져 높이가 커지면 목표 섹션이 밀려나므로,
     // 잠시 동안 크기가 바뀔 때마다 다시 맞춘다. 사용자가 직접 스크롤하면 바로 멈춘다.
     const observer = new ResizeObserver(() => target.scrollIntoView())
-    observer.observe(document.body)
+    // body는 높이가 화면 크기로 고정이라, 실제로 커지는 본문(main)을 지켜본다
+    observer.observe(target.closest('main') ?? document.documentElement)
     const stop = () => observer.disconnect()
     const timer = window.setTimeout(stop, SETTLE_MS)
     const userEvents = ['wheel', 'touchstart', 'keydown', 'mousedown'] as const
