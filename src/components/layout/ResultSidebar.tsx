@@ -2,6 +2,7 @@ import { Check, ClipboardList, Download, MapPin, Search, type LucideIcon } from 
 import type { MouseEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { CATEGORIES, RESTAURANT_SUB_CATEGORIES } from '../../constants/diagnosis'
+import { MESSAGES } from '../../constants/messages'
 import { ANALYSIS_SECTIONS, RESULT_STEPS, ROUTES } from '../../constants/routes'
 import { useActiveSection } from '../../hooks/useActiveSection'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
@@ -54,7 +55,7 @@ export default function ResultSidebar() {
         <Logo />
       </div>
 
-      <nav aria-label="진단 단계" className="flex-1 overflow-y-auto px-7 py-8">
+      <nav aria-label={MESSAGES.layout.stepsNav} className="flex-1 overflow-y-auto px-7 py-8">
         <ol className="flex flex-col">
           {RESULT_STEPS.map((step, index) => {
             const done = step.step < currentStep
@@ -91,8 +92,8 @@ export default function ResultSidebar() {
                       )}
                     >
                       STEP {String(step.step).padStart(2, '0')}
-                      {done && <span className="sr-only"> (완료)</span>}
-                      {current && <span className="sr-only"> (현재 단계)</span>}
+                      {done && <span className="sr-only"> {MESSAGES.layout.stepDone}</span>}
+                      {current && <span className="sr-only"> {MESSAGES.layout.stepCurrent}</span>}
                     </span>
                     <span
                       className={cn(
@@ -106,9 +107,9 @@ export default function ResultSidebar() {
 
                   {step.step === 1 && (query.address || categoryLabel) && (
                     <dl className="mt-2 space-y-1 text-caption text-gray-600">
-                      <dt className="sr-only">진단 주소</dt>
+                      <dt className="sr-only">{MESSAGES.layout.addressTerm}</dt>
                       <dd className="break-keep">{query.address}</dd>
-                      <dt className="sr-only">업종</dt>
+                      <dt className="sr-only">{MESSAGES.layout.categoryTerm}</dt>
                       <dd>
                         {categoryLabel}
                         {subLabels && ` (${subLabels})`}

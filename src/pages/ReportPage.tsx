@@ -230,8 +230,8 @@ function NearbyBlock({ data }: { data: Data }) {
     <Block title={T.nearbyTitle}>
       {n && (
         <p>
-          {T.nearbyCount} <b>{formatCount(n.count, '곳')}</b> (
-          {formatSpace(`radius_${n.radius_m}m`)}, 기준일 {formatDate(n.as_of)})
+          {T.nearbyCount} <b>{formatCount(n.count, MESSAGES.units.store)}</b> (
+          {T.nearbyBasis(formatSpace(`radius_${n.radius_m}m`) ?? '', formatDate(n.as_of) ?? '')})
           {n.excluded_no_coord > 0 && (
             <span className="text-gray-600">
               {' '}
@@ -265,15 +265,16 @@ function ActivityBlock({ data }: { data: Data }) {
       <div className="grid grid-cols-2 gap-x-4">
         <ul className="list-inside list-disc">
           <li>
-            {A.opened12m} <b>{formatCount(a.recent_12m.opened, '곳')}</b> · {A.closed12m}{' '}
-            <b>{formatCount(a.recent_12m.closed, '곳')}</b> ({formatPeriod(a.recent_12m.period)})
+            {A.opened12m} <b>{formatCount(a.recent_12m.opened, MESSAGES.units.store)}</b> ·{' '}
+            {A.closed12m} <b>{formatCount(a.recent_12m.closed, MESSAGES.units.store)}</b> (
+            {formatPeriod(a.recent_12m.period)})
           </li>
           <li>
             {A.avgPeriod}:{' '}
             {a.by_sub_category
               .map(
                 (s) =>
-                  `${SUB_CATEGORY_LABEL[s.sub_category]} ${formatOperatingMonths(s.avg_operating_months) ?? '정보 없음'}`,
+                  `${SUB_CATEGORY_LABEL[s.sub_category]} ${formatOperatingMonths(s.avg_operating_months) ?? T.infoMissing}`,
               )
               .join(' · ')}
           </li>
@@ -283,13 +284,18 @@ function ActivityBlock({ data }: { data: Data }) {
               ? a.sales.markets
                   .map((m) => `${m.market_name} ${formatKrwApprox(m.est_sales)}(${A.estimate})`)
                   .join(' · ')
-              : '자료 없음'}
+              : T.noData}
           </li>
           <li>
             {A.livingTitle}:{' '}
             {a.living_pop
-              ? `${A.people(a.living_pop.total)} (${A.estimate}, ${formatDate(a.living_pop.date)}, 결측 격자 ${a.living_pop.missing_grid_count}개)`
-              : '자료 없음'}
+              ? T.livingSummary(
+                  A.people(a.living_pop.total),
+                  A.estimate,
+                  formatDate(a.living_pop.date) ?? '',
+                  a.living_pop.missing_grid_count,
+                )
+              : T.noData}
           </li>
         </ul>
         <table className="w-full border-collapse text-center">
@@ -378,7 +384,7 @@ function IndicatorTable({ type, rows }: { type: 'official' | 'reference'; rows: 
                       formatPeriod((ind as MetricIndicator).period),
                       formatSpace((ind as MetricIndicator).space),
                       (ind as MetricIndicator).denominator != null
-                        ? `표본 ${(ind as MetricIndicator).denominator}곳`
+                        ? T.sample((ind as MetricIndicator).denominator ?? 0)
                         : null,
                     ]
                       .filter(Boolean)
@@ -400,9 +406,7 @@ function MetricText({ ind }: { ind: MetricIndicator }) {
       {value && <b>{value}</b>}
       <StatusLabel status={ind.status} reason={value ? null : ind.reason} />
       {ind.unit === '%' && (seoul || ind.seoul_avg_reason) && (
-        <span className="text-gray-600">
-          ({seoul ? `서울 평균 ${seoul}` : ind.seoul_avg_reason})
-        </span>
+        <span className="text-gray-600">({seoul ? T.seoulAvg(seoul) : ind.seoul_avg_reason})</span>
       )}
     </span>
   )
@@ -476,7 +480,7 @@ function FooterBlock({
   return (
     <Block title={T.footerTitle}>
       <ul className="list-inside list-disc text-[9.5px] text-gray-600">
-        <li>출처: {ids.map((id) => `${SOURCES[id]?.name ?? id}(${id})`).join(', ')}</li>
+        <li>{T.sources(ids.map((id) => `${SOURCES[id]?.name ?? id}(${id})`).join(', '))}</li>
         {baseline && <li>{baseline}</li>}
         <li>{MESSAGES.disclaimer}</li>
         <li>{MESSAGES.history.notices[1]}</li>
