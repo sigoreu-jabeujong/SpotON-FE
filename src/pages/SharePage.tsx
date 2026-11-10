@@ -2,6 +2,7 @@ import { FileDown, Handshake, Headset, ImageDown, type LucideIcon } from 'lucide
 import { useNavigate } from 'react-router'
 import Card from '../components/common/Card'
 import SummaryImageCard from '../components/share/SummaryImageCard'
+import SupportLinksSection from '../components/share/SupportLinksSection'
 import { useSummaryImage } from '../components/share/useSummaryImage'
 import { MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
@@ -71,6 +72,8 @@ export default function SharePage() {
           <span className="text-danger">{imageReady ? T.imageFailed : T.imageNeedsData}</span>
         )}
       </p>
+
+      <SupportLinksSection />
 
       {/* 요약 이미지용 카드 — 화면 밖에 그려 두고 html2canvas가 읽는다 */}
       {imageReady && (
