@@ -1,10 +1,37 @@
 /** 화면에 보이는 안내·오류·면책 문구 (한곳에서 관리) */
 export const MESSAGES = {
+  /** ① 랜딩 */
+  landing: {
+    slogan: 'Is your spot on? — 내 자리, 딱 맞는 자리일까요?',
+    titleLine1: '창업 전,',
+    titleLine2: '그 자리의 과거를 확인하세요',
+    description: '주소를 입력하고 입지 진단을 시작해 보세요.',
+    start: '진단 시작하기',
+    scope: '현재 서울특별시 카페·음식점(한식·중식·일식·양식)을 진단할 수 있어요',
+    mapAlt: '전국 지도 그림',
+  },
+  /** ② 주소·업종 입력 (주소 검색 API 오류 문구는 ERROR_MESSAGES 사용) */
   input: {
-    addressRequired: '점포 주소를 입력해 주세요',
-    addressNotFound: '주소를 찾을 수 없어요. 도로명 또는 지번 주소를 다시 확인해 주세요',
-    outsideSeoul: '지금은 서울특별시 주소만 진단할 수 있어요',
-    categoryRequired: '업종을 하나 골라 주세요',
+    eyebrow: 'DATA-BASED INSIGHT',
+    introTitleLine1: '좋은 자리는,',
+    introTitleLine2: '데이터로 보입니다.',
+    introDescription:
+      '데이터를 바탕으로 과거 점포 이력과 주변 상권을 분석해, 더 나은 창업 결정을 돕습니다.',
+    features: ['객관적인 데이터 분석', '한눈에 보는 상권 정보', '창업 전 체크리스트 제공'],
+    step: 'STEP 01',
+    cardTitle: '진단할 주소와 업종을 선택해 주세요',
+    cardDescription: '주소와 업종을 입력하면 과거 점포 이력부터 주변 상권까지 분석할 수 있어요.',
+    addressLabel: '진단 위치 입력',
+    addressPlaceholder: '도로명 주소 또는 지번 주소를 입력하세요',
+    addressExample: '예) 서울특별시 강남구 강남대로 396',
+    searchButton: '주소 검색',
+    categoryLabel: '업종 선택',
+    required: '*필수 입력 항목입니다.',
+    submit: '이 자리 진단하기',
+    searching: '주소를 찾는 중이에요',
+    candidatesTitle: '주소 후보가 여러 개예요. 진단할 주소를 골라 주세요.',
+    candidateJibun: '지번',
+    scope: '현재 서울특별시 카페·음식점(한식·중식·일식·양식)을 진단할 수 있어요',
   },
   common: {
     loading: '불러오는 중이에요',

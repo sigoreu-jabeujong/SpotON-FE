@@ -1,108 +1,99 @@
-import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
-import {
-  CATEGORIES,
-  DEFAULT_AREA,
-  DEFAULT_INCLUDE_UNKNOWN,
-  DEFAULT_RADIUS,
-  type Category,
-} from '../constants/diagnosis'
-import { MESSAGES } from '../constants/messages'
+import { IMAGES } from '../assets/images'
+import Logo from '../components/common/Logo'
+import CandidateList from '../components/input/CandidateList'
+import DiagnosisForm from '../components/input/DiagnosisForm'
+import InputIntro from '../components/input/InputIntro'
+import { DEFAULT_AREA, DEFAULT_INCLUDE_UNKNOWN, DEFAULT_RADIUS } from '../constants/diagnosis'
+import { getErrorMessageFrom, MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
-import { toDiagnosisSearch } from '../hooks/useDiagnosisQuery'
+import { toDiagnosisSearch, useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
+import { useGeocodeSearch } from '../hooks/useGeocode'
+import type { GeocodeCandidate } from '../types/geocode'
 
-type Errors = { address?: string; category?: string }
-
-// TODO: 디자인 시안 반영 (② 주소·업종 입력). 주소 검색(geocode API) 연동은 API 명세 확정 후
+/** ② 주소·업종 입력 (STEP 01) — 2-1 기본 / 2-2 오류 / 2-3 완료. 사이드바 없음 */
 export default function InputPage() {
   const navigate = useNavigate()
-  const [address, setAddress] = useState('')
-  const [category, setCategory] = useState<Category | null>(null)
-  const [errors, setErrors] = useState<Errors>({})
+  // 결과 화면 STEP 01 링크로 돌아오면 이전 주소·업종을 채워 둔다
+  const { query } = useDiagnosisQuery()
+  const geocode = useGeocodeSearch()
+  const candidates = geocode.data?.data.candidates ?? []
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
-    const next: Errors = {}
-    if (!address.trim()) next.address = MESSAGES.input.addressRequired
-    if (!category) next.category = MESSAGES.input.categoryRequired
-    setErrors(next)
-    if (Object.keys(next).length > 0) return // 누락 시 다음 단계 진행 차단 (F-01)
-
+  /** 선택한 주소(geocode 결과)로 결과 화면 이동. 진단 조건은 기본값에서 시작 */
+  const goToResult = (c: GeocodeCandidate) => {
     const search = toDiagnosisSearch({
-      address: address.trim(),
-      category,
+      address: c.address_road || c.address_jibun,
+      category: c.category,
       subCategories: [],
       radius: DEFAULT_RADIUS,
       asOf: null,
       area: DEFAULT_AREA,
       franchise: 'all',
       includeUnknown: DEFAULT_INCLUDE_UNKNOWN,
-      // TODO(다음 작업): /geocode 결과로 채운다. 지금은 비어 있어 결과 화면이 입력 화면으로 되돌린다
-      lat: null,
-      lng: null,
-      buildingKey: null,
-      floorUnit: null,
-      sigungu: null,
+      lat: c.lat,
+      lng: c.lng,
+      buildingKey: c.building_key,
+      floorUnit: c.floor_unit,
+      sigungu: c.sigungu,
     })
     navigate({ pathname: ROUTES.analysis, search })
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="mx-auto max-w-md px-4 py-10">
-      <h1 className="text-2xl font-bold">계약 전, 이 자리를 확인하세요</h1>
+    <div className="relative flex min-h-full flex-col overflow-hidden bg-bg">
+      <InputBackground />
+      <header className="relative mx-auto w-full max-w-[1200px] px-10 pt-10">
+        <Logo />
+      </header>
+      <main className="relative mx-auto flex w-full max-w-[1200px] flex-1 items-center justify-between gap-12 px-10 py-12">
+        <InputIntro />
+        <DiagnosisForm
+          initialAddress={query.address}
+          initialCategory={query.category}
+          loading={geocode.isPending}
+          apiError={geocode.error ? getErrorMessageFrom(geocode.error) : null}
+          onChange={() => {
+            // 주소·업종을 바꾸면 이전 검색 결과(후보·오류)를 지운다
+            if (geocode.data || geocode.error) geocode.reset()
+          }}
+          onSubmit={(address, category) =>
+            geocode.mutate(
+              { query: address, category },
+              {
+                onSuccess: ({ data }) => {
+                  // 후보가 여러 개면 목록을 보여주고, 1건이면 바로 결과 화면으로
+                  if (data.candidates.length <= 1) goToResult(data.candidates[0] ?? data)
+                },
+              },
+            )
+          }
+        >
+          {candidates.length > 1 && <CandidateList candidates={candidates} onSelect={goToResult} />}
+        </DiagnosisForm>
+      </main>
+      <footer className="relative mx-auto w-full max-w-[1200px] px-10 pb-6 text-micro text-gray-600">
+        {MESSAGES.layout.ageNotice} {MESSAGES.disclaimer}
+      </footer>
+    </div>
+  )
+}
 
-      <label htmlFor="address" className="mt-6 block text-sm font-medium">
-        점포 주소
-      </label>
-      <input
-        id="address"
-        value={address}
-        onChange={(e) => {
-          setAddress(e.target.value)
-          setErrors((p) => ({ ...p, address: undefined }))
-        }}
-        placeholder="서울 마포구 와우산로 21"
-        aria-invalid={!!errors.address}
-        aria-describedby={errors.address ? 'address-error' : undefined}
-        className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+/** 배경 3D 건물·위치 핀 그림. 이미지가 없으면 연한 파란 그라데이션 임시 배경 */
+function InputBackground() {
+  if (IMAGES.inputBackground) {
+    return (
+      <img
+        src={IMAGES.inputBackground}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 w-full object-cover object-top"
       />
-      {errors.address && (
-        <p id="address-error" role="alert" className="mt-1 text-sm text-red-600">
-          {errors.address}
-        </p>
-      )}
-
-      <fieldset className="mt-6">
-        <legend className="text-sm font-medium">업종</legend>
-        <div className="mt-2 flex gap-2">
-          {CATEGORIES.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              aria-pressed={category === c.id}
-              onClick={() => {
-                setCategory(c.id)
-                setErrors((p) => ({ ...p, category: undefined }))
-              }}
-              className={`rounded-full border px-4 py-2 text-sm ${category === c.id ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-300'}`}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
-        {errors.category && (
-          <p role="alert" className="mt-1 text-sm text-red-600">
-            {errors.category}
-          </p>
-        )}
-      </fieldset>
-
-      <button
-        type="submit"
-        className="mt-8 w-full rounded-lg bg-gray-900 py-3 font-semibold text-white"
-      >
-        진단하기
-      </button>
-    </form>
+    )
+  }
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-linear-to-t from-blue-100 via-blue-100/50 to-transparent"
+    />
   )
 }

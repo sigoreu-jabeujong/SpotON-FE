@@ -11,13 +11,12 @@ import SummaryPage from './pages/SummaryPage'
 import { LEGACY_RESULT_REDIRECTS, ROUTES } from './constants/routes'
 
 export const router = createBrowserRouter([
+  // 랜딩·입력은 디자인대로 화면마다 자체 틀(로고 포함)을 쓴다
+  { path: ROUTES.landing, element: <LandingPage /> },
+  { path: ROUTES.input, element: <InputPage /> },
   {
     element: <AppLayout />,
-    children: [
-      { path: ROUTES.landing, element: <LandingPage /> },
-      { path: ROUTES.input, element: <InputPage /> },
-      { path: '*', element: <NotFoundPage /> },
-    ],
+    children: [{ path: '*', element: <NotFoundPage /> }],
   },
   {
     // 결과 화면(STEP 02~04): 왼쪽 사이드바 레이아웃

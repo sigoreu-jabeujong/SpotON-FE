@@ -1,0 +1,219 @@
+import {
+  ArrowRight,
+  Coffee,
+  LoaderCircle,
+  MapPin,
+  Search,
+  Utensils,
+  type LucideIcon,
+} from 'lucide-react'
+import { useState, type FormEvent, type ReactNode } from 'react'
+import { CATEGORIES, type Category } from '../../constants/diagnosis'
+import { MESSAGES } from '../../constants/messages'
+import { cn } from '../../utils/cn'
+
+const T = MESSAGES.input
+const CATEGORY_ICON: Record<Category, LucideIcon> = { cafe: Coffee, restaurant: Utensils }
+
+type Props = {
+  initialAddress?: string
+  initialCategory?: Category | null
+  /** 주소 검색 중이면 버튼 비활성 + 로딩 표시 */
+  loading?: boolean
+  /** 주소 검색 API 오류 문구 (주소 입력칸 아래에 표시) */
+  apiError?: string | null
+  /** 필수 항목이 모두 채워졌을 때만 호출 */
+  onSubmit: (address: string, category: Category) => void
+  /** 입력값이 바뀌면 호출 (이전 검색 결과·오류 지우기용) */
+  onChange?: () => void
+  /** 주소 입력칸 아래에 붙는 내용 (예: 주소 후보 목록) */
+  children?: ReactNode
+}
+
+type Required = { address: boolean; category: boolean }
+
+/** 입력 화면 오른쪽 흰 카드: STEP 01, ① 진단 위치 입력, ② 업종 선택, "이 자리 진단하기" */
+export default function DiagnosisForm({
+  initialAddress = '',
+  initialCategory = null,
+  loading = false,
+  apiError,
+  onSubmit,
+  onChange,
+  children,
+}: Props) {
+  const [address, setAddress] = useState(initialAddress)
+  const [category, setCategory] = useState<Category | null>(initialCategory)
+  const [missing, setMissing] = useState<Required>({ address: false, category: false })
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    if (loading) return
+    const next = { address: !address.trim(), category: !category }
+    setMissing(next)
+    if (next.address || next.category || !category) return // 누락 시 진행 차단 (F-01)
+    onSubmit(address.trim(), category)
+  }
+
+  const ready = address.trim() !== '' && category !== null
+  const addressDescribedBy = cn(
+    missing.address && 'address-required',
+    apiError && 'address-api-error',
+    'address-example',
+  )
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      aria-labelledby="diagnosis-form-title"
+      className="w-full max-w-[530px] rounded-card bg-gray-0 p-9 shadow-card"
+    >
+      <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-micro font-semibold text-blue-500">
+        {T.step}
+      </span>
+      <h2 id="diagnosis-form-title" className="mt-4 text-section font-bold text-gray-900">
+        {T.cardTitle}
+      </h2>
+      <p className="mt-1 text-caption text-gray-600">{T.cardDescription}</p>
+
+      {/* ① 진단 위치 입력 */}
+      <div className="mt-7">
+        <div className="flex items-center gap-3">
+          <label htmlFor="address" className="flex items-center gap-2 text-body font-bold">
+            <StepDot n={1} />
+            {T.addressLabel}
+          </label>
+          {missing.address && (
+            <p id="address-required" role="alert" className="text-micro text-danger">
+              {T.required}
+            </p>
+          )}
+        </div>
+        <div
+          className={cn(
+            'mt-3 flex h-12 items-center gap-2 rounded-full border-[1.5px] bg-gray-0 pr-1.5 pl-4 transition-colors focus-within:border-blue-700 focus-within:ring-2 focus-within:ring-blue-500/30',
+            missing.address || apiError ? 'border-danger' : 'border-blue-500',
+          )}
+        >
+          <MapPin className="size-5 shrink-0 text-gray-900" aria-hidden="true" />
+          <input
+            id="address"
+            name="address"
+            type="text"
+            autoComplete="street-address"
+            value={address}
+            onChange={(e) => {
+              setAddress(e.target.value)
+              if (missing.address) setMissing((m) => ({ ...m, address: false }))
+              onChange?.()
+            }}
+            placeholder={T.addressPlaceholder}
+            aria-invalid={missing.address || !!apiError}
+            aria-describedby={addressDescribedBy}
+            className="h-full min-w-0 flex-1 bg-transparent text-body text-gray-900 outline-none placeholder:text-gray-600"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            aria-label={T.searchButton}
+            className="flex size-9 shrink-0 items-center justify-center rounded-full text-gray-900 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:text-gray-600"
+          >
+            <Search className="size-5" aria-hidden="true" />
+          </button>
+        </div>
+        {apiError && (
+          <p id="address-api-error" role="alert" className="mt-2 pl-4 text-caption text-danger">
+            {apiError}
+          </p>
+        )}
+        <p id="address-example" className="mt-1.5 pl-4 text-micro text-gray-600">
+          {T.addressExample}
+        </p>
+        {children}
+      </div>
+
+      {/* ② 업종 선택 */}
+      <div className="mt-7">
+        <div className="flex items-center gap-3">
+          <span id="category-label" className="flex items-center gap-2 text-body font-bold">
+            <StepDot n={2} />
+            {T.categoryLabel}
+          </span>
+          {missing.category && (
+            <p id="category-required" role="alert" className="text-micro text-danger">
+              {T.required}
+            </p>
+          )}
+        </div>
+        <div
+          role="group"
+          aria-labelledby="category-label"
+          aria-describedby={missing.category ? 'category-required' : undefined}
+          className="mt-3 grid grid-cols-2 gap-2"
+        >
+          {CATEGORIES.map((c) => {
+            const Icon = CATEGORY_ICON[c.id]
+            const selected = category === c.id
+            return (
+              <button
+                key={c.id}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => {
+                  setCategory(c.id)
+                  if (missing.category) setMissing((m) => ({ ...m, category: false }))
+                  onChange?.()
+                }}
+                className={cn(
+                  'flex h-12 items-center justify-center gap-2 rounded-full border text-body font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+                  selected
+                    ? 'border-blue-500 bg-blue-100 text-blue-700'
+                    : missing.category
+                      ? 'border-danger text-gray-900 hover:bg-gray-100'
+                      : 'border-gray-300 text-gray-900 hover:bg-gray-100',
+                )}
+              >
+                <Icon className="size-5" aria-hidden="true" />
+                {c.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        disabled={loading}
+        className={cn(
+          'mt-9 flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait',
+          ready ? 'bg-blue-500 text-white hover:bg-blue-700' : 'bg-blue-100 text-gray-600',
+        )}
+      >
+        {loading ? (
+          <>
+            <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
+            <span role="status">{T.searching}</span>
+          </>
+        ) : (
+          <>
+            {T.submit}
+            <ArrowRight className="size-5" aria-hidden="true" />
+          </>
+        )}
+      </button>
+      <p className="mt-3 text-center text-micro text-gray-600">{T.scope}</p>
+    </form>
+  )
+}
+
+function StepDot({ n }: { n: number }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex size-5 items-center justify-center rounded-full bg-blue-500 text-micro font-bold text-white"
+    >
+      {n}
+    </span>
+  )
+}
