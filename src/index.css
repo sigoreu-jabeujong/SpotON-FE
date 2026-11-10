@@ -1,7 +1,81 @@
 @import 'tailwindcss';
 
-/* 디자인 시안 확정 후 색상·글꼴 토큰을 @theme 에 정의한다 */
+/*
+ * Spot:ON 디자인 토큰 (Figma Spot:ON_Draft_1, 99 색상표 기준)
+ * hex가 적힌 값은 확정, 이미지에서 눈으로 읽은 값은 "(추정)" 표시 — Figma 값 확인 후 교체
+ */
 @theme {
+  /* 글꼴: Pretendard (npm 패키지 pretendard, OFL-1.1) */
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Noto Sans KR',
+    'Malgun Gothic', sans-serif;
+
+  /* Main Blue (확정) */
+  --color-blue-100: #f0f3fa;
+  --color-blue-500: #3376fd;
+  --color-blue-700: #0d50d7;
+
+  /* 화면 배경 (확정, Background Color 2·3-7) */
+  --color-bg: #fbfdff;
+
+  /* Neutral gray (추정) */
+  --color-gray-0: #ffffff;
+  --color-gray-100: #f7f7f7;
+  --color-gray-300: #e6e6e6;
+  --color-gray-600: #666666;
+  --color-gray-900: #1a1a1a;
+
+  /* Extra color — 배지·카드 배경용 (모두 추정) */
+  --color-orange-100: #faf0e6;
+  --color-orange-500: #e07800;
+  --color-orange-700: #a65a00;
+  --color-green-100: #e8f7f0;
+  --color-green-500: #00a36c;
+  --color-green-700: #007a4f;
+  --color-purple-100: #f3edfd;
+  --color-purple-500: #9650fa;
+  --color-purple-700: #6e28e6;
+  --color-pink-100: #fce8f4;
+  --color-pink-500: #dc3cb4;
+  --color-pink-700: #b4148c;
+
+  /* 오류 문구 (2-2 입력 오류 "*필수 입력 항목입니다.", 추정) */
+  --color-danger: #e5484d;
+
+  /*
+   * 상태 라벨 색 (labels.ts의 tone과 연결). 참고지표의 등급 색으로 쓰지 않는다.
+   * 색만으로 구분하지 않고 항상 글자·아이콘을 함께 쓴다.
+   */
+  --color-status-neutral-bg: var(--color-gray-100);
+  --color-status-neutral-fg: var(--color-gray-900);
+  --color-status-info-bg: var(--color-blue-100);
+  --color-status-info-fg: var(--color-blue-700);
+  --color-status-muted-bg: var(--color-gray-100);
+  --color-status-muted-fg: var(--color-gray-600);
+  --color-status-warning-bg: var(--color-orange-100);
+  --color-status-warning-fg: var(--color-orange-700);
+
+  /* 글자 크기 (1440 기준 캡처에서 추정) */
+  --text-title: 1.75rem; /* 화면 큰 제목 28px */
+  --text-title--line-height: 1.35;
+  --text-section: 1.375rem; /* 섹션 제목 22px */
+  --text-section--line-height: 1.4;
+  --text-subtitle: 1.0625rem; /* 소제목 17px */
+  --text-subtitle--line-height: 1.5;
+  --text-body: 0.9375rem; /* 본문 15px */
+  --text-body--line-height: 1.6;
+  --text-caption: 0.8125rem; /* 설명·메타 13px */
+  --text-caption--line-height: 1.5;
+  --text-micro: 0.75rem; /* 아주 작은 라벨 12px */
+  --text-micro--line-height: 1.4;
+
+  /* 모서리·그림자 (추정) */
+  --radius-card: 1rem;
+  --radius-control: 0.625rem;
+  --shadow-card: 0 4px 24px rgb(13 80 215 / 0.06), 0 1px 3px rgb(26 26 26 / 0.04);
+
+  /* 레이아웃 */
+  --spacing-sidebar: 17.5rem; /* 280px */
 }
 
 html,
@@ -11,5 +85,17 @@ body,
 }
 
 body {
-  font-family: 'Pretendard', 'Noto Sans KR', 'Malgun Gothic', system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-gray-900);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 사이드바 메뉴로 섹션 이동 시 부드럽게 스크롤 (움직임 줄이기 설정 존중) */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
