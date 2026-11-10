@@ -52,7 +52,8 @@ export default function NearbySection() {
             <ErrorState
               error={nearby.error}
               message={getAsOfRangeMessage(nearby.error) ?? undefined}
-              onRetry={() => void nearby.refetch()}
+              // 범위 밖 시점은 다시 시도해도 같으므로 기간 안내만 (다시 시도 버튼 없음)
+              onRetry={getAsOfRangeMessage(nearby.error) ? undefined : () => void nearby.refetch()}
             />
           ) : (
             data && (
