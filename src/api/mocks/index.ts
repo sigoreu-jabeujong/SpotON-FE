@@ -1,4 +1,10 @@
 import type { ApiResponse } from '../../types/api'
+import { geocodeMock } from './geocode'
+import { marketActivityMock } from './market'
+import { dataRangeMock } from './meta'
+import { riskInterpretMock, riskMock } from './risk'
+import { nearbyStoresMock, storeHistoryMock, storeSnapshotMock } from './stores'
+import { supportLinksMock } from './support'
 
 /**
  * 목업 응답 등록소. VITE_USE_MOCK=true 일 때 실제 서버 대신 사용한다.
@@ -10,7 +16,18 @@ export type MockHandler = (query: URLSearchParams, body: unknown) => MockResult
 /** 로딩 상태를 화면에서 확인할 수 있도록 넣는 지연 시간 */
 const MOCK_DELAY_MS = 300
 
-const mockRoutes: Record<string, MockHandler> = {}
+/** 9개 API 목업 (모두 시연용 가상 값, is_demo: true) */
+const mockRoutes: Record<string, MockHandler> = {
+  '/geocode': geocodeMock,
+  '/stores/history': storeHistoryMock,
+  '/stores/nearby': nearbyStoresMock,
+  '/stores/snapshot': storeSnapshotMock,
+  '/meta/data-range': dataRangeMock,
+  '/market/activity': marketActivityMock,
+  '/risk': riskMock,
+  '/risk/interpret': riskInterpretMock,
+  '/support-links': supportLinksMock,
+}
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
