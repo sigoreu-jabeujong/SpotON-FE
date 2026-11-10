@@ -1,9 +1,8 @@
-import { toCommonQueryParams } from '../../api/params'
+import { ACTIVITY_INCLUDE, toCommonQueryParams } from '../../api/params'
 import { getAsOfRangeMessage, MESSAGES } from '../../constants/messages'
 import { getCoordinates, useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { useMarketActivity } from '../../hooks/useMarketActivity'
 import { useRisk } from '../../hooks/useRisk'
-import type { ActivityInclude } from '../../types/market'
 import { formatDataBaseline } from '../../utils/format'
 import ErrorState from '../common/ErrorState'
 import LoadingState from '../common/LoadingState'
@@ -16,8 +15,6 @@ import YearlyTrendChart from './activity/YearlyTrendChart'
 import PastViewNote from './nearby/PastViewNote'
 
 const T = MESSAGES.activity
-/** 조건부 항목은 항상 요청하고, 자료가 없으면 서버가 null + flags.missing으로 알려 준다 (쿼리 키가 바뀌지 않게 모듈 상수) */
-const ACTIVITY_INCLUDE: ActivityInclude[] = ['sales', 'living_pop']
 
 /** STEP 02 ③ 상권 활동 분석 (F-06) — /market/activity + /risk의 competitor_count */
 export default function ActivitySection() {

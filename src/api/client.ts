@@ -45,14 +45,18 @@ function toQueryString(params?: QueryParams): string {
   return s ? `?${s}` : ''
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<ApiResult<T>> {
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  timeoutMs: number = TIMEOUT_MS,
+): Promise<ApiResult<T>> {
   if (USE_MOCK) {
     const mock = await getMockResponse<T>(path, init)
     if (mock) return unwrap(mock.body, mock.status)
   }
 
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
     const res = await fetch(`${BASE_URL}${API_PREFIX}${path}`, {
       ...init,
@@ -94,6 +98,7 @@ export function apiGet<T>(path: string, params?: QueryParams) {
   return request<T>(`${path}${toQueryString(params)}`)
 }
 
-export function apiPost<T>(path: string, body: unknown) {
-  return request<T>(path, { method: 'POST', body: JSON.stringify(body) })
+/** @param options.timeoutMs 기본 15초. AI 해석처럼 오래 걸리는 요청만 늘린다 */
+export function apiPost<T>(path: string, body: unknown, options?: { timeoutMs?: number }) {
+  return request<T>(path, { method: 'POST', body: JSON.stringify(body) }, options?.timeoutMs)
 }
