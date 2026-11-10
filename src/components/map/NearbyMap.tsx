@@ -19,6 +19,8 @@ type Props = {
   markers: NearbyMarker[]
   /** 지도 위 배지 문구 (예: "반경 500m · 기준일 2026.10.31") */
   badge: string
+  /** 과거 시점 배지 (예: "2023년 10월 기준"). 있으면 지도 위에 주황색으로 눈에 띄게 표시 */
+  pastBadge?: string | null
   /** 강조할 점포 license_no (표에서 고른 점포) */
   selectedId: string | null
   onSelect: (id: string | null) => void
@@ -30,6 +32,7 @@ export default function NearbyMap({
   radiusM,
   markers,
   badge,
+  pastBadge,
   selectedId,
   onSelect,
 }: Props) {
@@ -172,10 +175,17 @@ export default function NearbyMap({
               <LoadingState message={T.mapLoading} />
             </div>
           )}
-          <p className="pointer-events-none absolute top-3 left-3 z-10 rounded-full bg-gray-0 px-3 py-1.5 text-caption font-semibold text-gray-900 shadow-card">
-            {T.mapTitle}
-            <span className="ml-2 font-normal text-blue-700">{badge}</span>
-          </p>
+          <div className="pointer-events-none absolute top-3 left-3 z-10 flex flex-wrap items-center gap-2">
+            <p className="rounded-full bg-gray-0 px-3 py-1.5 text-caption font-semibold text-gray-900 shadow-card">
+              {T.mapTitle}
+              <span className="ml-2 font-normal text-blue-700">{badge}</span>
+            </p>
+            {pastBadge && (
+              <p className="rounded-full bg-orange-500 px-3 py-1.5 text-caption font-bold text-white shadow-card">
+                {pastBadge}
+              </p>
+            )}
+          </div>
         </>
       )}
     </div>

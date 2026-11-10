@@ -91,6 +91,9 @@ export const MESSAGES = {
   },
   /** STEP 02 ② 주변 점포 분석 */
   nearby: {
+    pastView: (ym: string) => `${ym} 기준으로 보고 있어요`,
+    pastViewHint: '지도·점포 표·시점 조회가 이 시점에 영업하던 점포를 기준으로 바뀌었어요.',
+    pastBadge: (ym: string) => `${ym} 기준`,
     mapTitle: '주변 점포 분포',
     tableTitle: '점포 상세 조회',
     mapBadge: (radius: number, asOf: string | null) =>
@@ -195,6 +198,22 @@ const isErrorCode = (code: string): code is ErrorCode => code in ERROR_MESSAGES
 /** 오류 코드 → 안내 문구. 모르는 코드면 공통 오류 문구 */
 export function getErrorMessage(code: string | null | undefined): string {
   return code && isErrorCode(code) ? ERROR_MESSAGES[code] : MESSAGES.common.error
+}
+
+/**
+ * AS_OF_OUT_OF_RANGE 오류면 error.detail의 min_month·max_month로
+ * "선택할 수 있는 기간은 YYYY.MM ~ YYYY.MM이에요"를 만든다. 다른 오류·detail 없음이면 null
+ */
+export function getAsOfRangeMessage(error: unknown): string | null {
+  if (typeof error !== 'object' || error === null) return null
+  if (!('code' in error) || error.code !== 'AS_OF_OUT_OF_RANGE') return null
+  const detail = 'detail' in error ? error.detail : null
+  if (typeof detail !== 'object' || detail === null) return ERROR_MESSAGES.AS_OF_OUT_OF_RANGE
+  const min = 'min_month' in detail ? detail.min_month : null
+  const max = 'max_month' in detail ? detail.max_month : null
+  if (typeof min !== 'string' || typeof max !== 'string') return ERROR_MESSAGES.AS_OF_OUT_OF_RANGE
+  const dot = (ym: string) => ym.replace('-', '.')
+  return MESSAGES.filter.asOfRange(dot(min), dot(max))
 }
 
 /** 잡힌 오류 객체(ApiRequestError 등)에서 code를 꺼내 안내 문구를 찾는다 */

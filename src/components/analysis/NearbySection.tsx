@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react'
 import { toCommonQueryParams } from '../../api/params'
-import { MESSAGES } from '../../constants/messages'
+import { getAsOfRangeMessage, MESSAGES } from '../../constants/messages'
 import { getCoordinates, useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { useNearbyStores } from '../../hooks/useStores'
-import { formatDataBaseline, formatDate } from '../../utils/format'
+import { formatDataBaseline, formatDate, formatYearMonthKo } from '../../utils/format'
 import EmptyState from '../common/EmptyState'
 import ErrorState from '../common/ErrorState'
 import LoadingState from '../common/LoadingState'
@@ -14,6 +14,7 @@ import NearbyMap from '../map/NearbyMap'
 import AnalysisSection from './AnalysisSection'
 import ConditionFilterBar from './ConditionFilterBar'
 import NearbyTable from './nearby/NearbyTable'
+import PastViewBanner from './nearby/PastViewBanner'
 
 const T = MESSAGES.nearby
 
@@ -32,12 +33,14 @@ export default function NearbySection() {
     mapWrapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }
 
+  const pastLabel = formatYearMonthKo(query.asOf)
   const data = nearby.data?.data
   const meta = nearby.data?.meta
 
   return (
     <AnalysisSection id="nearby">
       <div className="flex flex-col gap-6">
+        <PastViewBanner />
         <ConditionFilterBar />
 
         <div className="flex flex-col gap-3">
@@ -45,7 +48,11 @@ export default function NearbySection() {
           {nearby.isPending ? (
             <LoadingState />
           ) : nearby.isError ? (
-            <ErrorState error={nearby.error} onRetry={() => void nearby.refetch()} />
+            <ErrorState
+              error={nearby.error}
+              message={getAsOfRangeMessage(nearby.error) ?? undefined}
+              onRetry={() => void nearby.refetch()}
+            />
           ) : (
             data && (
               <>
@@ -55,6 +62,7 @@ export default function NearbySection() {
                     radiusM={data.radius_m}
                     markers={data.markers}
                     badge={T.mapBadge(data.radius_m, formatDate(data.as_of))}
+                    pastBadge={pastLabel ? T.pastBadge(pastLabel) : null}
                     selectedId={selectedId}
                     onSelect={setSelectedId}
                   />
