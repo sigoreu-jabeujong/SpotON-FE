@@ -1,9 +1,8 @@
-/** /stores/history·/stores/nearby·/stores/snapshot 목업 — 시연용 가상 값 */
+/** /stores/history 목업 — 시연용 가상 값 (주변 점포·시점 조회는 nearby.ts) */
 import type { ApiMeta } from '../../types/api'
-import type { HistoryStore, SnapshotStore, StoreHistory, StoreSnapshot } from '../../types/stores'
-import { DEMO_META, fail, monthEnd, ok, radiusSpace } from './common'
+import type { HistoryStore, StoreHistory } from '../../types/stores'
+import { DEMO_META, fail, ok } from './common'
 import type { MockHandler } from './index'
-import { DATA_RANGE } from './meta'
 
 /**
  * 이력 목업 — 시연용 가상 값. 지원 업종(카페·한식·중식·일식·양식)만.
@@ -150,53 +149,4 @@ export const storeHistoryMock: MockHandler = (query) => {
     : HISTORY_STORES.map((s) => ({ ...s, location_match: 'unverified' as const }))
   const data: StoreHistory = { total: stores.length, stores, message: null }
   return ok(data, { ...HISTORY_META, denominator: stores.length })
-}
-
-const SNAPSHOT_STORES: SnapshotStore[] = [
-  {
-    license_no: '3130000-104-2019-00101',
-    name: '○○다방',
-    sub_category: 'cafe',
-    lat: 37.5575,
-    lng: 126.9201,
-    open_date: '2019-06-01',
-    close_date: null,
-    operating_months: 89,
-    current_status: 'open',
-  },
-  {
-    license_no: '3130000-104-2020-00202',
-    name: '△△디저트카페',
-    sub_category: 'cafe',
-    lat: 37.5549,
-    lng: 126.9226,
-    open_date: '2020-02-14',
-    close_date: '2024-03-31',
-    operating_months: 49,
-    current_status: 'closed',
-  },
-]
-
-export const storeSnapshotMock: MockHandler = (query) => {
-  const asOfMonth = query.get('as_of')
-  if (!asOfMonth || !/^\d{4}-(0[1-9]|1[0-2])$/.test(asOfMonth))
-    return fail(400, 'INVALID_PARAM', '입력값을 다시 확인해 주세요.')
-  if (asOfMonth < DATA_RANGE.min_month || asOfMonth > DATA_RANGE.max_month)
-    return fail(422, 'AS_OF_OUT_OF_RANGE', '선택한 시점은 데이터 제공 범위 밖이에요.', {
-      min_month: DATA_RANGE.min_month,
-      max_month: DATA_RANGE.max_month,
-    })
-  const { space } = radiusSpace(query)
-  const asOf = monthEnd(asOfMonth)
-  const [y, m] = asOfMonth.split('-')
-  const data: StoreSnapshot = {
-    as_of: asOf,
-    total_at_as_of: 12,
-    still_open: 7,
-    closed_since: 5,
-    other: 0,
-    stores: SNAPSHOT_STORES,
-    summary_text: `${y}.${m} 시점 동일 업종 12곳 → 지금도 운영 중 7곳 · 폐업 5곳`,
-  }
-  return ok(data, { ...DEMO_META, as_of: asOf, space, denominator: 12 })
 }

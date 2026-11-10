@@ -3,8 +3,8 @@ import { geocodeMock } from './geocode'
 import { marketActivityMock } from './market'
 import { dataRangeMock } from './meta'
 import { riskInterpretMock, riskMock } from './risk'
-import { nearbyStoresMock } from './nearby'
-import { storeHistoryMock, storeSnapshotMock } from './stores'
+import { nearbyStoresMock, storeSnapshotMock } from './nearby'
+import { storeHistoryMock } from './stores'
 import { supportLinksMock } from './support'
 
 /**
