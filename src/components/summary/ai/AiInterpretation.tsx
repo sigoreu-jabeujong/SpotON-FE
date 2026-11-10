@@ -12,6 +12,7 @@ import type { Risk, RiskInterpretRequest } from '../../../types/risk'
 import type { StoreHistory } from '../../../types/stores'
 import Button from '../../common/Button'
 import SubTitle from '../../common/SubTitle'
+import AiChecklist from './AiChecklist'
 import AiFailure from './AiFailure'
 import AiResultCard from './AiResultCard'
 
@@ -116,7 +117,9 @@ export default function AiInterpretation({ risk, params, onReloadIndicators }: P
         <AiFailure error={interpret.error} verifyFailed={!!result && !verified} onRetry={request} />
       )}
 
-      {result && verified && <AiResultCard result={result} />}
+      {result && verified && (
+        <AiResultCard result={result} checklist={<AiChecklist items={result.checklist} />} />
+      )}
     </section>
   )
 }
