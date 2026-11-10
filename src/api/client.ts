@@ -76,7 +76,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<ApiResult<T
 
 function unwrap<T>(body: ApiResponse<T>, status: number): ApiResult<T> {
   if (body.error) {
-    throw new ApiRequestError(body.error.code, body.error.message, status, body.error.detail ?? null)
+    throw new ApiRequestError(
+      body.error.code,
+      body.error.message,
+      status,
+      body.error.detail ?? null,
+    )
   }
   if (body.data === null || body.data === undefined) {
     throw new ApiRequestError('EMPTY_DATA', '데이터가 없어요', status)
