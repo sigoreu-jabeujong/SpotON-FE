@@ -1,8 +1,23 @@
 # 화면별 요구사항
 
-> 마지막 갱신: 2026-11-10
+> 마지막 갱신: 2026-11-10 (구현 상태 반영)
 > 기준: 02 기능 명세서, 06 API 명세서 v1.1, 08 분석 로직 정의서, BE 작업계획서, 디자인 초안(Figma)
 > 화면 크기: **데스크톱 1440×900 기준**. 모바일 전용 대응은 이번 개발 범위 밖이다.
+
+## 0. 구현 상태 (2026-11-10, 목업 모드 기준)
+
+모든 화면은 `VITE_USE_MOCK=true`의 목업 응답으로 동작을 확인했다. **BE 실제 API와 연결해 확인하는 일은 아직 남아 있다.**
+
+| 화면 | 상태 | 구현 위치 | 남은 일 |
+|---|---|---|---|
+| ① 랜딩 `/` | ✅ 완료 | `pages/LandingPage.tsx` | 전국 지도 이미지 파일 받으면 `src/assets/images.ts`에 연결 |
+| ② 입력 `/diagnose` | ✅ 완료 (geocode·후보 선택·오류 안내) | `pages/InputPage.tsx`, `components/input/` | 입력 화면 배경 이미지 |
+| ③ 과거 점포 이력 `#history` | ✅ 완료 | `components/analysis/HistorySection.tsx`, `analysis/history/` | 실제 데이터로 위치 일치 판정 확인 |
+| ④ 주변 점포 `#nearby` | ✅ 완료 (필터 바·카카오 지도·점포 표·시점 조회) | `components/analysis/NearbySection.tsx`, `ConditionFilterBar.tsx`, `AsOfPicker.tsx`, `analysis/nearby/`, `components/map/` | 배포 도메인을 카카오 콘솔 허용 도메인에 등록 |
+| ⑤ 상권 활동 `#activity` | ✅ 완료 (점포 현황·연도별 차트·조건부 지표) | `components/analysis/ActivitySection.tsx`, `analysis/activity/` | 추정매출·생활인구는 BE 자료 확보 후 실제 값 확인 |
+| ⑥ 종합 진단 `/result/summary` | ✅ 완료 (상권 판정·공식/참고 지표·서울 평균 비교·AI 해석·체크리스트) | `pages/SummaryPage.tsx`, `components/summary/` | `official_risk`·`market_change` 형식 BE 확정 후 맞추기 |
+| ⑦ 저장·상담 `/result/share` | ✅ 완료 (PDF 진단서·요약 이미지·상담 링크·재진단) | `pages/SharePage.tsx`, `pages/ReportPage.tsx`, `components/share/` | — |
+| 공통 | ✅ | 사이드바 레이아웃, 탭 제목, 404, 화면별 나눠 불러오기 | 결과 머리 그림(3D 건물) 이미지 |
 
 ## 1. 디자인 구조
 
