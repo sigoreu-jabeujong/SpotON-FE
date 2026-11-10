@@ -1,4 +1,4 @@
-import type { MetricIndicator } from '../../types/risk'
+import type { IndicatorId, MetricIndicator } from '../../types/risk'
 import { formatCount, formatPercent } from '../../utils/format'
 
 /**
@@ -19,4 +19,9 @@ export function formatIndicatorValue(ind: Pick<MetricIndicator, 'value' | 'unit'
 export function formatSeoulAvg(ind: Pick<MetricIndicator, 'seoul_avg' | 'unit'>) {
   if (ind.seoul_avg === null || ind.seoul_avg === undefined) return null
   return ind.unit === '%' ? formatPercent(ind.seoul_avg, 1) : String(ind.seoul_avg)
+}
+
+/** 지표 카드의 HTML id (AI 해석 근거 칩 → 카드로 스크롤) */
+export function indicatorAnchorId(id: IndicatorId): string {
+  return `indicator-${id}`
 }

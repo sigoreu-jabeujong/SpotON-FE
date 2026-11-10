@@ -96,3 +96,9 @@ export function formatKrwApprox(won: Maybe<number>): string | null {
   if (won >= 1e8) return `약 ${(won / 1e8).toFixed(1)}억 원`
   return `약 ${countFormatter.format(Math.round(won / 1e4))}만 원`
 }
+
+/** ISO 시각 "2026-11-09T14:02:11+09:00" → "2026.11.09 14:02" (서버가 준 시각 글자 그대로, 시간대 변환 없음) */
+export function formatDateTime(value: Maybe<string>): string | null {
+  const m = value ? /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value) : null
+  return m ? `${m[1]}.${m[2]}.${m[3]} ${m[4]}:${m[5]}` : (value ?? null)
+}
