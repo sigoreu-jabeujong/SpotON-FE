@@ -1,0 +1,51 @@
+/**
+ * 화면 표시용 형식 변환 (docs/display-rules.md 3·4장)
+ * ⚠️ 지표를 계산하지 않는다. 서버가 준 값의 모양만 바꾼다.
+ * 값이 없으면(null) 0이나 빈 숫자를 만들지 않고 null을 돌려준다 → 화면은 상태·사유를 표시한다.
+ */
+import type { ApiMeta } from '../types/api'
+
+type Maybe<T> = T | null | undefined
+
+/** YYYY-MM-DD → YYYY.MM.DD (YYYY-MM → YYYY.MM) */
+export function formatDate(value: Maybe<string>): string | null {
+  if (!value) return null
+  const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?/.exec(value)
+  if (!m) return value
+  return m[3] ? `${m[1]}.${m[2]}.${m[3]}` : `${m[1]}.${m[2]}`
+}
+
+/** operating_months(정수, 개월) → "n년 m개월" (0년이면 "m개월", 0개월이면 "n년") */
+export function formatOperatingMonths(months: Maybe<number>): string | null {
+  if (months === null || months === undefined || !Number.isFinite(months)) return null
+  const total = Math.max(0, Math.trunc(months))
+  const years = Math.floor(total / 12)
+  const rest = total % 12
+  if (years === 0) return `${rest}개월`
+  if (rest === 0) return `${years}년`
+  return `${years}년 ${rest}개월`
+}
+
+/**
+ * 비율 → "17.4%". 참고지표는 소수 첫째 자리(기본), 서울시 공식 폐업률은 digits: 0 (공표값 정수)
+ */
+export function formatPercent(value: Maybe<number>, digits = 1): string | null {
+  if (value === null || value === undefined || !Number.isFinite(value)) return null
+  return `${value.toFixed(digits)}%`
+}
+
+const countFormatter = new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 0 })
+
+/** 점포 수 등 정수 → 천 단위 쉼표 ("1,234"). unit을 주면 뒤에 붙인다 ("38곳") */
+export function formatCount(value: Maybe<number>, unit = ''): string | null {
+  if (value === null || value === undefined || !Number.isFinite(value)) return null
+  return `${countFormatter.format(value)}${unit}`
+}
+
+/** meta → "데이터 기준일 YYYY.MM.DD (수집 YYYY.MM.DD)". 기준일이 없으면 null */
+export function formatDataBaseline(meta: Maybe<ApiMeta>): string | null {
+  const updated = formatDate(meta?.data_updated_at)
+  if (!updated) return null
+  const collected = formatDate(meta?.collected_at)
+  return collected ? `데이터 기준일 ${updated} (수집 ${collected})` : `데이터 기준일 ${updated}`
+}
