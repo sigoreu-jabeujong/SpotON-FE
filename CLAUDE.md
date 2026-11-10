@@ -4,7 +4,16 @@
 - **Spot:ON**: 예비 창업자에게 창업 입지(자리)를 진단해 주는 공공서비스
 - 팀: 시고르자브종 (청년공공AX서포터즈)
 - 이 저장소: **프론트엔드(웹 화면)**. 백엔드는 `../SpotON-BE`
-- 공공서비스이므로 누구나 쓰기 쉬운 화면(접근성, 모바일 대응)을 우선한다
+- 공공서비스이므로 누구나 쓰기 쉬운 화면(접근성, 모바일 대응)을 우선한다 (이번 개발은 데스크톱 1440 기준, 모바일 전용 대응은 범위 밖)
+
+## 작업 전 참고 문서
+- 작업 전 `docs/` 폴더 문서를 먼저 읽는다
+  - [docs/README.md](docs/README.md) — 문서 안내·기준 우선순위
+  - [docs/api-contract.md](docs/api-contract.md) — API 계약 요약 (FE 관점)
+  - [docs/screens.md](docs/screens.md) — 화면별 요구사항
+  - [docs/display-rules.md](docs/display-rules.md) — 화면 표시 원칙
+  - [docs/decisions.md](docs/decisions.md) — 결정·미결 사항
+- 기준 우선순위: `SpotON-BE/docs/be-work-plan.md`(BE 작업계획서) > 팀 산출물 PDF. 다르면 BE 작업계획서를 따르고 docs에 "동기화 대기"로 표시한다
 
 ## 기술 스택
 - React + TypeScript, Vite
@@ -81,6 +90,7 @@ type ApiResponse<T> = {
 
 ## 절대 하지 말 것
 - **API 키·비밀값을 프론트 코드나 `VITE_` 환경변수에 넣지 않는다** (브라우저에 그대로 노출됨). 외부 API 호출이 키를 필요로 하면 백엔드를 거친다
+  - 단, 카카오맵 JavaScript 키(`VITE_KAKAO_JS_KEY`)는 브라우저 공개용 키라 예외로 허용하며 카카오 개발자 콘솔에서 허용 도메인을 반드시 등록한다 (07 데이터 활용 명세서 8.4)
 - `.env` 파일 내용을 출력하거나 커밋하지 않는다
 - 유료 라이브러리·유료 API를 추가하지 않는다
 - `git push --force`, 브랜치 삭제 등 되돌리기 어려운 명령은 사람에게 확인받기 전에 실행하지 않는다
