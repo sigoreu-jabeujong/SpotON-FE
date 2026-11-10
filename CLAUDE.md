@@ -83,8 +83,8 @@ type ApiResponse<T> = {
 - 반경·업종·시설 규모 등 진단 조건 값은 `src/constants/diagnosis.ts`만 수정한다
 
 ## Git 규칙
-- 브랜치: `main`(최종) ← `dev`(통합) ← `feat/기능명`, `fix/버그명`, `docs/문서명`
-- `main`, `dev`에 직접 커밋·push 하지 않는다. 작업은 항상 새 브랜치에서
+- 브랜치: `main`(최종) ← `develop`(통합) ← `feat/기능명`, `fix/버그명`, `docs/문서명`
+- `main`, `develop`에 직접 커밋·push 하지 않는다. 작업은 항상 새 브랜치에서
 - 커밋 메시지: `타입: 내용` (예: `feat: 입지 진단 결과 화면 추가`)
   - 타입: feat, fix, refactor, docs, style, chore
 
