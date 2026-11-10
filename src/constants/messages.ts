@@ -59,6 +59,57 @@ export const MESSAGES = {
     noticeTitle: '이력 확인 시 참고하세요',
     spaceBuilding: '건물 단위',
   },
+  /** 진단 조건 필터 바 (STEP 02 ② 위쪽) */
+  filter: {
+    title: '조회 조건',
+    radius: '거리 범위',
+    subCategory: '세부 업종',
+    subCategoryAll: '선택하지 않으면 음식점 전체',
+    area: '시설 규모',
+    franchise: '프랜차이즈 여부',
+    includeUnknown: '정보 없음 점포 포함',
+    includeUnknownHint: '면적·프랜차이즈 정보가 없는 점포도 함께 보여줘요',
+    submit: '조회',
+    scopeNotice: '이 조건은 지도·시점 조회·상권 활동·종합 진단에 함께 적용돼요',
+    unchanged: '바뀐 조건이 없어요',
+  },
+  /** STEP 02 ② 주변 점포 분석 */
+  nearby: {
+    mapTitle: '주변 점포 분포',
+    tableTitle: '점포 상세 조회',
+    mapBadge: (radius: number, asOf: string | null) =>
+      `반경 ${radius.toLocaleString('ko-KR')}m${asOf ? ` · 기준일 ${asOf}` : ''}`,
+    total: (count: number) => `조건에 맞는 점포 ${count.toLocaleString('ko-KR')}곳`,
+    excludedNoCoord: (n: number) =>
+      `좌표 정보가 없어 지도에서 제외된 점포 ${n.toLocaleString('ko-KR')}곳`,
+    legendTitle: '현재 상태',
+    sortNearest: '가까운 순',
+    caption: '반경 안 같은 업종 점포 목록. 점포명을 누르면 지도에서 위치를 보여줘요',
+    columns: {
+      no: '번호',
+      name: '점포명',
+      category: '업종',
+      distance: '거리(m)',
+      area: '시설 규모',
+      openDate: '개업일',
+      period: '영업 기간',
+      status: '현재 상태',
+      franchise: '프랜차이즈',
+    },
+    showOnMap: '지도에서 보기',
+    mapRegion: '주변 점포 지도',
+    mapFailed: '지도를 불러오지 못했어요. 아래 표에서 점포 정보를 확인해 주세요.',
+    mapLoading: '지도를 불러오는 중이에요',
+    myLocation: '진단 위치',
+    infoClose: '정보창 닫기',
+    info: {
+      category: '업종',
+      openDate: '개업일',
+      period: '영업 기간',
+      status: '현재 상태',
+      franchise: '프랜차이즈',
+    },
+  },
   /** 메타 정보 줄 */
   meta: {
     demo: '시연 데이터',
