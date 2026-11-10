@@ -36,7 +36,7 @@ src/
 └── router.tsx     # 화면 경로 정의
 ```
 - 컴포넌트 안에서 직접 fetch 하지 말고 `src/api/` 함수를 통해 호출
-- 화면 7종: 랜딩 `/` → 입력 `/diagnose` → 결과 `/result/history|nearby|activity|risk|share`
+- 화면 7종: 랜딩 `/` → 입력 `/diagnose`(STEP 01) → 결과 `/result/analysis`(STEP 02: `#history`·`#nearby`·`#activity`) · `/result/summary`(STEP 03) · `/result/share`(STEP 04). 화면 7종 기능은 그대로이고 결과 라우트만 디자인 4단계로 묶었다 (예전 `/result/history|nearby|activity|risk`는 새 경로로 리다이렉트)
 - 진단 조건(주소·업종·반경·기준 시점·필터)은 URL 쿼리로 유지한다 → `useDiagnosisQuery` 훅 사용
 
 ## 자주 쓰는 명령어
