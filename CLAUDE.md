@@ -52,11 +52,15 @@ npm run build            # 타입 검사 + 빌드
 
 ## API 응답 형식 (BE와 반드시 동일하게 유지)
 ```ts
-// 06 API 명세서 v1.2 기준 (기존 success 필드 형식에서 변경 — BE CLAUDE.md 동기화 필요)
+// 06 API 명세서 기준 (기존 success 필드 형식에서 변경 — BE CLAUDE.md 동기화 필요). 상세: docs/api-contract.md
 type ApiResponse<T> = {
   data: T | null;
-  meta: { source?: string[]; effective_as_of?: string; /* … */ } | null;
-  error: { code: string; message: string } | null;
+  meta: {
+    source?: string[] | null; as_of?: string | null; space?: string | null;
+    denominator?: number | null; data_updated_at?: string | null; collected_at?: string | null;
+    is_demo?: boolean | null; data_version?: { /* 배치 ID·기준 분기·매핑/규칙 버전 */ } | null;
+  } | null; // 오류 시 null 또는 {}
+  error: { code: string; message: string; detail?: Record<string, unknown> | null } | null;
 };
 ```
 - 이 타입은 `src/types/api.ts`에 두고 모든 API 함수가 사용 (`src/api/client.ts`의 `apiGet`/`apiPost`)

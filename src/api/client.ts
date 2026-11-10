@@ -11,24 +11,34 @@ const TIMEOUT_MS = 15000
 export class ApiRequestError extends Error {
   readonly code: string
   readonly status: number | null
+  /** 서버 error.detail (예: AS_OF_OUT_OF_RANGE → { min_month, max_month }) */
+  readonly detail: Record<string, unknown> | null
 
-  constructor(code: string, message: string, status: number | null) {
+  constructor(
+    code: string,
+    message: string,
+    status: number | null,
+    detail: Record<string, unknown> | null = null,
+  ) {
     super(message)
     this.name = 'ApiRequestError'
     this.code = code
     this.status = status
+    this.detail = detail
   }
 }
 
 export type ApiResult<T> = { data: T; meta: ApiMeta | null }
 
-type QueryValue = string | number | boolean | null | undefined | readonly (string | number)[]
+export type QueryValue = string | number | boolean | null | undefined | readonly (string | number)[]
+export type QueryParams = Record<string, QueryValue>
 
-function toQueryString(params?: Record<string, QueryValue>): string {
+function toQueryString(params?: QueryParams): string {
   if (!params) return ''
   const p = new URLSearchParams()
   for (const [key, value] of Object.entries(params)) {
     if (value === null || value === undefined || value === '') continue
+    if (Array.isArray(value) && value.length === 0) continue
     p.set(key, Array.isArray(value) ? value.join(',') : String(value))
   }
   const s = p.toString()
@@ -37,8 +47,8 @@ function toQueryString(params?: Record<string, QueryValue>): string {
 
 async function request<T>(path: string, init?: RequestInit): Promise<ApiResult<T>> {
   if (USE_MOCK) {
-    const mock = getMockResponse<T>(path)
-    if (mock) return unwrap(mock, 200)
+    const mock = await getMockResponse<T>(path, init)
+    if (mock) return unwrap(mock.body, mock.status)
   }
 
   const controller = new AbortController()
@@ -65,17 +75,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<ApiResult<T
 }
 
 function unwrap<T>(body: ApiResponse<T>, status: number): ApiResult<T> {
-  if (body.error || body.data === null) {
-    throw new ApiRequestError(
-      body.error?.code ?? 'EMPTY_DATA',
-      body.error?.message ?? '데이터가 없어요',
-      status,
-    )
+  if (body.error) {
+    throw new ApiRequestError(body.error.code, body.error.message, status, body.error.detail ?? null)
   }
-  return { data: body.data, meta: body.meta }
+  if (body.data === null || body.data === undefined) {
+    throw new ApiRequestError('EMPTY_DATA', '데이터가 없어요', status)
+  }
+  // 오류가 아닌데 meta가 빈 객체 {}로 와도 그대로 넘긴다 (모든 meta 필드는 선택)
+  return { data: body.data, meta: body.meta ?? null }
 }
 
-export function apiGet<T>(path: string, params?: Record<string, QueryValue>) {
+export function apiGet<T>(path: string, params?: QueryParams) {
   return request<T>(`${path}${toQueryString(params)}`)
 }
 
