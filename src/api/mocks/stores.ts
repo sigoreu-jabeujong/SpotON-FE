@@ -1,14 +1,7 @@
 /** /stores/history·/stores/nearby·/stores/snapshot 목업 — 시연용 가상 값 */
 import type { ApiMeta } from '../../types/api'
-import type {
-  HistoryStore,
-  NearbyMarker,
-  NearbyStores,
-  SnapshotStore,
-  StoreHistory,
-  StoreSnapshot,
-} from '../../types/stores'
-import { DEMO_META, fail, isRestaurant, monthEnd, ok, radiusSpace } from './common'
+import type { HistoryStore, SnapshotStore, StoreHistory, StoreSnapshot } from '../../types/stores'
+import { DEMO_META, fail, monthEnd, ok, radiusSpace } from './common'
 import type { MockHandler } from './index'
 import { DATA_RANGE } from './meta'
 
@@ -157,92 +150,6 @@ export const storeHistoryMock: MockHandler = (query) => {
     : HISTORY_STORES.map((s) => ({ ...s, location_match: 'unverified' as const }))
   const data: StoreHistory = { total: stores.length, stores, message: null }
   return ok(data, { ...HISTORY_META, denominator: stores.length })
-}
-
-const CAFE_MARKERS: NearbyMarker[] = [
-  {
-    license_no: '3130000-104-2020-00011',
-    name: '○○로스터스',
-    sub_category: 'cafe',
-    lat: 37.5571,
-    lng: 126.9234,
-    distance_m: 152,
-    open_date: '2020-05-20',
-    close_date: null,
-    operating_months: 77,
-    current_status: 'open',
-    franchise: 'independent',
-    area_m2: 48.2,
-  },
-  {
-    license_no: '3130000-104-2023-00321',
-    name: '△△커피',
-    sub_category: 'cafe',
-    lat: 37.554,
-    lng: 126.9198,
-    distance_m: 321,
-    open_date: '2023-08-01',
-    close_date: null,
-    operating_months: 38,
-    current_status: 'open',
-    franchise: 'unknown',
-    area_m2: null,
-  },
-]
-
-const RESTAURANT_MARKERS: NearbyMarker[] = [
-  {
-    license_no: '3130000-101-2018-00077',
-    name: '○○국밥',
-    sub_category: 'korean',
-    lat: 37.5569,
-    lng: 126.9211,
-    distance_m: 88,
-    open_date: '2018-04-10',
-    close_date: null,
-    operating_months: 102,
-    current_status: 'open',
-    franchise: 'independent',
-    area_m2: 72.5,
-  },
-  {
-    license_no: '3130000-101-2021-00412',
-    name: '△△반점',
-    sub_category: 'chinese',
-    lat: 37.5552,
-    lng: 126.9241,
-    distance_m: 230,
-    open_date: '2021-09-01',
-    close_date: null,
-    operating_months: 62,
-    current_status: 'open',
-    franchise: 'unknown',
-    area_m2: null,
-  },
-]
-
-export const nearbyStoresMock: MockHandler = (query) => {
-  if (!query.get('category'))
-    return fail(400, 'CATEGORY_REQUIRED', '카페 또는 음식점을 선택해 주세요.')
-  const { radius, space } = radiusSpace(query)
-  const asOf = monthEnd(query.get('as_of'))
-  const markers = isRestaurant(query) ? RESTAURANT_MARKERS : CAFE_MARKERS
-  const data: NearbyStores = {
-    center: { lat: 37.5563, lng: 126.922 },
-    radius_m: radius,
-    as_of: asOf,
-    count: markers.length,
-    excluded_no_coord: 1,
-    markers,
-    message: null,
-  }
-  return ok(data, {
-    ...DEMO_META,
-    source: ['R5', 'R6', 'R9'],
-    as_of: asOf,
-    space,
-    denominator: markers.length,
-  })
 }
 
 const SNAPSHOT_STORES: SnapshotStore[] = [

@@ -63,3 +63,12 @@ export function formatDataBaseline(meta: Maybe<ApiMeta>): string | null {
   const collected = formatDate(meta?.collected_at)
   return collected ? `데이터 기준일 ${updated} (수집 ${collected})` : `데이터 기준일 ${updated}`
 }
+
+/** 1평 = 3.305785㎡ (단위 환산, 표시용) */
+const M2_PER_PYEONG = 3.305785
+
+/** 신고 면적 ㎡ → "48.2㎡ (약 14.6평)". 값이 없으면 null (화면은 "정보 없음") */
+export function formatArea(m2: Maybe<number>): string | null {
+  if (m2 === null || m2 === undefined || !Number.isFinite(m2)) return null
+  return `${m2.toFixed(1)}㎡ (약 ${(m2 / M2_PER_PYEONG).toFixed(1)}평)`
+}

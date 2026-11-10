@@ -50,3 +50,10 @@ export const FRANCHISE_LABEL = {
   independent: '개인 매장',
   unknown: '정보 없음',
 } as const
+
+/** 주변 점포의 현재 상태 (기준 시점에 영업하던 점포가 지금 어떤지 — API current_status) */
+export const CURRENT_STATUS_LABEL = {
+  open: '지금 영업 중',
+  closed: '이후 폐업',
+  other: '기타(휴업 등)',
+} as const

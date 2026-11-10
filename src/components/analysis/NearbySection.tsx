@@ -1,16 +1,101 @@
-import PagePlaceholder from '../common/PagePlaceholder'
+import { useRef, useState } from 'react'
+import { toCommonQueryParams } from '../../api/params'
+import { MESSAGES } from '../../constants/messages'
+import { getCoordinates, useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
+import { useNearbyStores } from '../../hooks/useStores'
+import { formatDataBaseline, formatDate } from '../../utils/format'
+import EmptyState from '../common/EmptyState'
+import ErrorState from '../common/ErrorState'
+import LoadingState from '../common/LoadingState'
+import MetaLine from '../common/MetaLine'
+import SubTitle from '../common/SubTitle'
+import MapLegend from '../map/MapLegend'
+import NearbyMap from '../map/NearbyMap'
 import AnalysisSection from './AnalysisSection'
+import ConditionFilterBar from './ConditionFilterBar'
+import NearbyTable from './nearby/NearbyTable'
 
-// TODO: 지도·세부 필터·점포 표·시점 조회 (F-03~F-05, useNearbyStores·useStoreSnapshot·useDataRange)
+const T = MESSAGES.nearby
+
+/** STEP 02 ② 주변 점포 분석 (F-03 지도 · F-04 필터) — /stores/nearby. 시점 조회(F-05)는 다음 작업 */
 export default function NearbySection() {
+  const { query } = useDiagnosisQuery()
+  const coords = getCoordinates(query)
+  const params = coords ? toCommonQueryParams(query, coords) : null
+  const nearby = useNearbyStores(params)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const mapWrapRef = useRef<HTMLDivElement>(null)
+
+  /** 표에서 고르면 지도가 보이게 올려 주고 마커를 강조한다 */
+  const selectFromTable = (id: string) => {
+    setSelectedId(id)
+    mapWrapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }
+
+  const data = nearby.data?.data
+  const meta = nearby.data?.meta
+
   return (
     <AnalysisSection id="nearby">
-      {/* 임시 높이: 내용 구현 전 사이드바 스크롤 강조 확인용 */}
-      <PagePlaceholder
-        className="min-h-96"
-        title="주변 점포 분석 (준비 중)"
-        description="기준 시점에 반경 안에서 영업하던 같은 업종 점포 지도, 세부 필터, 점포 목록, 시점 조회. (F-03~F-05)"
-      />
+      <div className="flex flex-col gap-6">
+        <ConditionFilterBar />
+
+        <div className="flex flex-col gap-3">
+          <SubTitle>{T.mapTitle}</SubTitle>
+          {nearby.isPending ? (
+            <LoadingState />
+          ) : nearby.isError ? (
+            <ErrorState error={nearby.error} onRetry={() => void nearby.refetch()} />
+          ) : (
+            data && (
+              <>
+                <div ref={mapWrapRef} className="scroll-mt-8">
+                  <NearbyMap
+                    center={data.center}
+                    radiusM={data.radius_m}
+                    markers={data.markers}
+                    badge={T.mapBadge(data.radius_m, formatDate(data.as_of))}
+                    selectedId={selectedId}
+                    onSelect={setSelectedId}
+                  />
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <MapLegend />
+                  {/* 전체 수는 서버 count 그대로 */}
+                  <p className="text-caption font-semibold text-gray-900">{T.total(data.count)}</p>
+                </div>
+                {data.excluded_no_coord > 0 && (
+                  <p className="text-caption text-gray-600">
+                    {T.excludedNoCoord(data.excluded_no_coord)}
+                  </p>
+                )}
+                <MetaLine
+                  source={meta?.source}
+                  sourceNames
+                  asOf={meta?.as_of}
+                  baseline={formatDataBaseline(meta)}
+                  space={meta?.space}
+                  denominator={meta?.denominator}
+                  isDemo={meta?.is_demo}
+                />
+
+                <div className="mt-6 flex flex-col gap-3">
+                  <SubTitle>{T.tableTitle}</SubTitle>
+                  {data.count === 0 || data.markers.length === 0 ? (
+                    <EmptyState message={data.message ?? MESSAGES.common.empty} />
+                  ) : (
+                    <NearbyTable
+                      markers={data.markers}
+                      selectedId={selectedId}
+                      onSelect={selectFromTable}
+                    />
+                  )}
+                </div>
+              </>
+            )
+          )}
+        </div>
+      </div>
     </AnalysisSection>
   )
 }
