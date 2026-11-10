@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router'
 import { MESSAGES } from '../../constants/messages'
 import { ROUTES } from '../../constants/routes'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
+import { useResultBaseline } from '../../hooks/useResultBaseline'
 import ResultFooter from './ResultFooter'
 import ResultHeader from './ResultHeader'
 import ResultSidebar from './ResultSidebar'
@@ -19,6 +20,7 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
 export default function ResultLayout() {
   const { pathname } = useLocation()
   const { isReady, search } = useDiagnosisQuery()
+  const baseline = useResultBaseline()
 
   if (!isReady) return <Navigate to={{ pathname: ROUTES.input, search }} replace />
 
@@ -40,8 +42,7 @@ export default function ResultLayout() {
             <Outlet />
           </div>
         </main>
-        {/* TODO: 화면 데이터를 불러오면 meta로 formatDataBaseline() 값을 넘긴다 */}
-        <ResultFooter baseline={null} />
+        <ResultFooter baseline={baseline} />
       </div>
     </div>
   )
