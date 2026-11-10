@@ -10,7 +10,12 @@ export default function AnalysisSection({ id, children }: Props) {
   if (!meta) return null
   const titleId = `${id}-title`
   return (
-    <section id={id} aria-labelledby={titleId} className="scroll-mt-8">
+    <section
+      id={id}
+      aria-labelledby={titleId}
+      tabIndex={-1}
+      className="scroll-mt-8 focus:outline-none"
+    >
       <SectionHeader
         id={titleId}
         number={meta.number}
