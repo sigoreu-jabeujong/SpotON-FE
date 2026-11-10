@@ -75,7 +75,7 @@ function FilterForm({
       }}
       className="rounded-control border border-gray-300 bg-gray-0"
     >
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] divide-x divide-gray-300">
+      <div className="flex flex-wrap">
         <Group legend={T.radius}>
           {RADIUS_OPTIONS.map((r) => (
             <Choice
@@ -136,7 +136,7 @@ function FilterForm({
         </Group>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-300 px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
         <label className="flex cursor-pointer items-center gap-2 text-caption text-gray-900">
           <input
             type="checkbox"
@@ -177,7 +177,7 @@ function FilterForm({
 
 function Group({ legend, hint, children }: { legend: string; hint?: string; children: ReactNode }) {
   return (
-    <fieldset className="min-w-0 px-4 py-3">
+    <fieldset className="min-w-0 flex-auto border-b border-gray-300 px-4 py-3 not-last:border-r">
       <legend className="float-left mb-2 w-full text-micro font-semibold text-gray-600">
         {legend}
         {hint && <span className="ml-1 font-normal">· {hint}</span>}
