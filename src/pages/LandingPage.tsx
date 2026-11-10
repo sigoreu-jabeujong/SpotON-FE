@@ -20,7 +20,7 @@ export default function LandingPage() {
       </header>
 
       <main className="relative mx-auto flex w-full max-w-[1200px] flex-1 flex-col px-10 pt-16">
-        <p className="text-caption font-semibold text-blue-500">{T.slogan}</p>
+        <p className="text-caption font-semibold text-blue-700">{T.slogan}</p>
         <h1 className="mt-3 text-[2.5rem] leading-tight font-bold text-gray-900">
           {T.titleLine1}
           <br />

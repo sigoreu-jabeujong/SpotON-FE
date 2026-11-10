@@ -9,7 +9,7 @@ export default function ResultHeader({ title, description }: Props) {
     <header className="relative overflow-hidden px-10 pt-10 pb-8">
       <HeaderArt />
       <div className="relative">
-        <p className="text-micro font-semibold tracking-wide text-blue-500">
+        <p className="text-micro font-semibold tracking-wide text-blue-700">
           {MESSAGES.layout.eyebrow}
         </p>
         <h1 className="mt-1 text-title font-bold text-gray-900">{title}</h1>

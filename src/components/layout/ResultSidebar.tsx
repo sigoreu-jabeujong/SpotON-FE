@@ -85,7 +85,7 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
                     <span
                       className={cn(
                         'block text-micro font-semibold',
-                        done || current ? 'text-blue-500' : 'text-gray-600',
+                        done || current ? 'text-blue-700' : 'text-gray-600',
                       )}
                     >
                       STEP {String(step.step).padStart(2, '0')}
@@ -95,7 +95,7 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
                     <span
                       className={cn(
                         'block text-body font-bold group-hover:text-blue-700',
-                        current ? 'text-blue-500' : 'text-gray-900',
+                        current ? 'text-blue-700' : 'text-gray-900',
                       )}
                     >
                       {step.label}
@@ -127,7 +127,7 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
                               className={cn(
                                 'block rounded border-l-2 py-0.5 pl-2.5 text-caption focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
                                 active
-                                  ? 'border-blue-500 font-semibold text-blue-500'
+                                  ? 'border-blue-500 font-semibold text-blue-700'
                                   : 'border-transparent text-gray-600 hover:text-blue-700',
                               )}
                             >
