@@ -69,7 +69,7 @@
 | `franchise` | enum | 선택 | `all` | `all` / `franchise`(프랜차이즈 추정) / `independent`(개인 매장) |
 | `include_unknown` | bool | 선택 | `true` | 면적·프랜차이즈가 "정보 없음"인 점포 포함 여부 |
 
-- 확인 대기: 시설 규모 **다중 선택** 여부와 배열 표현(BE 작업계획서 9절 "필터"). FE의 URL 쿼리(`size`)는 현재 쉼표 다중 선택이지만 API `area`는 PDF상 단일값이다.
+- 확인 대기: 시설 규모 **다중 선택** 여부와 배열 표현(BE 작업계획서 9절 "필터"). FE 적용 기준: API `area`가 단일값이므로 **하나만 선택**(URL 쿼리 `area`) → [decisions.md](decisions.md)
 
 ## 2. 엔드포인트 9개
 
@@ -322,16 +322,9 @@
 
 - 확인 대기: BE 작업계획서는 `pending`(자료 미확보)과 `no_data`(확보했지만 결측)를 구분하고, `official_risk`에 `link_only`를 새로 제안했다. 전체 상태값 목록은 BE와 맞춘 뒤 확정한다.
 
-> 📝 **메모 (다음 작업에서 코드 수정, 이번 작업은 코드 수정 없음)**
-> `src/constants/labels.ts`의 상태 키가 API 값과 다르다. 아래처럼 바꿔야 한다.
+> 📝 **반영 완료 (작업 2)**: `src/constants/labels.ts`의 상태 키를 API 값(`pending`·`unknown`·`location_unverified`)으로 바꾸고 `link_only`를 추가했다. `src/types/api.ts`의 meta는 `as_of` 기준으로 정리했고 `effective_as_of`는 "v1.2 이름 확인 대기" 선택 필드로 남겼다.
 >
-> | 현재 FE 키 | API 값 |
-> |---|---|
-> | `on_hold` | `pending` |
-> | `info_missing` | `unknown` |
-> | `location_unknown` | `location_unverified` |
->
-> 함께 확인할 것: `src/types/api.ts`의 `effective_as_of` → `as_of`, `collected_at`·`data_updated_at`·`is_demo`·`data_version` 타입 추가.
+> 코드 위치: 공통 타입 `src/types/api.ts`, 엔드포인트별 타입 `src/types/{geocode,stores,market,risk,support,meta}.ts`, 호출 함수 `src/api/*.ts`, 쿼리 훅 `src/hooks/use*.ts`, 목업 `src/api/mocks/`.
 
 ## 4. 값 형식
 

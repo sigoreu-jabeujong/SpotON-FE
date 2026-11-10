@@ -1,6 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
-import { CATEGORIES, DEFAULT_RADIUS, type Category } from '../constants/diagnosis'
+import {
+  CATEGORIES,
+  DEFAULT_AREA,
+  DEFAULT_INCLUDE_UNKNOWN,
+  DEFAULT_RADIUS,
+  type Category,
+} from '../constants/diagnosis'
 import { MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
 import { toDiagnosisSearch } from '../hooks/useDiagnosisQuery'
@@ -28,8 +34,9 @@ export default function InputPage() {
       subCategories: [],
       radius: DEFAULT_RADIUS,
       asOf: null,
-      facilitySizes: [],
+      area: DEFAULT_AREA,
       franchise: 'all',
+      includeUnknown: DEFAULT_INCLUDE_UNKNOWN,
     })
     navigate({ pathname: ROUTES.history, search })
   }
