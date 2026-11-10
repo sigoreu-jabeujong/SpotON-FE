@@ -22,6 +22,7 @@ import { isDiagnosisReady, toDiagnosisSearch } from '../hooks/useDiagnosisQuery'
 import { useReportData } from '../hooks/useReportData'
 import type { ApiMeta } from '../types/api'
 import type { MetricIndicator, OfficialRiskIndicator, RiskIndicator } from '../types/risk'
+import { usePageTitle } from '../hooks/usePageTitle'
 import {
   formatCount,
   formatDataBaseline,
@@ -49,6 +50,7 @@ const REFERENCE_IDS = [
  * 결과 화면과 같은 쿼리 캐시를 쓰고, 값은 형식 변환만 한다 (A4 2장 이내 목표).
  */
 export default function ReportPage() {
+  usePageTitle(MESSAGES.titles.report)
   const data = useReportData()
   const [printFailed, setPrintFailed] = useState(false)
   const { query } = data

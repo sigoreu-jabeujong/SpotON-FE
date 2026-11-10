@@ -1,5 +1,22 @@
 /** 화면에 보이는 안내·오류·면책 문구 (한곳에서 관리) */
+const BRAND = 'Spot:ON'
+const withBrand = (name: string) => `${name} | ${BRAND}`
+
 export const MESSAGES = {
+  /** 브라우저 탭 제목 (document.title) */
+  titles: {
+    landing: `${BRAND} — 내 자리, 딱 맞는 자리일까요?`,
+    input: withBrand('주소·업종 입력'),
+    analysis: {
+      history: withBrand('과거 점포 이력'),
+      nearby: withBrand('주변 점포 분석'),
+      activity: withBrand('상권 활동 분석'),
+    },
+    summary: withBrand('종합 진단 결과'),
+    share: withBrand('결과 저장 및 상담'),
+    report: withBrand('입지 진단서'),
+    notFound: withBrand('페이지를 찾을 수 없어요'),
+  },
   /** ① 랜딩 */
   landing: {
     slogan: 'Is your spot on? — 내 자리, 딱 맞는 자리일까요?',
