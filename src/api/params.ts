@@ -1,5 +1,6 @@
 import type { CommonQueryParams } from '../types/api'
 import type { DiagnosisQuery } from '../types/diagnosis'
+import type { StoreHistoryParams } from '../types/stores'
 
 export type Coordinates = { lat: number; lng: number }
 
@@ -28,4 +29,17 @@ export function toCommonQueryParams(
   }
   if (query.asOf) params.as_of = query.asOf
   return params
+}
+
+/**
+ * 진단 조건 → /stores/history 파라미터 (건물 키가 없으면 null)
+ * floor_unit은 있을 때만, category는 진단 맥락으로 함께 보낸다 (지원 업종 전체 이력이 올 수 있음)
+ */
+export function toStoreHistoryParams(query: DiagnosisQuery): StoreHistoryParams | null {
+  if (!query.buildingKey) return null
+  return {
+    building_key: query.buildingKey,
+    ...(query.floorUnit ? { floor_unit: query.floorUnit } : {}),
+    ...(query.category ? { category: query.category } : {}),
+  }
 }
