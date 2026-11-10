@@ -3,9 +3,12 @@ import { toStoreHistoryParams } from '../../api/params'
 import { MESSAGES } from '../../constants/messages'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { useStoreHistory } from '../../hooks/useStores'
+import { formatDataBaseline } from '../../utils/format'
 import EmptyState from '../common/EmptyState'
 import ErrorState from '../common/ErrorState'
+import InfoBox from '../common/InfoBox'
 import LoadingState from '../common/LoadingState'
+import MetaLine from '../common/MetaLine'
 import AnalysisSection from './AnalysisSection'
 import HistoryTable from './history/HistoryTable'
 
@@ -15,6 +18,7 @@ const T = MESSAGES.history
 export default function HistorySection() {
   const { query } = useDiagnosisQuery()
   const history = useStoreHistory(toStoreHistoryParams(query))
+  const meta = history.data?.meta
 
   return (
     <AnalysisSection id="history">
@@ -41,6 +45,15 @@ export default function HistorySection() {
           ) : (
             <HistoryTable stores={history.data.data.stores} />
           )}
+          <InfoBox title={T.noticeTitle} items={T.notices} />
+          <MetaLine
+            source={meta?.source}
+            sourceNames
+            baseline={formatDataBaseline(meta)}
+            spaceLabel={T.spaceBuilding}
+            denominator={meta?.denominator}
+            isDemo={meta?.is_demo}
+          />
         </div>
       )}
     </AnalysisSection>

@@ -59,6 +59,10 @@ export const MESSAGES = {
     noticeTitle: '이력 확인 시 참고하세요',
     spaceBuilding: '건물 단위',
   },
+  /** 메타 정보 줄 */
+  meta: {
+    demo: '시연 데이터',
+  },
   /** 목록 공통 */
   list: {
     showMore: '더보기',
