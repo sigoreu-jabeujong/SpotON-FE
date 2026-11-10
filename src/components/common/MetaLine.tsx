@@ -92,7 +92,11 @@ export default function MetaLine({
       )}
       {parts.map((p, i) => (
         <span key={p.key}>
-          {i > 0 && <span aria-hidden="true"> · </span>}
+          {i > 0 && (
+            <span aria-hidden="true" className="mx-1">
+              ·
+            </span>
+          )}
           {p.node}
         </span>
       ))}
