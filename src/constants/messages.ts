@@ -161,7 +161,7 @@ export const MESSAGES = {
     opened12m: '최근 12개월 개업 수',
     closed12m: '최근 12개월 폐업 수',
     avgPeriod: '평균 영업 기간',
-    avgPeriodHint: '세부 업종별 서버 값 (업종끼리 합치거나 평균 내지 않아요)',
+    avgPeriodHint: '세부 업종별 값 그대로',
     periodLabel: (p: string) => `기간 ${p}`,
     loadingValue: '불러오는 중',
     failedValue: '불러오지 못했어요',

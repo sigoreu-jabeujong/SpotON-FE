@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { MESSAGES } from '../../constants/messages'
 import { parseSourceIds, SOURCES } from '../../constants/sources'
 import { cn } from '../../utils/cn'
-import { formatCount, formatDate, formatSpace } from '../../utils/format'
+import { formatCount, formatDate, formatPeriod, formatSpace } from '../../utils/format'
 import Badge from './Badge'
 
 type Props = {
@@ -74,7 +74,8 @@ export default function MetaLine({
   if (baseline) parts.push({ key: 'baseline', node: baseline })
   const date = formatDate(asOf)
   if (date) parts.push({ key: 'asOf', node: `기준일 ${date}` })
-  if (period) parts.push({ key: 'period', node: `기간 ${period}` })
+  const periodText = formatPeriod(period)
+  if (periodText) parts.push({ key: 'period', node: `기간 ${periodText}` })
   const spaceName = spaceLabel ?? formatSpace(space)
   if (spaceName) parts.push({ key: 'space', node: spaceName })
   const sample = formatCount(denominator, '곳')
