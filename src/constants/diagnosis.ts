@@ -1,3 +1,5 @@
+import type { ApiArea } from '../types/api'
+
 /**
  * Spot:ON 진단 조건 상수
  * 지원 업종 기준: SpotON-BE/docs/be-work-plan.md의 최종 개발 범위
@@ -27,15 +29,22 @@ export const RESTAURANT_SUB_CATEGORIES = [
 /** 카페는 별도 세부 업종을 선택하지 않는다. */
 export type SubCategory = (typeof RESTAURANT_SUB_CATEGORIES)[number]['id']
 
-/** 시설 규모 구간 (신고 면적 기준, 경계: 이상·미만) */
+/**
+ * 시설 규모 구간 (신고 면적 기준, 경계: 이상·미만). id는 API area 값과 같다.
+ * API가 하나만 받으므로 단일 선택 (여러 개 선택은 BE 확인 후 결정 — docs/decisions.md)
+ */
 export const FACILITY_SIZE_OPTIONS = [
+  { id: 'all', label: '전체', range: '전체 면적' },
   { id: 'lt33', label: '10평 미만', range: '33㎡ 미만' },
   { id: '33to66', label: '10~20평', range: '33㎡ 이상 66㎡ 미만' },
   { id: '66to99', label: '20~30평', range: '66㎡ 이상 99㎡ 미만' },
   { id: 'gte99', label: '30평 이상', range: '99㎡ 이상' },
-  { id: 'unknown', label: '정보 없음', range: '면적 정보 없음' },
-] as const
+] as const satisfies readonly { id: ApiArea; label: string; range: string }[]
 export type FacilitySize = (typeof FACILITY_SIZE_OPTIONS)[number]['id']
+export const DEFAULT_AREA: FacilitySize = 'all'
+
+/** 면적·프랜차이즈 값이 "정보 없음"인 점포 포함 여부 (API include_unknown) */
+export const DEFAULT_INCLUDE_UNKNOWN = true
 
 /** 프랜차이즈 필터 */
 export const FRANCHISE_OPTIONS = [

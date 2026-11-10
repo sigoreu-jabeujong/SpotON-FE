@@ -2,6 +2,8 @@ import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 import {
   CATEGORIES,
+  DEFAULT_AREA,
+  DEFAULT_INCLUDE_UNKNOWN,
   DEFAULT_RADIUS,
   FACILITY_SIZE_OPTIONS,
   FRANCHISE_OPTIONS,
@@ -21,7 +23,8 @@ const isCategory = (v: string | null): v is Category => CATEGORIES.some((c) => c
 const isRadius = (v: number): v is RadiusMeters => (RADIUS_OPTIONS as readonly number[]).includes(v)
 const isFranchise = (v: string | null): v is FranchiseFilter =>
   FRANCHISE_OPTIONS.some((f) => f.id === v)
-const isFacility = (v: string): v is FacilitySize => FACILITY_SIZE_OPTIONS.some((f) => f.id === v)
+const isFacility = (v: string | null): v is FacilitySize =>
+  FACILITY_SIZE_OPTIONS.some((f) => f.id === v)
 const isSub = (v: string): v is SubCategory => SUB_IDS.includes(v)
 const isYearMonth = (v: string | null): v is string => !!v && /^\d{4}-(0[1-9]|1[0-2])$/.test(v)
 
@@ -31,6 +34,7 @@ export function parseDiagnosisQuery(params: URLSearchParams): DiagnosisQuery {
   const radius = Number(params.get('radius'))
   const franchise = params.get('franchise')
   const asOf = params.get('asOf')
+  const area = params.get('area')
   return {
     address: params.get('address') ?? '',
     category: isCategory(category) ? category : null,
@@ -38,8 +42,10 @@ export function parseDiagnosisQuery(params: URLSearchParams): DiagnosisQuery {
       category === 'restaurant' ? (params.get('sub') ?? '').split(',').filter(isSub) : [],
     radius: isRadius(radius) ? radius : DEFAULT_RADIUS,
     asOf: isYearMonth(asOf) ? asOf : null,
-    facilitySizes: (params.get('size') ?? '').split(',').filter(isFacility),
+    area: isFacility(area) ? area : DEFAULT_AREA,
     franchise: isFranchise(franchise) ? franchise : 'all',
+    // 기본값(true)일 때는 URL에 남기지 않으므로 'false'일 때만 false
+    includeUnknown: params.get('includeUnknown') === 'false' ? false : DEFAULT_INCLUDE_UNKNOWN,
   }
 }
 
@@ -52,8 +58,10 @@ export function toDiagnosisSearch(q: DiagnosisQuery): string {
   if (subCategories.length) p.set('sub', subCategories.join(','))
   if (q.radius !== DEFAULT_RADIUS) p.set('radius', String(q.radius))
   if (q.asOf) p.set('asOf', q.asOf)
-  if (q.facilitySizes.length) p.set('size', q.facilitySizes.join(','))
+  if (q.area !== DEFAULT_AREA) p.set('area', q.area)
   if (q.franchise !== 'all') p.set('franchise', q.franchise)
+  if (q.includeUnknown !== DEFAULT_INCLUDE_UNKNOWN)
+    p.set('includeUnknown', String(q.includeUnknown))
   const s = p.toString()
   return s ? `?${s}` : ''
 }

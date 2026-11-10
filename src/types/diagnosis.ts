@@ -15,6 +15,9 @@ export type DiagnosisQuery = {
   radius: RadiusMeters
   /** 기준 시점 YYYY-MM. null이면 현재 */
   asOf: string | null
-  facilitySizes: FacilitySize[]
+  /** 시설 규모 (단일 선택, 기본 all) */
+  area: FacilitySize
   franchise: FranchiseFilter
+  /** 면적·프랜차이즈 "정보 없음" 점포 포함 여부 (기본 true) */
+  includeUnknown: boolean
 }
