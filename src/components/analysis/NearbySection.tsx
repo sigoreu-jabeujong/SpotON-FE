@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { toCommonQueryParams } from '../../api/params'
 import { MESSAGES } from '../../constants/messages'
 import { getCoordinates, useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { useNearbyStores } from '../../hooks/useStores'
 import { formatDataBaseline, formatDate } from '../../utils/format'
+import EmptyState from '../common/EmptyState'
 import ErrorState from '../common/ErrorState'
 import LoadingState from '../common/LoadingState'
 import MetaLine from '../common/MetaLine'
@@ -12,6 +13,7 @@ import MapLegend from '../map/MapLegend'
 import NearbyMap from '../map/NearbyMap'
 import AnalysisSection from './AnalysisSection'
 import ConditionFilterBar from './ConditionFilterBar'
+import NearbyTable from './nearby/NearbyTable'
 
 const T = MESSAGES.nearby
 
@@ -22,6 +24,13 @@ export default function NearbySection() {
   const params = coords ? toCommonQueryParams(query, coords) : null
   const nearby = useNearbyStores(params)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const mapWrapRef = useRef<HTMLDivElement>(null)
+
+  /** 표에서 고르면 지도가 보이게 올려 주고 마커를 강조한다 */
+  const selectFromTable = (id: string) => {
+    setSelectedId(id)
+    mapWrapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }
 
   const data = nearby.data?.data
   const meta = nearby.data?.meta
@@ -40,14 +49,16 @@ export default function NearbySection() {
           ) : (
             data && (
               <>
-                <NearbyMap
-                  center={data.center}
-                  radiusM={data.radius_m}
-                  markers={data.markers}
-                  badge={T.mapBadge(data.radius_m, formatDate(data.as_of))}
-                  selectedId={selectedId}
-                  onSelect={setSelectedId}
-                />
+                <div ref={mapWrapRef} className="scroll-mt-8">
+                  <NearbyMap
+                    center={data.center}
+                    radiusM={data.radius_m}
+                    markers={data.markers}
+                    badge={T.mapBadge(data.radius_m, formatDate(data.as_of))}
+                    selectedId={selectedId}
+                    onSelect={setSelectedId}
+                  />
+                </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <MapLegend />
                   {/* 전체 수는 서버 count 그대로 */}
@@ -67,6 +78,19 @@ export default function NearbySection() {
                   denominator={meta?.denominator}
                   isDemo={meta?.is_demo}
                 />
+
+                <div className="mt-6 flex flex-col gap-3">
+                  <SubTitle>{T.tableTitle}</SubTitle>
+                  {data.count === 0 || data.markers.length === 0 ? (
+                    <EmptyState message={data.message ?? MESSAGES.common.empty} />
+                  ) : (
+                    <NearbyTable
+                      markers={data.markers}
+                      selectedId={selectedId}
+                      onSelect={selectFromTable}
+                    />
+                  )}
+                </div>
               </>
             )
           )}
