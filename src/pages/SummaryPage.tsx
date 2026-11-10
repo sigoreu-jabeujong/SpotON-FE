@@ -7,6 +7,7 @@ import LoadingState from '../components/common/LoadingState'
 import PagePlaceholder from '../components/common/PagePlaceholder'
 import SubTitle from '../components/common/SubTitle'
 import MarketCard from '../components/summary/MarketCard'
+import OfficialIndicators from '../components/summary/OfficialIndicators'
 import { getAsOfRangeMessage, MESSAGES } from '../constants/messages'
 import { getCoordinates, useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
 import { useRisk } from '../hooks/useRisk'
@@ -47,6 +48,11 @@ export default function SummaryPage() {
             </p>
           )}
           <MarketCard market={risk.data.data.market} />
+          <OfficialIndicators
+            indicators={risk.data.data.indicators}
+            market={risk.data.data.market}
+            query={risk.data.data.query}
+          />
         </>
       )}
 
