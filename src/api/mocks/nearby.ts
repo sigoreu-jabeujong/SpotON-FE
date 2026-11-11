@@ -2,14 +2,34 @@
  * GET /api/stores/nearby · /api/stores/snapshot 목업 — 시연용 가상 값.
  * 입력 좌표에서 동(dx)·북(dy)으로 몇 m 떨어진 곳에 점포를 두고, 요청한 반경·필터로 거른다.
  * (거리 계산·필터는 목업 안에서만 하는 흉내이며, 실제 계산은 서버가 한다)
+ *
+ * 이 점포 목록이 목업 숫자의 단일 출처다. /risk(동종업체 수·참고 폐업률·생존율),
+ * /market/activity(개·폐업 수·연도별 추이·업종별 점포 수), AI 해석 문장이 모두 여기서 나와
+ * 같은 조건이면 화면 어디서나 숫자가 서로 맞는다.
+ *
+ * 시연 기준일(2026-10-31)·반경별 목표 (필터 없음):
+ * - 카페   300m 6곳(표본 부족) / 500m 12곳 / 1,000m 18곳
+ * - 음식점 300m 5곳(표본 부족) / 500m 13곳 / 1,000m 18곳
  */
 import type { NearbyMarker, NearbyStores, SnapshotStore, StoreSnapshot } from '../../types/stores'
+import { shiftMonth } from '../../utils/date'
 import { DEMO_META, fail, isRestaurant, monthEnd, ok, radiusSpace } from './common'
 import type { MockHandler } from './index'
 import { DATA_RANGE } from './meta'
 
 type NearbySeed = Omit<NearbyMarker, 'lat' | 'lng' | 'distance_m'> & { dx: number; dy: number }
 
+/** 시연 기준일 — 기준 시점을 고르지 않으면 이 날 영업 중인 점포가 "지금" 점포다 */
+export const DEMO_TODAY = '2026-10-31'
+
+/** 목업 전용: 두 날짜 사이 개월 수 (소수점 버림) */
+function monthsBetween(from: string, to: string): number {
+  const [y1, m1, d1] = from.split('-').map(Number)
+  const [y2, m2, d2] = to.split('-').map(Number)
+  return (y2 - y1) * 12 + (m2 - m1) - (d2 < d1 ? 1 : 0)
+}
+
+/** 영업 기간은 폐업일(없으면 시연 기준일)까지로 맞춘다. 폐업일이 있으면 closed */
 const seed = (
   license_no: string,
   name: string,
@@ -17,10 +37,9 @@ const seed = (
   [dx, dy]: [number, number],
   open_date: string,
   close_date: string | null,
-  operating_months: number,
-  current_status: NearbyMarker['current_status'],
   franchise: NearbyMarker['franchise'],
   area_m2: number | null,
+  current_status: NearbyMarker['current_status'] = close_date ? 'closed' : 'open',
 ): NearbySeed => ({
   license_no,
   name,
@@ -29,7 +48,7 @@ const seed = (
   dy,
   open_date,
   close_date,
-  operating_months,
+  operating_months: monthsBetween(open_date, close_date ?? DEMO_TODAY),
   current_status,
   franchise,
   area_m2,
@@ -37,34 +56,62 @@ const seed = (
 
 /* prettier-ignore */
 const CAFE_SEEDS: NearbySeed[] = [
-  seed('3130000-104-2020-00011', '○○로스터스', 'cafe', [60, 70], '2020-05-20', null, 77, 'open', 'independent', 48.2),
-  seed('3130000-104-2019-00102', '□□커피 ○○점', 'cafe', [-120, 40], '2019-09-02', null, 86, 'open', 'franchise', 82.5),
-  seed('3130000-104-2021-00230', '△△디저트', 'cafe', [150, -110], '2021-03-15', '2025-02-28', 47, 'closed', 'independent', 29.7),
-  seed('3130000-104-2023-00321', '△△커피', 'cafe', [-200, -150], '2023-08-01', null, 38, 'open', 'unknown', null),
-  seed('3130000-104-2018-00044', '◇◇다방', 'cafe', [260, 200], '2018-01-10', null, 106, 'other', 'independent', 66.1),
-  seed('3130000-104-2022-00450', '◎◎티하우스', 'cafe', [-330, 120], '2022-06-01', null, 53, 'open', 'independent', 41.0),
-  seed('3130000-104-2020-00517', '☆☆카페 ○○역점', 'cafe', [300, -300], '2020-11-11', '2024-07-31', 44, 'closed', 'franchise', 105.8),
-  seed('3130000-104-2017-00610', '○○베이커리카페', 'cafe', [80, 520], '2017-04-05', null, 115, 'open', 'independent', 132.2),
-  seed('3130000-104-2024-00702', '□□라운지카페', 'cafe', [-560, -260], '2024-02-19', null, 32, 'open', 'unknown', null),
-  seed('3130000-104-2016-00811', '□□로스팅랩', 'cafe', [700, 150], '2016-08-22', '2023-12-31', 88, 'closed', 'independent', 57.9),
-  seed('3130000-104-2021-00905', '△△커피 ○○점', 'cafe', [-420, 760], '2021-10-01', null, 61, 'open', 'franchise', 75.3),
-  seed('3130000-104-2019-00999', '◇◇브루잉', 'cafe', [610, -690], '2019-05-27', null, 89, 'open', 'independent', 38.4),
+  // 300m 안 — 지금 영업 6곳(휴업 1곳 포함), 최근 12개월 폐업 1곳, 예전 폐업 1곳
+  seed('3130000-104-2020-00011', '○○로스터스', 'cafe', [60, 70], '2020-05-20', null, 'independent', 48.2),
+  seed('3130000-104-2019-00102', '□□커피 ○○점', 'cafe', [-120, 40], '2019-09-02', null, 'franchise', 82.5),
+  seed('3130000-104-2021-00230', '△△디저트', 'cafe', [150, -110], '2021-03-15', '2026-02-28', 'independent', 29.7),
+  seed('3130000-104-2023-00321', '△△커피', 'cafe', [-200, -150], '2023-08-01', null, 'unknown', null),
+  seed('3130000-104-2025-00140', '◎◎티하우스', 'cafe', [-180, 200], '2025-03-10', null, 'independent', 41.0),
+  seed('3130000-104-2026-00062', '○○빙수', 'cafe', [100, -240], '2026-04-02', null, 'independent', 31.5),
+  seed('3130000-104-2018-00044', '◇◇다방', 'cafe', [260, 100], '2018-01-10', null, 'independent', 66.1, 'other'),
+  seed('3130000-104-2020-00380', '○○디저트카페', 'cafe', [220, -180], '2020-10-10', '2023-12-31', 'independent', 36.3),
+  // 300~500m — 지금 영업 6곳, 최근 12개월 폐업 1곳, 예전 폐업 1곳
+  seed('3130000-104-2024-00517', '☆☆카페 ○○역점', 'cafe', [300, -300], '2024-11-20', null, 'franchise', 105.8),
+  seed('3130000-104-2017-00610', '○○베이커리카페', 'cafe', [80, 450], '2017-04-05', null, 'independent', 132.2),
+  seed('3130000-104-2025-00071', '□□라운지카페', 'cafe', [-380, -180], '2025-01-15', null, 'unknown', null),
+  seed('3130000-104-2025-00266', '◇◇브루잉', 'cafe', [420, 150], '2025-06-01', null, 'independent', 38.4),
+  seed('3130000-104-2026-00015', '☆☆커피', 'cafe', [-330, 120], '2026-01-10', null, 'franchise', 59.0),
+  seed('3130000-104-2022-00811', '△△티룸', 'cafe', [200, 400], '2022-12-05', null, 'independent', 44.6),
+  seed('3130000-104-2025-00098', '□□로스팅랩', 'cafe', [-250, -380], '2025-02-01', '2025-12-20', 'independent', 57.9),
+  seed('3130000-104-2019-00230', '◎◎커피', 'cafe', [-90, 330], '2019-03-01', '2024-07-31', 'franchise', 70.2),
+  // 500~1,000m — 지금 영업 6곳, 최근 12개월 폐업 1곳
+  seed('3130000-104-2021-00905', '□□커피 ○○2호점', 'cafe', [700, 150], '2021-10-01', null, 'franchise', 75.3),
+  seed('3130000-104-2016-00811', '△△카페', 'cafe', [-420, 760], '2016-08-22', null, 'independent', 52.0),
+  seed('3130000-104-2019-00999', '◇◇에스프레소', 'cafe', [610, -690], '2019-05-27', null, 'independent', 28.4),
+  seed('3130000-104-2024-00702', '○○카페', 'cafe', [-560, -260], '2024-02-19', null, 'unknown', null),
+  seed('3130000-104-2022-00930', '☆☆브런치카페', 'cafe', [520, 480], '2022-11-20', null, 'independent', 98.7),
+  seed('3130000-104-2023-00412', '◎◎북카페', 'cafe', [-700, 300], '2023-05-02', null, 'independent', 115.0),
+  seed('3130000-104-2025-00303', '□□젤라또', 'cafe', [650, -300], '2025-04-01', '2026-06-30', 'franchise', 33.0),
 ]
 
 /* prettier-ignore */
 const RESTAURANT_SEEDS: NearbySeed[] = [
-  seed('3130000-101-2018-00077', '○○국밥', 'korean', [50, -70], '2018-04-10', null, 102, 'open', 'independent', 72.5),
-  seed('3130000-101-2021-00412', '△△반점', 'chinese', [-140, 90], '2021-09-01', null, 62, 'open', 'unknown', null),
-  seed('3130000-101-2019-00133', '□□스시', 'japanese', [170, 120], '2019-12-02', '2025-06-30', 66, 'closed', 'independent', 45.6),
-  seed('3130000-101-2020-00255', '◇◇파스타', 'western', [-230, -160], '2020-03-03', null, 80, 'open', 'franchise', 99.2),
-  seed('3130000-101-2017-00301', '◎◎한정식', 'korean', [280, -190], '2017-07-17', null, 111, 'other', 'independent', 165.3),
-  seed('3130000-101-2022-00388', '☆☆라멘', 'japanese', [-350, 140], '2022-04-11', null, 55, 'open', 'independent', 33.1),
-  seed('3130000-101-2016-00420', '○○중화요리', 'chinese', [320, 310], '2016-02-01', '2024-10-31', 104, 'closed', 'independent', 88.0),
-  seed('3130000-101-2023-00517', '○○버거 ○○점', 'western', [-90, 560], '2023-01-20', null, 45, 'open', 'franchise', 120.7),
-  seed('3130000-101-2015-00608', '□□설렁탕', 'korean', [580, -240], '2015-11-30', null, 131, 'open', 'unknown', null),
-  seed('3130000-101-2020-00733', '△△돈카츠', 'japanese', [-640, -330], '2020-08-08', '2023-05-31', 33, 'closed', 'independent', 52.9),
-  seed('3130000-101-2021-00844', '◇◇비스트로', 'western', [450, 750], '2021-12-24', null, 59, 'open', 'independent', 70.4),
-  seed('3130000-101-2019-00955', '◎◎백반', 'korean', [-720, 560], '2019-06-14', null, 88, 'open', 'independent', 26.4),
+  // 300m 안 — 지금 영업 5곳(휴업 1곳 포함), 최근 12개월 폐업 1곳
+  seed('3130000-101-2018-00077', '○○국밥', 'korean', [50, -70], '2018-04-10', null, 'independent', 72.5),
+  seed('3130000-101-2021-00412', '△△반점', 'chinese', [-140, 90], '2021-09-01', null, 'unknown', null),
+  seed('3130000-101-2022-00255', '◇◇파스타', 'western', [-230, -160], '2022-12-03', null, 'franchise', 99.2),
+  seed('3130000-101-2023-00388', '☆☆라멘', 'japanese', [-100, 250], '2023-04-11', null, 'independent', 33.1),
+  seed('3130000-101-2017-00301', '◎◎한정식', 'korean', [250, -130], '2017-07-17', null, 'independent', 165.3, 'other'),
+  seed('3130000-101-2022-00133', '□□스시', 'japanese', [170, 120], '2022-11-15', '2026-03-31', 'independent', 45.6),
+  // 300~500m — 지금 영업 8곳, 최근 12개월 폐업 2곳, 예전 폐업 1곳
+  seed('3130000-101-2023-00517', '○○버거 ○○점', 'western', [-90, 440], '2023-01-20', null, 'franchise', 120.7),
+  seed('3130000-101-2015-00608', '□□설렁탕', 'korean', [400, -150], '2015-11-30', null, 'unknown', null),
+  seed('3130000-101-2025-00844', '◇◇비스트로', 'western', [300, 330], '2025-02-24', null, 'independent', 70.4),
+  seed('3130000-101-2023-00955', '◎◎백반', 'korean', [-420, 100], '2023-09-14', null, 'independent', 26.4),
+  seed('3130000-101-2025-00733', '△△돈카츠', 'japanese', [-350, -250], '2025-07-08', null, 'independent', 52.9),
+  seed('3130000-101-2026-00120', '○○칼국수', 'korean', [330, 200], '2026-02-02', null, 'independent', 39.7),
+  seed('3130000-101-2025-00015', '△△양식당', 'western', [150, 420], '2025-01-05', null, 'independent', 84.0),
+  seed('3130000-101-2025-00470', '◇◇초밥', 'japanese', [-450, 0], '2025-05-20', null, 'franchise', 61.2),
+  seed('3130000-101-2016-00420', '○○중화요리', 'chinese', [320, 310], '2016-02-01', '2025-12-31', 'independent', 88.0),
+  seed('3130000-101-2024-00901', '□□우동', 'japanese', [-300, -300], '2024-12-10', '2025-11-30', 'independent', 29.8),
+  seed('3130000-101-2023-00210', '△△중식당', 'chinese', [380, -250], '2023-03-01', '2024-12-31', 'independent', 76.5),
+  // 500~1,000m — 지금 영업 5곳, 예전 폐업 1곳
+  seed('3130000-101-2019-00366', '○○냉면', 'korean', [650, -240], '2019-06-14', null, 'independent', 92.3),
+  seed('3130000-101-2020-00733', '□□딤섬', 'chinese', [-640, -330], '2020-08-08', null, 'independent', 52.9),
+  seed('3130000-101-2021-00844', '◇◇스테이크', 'western', [450, 750], '2021-12-24', null, 'franchise', 140.6),
+  seed('3130000-101-2024-00290', '☆☆덮밥', 'japanese', [-720, 560], '2024-03-14', null, 'unknown', null),
+  seed('3130000-101-2017-00505', '◎◎감자탕', 'korean', [800, -100], '2017-05-05', null, 'independent', 118.2),
+  seed('3130000-101-2019-00122', '△△피자', 'western', [-600, 500], '2019-02-02', '2024-05-31', 'franchise', 66.0),
 ]
 
 const M_PER_DEG_LAT = 111320
@@ -89,14 +136,9 @@ function outOfRange(asOfMonth: string | null) {
   return null
 }
 
-/**
- * 목업 전용: 반경·필터에 맞고 기준일 T에 영업하던 점포
- * (T 영업 = 개업일 ≤ T 그리고 (폐업일 없음 또는 폐업일 > T)). as_of가 없으면 시점 조건 없이 전체.
- */
-function storesAt(query: URLSearchParams): NearbyMarker[] {
+/** 목업 전용: 반경·필터에 맞는 점포 (시점 조건 없음 — 개·폐업 수 셈용) */
+function storesInRadius(query: URLSearchParams): NearbyMarker[] {
   const { radius } = radiusSpace(query)
-  const asOfMonth = query.get('as_of')
-  const t = asOfMonth ? monthEnd(asOfMonth) : null
   const lat = Number(query.get('lat')) || 37.5563
   const lng = Number(query.get('lng')) || 126.922
   const subs = (query.get('sub_category') ?? '').split(',').filter(Boolean)
@@ -113,7 +155,6 @@ function storesAt(query: URLSearchParams): NearbyMarker[] {
         distance_m: Math.round(Math.hypot(dx, dy)),
       }))
       .filter((m) => m.distance_m <= radius)
-      .filter((m) => !t || (m.open_date <= t && (m.close_date === null || m.close_date > t)))
       .filter((m) => subs.length === 0 || subs.includes(m.sub_category))
       // 정보 없음(면적 null / 프랜차이즈 unknown)은 include_unknown일 때 필터와 상관없이 포함
       .filter((m) => (m.area_m2 === null ? includeUnknown : inArea(area, m.area_m2)))
@@ -124,6 +165,74 @@ function storesAt(query: URLSearchParams): NearbyMarker[] {
       )
       .sort((a, b) => a.distance_m - b.distance_m)
   )
+}
+
+/**
+ * 목업 전용: 반경·필터에 맞고 기준일 T에 영업하던 점포 = 지도·표·동종업체 수의 같은 집합
+ * (T 영업 = 개업일 ≤ T 그리고 (폐업일 없음 또는 폐업일 > T)). as_of가 없으면 T = 시연 기준일.
+ */
+export function storesAt(query: URLSearchParams): NearbyMarker[] {
+  const t = monthEnd(query.get('as_of'))
+  return storesInRadius(query).filter(
+    (m) => m.open_date <= t && (m.close_date === null || m.close_date > t),
+  )
+}
+
+/** 목업 전용: 기준일 T 기준 YYYY-MM-DD 범위 (from 초과 ~ to 이하) */
+const between = (d: string | null, from: string, to: string) => d !== null && d > from && d <= to
+
+/** 목업 전용: T에서 n개월 전 달의 말일 */
+const monthsBack = (t: string, n: number) => monthEnd(shiftMonth(t.slice(0, 7), -n))
+
+/**
+ * 목업 전용: /risk·/market/activity가 함께 쓰는 개·폐업 집계 (같은 점포 목록에서 셈)
+ * - 최근 12개월 = T 직전 12개월, 연도별 = T 연도 직전 5년
+ * - 1년 생존율 대상 = 12~24개월 전 개업, 3년 = 36~48개월 전 개업. 그 뒤 n개월 넘게 영업했으면 생존
+ */
+export function storeStats(query: URLSearchParams) {
+  const t = monthEnd(query.get('as_of'))
+  const all = storesInRadius(query)
+  const openNow = storesAt(query)
+  const start12 = monthsBack(t, 12)
+  const opened12m = all.filter((m) => between(m.open_date, start12, t)).length
+  const closed12m = all.filter((m) => between(m.close_date, start12, t)).length
+  const cohort = (fromBack: number, toBack: number, months: number) => {
+    const from = monthsBack(t, fromBack)
+    const to = monthsBack(t, toBack)
+    const members = all.filter((m) => between(m.open_date, from, to))
+    // T에 아직 영업 중이면(개업 후 n개월 이상 지남) 생존, 폐업했으면 영업 기간이 n개월 이상일 때 생존
+    const survived = members.filter(
+      (m) =>
+        m.close_date === null ||
+        m.close_date > t ||
+        monthsBetween(m.open_date, m.close_date) >= months,
+    ).length
+    return {
+      denominator: members.length,
+      numerator: survived,
+      period: `${shiftMonth(from.slice(0, 7), 1)}~${to.slice(0, 7)}`,
+    }
+  }
+  const year = Number(t.slice(0, 4))
+  return {
+    t,
+    openNow,
+    period12m: `${shiftMonth(t.slice(0, 7), -11)}~${t.slice(0, 7)}`,
+    opened12m,
+    closed12m,
+    /** 참고 폐업률 분모 = 최근 12개월 중 한 번이라도 영업한 점포 = 지금 영업 + 그 사이 폐업 */
+    closureDenominator: openNow.length + closed12m,
+    survival1y: cohort(24, 12, 12),
+    survival3y: cohort(48, 36, 36),
+    yearly: [5, 4, 3, 2, 1].map((back) => {
+      const y = String(year - back)
+      return {
+        year: year - back,
+        opened: all.filter((m) => m.open_date.startsWith(y)).length,
+        closed: all.filter((m) => m.close_date?.startsWith(y)).length,
+      }
+    }),
+  }
 }
 
 export const nearbyStoresMock: MockHandler = (query) => {
@@ -186,7 +295,8 @@ export const storeSnapshotMock: MockHandler = (query) => {
     closed_since: closedSince,
     other,
     stores,
-    summary_text: `${y}.${mo} 시점 동일 업종 ${stores.length}곳 → 지금도 운영 중 ${stillOpen}곳 · 폐업 ${closedSince}곳`,
+    // N = A + B + 기타가 문장에서도 맞게, 기타(휴업 등)가 있으면 함께 적는다
+    summary_text: `${y}.${mo} 시점 동일 업종 ${stores.length}곳 → 지금도 운영 중 ${stillOpen}곳 · 폐업 ${closedSince}곳${other > 0 ? ` · 기타(휴업 등) ${other}곳` : ''}`,
   }
   return ok(data, {
     ...DEMO_META,
