@@ -22,6 +22,64 @@ export const MESSAGES = {
     start: '진단 시작하기',
     scope: '현재 서울특별시 카페·음식점(한식·중식·일식·양식)을 진단할 수 있어요',
   },
+  /** ① 랜딩 첫 화면 아래 소개 섹션 (홍보용 수치·성공/실패 판정 표현 쓰지 않기) */
+  landingIntro: {
+    scrollHint: '아래로 더 보기',
+    featuresTitle: 'Spot:ON으로 확인할 수 있는 것',
+    features: [
+      {
+        title: '주소별 과거 점포 이력',
+        description:
+          '같은 건물을 거쳐 간 점포의 개업·폐업과 영업 기간을 보여줘요. 층·호실이 다르면 다른 자리로 구분해요.',
+      },
+      {
+        title: '과거 시점 조회',
+        description:
+          '과거 특정 연·월에 영업하던 같은 업종 점포가 지금도 운영 중인지 확인할 수 있어요.',
+      },
+      {
+        title: '서울시 공식 지표와 참고지표 구분',
+        description:
+          '서울시가 공표한 값은 그대로 인용하고, Spot:ON이 계산한 참고지표와 영역을 나눠 보여줘요. 점수나 등급은 만들지 않아요.',
+      },
+      {
+        title: '근거 기반 AI 해석',
+        description:
+          '버튼을 눌렀을 때만 서버가 계산한 지표로 유리·불리 요인과 계약 전 확인사항을 정리해요. 문장마다 근거 지표를 함께 보여줘요.',
+      },
+    ],
+    stepsTitle: '이렇게 이용해요',
+    steps: [
+      { title: '주소·업종 입력', description: '서울 주소와 카페·음식점 업종을 입력해요.' },
+      {
+        title: '입지 정보 분석 확인',
+        description: '과거 점포 이력, 주변 점포 지도, 상권 활동을 차례로 살펴봐요.',
+      },
+      {
+        title: '종합 진단·저장/상담',
+        description:
+          '공식·참고 지표와 AI 해석을 확인하고, PDF로 저장하거나 공공 창업 상담으로 이어가요.',
+      },
+    ],
+    stepLabel: (n: number) => `${n}단계`,
+    dataTitle: '이런 데이터를 사용해요',
+    dataDescription:
+      '공공기관이 공개한 데이터를 서버에서 모아 계산하고, 출처와 기준일을 함께 보여줘요.',
+    dataNotice: '공공데이터 기반 참고 정보이며 창업 성공·실패를 판단하지 않아요.',
+    ctaTitle: '계약 전에, 그 자리를 한 번 더 확인해 보세요',
+    ctaDescription: '주소와 업종만 입력하면 바로 볼 수 있어요.',
+  },
+  /** 랜딩·입력 화면 공통 하단 (결과 화면은 ResultFooter) */
+  siteFooter: {
+    team: '시고르자브종 · 청년 공공AX 서포터즈',
+    usageTitle: '이용 안내',
+    /** 이용 대상(layout.ageNotice)·면책(disclaimer)과 함께 보여주는 개인정보 안내 */
+    privacy: '회원가입 없이 이용하며 개인정보를 저장하지 않아요.',
+    dataTitle: '데이터 출처',
+    linksTitle: '프로젝트',
+    repository: '소스 코드 저장소',
+    newWindow: '(새 창)',
+  },
   /** ② 주소·업종 입력 (주소 검색 API 오류 문구는 ERROR_MESSAGES 사용) */
   input: {
     eyebrow: 'DATA-BASED INSIGHT',

@@ -1,8 +1,10 @@
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ChevronDown } from 'lucide-react'
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { IMAGES } from '../assets/images'
 import Logo from '../components/common/Logo'
+import LandingSections from '../components/landing/LandingSections'
+import SiteFooter from '../components/layout/SiteFooter'
 import { MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
 import { usePageTitle } from '../hooks/usePageTitle'
@@ -22,43 +24,57 @@ const delay = (n: number): CSSProperties => ({
 export default function LandingPage() {
   usePageTitle(MESSAGES.titles.landing)
   return (
-    <div className="relative flex min-h-full flex-col overflow-hidden bg-gray-0">
-      <LandingMap />
+    <div className="flex min-h-full flex-col bg-gray-0">
+      <main className="flex-1">
+        {/* 첫 화면(1440×900) — 제목·버튼·전국 지도는 그대로, 아래에 소개 섹션이 이어진다 */}
+        <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-0">
+          <LandingMap />
 
-      <header className="relative mx-auto w-full max-w-[1200px] px-10 pt-10">
-        <Logo />
-      </header>
+          <header className="relative mx-auto w-full max-w-[1200px] px-10 pt-10">
+            <Logo />
+          </header>
 
-      <main className="relative mx-auto flex w-full max-w-[1200px] flex-1 flex-col px-10 pt-16">
-        <div className={rise} style={delay(0)}>
-          <p className="text-caption font-semibold text-blue-700">{T.slogan}</p>
-          <h1 className="mt-3 text-[2.5rem] leading-tight font-bold text-gray-900">
-            {T.titleLine1}
-            <br />
-            {T.titleLine2}
-          </h1>
+          <div className="relative mx-auto flex w-full max-w-[1200px] flex-1 flex-col px-10 pt-16">
+            <div className={rise} style={delay(0)}>
+              <p className="text-caption font-semibold text-blue-700">{T.slogan}</p>
+              <h1 className="mt-3 text-[2.5rem] leading-tight font-bold text-gray-900">
+                {T.titleLine1}
+                <br />
+                {T.titleLine2}
+              </h1>
+            </div>
+            <p className={`mt-3 text-subtitle text-gray-600 ${rise}`} style={delay(1)}>
+              {T.description}
+            </p>
+            <div className={`mt-8 ${rise}`} style={delay(2)}>
+              <Link
+                to={ROUTES.input}
+                className="group inline-flex h-13 interactive-lift items-center gap-2 rounded-full bg-blue-500 px-7 text-subtitle font-semibold text-white shadow-card hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              >
+                {T.start}
+                <ArrowRight className="size-5 arrow-nudge" aria-hidden="true" />
+              </Link>
+            </div>
+            <p className={`mt-6 text-caption text-gray-600 ${rise}`} style={delay(2)}>
+              {T.scope}
+            </p>
+          </div>
+
+          {/* 아래에 소개가 더 있다는 작은 힌트 (이용 대상·면책 문구는 하단 SiteFooter로 옮김) */}
+          <div className="relative mx-auto w-full max-w-[1200px] px-10 pt-10 pb-8">
+            <a
+              href="#landing-features-title"
+              className="group inline-flex items-center gap-1 rounded text-caption text-gray-600 motion-colors hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            >
+              {MESSAGES.landingIntro.scrollHint}
+              <ChevronDown className="size-4" aria-hidden="true" />
+            </a>
+          </div>
         </div>
-        <p className={`mt-3 text-subtitle text-gray-600 ${rise}`} style={delay(1)}>
-          {T.description}
-        </p>
-        <div className={`mt-8 ${rise}`} style={delay(2)}>
-          <Link
-            to={ROUTES.input}
-            className="group inline-flex h-13 interactive-lift items-center gap-2 rounded-full bg-blue-500 px-7 text-subtitle font-semibold text-white shadow-card hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-          >
-            {T.start}
-            <ArrowRight className="size-5 arrow-nudge" aria-hidden="true" />
-          </Link>
-        </div>
-        <p className={`mt-6 text-caption text-gray-600 ${rise}`} style={delay(2)}>
-          {T.scope}
-        </p>
+
+        <LandingSections />
       </main>
-
-      <footer className="relative mx-auto w-full max-w-[1200px] px-10 pt-10 pb-8 text-micro text-gray-600">
-        <p>{MESSAGES.layout.ageNotice}</p>
-        <p className="mt-0.5">{MESSAGES.disclaimer}</p>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

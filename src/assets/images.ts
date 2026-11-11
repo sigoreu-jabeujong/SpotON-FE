@@ -11,7 +11,7 @@ import logoSymbol from './logo.webp'
 import robotImage from './robot.webp'
 
 export const IMAGES: {
-  /** S 심볼 로고 (글자 없음) — 헤더 로고 옆, 파비콘 */
+  /** S 심볼 로고 (글자 없음) — 헤더 로고 옆. 파비콘·공유 이미지는 이 그림으로 만든 public/ 정적 파일 */
   logo: string | null
   /** ① 랜딩 오른쪽 3D 전국 지도 */
   landingMap: string | null
