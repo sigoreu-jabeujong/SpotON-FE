@@ -37,9 +37,12 @@ export default function Button({
     <button
       type={type}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-colors',
+        'group inline-flex items-center justify-center gap-2 rounded-full font-semibold',
+        // hover: 색 전환 + 살짝 떠오름, 누를 때 살짝 눌림 (동작 줄이기면 색만)
+        'transition-[color,background-color,transform] duration-(--duration-fast) ease-(--ease-out-soft)',
+        'motion-safe:hover:-translate-y-px motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98]',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
-        'disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600',
+        'disabled:transform-none disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600',
         VARIANT[variant],
         SIZE[size],
         fullWidth && 'w-full',
@@ -48,7 +51,11 @@ export default function Button({
       {...rest}
     >
       {children}
-      {iconRight && <span aria-hidden="true">{iconRight}</span>}
+      {iconRight && (
+        <span aria-hidden="true" className="arrow-nudge">
+          {iconRight}
+        </span>
+      )}
     </button>
   )
 }

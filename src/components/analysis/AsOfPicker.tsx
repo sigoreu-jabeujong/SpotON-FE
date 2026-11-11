@@ -47,7 +47,7 @@ export default function AsOfPicker({ value, onChange, range, status }: Props) {
           aria-pressed={value === null}
           onClick={() => onChange(null)}
           className={cn(
-            'rounded-full border px-3 py-1 text-caption font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+            'rounded-full border px-3 py-1 text-caption font-semibold motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
             value === null
               ? 'border-blue-500 bg-blue-100 text-blue-700'
               : 'border-gray-300 text-gray-900 hover:bg-gray-100',

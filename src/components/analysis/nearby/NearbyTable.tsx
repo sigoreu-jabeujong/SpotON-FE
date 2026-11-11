@@ -61,7 +61,7 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                   key={m.license_no}
                   onClick={() => onSelect(m.license_no)}
                   className={cn(
-                    'cursor-pointer border-t border-gray-300 transition-colors',
+                    'cursor-pointer border-t border-gray-300 motion-colors',
                     selected ? 'bg-blue-100' : 'even:bg-gray-100/60 hover:bg-blue-100/50',
                   )}
                 >

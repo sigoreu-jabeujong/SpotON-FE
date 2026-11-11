@@ -18,7 +18,7 @@ export default function ShowMoreButton({ shown, total, onClick, controls }: Prop
       type="button"
       onClick={onClick}
       aria-controls={controls}
-      className="mt-2 flex h-10 w-full items-center justify-center gap-1 rounded-control border border-gray-300 bg-gray-0 text-caption font-semibold text-gray-900 transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+      className="mt-2 flex h-10 w-full items-center justify-center gap-1 rounded-control border border-gray-300 bg-gray-0 text-caption font-semibold text-gray-900 motion-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
     >
       {MESSAGES.list.showMore}
       <span className="font-normal text-gray-600">

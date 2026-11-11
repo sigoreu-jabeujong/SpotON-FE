@@ -55,7 +55,10 @@ export default function HistoryTable({ stores }: Props) {
           </thead>
           <tbody>
             {visible.map((s, i) => (
-              <tr key={s.license_no} className="border-t border-gray-300 even:bg-gray-100/60">
+              <tr
+                key={s.license_no}
+                className="border-t border-gray-300 motion-colors even:bg-gray-100/60 hover:bg-blue-100/40"
+              >
                 <td className="px-3 py-3 text-gray-600">{i + 1}</td>
                 <th scope="row" className="px-3 py-3 font-semibold text-gray-900">
                   {s.name}
