@@ -1,6 +1,6 @@
 # 화면별 요구사항
 
-> 마지막 갱신: 2026-11-10 (구현 상태 반영)
+> 마지막 갱신: 2026-11-11 (PR #16 디자인 이미지·배치 반영)
 > 기준: 02 기능 명세서, 06 API 명세서 v1.1, 08 분석 로직 정의서, BE 작업계획서, 디자인 초안(Figma)
 > 화면 크기: **데스크톱 1440×900 기준**. 모바일 전용 대응은 이번 개발 범위 밖이다.
 
@@ -10,19 +10,19 @@
 
 | 화면 | 상태 | 구현 위치 | 남은 일 |
 |---|---|---|---|
-| ① 랜딩 `/` | ✅ 완료 | `pages/LandingPage.tsx` | 전국 지도 이미지 파일 받으면 `src/assets/images.ts`에 연결 |
-| ② 입력 `/diagnose` | ✅ 완료 (geocode·후보 선택·오류 안내) | `pages/InputPage.tsx`, `components/input/` | 입력 화면 배경 이미지 |
+| ① 랜딩 `/` | ✅ 완료 | `pages/LandingPage.tsx` | — |
+| ② 입력 `/diagnose` | ✅ 완료 (geocode·후보 선택·오류 안내) | `pages/InputPage.tsx`, `components/input/` | — |
 | ③ 과거 점포 이력 `#history` | ✅ 완료 | `components/analysis/HistorySection.tsx`, `analysis/history/` | 실제 데이터로 위치 일치 판정 확인 |
-| ④ 주변 점포 `#nearby` | ✅ 완료 (필터 바·카카오 지도·점포 표·시점 조회) | `components/analysis/NearbySection.tsx`, `ConditionFilterBar.tsx`, `AsOfPicker.tsx`, `analysis/nearby/`, `components/map/` | 배포 도메인을 카카오 콘솔 허용 도메인에 등록 |
+| ④ 주변 점포 `#nearby` | ✅ 완료 (카카오 지도 → 아래 필터 바·점포 표, 시점 조회) | `components/analysis/NearbySection.tsx`, `ConditionFilterBar.tsx`, `AsOfPicker.tsx`, `analysis/nearby/`, `components/map/` | 배포 도메인을 카카오 콘솔 허용 도메인에 등록 |
 | ⑤ 상권 활동 `#activity` | ✅ 완료 (점포 현황·연도별 차트·조건부 지표) | `components/analysis/ActivitySection.tsx`, `analysis/activity/` | 추정매출·생활인구는 BE 자료 확보 후 실제 값 확인 |
 | ⑥ 종합 진단 `/result/summary` | ✅ 완료 (상권 판정·공식/참고 지표·서울 평균 비교·AI 해석·체크리스트) | `pages/SummaryPage.tsx`, `components/summary/` | `official_risk`·`market_change` 형식 BE 확정 후 맞추기 |
 | ⑦ 저장·상담 `/result/share` | ✅ 완료 (PDF 진단서·요약 이미지·상담 링크·재진단) | `pages/SharePage.tsx`, `pages/ReportPage.tsx`, `components/share/` | — |
-| 공통 | ✅ | 사이드바 레이아웃, 탭 제목, 404, 화면별 나눠 불러오기 | 결과 머리 그림(3D 건물) 이미지 |
+| 공통 | ✅ | 사이드바 레이아웃, 탭 제목, 404, 화면별 나눠 불러오기 | — |
 
 ## 1. 디자인 구조
 
 - Figma: <https://www.figma.com/design/NnOnbI1G4Lv0p0tniHlJbl/Spot-ON_Draft_1>
-- 색·간격 같은 세부 값은 화면 PNG를 받으면 이 문서와 `src/index.css`의 `@theme`에 추가한다.
+- 색·간격 같은 디자인 토큰은 `src/index.css`의 `@theme`에 반영되어 있다. 이미지 경로는 `src/assets/images.ts` 한 곳에서 관리한다.
 
 ### 1-1. 왼쪽 4단계 사이드바
 
@@ -114,6 +114,7 @@
 |---|---|
 | 기능 | F-03 지도, F-04 세부 필터, F-05 시점 조회 |
 | API | `GET /api/stores/nearby`, `GET /api/stores/snapshot`, `GET /api/meta/data-range` |
+| 배치 | 지도 먼저 → 아래 필터 바 + 점포 표. 반경 필터는 지도에도 적용된다 |
 | 지도 | 카카오맵 JS SDK. 입력 위치, 반경 원(`radius_m`), 마커(`current_status`로 영업 중/폐업 구분) |
 | 필터 | 필수: 반경 300/500/1000m(기본 500), 음식점 세부 업종 4종 / 선택: 시설 규모, 프랜차이즈 |
 | 시점 조회 | 연·월 선택. `data-range`의 `min_month`~`max_month` 밖은 비활성. 결과는 `summary_text`(예: "2023.10 시점 동일 업종 12곳 → 지금도 운영 중 7곳 · 폐업 5곳") |
@@ -122,6 +123,7 @@
 | 빈 결과 | `count: 0` → "조건에 맞는 점포가 없어요" |
 | 정보 없음 | 면적·프랜차이즈 값이 없는 점포 → "정보 없음" |
 | 필수 문구 | 기준일, 반경, `excluded_no_coord` > 0이면 "좌표가 없어 지도에서 제외된 점포 n곳" |
+| 메모 | 지도 반경 고정 여부: 팀장 확인 대기 (디자인 요청) |
 
 ### ⑤ 상권 활동 분석 `/result/analysis#activity` — STEP 02
 

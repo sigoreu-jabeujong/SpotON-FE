@@ -1,14 +1,16 @@
 # 결정 사항과 미결 사항
 
-> 마지막 갱신: 2026-11-10
+> 마지막 갱신: 2026-11-11
 > 새 결정은 날짜와 함께 위에 추가하고, 관련 문서([api-contract.md](api-contract.md), [screens.md](screens.md), [display-rules.md](display-rules.md))를 따라 고친다.
 
 ## 1. 결정됨
 
 | 날짜 | 결정 | 메모 |
 |---|---|---|
+| 2026-11-11 | STEP 02 탭 제목은 **"입지 정보 분석 \| Spot:ON"으로 고정** | 보고 있는 섹션과 관계없이 같은 제목 (PR #16) |
+| 2026-11-11 | **CI가 develop 대상 PR에서도 돈다** (해결) | 커밋 312bfe7로 `branches: [main, develop]` 수정됨, 저장소 기본 브랜치도 develop |
 | 2026-11-10 | **FE PR은 류민지가 merge commit으로 머지**한다 | 커밋 기록 보존. BE 머지 방식은 BE가 정한다 (BE 작업계획서는 Squash) |
-| 2026-11-10 | FE 커밋 메시지는 **`타입: 내용`** 형식 | 타입: feat, fix, refactor, docs, style, chore |
+| 2026-11-10 | FE 커밋 메시지는 **`타입: 내용`** 형식 | 타입: feat, fix, refactor, perf, docs, style, chore |
 | 2026-11-10 | 배포 위치는 **개발 완료 후 결정**. 최종 제출은 공공 GitLab | FE·BE 별도 저장소로 이관 |
 | 2026-11-10 | **모바일 전용 대응은 범위 밖**, 데스크톱 1440 기준으로 개발 | 접근성 기본 규칙은 계속 지킨다 |
 | 2026-11-10 | 랜딩은 디자인대로 **전국 지도 그림** 사용 | 서비스 범위(서울)는 문구로 안내 |
@@ -25,7 +27,6 @@
 
 | # | 항목 | FE가 궁금한 것 | FE 임시 기준 |
 |---|---|---|---|
-| 1 | **CI의 develop 브랜치 반영** | `.github/workflows/ci.yml`이 `branches: [main, dev]`라 develop 대상 PR에서 CI가 돌지 않는다 | 호림님께 수정 요청함. 그 전까지 PR 본문에 로컬 검사 결과를 적는다 |
 | 2 | **`official_risk` 형식** | PDF(`no_data` + `source_url`)와 BE 보완안(`link_only` + `link` + `copy_text`) 중 무엇인지 | 두 형식 모두 처리, 링크 안내만 |
 | 3 | **상태값 목록** | `fact`/`estimate`/`no_data`/`pending`/`unknown`/`location_unverified` + `link_only` 확정 여부, `pending`과 `no_data` 구분 규칙 | PDF 6종 + `link_only` |
 | 4 | **`error.detail`·오류 시 `meta` 형식** | `detail`이 항상 있는지, 오류 시 `meta`가 `null`인지 `{}`인지 | 둘 다 처리 |
