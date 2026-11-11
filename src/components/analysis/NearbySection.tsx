@@ -8,6 +8,7 @@ import EmptyState from '../common/EmptyState'
 import ErrorState from '../common/ErrorState'
 import LoadingState from '../common/LoadingState'
 import MetaLine from '../common/MetaLine'
+import SectionErrorBoundary from '../common/SectionErrorBoundary'
 import SubTitle from '../common/SubTitle'
 import MapLegend from '../map/MapLegend'
 import NearbyMap from '../map/NearbyMap'
@@ -59,15 +60,18 @@ export default function NearbySection() {
             data && (
               <>
                 <div ref={mapWrapRef} className="scroll-mt-8">
-                  <NearbyMap
-                    center={data.center}
-                    radiusM={data.radius_m}
-                    markers={data.markers}
-                    badge={T.mapBadge(data.radius_m, formatDate(data.as_of))}
-                    pastBadge={pastLabel ? T.pastBadge(pastLabel) : null}
-                    selectedId={selectedId}
-                    onSelect={setSelectedId}
-                  />
+                  {/* 지도가 깨져도 아래 조회 조건·점포 표는 그대로 보인다 */}
+                  <SectionErrorBoundary resetKey={JSON.stringify(params)}>
+                    <NearbyMap
+                      center={data.center}
+                      radiusM={data.radius_m}
+                      markers={data.markers ?? []}
+                      badge={T.mapBadge(data.radius_m, formatDate(data.as_of))}
+                      pastBadge={pastLabel ? T.pastBadge(pastLabel) : null}
+                      selectedId={selectedId}
+                      onSelect={setSelectedId}
+                    />
+                  </SectionErrorBoundary>
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <MapLegend />
@@ -101,7 +105,7 @@ export default function NearbySection() {
             <LoadingState />
           ) : nearby.isError ? null : (
             data &&
-            (data.count === 0 || data.markers.length === 0 ? (
+            (data.count === 0 || !data.markers?.length ? (
               <EmptyState message={data.message ?? MESSAGES.common.empty} />
             ) : (
               <NearbyTable
