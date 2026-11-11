@@ -1,7 +1,8 @@
-import { ArrowRight, MapPinned } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router'
 import { MESSAGES } from '../../constants/messages'
 import { ROUTES } from '../../constants/routes'
+import RobotArt from '../common/RobotArt'
 
 const T = MESSAGES.share
 
@@ -17,9 +18,7 @@ export default function RediagnoseBanner() {
       className="group flex items-center justify-between gap-4 rounded-card bg-blue-100 px-6 py-5 transition-colors hover:bg-blue-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
     >
       <span className="flex items-center gap-4">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-gray-0 text-blue-500 shadow-card">
-          <MapPinned className="size-6" aria-hidden="true" />
-        </span>
+        <RobotArt className="size-16" />
         <span>
           <span className="block text-body font-bold text-gray-900">{T.rediagnoseTitle}</span>
           <span className="block text-caption text-gray-600">{T.rediagnoseDesc}</span>

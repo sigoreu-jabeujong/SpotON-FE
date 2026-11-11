@@ -47,15 +47,30 @@ export default function LandingPage() {
   )
 }
 
-/** 오른쪽 전국 지도 그림. 이미지가 없으면 연한 파란 원형 그라데이션 임시 배경 */
+/** 오른쪽 전국 지도 그림 + 뒤 배경 그라데이션. 이미지가 없으면 연한 파란 원형 그라데이션 임시 배경 */
 function LandingMap() {
   if (IMAGES.landingMap) {
+    // 글자 영역(왼쪽)을 가리지 않도록 오른쪽 아래에만 둔다. 장식이라 alt="" + aria-hidden
     return (
-      <img
-        src={IMAGES.landingMap}
-        alt={T.mapAlt}
-        className="pointer-events-none absolute right-0 bottom-0 h-[85%] max-w-[65%] object-contain"
-      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-[16%] right-[3%] w-[52%] max-w-[820px]"
+      >
+        {IMAGES.landingGradient && (
+          <img
+            src={IMAGES.landingGradient}
+            alt=""
+            aria-hidden="true"
+            className="absolute top-[18%] left-1/2 w-[118%] max-w-none -translate-x-1/2"
+          />
+        )}
+        <img
+          src={IMAGES.landingMap}
+          alt=""
+          aria-hidden="true"
+          className="relative w-full object-contain"
+        />
+      </div>
     )
   }
   return (

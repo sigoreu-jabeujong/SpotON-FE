@@ -42,8 +42,8 @@ export default function NearbySection() {
     <AnalysisSection id="nearby">
       <div className="flex flex-col gap-6">
         <PastViewBanner />
-        <ConditionFilterBar />
 
+        {/* 디자인 순서: 지도 먼저 → 아래에 "점포 상세 조회"(조회 조건 + 점포 표) */}
         <div className="flex flex-col gap-3">
           <SubTitle>{T.mapTitle}</SubTitle>
           {nearby.isPending ? (
@@ -88,21 +88,28 @@ export default function NearbySection() {
                   denominator={meta?.denominator}
                   isDemo={meta?.is_demo}
                 />
-
-                <div className="mt-6 flex flex-col gap-3">
-                  <SubTitle>{T.tableTitle}</SubTitle>
-                  {data.count === 0 || data.markers.length === 0 ? (
-                    <EmptyState message={data.message ?? MESSAGES.common.empty} />
-                  ) : (
-                    <NearbyTable
-                      markers={data.markers}
-                      selectedId={selectedId}
-                      onSelect={selectFromTable}
-                    />
-                  )}
-                </div>
               </>
             )
+          )}
+        </div>
+
+        {/* 점포 상세 조회 — 조회 조건(반경을 바꾸면 위 지도도 함께 바뀜) + 점포 표 */}
+        <div className="mt-4 flex flex-col gap-3">
+          <SubTitle>{T.tableTitle}</SubTitle>
+          <ConditionFilterBar />
+          {nearby.isPending ? (
+            <LoadingState />
+          ) : nearby.isError ? null : (
+            data &&
+            (data.count === 0 || data.markers.length === 0 ? (
+              <EmptyState message={data.message ?? MESSAGES.common.empty} />
+            ) : (
+              <NearbyTable
+                markers={data.markers}
+                selectedId={selectedId}
+                onSelect={selectFromTable}
+              />
+            ))
           )}
         </div>
 

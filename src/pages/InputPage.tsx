@@ -74,7 +74,10 @@ export default function InputPage() {
         </DiagnosisForm>
       </main>
       <footer className="relative mx-auto w-full max-w-[1200px] px-10 pb-6 text-micro text-gray-600">
-        {MESSAGES.layout.ageNotice} {MESSAGES.disclaimer}
+        {/* 건물 그림 위에서도 글자가 읽히도록 배경색 띠 */}
+        <p className="inline rounded bg-bg/90 [box-decoration-break:clone] px-1 py-0.5">
+          {MESSAGES.layout.ageNotice} {MESSAGES.disclaimer}
+        </p>
       </footer>
     </div>
   )
@@ -88,7 +91,7 @@ function InputBackground() {
         src={IMAGES.inputBackground}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 w-full object-cover object-top"
+        className="pointer-events-none absolute inset-x-0 bottom-0 w-full max-w-none translate-y-[22%]"
       />
     )
   }
