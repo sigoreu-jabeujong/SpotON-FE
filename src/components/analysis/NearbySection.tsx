@@ -60,7 +60,7 @@ export default function NearbySection() {
           ) : (
             data && (
               <>
-                <div ref={mapWrapRef} className="scroll-mt-8">
+                <div ref={mapWrapRef} className="scroll-mt-sticky">
                   {/* 지도가 깨져도 아래 조회 조건·점포 표는 그대로 보인다 */}
                   <SectionErrorBoundary resetKey={JSON.stringify(params)}>
                     <NearbyMap

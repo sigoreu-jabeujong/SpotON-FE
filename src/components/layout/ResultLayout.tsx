@@ -5,6 +5,7 @@ import { useActiveSection } from '../../hooks/useActiveSection'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { useResultBaseline } from '../../hooks/useResultBaseline'
+import ConditionBar from './ConditionBar'
 import ResultFooter from './ResultFooter'
 import ResultHeader from './ResultHeader'
 import ResultSidebar from './ResultSidebar'
@@ -50,7 +51,9 @@ export default function ResultLayout() {
       <ResultSidebar activeSection={activeSection} />
       <div className="flex min-w-0 flex-1 flex-col">
         <ResultHeader title={meta.title} description={meta.description} />
-        <main id="result-main" tabIndex={-1} className="flex-1 px-10 pb-12 focus:outline-none">
+        {/* 진단 조건 요약 — 스크롤해도 위에 붙어 있어 긴 STEP 02에서도 지금 조건을 알 수 있다 */}
+        <ConditionBar />
+        <main id="result-main" tabIndex={-1} className="flex-1 px-10 pt-6 pb-12 focus:outline-none">
           <div className="max-w-[1080px]">
             <Outlet />
           </div>

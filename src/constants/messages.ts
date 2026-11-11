@@ -394,6 +394,19 @@ export const MESSAGES = {
   disclaimer:
     '이 결과는 공공데이터 기반 참고 정보이며 창업의 성공·실패를 판단하지 않아요. 개별 사업주의 역량은 반영하지 않았어요.',
   /** 결과 화면 공통 틀 */
+  /** 결과 화면(STEP 02~04) 위 진단 조건 요약 바 — 값은 URL 쿼리에서만 가져온다 */
+  conditionBar: {
+    label: '진단 조건',
+    radius: (m: number) => `반경 ${m.toLocaleString('ko-KR')}m`,
+    asOfCurrent: '현재 기준',
+    asOfPast: (ym: string) => `${ym} 기준`,
+    pastNotice: '과거 시점 조회 중',
+    area: (label: string) => `시설 규모 ${label}`,
+    franchise: (label: string) => `프랜차이즈 ${label}`,
+    excludeUnknown: '정보 없음 점포 제외',
+    edit: '조건 바꾸기',
+    editHint: '입력 화면으로 이동해요. 지금 주소와 업종은 그대로 채워져 있어요',
+  },
   layout: {
     eyebrow: 'DATA - BASED INSIGHT',
     ageNotice: '만 18세 이상 예비창업자를 대상으로 해요.',

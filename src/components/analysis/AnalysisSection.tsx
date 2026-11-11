@@ -18,7 +18,7 @@ export default function AnalysisSection({ id, children }: Props) {
       aria-labelledby={titleId}
       tabIndex={-1}
       data-reveal={reveal}
-      className="scroll-mt-8 focus:outline-none"
+      className="scroll-mt-sticky focus:outline-none"
     >
       <SectionHeader
         id={titleId}

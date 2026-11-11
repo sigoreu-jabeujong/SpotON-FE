@@ -77,6 +77,8 @@
   /* 레이아웃 */
   --spacing-sidebar: 17.5rem; /* 280px */
 
+  /* 위에 붙는 진단 조건 바 높이만큼 앵커 이동 위치를 내린다 (scroll-mt-sticky) */
+  --spacing-sticky: 5.5rem;
   /*
    * 모션 (움직임·반응) — 아래 시간·곡선만 쓴다. transform·opacity만 움직이고,
    * 동작 줄이기 설정이면 모두 끈다 (파일 아래 prefers-reduced-motion 참고).
