@@ -85,7 +85,7 @@ function LandingMap() {
           src={IMAGES.landingMap}
           alt=""
           aria-hidden="true"
-          // 아주 느리게 위아래로 떠 있는 효과 (진폭 8px, 동작 줄이기면 정지)
+          // 처음 등장 후 아주 느리게 한 번만 위아래로 왕복하고 멈춤 (진폭 8px, 4초, 동작 줄이기면 안 움직임)
           className="relative w-full object-contain motion-safe:animate-float"
         />
       </div>
