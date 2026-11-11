@@ -66,6 +66,7 @@ type ApiResponse<T> = {
 - 이 타입은 `src/types/api.ts`에 두고 모든 API 함수가 사용 (`src/api/client.ts`의 `apiGet`/`apiPost`)
 - API 명세서 v1.2가 FE↔BE 계약 기준. 필드·파라미터를 바꾸려면 명세서 수정 → FE·BE 합의 → 코드 수정 순서
 - 형식을 바꾸면 `../SpotON-BE/CLAUDE.md`도 함께 수정한다
+- 점포 이력 BE #36 계약: 각 항목에 `source`가 있고 식별자는 `source + license_no`다. `name`, `open_date`, `close_date`, `operating_months`는 null을 허용한다. 기간은 달력상 완료 개월 수이며 `operating_period_status: fact|no_data`, `operating_period_reason: 사유 코드|null`을 함께 표시한다. 날짜·기간 결측을 0으로 바꾸지 않는다. 층만 같은 경우 `same_spot`으로 판정하지 않는다. 이력의 category는 진단 맥락이며 타 지원 업종을 제거하지 않는다. 일반 입력 검증은 현행 BE의 `422 INVALID_PARAM`이다.
 - API 경로는 `/api/...` (예: `/api/geocode`), 기본 주소는 `import.meta.env.VITE_API_BASE_URL` (경로 접두사 없이 서버 주소만 지정)
 - 지원 업종은 카페와 음식점(한식·중식·일식·양식)이다. 카페는 별도 세부 업종을 선택하지 않는다.
 - 키즈카페·라이브카페·분식·치킨·주점·기타 음식점·제과점은 분석 대상에서 제외한다.

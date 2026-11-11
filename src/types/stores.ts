@@ -22,18 +22,30 @@ export type StoreHistoryParams = {
 }
 
 export type HistoryStore = {
+  source: 'general_restaurant' | 'rest_cafe'
   license_no: string
-  name: string
+  name: string | null
   category: Category
   sub_category: ApiSubCategory
-  open_date: string
+  open_date: string | null
   close_date: string | null
-  operating_months: number
+  operating_months: number | null
+  operating_period_status: 'fact' | 'no_data'
+  operating_period_reason: OperatingPeriodReason | null
   store_status: StoreStatus
   franchise: FranchiseStatus
   floor_unit: string | null
   location_match: LocationMatch
 }
+
+export type OperatingPeriodReason =
+  | 'missing_open_date'
+  | 'invalid_open_date'
+  | 'missing_close_date'
+  | 'invalid_close_date'
+  | 'missing_source_date'
+  | 'invalid_date_order'
+  | 'other_status'
 
 export type StoreHistory = {
   total: number

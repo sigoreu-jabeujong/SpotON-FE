@@ -21,6 +21,7 @@ import { ROUTES } from '../constants/routes'
 import { parseSourceIds, SOURCES } from '../constants/sources'
 import { isDiagnosisReady, toDiagnosisSearch } from '../hooks/useDiagnosisQuery'
 import { useReportData } from '../hooks/useReportData'
+import { sortHistory } from '../utils/history'
 import type { ApiMeta } from '../types/api'
 import type { MetricIndicator, OfficialRiskIndicator, RiskIndicator } from '../types/risk'
 import { usePageTitle } from '../hooks/usePageTitle'
@@ -178,7 +179,7 @@ function HistoryBlock({ data }: { data: Data }) {
   const h = data.history.data?.data
   if (!h) return null
   const stores = h.stores ?? []
-  const rows = [...stores].sort((a, b) => b.open_date.localeCompare(a.open_date))
+  const rows = sortHistory(stores)
   return (
     <Block title={T.historyTitle}>
       <p className="mb-1">
@@ -209,12 +210,19 @@ function HistoryBlock({ data }: { data: Data }) {
           </thead>
           <tbody>
             {rows.slice(0, HISTORY_ROWS).map((s) => (
-              <tr key={s.license_no} className="break-inside-avoid">
-                <Td>{s.name}</Td>
+              <tr key={`${s.source}:${s.license_no}`} className="break-inside-avoid">
+                <Td>{s.name ?? MESSAGES.history.missingValue}</Td>
                 <Td>{SUB_CATEGORY_LABEL[s.sub_category]}</Td>
-                <Td>{formatDate(s.open_date)}</Td>
+                <Td>{formatDate(s.open_date) ?? MESSAGES.history.missingValue}</Td>
                 <Td>{formatDate(s.close_date) ?? '—'}</Td>
-                <Td>{formatOperatingMonths(s.operating_months)}</Td>
+                <Td>
+                  {formatOperatingMonths(s.operating_months) ?? MESSAGES.history.missingValue}
+                  {s.operating_period_reason && (
+                    <span className="block text-micro text-gray-600">
+                      {MESSAGES.history.periodReasons[s.operating_period_reason]}
+                    </span>
+                  )}
+                </Td>
                 <Td>{STORE_STATUS_LABEL[s.store_status]}</Td>
                 <Td>{LOCATION_MATCH_LABEL[s.location_match]}</Td>
                 <Td>{FRANCHISE_LABEL[s.franchise]}</Td>

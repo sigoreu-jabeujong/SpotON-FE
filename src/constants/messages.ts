@@ -121,6 +121,17 @@ export const MESSAGES = {
       franchise: '프랜차이즈',
     },
     noCloseDate: '폐업일 없음',
+    missingCloseDate: '폐업일 정보 없음',
+    missingValue: '정보 없음',
+    periodReasons: {
+      missing_open_date: '개업일 정보가 없어 기간을 확인할 수 없어요',
+      invalid_open_date: '개업일 확인이 필요해요',
+      missing_close_date: '폐업일 정보가 없어 기간을 확인할 수 없어요',
+      invalid_close_date: '폐업일 확인이 필요해요',
+      missing_source_date: '데이터 기준일 확인이 필요해요',
+      invalid_date_order: '개업일과 폐업일 확인이 필요해요',
+      other_status: '영업 상태 확인이 필요해요',
+    },
     notices: [
       '공공데이터 기반 정보로 실제 현황과 다를 수 있어요.',
       '폐업일은 행정상 신고 기록 기준이에요.',

@@ -117,6 +117,8 @@
 
 ### 2-2. `GET /api/stores/history` — 같은 건물의 과거 점포 (F-02)
 
+BE #36 / FE #26 구현 계약: `source`(`general_restaurant|rest_cafe`)를 항목마다 반환하고 식별자는 `source+license_no`다. `name`, `open_date`, `close_date`, `operating_months`는 null을 허용한다. `operating_period_status`는 `fact|no_data`, `operating_period_reason`은 `missing_open_date|invalid_open_date|missing_close_date|invalid_close_date|missing_source_date|invalid_date_order|other_status|null`이다. 결측을 0으로 바꾸지 않는다. 기간은 달력상 완료 개월 수(월말 보정 없이 종료 일자가 시작 일자보다 작으면 1개월 차감)다. API는 개업일 오름차순·null 마지막, FE 표와 진단서는 최근 개업 순·null 마지막이다. 층만 같은 경우 `same_spot`을 표시하지 않는다. category는 타 지원 업종 제거 필터가 아니다. 입력 오류는 현행 BE의 `422 INVALID_PARAM`으로 동기화한다. meta의 원천 기준일과 미확인 수집 완료일(null)을 구분하며 배치 출처는 DB에 저장한다. 기존 geocode 형식과 공통 오류 외피는 이번 작업에서 변경하지 않는다.
+
 | 요청 | 필수 | 설명 |
 |---|---|---|
 | `building_key` | 필수 | `/geocode` 결과 |

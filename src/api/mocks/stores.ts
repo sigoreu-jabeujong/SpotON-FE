@@ -12,6 +12,9 @@ import type { MockHandler } from './index'
 const HISTORY_STORES: HistoryStore[] = [
   {
     license_no: '3130000-101-2009-00031',
+    source: 'general_restaurant',
+    operating_period_status: 'fact',
+    operating_period_reason: null,
     name: '○○한정식',
     category: 'restaurant',
     sub_category: 'korean',
@@ -20,11 +23,14 @@ const HISTORY_STORES: HistoryStore[] = [
     operating_months: 40,
     store_status: 'closed',
     franchise: 'independent',
-    floor_unit: '1층',
+    floor_unit: '1층 101호',
     location_match: 'same_spot',
   },
   {
     license_no: '3130000-101-2012-00210',
+    source: 'general_restaurant',
+    operating_period_status: 'fact',
+    operating_period_reason: null,
     name: '△△스시',
     category: 'restaurant',
     sub_category: 'japanese',
@@ -38,6 +44,9 @@ const HISTORY_STORES: HistoryStore[] = [
   },
   {
     license_no: '3130000-104-2016-00123',
+    source: 'rest_cafe',
+    operating_period_status: 'fact',
+    operating_period_reason: null,
     name: '○○커피',
     category: 'cafe',
     sub_category: 'cafe',
@@ -47,10 +56,13 @@ const HISTORY_STORES: HistoryStore[] = [
     store_status: 'closed',
     franchise: 'independent',
     floor_unit: '1층',
-    location_match: 'same_spot',
+    location_match: 'unverified',
   },
   {
     license_no: '3130000-101-2016-00377',
+    source: 'general_restaurant',
+    operating_period_status: 'fact',
+    operating_period_reason: null,
     name: '□□중화요리',
     category: 'restaurant',
     sub_category: 'chinese',
@@ -65,6 +77,9 @@ const HISTORY_STORES: HistoryStore[] = [
   {
     // PDF 예시의 분식(snack)은 제외 업종이라 한식으로 바꿈
     license_no: '3130000-101-2019-00456',
+    source: 'general_restaurant',
+    operating_period_status: 'fact',
+    operating_period_reason: null,
     name: '△△한식당',
     category: 'restaurant',
     sub_category: 'korean',
@@ -78,12 +93,15 @@ const HISTORY_STORES: HistoryStore[] = [
   },
   {
     license_no: '3130000-101-2020-00512',
+    source: 'general_restaurant',
+    operating_period_status: 'no_data',
+    operating_period_reason: 'other_status',
     name: '◇◇파스타 ○○점',
     category: 'restaurant',
     sub_category: 'western',
     open_date: '2020-07-01',
     close_date: null,
-    operating_months: 76,
+    operating_months: null,
     store_status: 'other',
     franchise: 'franchise',
     floor_unit: '1층 102호',
@@ -91,6 +109,9 @@ const HISTORY_STORES: HistoryStore[] = [
   },
   {
     license_no: '3130000-104-2022-00789',
+    source: 'rest_cafe',
+    operating_period_status: 'fact',
+    operating_period_reason: null,
     name: '□□카페 ○○점',
     category: 'cafe',
     sub_category: 'cafe',
@@ -104,6 +125,9 @@ const HISTORY_STORES: HistoryStore[] = [
   },
   {
     license_no: '3130000-104-2024-00901',
+    source: 'rest_cafe',
+    operating_period_status: 'fact',
+    operating_period_reason: null,
     name: '◎◎베이커리카페',
     category: 'cafe',
     sub_category: 'cafe',
@@ -113,7 +137,7 @@ const HISTORY_STORES: HistoryStore[] = [
     store_status: 'open',
     franchise: 'independent',
     floor_unit: '1층',
-    location_match: 'same_spot',
+    location_match: 'unverified',
   },
 ]
 
@@ -132,7 +156,7 @@ const HISTORY_META: ApiMeta = {
  */
 export const storeHistoryMock: MockHandler = (query) => {
   const buildingKey = query.get('building_key')
-  if (!buildingKey) return fail(400, 'INVALID_PARAM', '입력값을 다시 확인해 주세요.')
+  if (!buildingKey) return fail(422, 'INVALID_PARAM', '입력값을 다시 확인해 주세요.')
   if (buildingKey.includes('error'))
     return fail(500, 'INTERNAL_ERROR', '일시적인 오류가 발생했어요.')
   if (buildingKey.includes('empty')) {
@@ -143,10 +167,12 @@ export const storeHistoryMock: MockHandler = (query) => {
     }
     return ok(empty, { ...HISTORY_META, denominator: 0 })
   }
-  const hasFloor = !!query.get('floor_unit')
-  const stores = hasFloor
-    ? HISTORY_STORES
-    : HISTORY_STORES.map((s) => ({ ...s, location_match: 'unverified' as const }))
+  const floorUnit = query.get('floor_unit')
+  const stores = HISTORY_STORES.map((s) =>
+    !floorUnit || (s.location_match === 'same_spot' && floorUnit !== s.floor_unit)
+      ? { ...s, location_match: 'unverified' as const }
+      : s,
+  )
   const data: StoreHistory = { total: stores.length, stores, message: null }
   return ok(data, { ...HISTORY_META, denominator: stores.length })
 }

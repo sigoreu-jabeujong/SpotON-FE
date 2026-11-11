@@ -1,5 +1,11 @@
 # 결정 사항과 미결 사항
 
+## 점포 이력 실데이터 호환 (BE #36 / FE #26)
+
+- 진행 요청 범위에서 BE 설계·Claude 검토 후 구현 계약을 구체화했다. 사용자가 개별 산식을 직접 확정했다는 뜻은 아니다.
+- 날짜·기간 결측은 null과 사유를 표시하며, 기간은 달력상 완료 개월 수를 BE에서 계산한다. 상세는 api-contract.md 2-2절과 양쪽 CLAUDE.md를 따른다.
+- 응답 source를 포함한 복합 식별자와 null 안전 정렬을 표·진단서에 함께 적용한다.
+
 > 마지막 갱신: 2026-11-11
 > 새 결정은 날짜와 함께 위에 추가하고, 관련 문서([api-contract.md](api-contract.md), [screens.md](screens.md), [display-rules.md](display-rules.md))를 따라 고친다.
 

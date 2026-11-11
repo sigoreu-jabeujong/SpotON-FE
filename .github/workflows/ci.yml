@@ -42,3 +42,7 @@ jobs:
       - name: Type check & Build
         if: steps.check.outputs.ready == 'true'
         run: npm run build
+
+      - name: History display regression
+        if: steps.check.outputs.ready == 'true'
+        run: npm run test:history
