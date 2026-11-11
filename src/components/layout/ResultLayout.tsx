@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router'
 import { MESSAGES } from '../../constants/messages'
-import { ANALYSIS_SECTIONS, ROUTES, type AnalysisSectionId } from '../../constants/routes'
+import { ANALYSIS_SECTIONS, ROUTES } from '../../constants/routes'
 import { useActiveSection } from '../../hooks/useActiveSection'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { usePageTitle } from '../../hooks/usePageTitle'
@@ -11,12 +11,11 @@ import ResultSidebar from './ResultSidebar'
 
 const SECTION_IDS = ANALYSIS_SECTIONS.map((s) => s.id)
 
-/** 탭 제목: STEP 02는 보고 있는 섹션 이름, 나머지는 화면 이름 */
-function titleOf(pathname: string, section: string | null): string {
+/** 탭 제목: 화면 이름 (STEP 02는 섹션과 상관없이 하나로 고정) */
+function titleOf(pathname: string): string {
   if (pathname === ROUTES.summary) return MESSAGES.titles.summary
   if (pathname === ROUTES.share) return MESSAGES.titles.share
-  const id = (section ?? 'history') as AnalysisSectionId
-  return MESSAGES.titles.analysis[id] ?? MESSAGES.titles.analysis.history
+  return MESSAGES.titles.analysis
 }
 
 const PAGE_META: Record<string, { title: string; description: string }> = {
@@ -34,7 +33,7 @@ export default function ResultLayout() {
   const { isReady, search } = useDiagnosisQuery()
   const baseline = useResultBaseline()
   const activeSection = useActiveSection(SECTION_IDS, pathname === ROUTES.analysis)
-  usePageTitle(titleOf(pathname, activeSection))
+  usePageTitle(titleOf(pathname))
 
   if (!isReady) return <Navigate to={{ pathname: ROUTES.input, search }} replace />
 

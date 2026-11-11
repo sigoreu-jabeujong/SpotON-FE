@@ -7,11 +7,7 @@ export const MESSAGES = {
   titles: {
     landing: `${BRAND} — 내 자리, 딱 맞는 자리일까요?`,
     input: withBrand('주소·업종 입력'),
-    analysis: {
-      history: withBrand('과거 점포 이력'),
-      nearby: withBrand('주변 점포 분석'),
-      activity: withBrand('상권 활동 분석'),
-    },
+    analysis: withBrand('입지 정보 분석'),
     summary: withBrand('종합 진단 결과'),
     share: withBrand('결과 저장 및 상담'),
     report: withBrand('입지 진단서'),
