@@ -236,7 +236,7 @@ export const MESSAGES = {
     compareDescription: '같은 정의로 계산한 서울 전체 동일 업종 값과 나란히 보여줘요.',
     compareThis: '이 자리 (반경)',
     compareSeoul: '서울 평균',
-    compareHidden: (reason: string) => `서울 평균과 비교할 수 없어요 — ${reason}`,
+    compareHiddenTitle: '서울 평균과 비교할 수 없어요',
     compareHiddenDefault: '서울 평균 값이 아직 없어요',
     infoTitle: '진단 결과 안내',
     infoBaseline: '데이터 기준일',

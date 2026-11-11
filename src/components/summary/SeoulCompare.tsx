@@ -1,7 +1,7 @@
-import { Info } from 'lucide-react'
 import { INDICATOR_NAME } from '../../constants/labels'
 import { MESSAGES } from '../../constants/messages'
 import type { MetricIndicator, RiskIndicator } from '../../types/risk'
+import InfoBox from '../common/InfoBox'
 import SubTitle from '../common/SubTitle'
 import { formatIndicatorValue, formatSeoulAvg } from './indicatorFormat'
 
@@ -24,10 +24,11 @@ export default function SeoulCompare({ indicators }: { indicators: RiskIndicator
     <div className="flex flex-col gap-3">
       <SubTitle>{T.compareTitle}</SubTitle>
       {rows.length === 0 ? (
-        <p className="flex items-center gap-1.5 rounded-control bg-gray-100 px-4 py-3 text-caption text-gray-600">
-          <Info className="size-4 shrink-0" aria-hidden="true" />
-          {reason ? T.compareHidden(reason) : T.compareHiddenDefault}
-        </p>
+        <InfoBox
+          showTitle
+          title={T.compareHiddenTitle}
+          description={reason ?? T.compareHiddenDefault}
+        />
       ) : (
         <>
           <p className="text-caption text-gray-600">{T.compareDescription}</p>
