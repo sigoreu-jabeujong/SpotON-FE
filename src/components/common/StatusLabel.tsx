@@ -39,6 +39,12 @@ type Props = {
  * 상태 라벨 — 확인된 사실 / 통계적 추정 / 자료 없음 / 판단 보류 / 정보 없음 / 상세 위치 미확인 (+ 공식 사이트에서 확인)
  * 색만으로 구분하지 않고 아이콘과 글자를 항상 함께 보여준다.
  */
+/** 상태 아이콘만 (값 자리에 "판단 보류·자료 없음"을 보여줄 때) */
+export function StatusIcon({ status, className }: { status: DataStatus; className?: string }) {
+  const Icon = ICON[status]
+  return <Icon className={className} aria-hidden="true" />
+}
+
 export default function StatusLabel({ status, reason, className }: Props) {
   const { label, tone } = DATA_STATUS[status]
   const Icon = ICON[status]

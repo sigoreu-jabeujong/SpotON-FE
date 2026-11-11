@@ -1,11 +1,12 @@
 import { Info, Users, Wallet } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { DATA_STATUS } from '../../../constants/labels'
 import { MESSAGES } from '../../../constants/messages'
 import type { LivingPopulation, MarketActivity, MarketSales } from '../../../types/market'
 import { formatDate, formatKrwApprox } from '../../../utils/format'
 import Badge from '../../common/Badge'
+import InfoBox from '../../common/InfoBox'
 import MetaLine from '../../common/MetaLine'
-import StatusLabel from '../../common/StatusLabel'
 import SubTitle from '../../common/SubTitle'
 
 const T = MESSAGES.activity
@@ -131,12 +132,7 @@ function LivingBody({ living }: { living: LivingPopulation }) {
   )
 }
 
-/** flags.missing — 아직 확보하지 못한 자료 */
+/** flags.missing — 아직 확보하지 못한 자료 (결과 화면 공통 안내 상자 모양) */
 function MissingCard() {
-  return (
-    <div className="flex flex-col items-center gap-2 rounded-control border border-dashed border-gray-300 bg-gray-100 px-4 py-6 text-center">
-      <StatusLabel status="no_data" />
-      <p className="text-caption text-gray-600">{T.missingData}</p>
-    </div>
-  )
+  return <InfoBox showTitle title={DATA_STATUS.no_data.label} description={T.missingData} />
 }

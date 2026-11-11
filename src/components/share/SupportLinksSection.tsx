@@ -56,7 +56,11 @@ function LinkGroup({
   links: SupportLink[]
 }) {
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className="flex scroll-mt-8 flex-col gap-3">
+    <section
+      id={id}
+      aria-labelledby={`${id}-title`}
+      className="flex scroll-mt-sticky flex-col gap-3"
+    >
       <SubTitle id={`${id}-title`}>
         <span className="inline-flex items-center gap-1.5">
           <Icon className="size-4 text-blue-500" aria-hidden="true" />

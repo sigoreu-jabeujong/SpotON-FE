@@ -66,8 +66,9 @@
   --text-body--line-height: 1.6;
   --text-caption: 0.8125rem; /* 설명·메타 13px */
   --text-caption--line-height: 1.5;
-  --text-micro: 0.75rem; /* 아주 작은 라벨 12px */
-  --text-micro--line-height: 1.4;
+  /* 가장 작은 글씨(출처·주의·메타 줄)도 13px·줄 간격 1.5 이상 (가독성, 대비 4.5:1은 색 토큰으로 유지) */
+  --text-micro: 0.8125rem; /* 아주 작은 라벨 13px */
+  --text-micro--line-height: 1.5;
 
   /* 모서리·그림자 (추정) */
   --radius-card: 1rem;
@@ -76,6 +77,8 @@
 
   /* 레이아웃 */
   --spacing-sidebar: 17.5rem; /* 280px */
+  /* 위에 붙는 진단 조건 바 높이만큼 앵커 이동 위치를 내린다 (scroll-mt-sticky) */
+  --spacing-sticky: 5.5rem;
 
   /*
    * 모션 (움직임·반응) — 아래 시간·곡선만 쓴다. transform·opacity만 움직이고,
@@ -217,6 +220,15 @@ body {
   html {
     scroll-behavior: smooth;
   }
+}
+
+/*
+ * 인쇄용 진단서(A4)는 지면이 좁아 예전 작은 글씨(12px)를 그대로 쓴다 — 화면 가독성 조정이 PDF 모양을 바꾸지 않게
+ * (Badge·상태 라벨 등 공통 컴포넌트가 text-micro를 써도 진단서 안에서는 이 값)
+ */
+.report {
+  --text-micro: 0.75rem;
+  --text-micro--line-height: 1.4;
 }
 
 /* 동작 줄이기 설정: 남은 애니메이션·전환도 사실상 즉시 끝나게 (스피너·반짝임·떠 있기 포함) */
