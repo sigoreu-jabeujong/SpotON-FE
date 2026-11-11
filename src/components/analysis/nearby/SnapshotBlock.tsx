@@ -68,7 +68,7 @@ function SnapshotResult({
         <StatCard icon={CircleX} label={T.cards.closedSince} value={count(data.closed_since)} />
         <StatCard icon={CircleHelp} label={T.cards.other} value={count(data.other)} />
       </div>
-      {data.stores.length === 0 ? (
+      {!data.stores?.length ? (
         <EmptyState message={T.emptyStores} />
       ) : (
         <SnapshotTable stores={data.stores} periodLabel={periodLabel} />

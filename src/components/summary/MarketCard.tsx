@@ -26,7 +26,7 @@ export default function MarketCard({ market }: { market: MarketJudgement }) {
               <p className="text-subtitle font-bold text-gray-900">
                 {T.inMarket(market.market_name ?? '', market.market_type)}
               </p>
-              {market.also_in.length > 0 && (
+              {!!market.also_in?.length && (
                 <p className="mt-1 text-caption text-gray-600">
                   {T.alsoIn(market.also_in.map((m) => m.market_name).join(', '))}
                 </p>
@@ -39,7 +39,7 @@ export default function MarketCard({ market }: { market: MarketJudgement }) {
                 <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                 {T.outsideHint}
               </p>
-              {market.nearby_markets.length > 0 && (
+              {!!market.nearby_markets?.length && (
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   <span className="text-micro font-semibold text-gray-600">{T.nearbyMarkets}</span>
                   {market.nearby_markets.map((m) => (
