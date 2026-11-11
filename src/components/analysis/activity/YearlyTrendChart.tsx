@@ -11,6 +11,7 @@ import {
   YAxis,
 } from 'recharts'
 import { MESSAGES } from '../../../constants/messages'
+import { MOTION_MS, prefersReducedMotion } from '../../../constants/motion'
 import type { MarketActivity } from '../../../types/market'
 import { cn } from '../../../utils/cn'
 import EmptyState from '../../common/EmptyState'
@@ -18,6 +19,14 @@ import EmptyState from '../../common/EmptyState'
 const T = MESSAGES.activity
 /** 디자인 토큰과 같은 색 (blue-500 개업 / pink-500 폐업) — 상태 구분용, 등급 색 아님 */
 const COLOR = { opened: '#3376fd', closed: '#dc3cb4' } as const
+
+/** 막대 등장 시간은 모션 토큰(느림)과 맞추고, 동작 줄이기면 애니메이션 없이 바로 그린다 */
+const barMotion = () =>
+  ({
+    isAnimationActive: !prefersReducedMotion(),
+    animationDuration: MOTION_MS.slow,
+    animationEasing: 'ease-out',
+  }) as const
 
 type Props = { trend: MarketActivity['yearly_trend'] }
 
@@ -57,6 +66,8 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
               labelFormatter={(y) => T.trendYear(Number(y))}
               formatter={(value, name) => [T.trendUnit(Number(value)), name]}
               contentStyle={{ borderRadius: 10, borderColor: '#e6e6e6', fontSize: 13 }}
+              animationDuration={MOTION_MS.fast}
+              isAnimationActive={!prefersReducedMotion()}
             />
             <Legend iconType="circle" wrapperStyle={{ fontSize: 13 }} />
             <Bar
@@ -65,6 +76,7 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
               fill={COLOR.opened}
               radius={[4, 4, 0, 0]}
               maxBarSize={28}
+              {...barMotion()}
             />
             <Bar
               dataKey="closed"
@@ -72,6 +84,7 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
               fill={COLOR.closed}
               radius={[4, 4, 0, 0]}
               maxBarSize={28}
+              {...barMotion()}
             />
           </BarChart>
         </ResponsiveContainer>

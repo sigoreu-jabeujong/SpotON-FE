@@ -6,7 +6,7 @@ import { useMarketActivity } from '../../hooks/useMarketActivity'
 import { useRisk } from '../../hooks/useRisk'
 import { formatDataBaseline } from '../../utils/format'
 import ErrorState from '../common/ErrorState'
-import LoadingState from '../common/LoadingState'
+import LoadingSkeleton from '../common/Skeleton'
 import MetaLine from '../common/MetaLine'
 import SubTitle from '../common/SubTitle'
 import AnalysisSection from './AnalysisSection'
@@ -33,7 +33,10 @@ export default function ActivitySection() {
       <div className="flex flex-col gap-6">
         <PastViewNote asOf={query.asOf} />
         {activity.isPending ? (
-          <LoadingState />
+          <div className="flex flex-col gap-6">
+            <LoadingSkeleton variant="cards" />
+            <LoadingSkeleton variant="chart" />
+          </div>
         ) : activity.isError ? (
           <ErrorState
             error={activity.error}
@@ -64,7 +67,7 @@ export default function ActivitySection() {
 
             <div className="flex flex-col gap-3">
               <SubTitle>{T.trendTitle}</SubTitle>
-              <Suspense fallback={<LoadingState />}>
+              <Suspense fallback={<LoadingSkeleton variant="chart" />}>
                 <YearlyTrendChart trend={activity.data.data.yearly_trend} />
               </Suspense>
             </div>

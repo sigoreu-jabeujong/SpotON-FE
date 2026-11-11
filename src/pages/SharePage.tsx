@@ -1,11 +1,13 @@
 import { FileDown, Handshake, Headset, ImageDown, type LucideIcon } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import Card from '../components/common/Card'
+import Reveal from '../components/common/Reveal'
 import RediagnoseBanner from '../components/share/RediagnoseBanner'
 import SummaryImageCard from '../components/share/SummaryImageCard'
 import SupportLinksSection from '../components/share/SupportLinksSection'
 import { useSummaryImage } from '../components/share/useSummaryImage'
 import { MESSAGES } from '../constants/messages'
+import { scrollBehavior } from '../constants/motion'
 import { ROUTES } from '../constants/routes'
 import { useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
 import { useReportData } from '../hooks/useReportData'
@@ -31,7 +33,7 @@ export default function SharePage() {
   const imageReady = !report.loading && !!report.risk.data && !!report.activity.data
 
   const scrollTo = (id: string) =>
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    document.getElementById(id)?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
 
   return (
     <Card className="flex flex-col gap-10">
@@ -74,9 +76,13 @@ export default function SharePage() {
         )}
       </p>
 
-      <SupportLinksSection />
+      <Reveal>
+        <SupportLinksSection />
+      </Reveal>
 
-      <RediagnoseBanner />
+      <Reveal>
+        <RediagnoseBanner />
+      </Reveal>
 
       {/* 요약 이미지용 카드 — 화면 밖에 그려 두고 html2canvas가 읽는다 */}
       {imageReady && (
@@ -109,7 +115,7 @@ export function ActionCard({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'flex flex-col items-center gap-3 rounded-card px-4 py-7 text-center transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait disabled:opacity-70',
+        'flex interactive-lift flex-col items-center gap-3 rounded-card px-4 py-7 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait disabled:opacity-70',
         TONE[tone].bg,
       )}
     >
