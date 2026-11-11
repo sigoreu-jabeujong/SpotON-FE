@@ -25,3 +25,17 @@ export function formatSeoulAvg(ind: Pick<MetricIndicator, 'seoul_avg' | 'unit'>)
 export function indicatorAnchorId(id: IndicatorId): string {
   return `indicator-${id}`
 }
+
+/**
+ * 지표 카드 배치 (6칸 그리드 기준 칸 수) — 마지막 줄 빈칸이 어색하지 않게 개수에 맞춰 나눈다.
+ * 3개 이하: 한 줄 / 4개: 2+2 / 5개: 3+2 / 그 밖: 3개씩 (남는 1개는 한 줄 전체)
+ * Tailwind가 찾을 수 있게 클래스 이름을 그대로 적는다.
+ */
+export function indicatorGridSpan(index: number, count: number): string {
+  if (count === 1) return 'col-span-6'
+  if (count === 2 || count === 4) return 'col-span-3'
+  if (count === 5 && index >= 3) return 'col-span-3'
+  if (count % 3 === 1 && index === count - 1) return 'col-span-6'
+  if (count % 3 === 2 && index >= count - 2) return 'col-span-3'
+  return 'col-span-2'
+}

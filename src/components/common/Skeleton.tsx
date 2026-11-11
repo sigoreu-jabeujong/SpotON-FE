@@ -76,7 +76,7 @@ function CardsSkeleton({ count }: { count: number }) {
       {Array.from({ length: count }, (_, i) => (
         <div
           key={i}
-          className="flex items-start gap-4 rounded-control border border-gray-300 bg-gray-0 px-5 py-4"
+          className="flex items-start gap-4 rounded-control border border-gray-300 bg-gray-0 p-5"
         >
           <SkeletonBlock className="size-11 shrink-0 rounded-full" />
           <div className="flex flex-1 flex-col gap-2">

@@ -1,11 +1,11 @@
 import { Calculator } from 'lucide-react'
-import { INDICATOR_NAME } from '../../constants/labels'
+import { DATA_STATUS, INDICATOR_NAME } from '../../constants/labels'
 import { MESSAGES } from '../../constants/messages'
 import type { IndicatorId, MetricIndicator, RiskIndicator } from '../../types/risk'
 import MetaLine from '../common/MetaLine'
-import StatusLabel from '../common/StatusLabel'
 import IndicatorArea from './IndicatorArea'
-import { formatIndicatorValue, formatSeoulAvg, indicatorAnchorId } from './indicatorFormat'
+import IndicatorCard from './IndicatorCard'
+import { formatIndicatorValue, formatSeoulAvg, indicatorGridSpan } from './indicatorFormat'
 
 const T = MESSAGES.summary
 
@@ -26,11 +26,13 @@ export default function ReferenceIndicators({ indicators }: { indicators: RiskIn
 
   return (
     <IndicatorArea type="reference" title={T.referenceTitle} description={T.referenceDescription}>
-      <div className="grid grid-cols-3 gap-3">
-        {cards.map((ind) => (
-          <ReferenceCard key={ind.id} ind={ind} />
+      <ul className="grid grid-cols-6 gap-3">
+        {cards.map((ind, i) => (
+          <li key={ind.id} className={indicatorGridSpan(i, cards.length)}>
+            <ReferenceCard ind={ind} />
+          </li>
         ))}
-      </div>
+      </ul>
     </IndicatorArea>
   )
 }
@@ -39,37 +41,34 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
   const value = formatIndicatorValue(ind)
   const seoul = formatSeoulAvg(ind)
   const name = INDICATOR_NAME[ind.id as keyof typeof INDICATOR_NAME] ?? ind.id
+  const seoulLine = ind.unit === '%' && (seoul || ind.seoul_avg_reason)
+  const fraction = value && ind.numerator != null && ind.denominator != null
   return (
-    <article
-      id={indicatorAnchorId(ind.id)}
-      tabIndex={-1}
-      className="flex scroll-mt-8 flex-col gap-2 rounded-control border border-gray-300 bg-gray-0 p-5 focus:outline-2 focus:outline-blue-500"
-    >
-      <h3 className="flex items-center gap-1.5 text-body font-bold text-gray-900">
-        <Calculator className="size-4 text-gray-600" aria-hidden="true" />
-        {name}
-      </h3>
-      {/* 값이 없으면 숫자(0) 대신 상태 라벨과 사유만 */}
-      {value ? (
-        <p className="text-title font-bold text-gray-900">{value}</p>
-      ) : (
-        <StatusLabel status={ind.status} reason={ind.reason} />
-      )}
-      <ul className="flex flex-col gap-0.5 text-caption text-gray-600">
-        {ind.unit === '%' && (seoul || ind.seoul_avg_reason) && (
-          <li>{seoul ? T.seoulAvg(seoul) : ind.seoul_avg_reason}</li>
-        )}
-        {value && ind.numerator != null && ind.denominator != null && (
-          <li>{T.fraction(ind.numerator, ind.denominator)}</li>
-        )}
-      </ul>
-      {value && <StatusLabel status={ind.status} reason={ind.reason} />}
-      <MetaLine
-        source={ind.source}
-        period={ind.period}
-        space={ind.space}
-        denominator={ind.denominator}
-      />
-    </article>
+    <IndicatorCard
+      id={ind.id}
+      icon={Calculator}
+      iconClassName="text-gray-600"
+      title={name}
+      // 값이 없으면 숫자(0) 대신 상태 아이콘과 사유만
+      value={value}
+      empty={{ status: ind.status, text: ind.reason ?? DATA_STATUS[ind.status].label }}
+      details={
+        (seoulLine || fraction) && (
+          <ul className="flex flex-col gap-0.5">
+            {seoulLine && <li>{seoul ? T.seoulAvg(seoul) : ind.seoul_avg_reason}</li>}
+            {fraction && <li>{T.fraction(ind.numerator as number, ind.denominator as number)}</li>}
+          </ul>
+        )
+      }
+      status={ind.status}
+      source={
+        <MetaLine
+          source={ind.source}
+          period={ind.period}
+          space={ind.space}
+          denominator={ind.denominator}
+        />
+      }
+    />
   )
 }

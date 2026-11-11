@@ -1,10 +1,9 @@
 import { Copy, ExternalLink, Landmark, Shuffle } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { CATEGORIES } from '../../constants/diagnosis'
-import { INDICATOR_NAME } from '../../constants/labels'
+import { DATA_STATUS, INDICATOR_NAME } from '../../constants/labels'
 import { MESSAGES } from '../../constants/messages'
 import type {
-  IndicatorId,
   MarketJudgement,
   MetricIndicator,
   OfficialRiskIndicator,
@@ -12,9 +11,9 @@ import type {
   RiskQuery,
 } from '../../types/risk'
 import MetaLine from '../common/MetaLine'
-import StatusLabel from '../common/StatusLabel'
 import IndicatorArea from './IndicatorArea'
-import { formatIndicatorValue, indicatorAnchorId } from './indicatorFormat'
+import IndicatorCard from './IndicatorCard'
+import { formatIndicatorValue, indicatorGridSpan } from './indicatorFormat'
 
 const T = MESSAGES.summary
 
@@ -26,41 +25,22 @@ export default function OfficialIndicators({ indicators, market, query }: Props)
   const risk = indicators.find((i): i is OfficialRiskIndicator => i.id === 'official_risk')
   const change = indicators.find((i): i is MetricIndicator => i.id === 'market_change')
 
+  const cards = [
+    closure && <OfficialClosureCard key="closure" ind={closure} market={market} />,
+    risk && <OfficialRiskCard key="risk" ind={risk} market={market} query={query} />,
+    change && <MarketChangeCard key="change" ind={change} />,
+  ].filter(Boolean)
+
   return (
     <IndicatorArea type="official" title={T.officialTitle} description={T.officialDescription}>
-      <div className="grid grid-cols-3 gap-3">
-        {closure && <OfficialClosureCard ind={closure} market={market} />}
-        {risk && <OfficialRiskCard ind={risk} market={market} query={query} />}
-        {change && <MarketChangeCard ind={change} />}
-      </div>
+      <ul className="grid grid-cols-6 gap-3">
+        {cards.map((card, i) => (
+          <li key={i} className={indicatorGridSpan(i, cards.length)}>
+            {card}
+          </li>
+        ))}
+      </ul>
     </IndicatorArea>
-  )
-}
-
-function CardShell({
-  id,
-  icon: Icon,
-  title,
-  children,
-}: {
-  /** 지표 id — AI 해석 근거 칩에서 이 카드로 이동할 때 쓴다 */
-  id: IndicatorId
-  icon: typeof Landmark
-  title: string
-  children: ReactNode
-}) {
-  return (
-    <article
-      id={indicatorAnchorId(id)}
-      tabIndex={-1}
-      className="flex scroll-mt-8 flex-col gap-2 rounded-control border border-gray-300 bg-gray-0 p-5 focus:outline-2 focus:outline-blue-500"
-    >
-      <h3 className="flex items-center gap-1.5 text-body font-bold text-gray-900">
-        <Icon className="size-4 text-blue-500" aria-hidden="true" />
-        {title}
-      </h3>
-      {children}
-    </article>
   )
 }
 
@@ -68,28 +48,29 @@ function CardShell({
 function OfficialClosureCard({ ind, market }: { ind: MetricIndicator; market: MarketJudgement }) {
   const value = formatIndicatorValue(ind)
   return (
-    <CardShell
+    <IndicatorCard
       id="official_closure_rate"
       icon={Landmark}
+      iconClassName="text-blue-500"
       title={INDICATOR_NAME.official_closure_rate}
-    >
-      {value ? (
-        <p className="text-title font-bold text-gray-900">{value}</p>
-      ) : (
-        <StatusLabel status={ind.status} reason={ind.reason} />
-      )}
-      {value && (
-        <ul className="text-caption text-gray-600">
-          {ind.numerator != null && ind.denominator != null && (
-            <li>{T.fraction(ind.numerator, ind.denominator)}</li>
-          )}
-          {ind.period && <li>{T.quarter(ind.period)}</li>}
-          {market.market_name && <li>{T.market(market.market_name)}</li>}
-        </ul>
-      )}
-      {value && <StatusLabel status={ind.status} />}
-      <MetaLine source={ind.source} sourceNames space={ind.space} denominator={ind.denominator} />
-    </CardShell>
+      value={value}
+      empty={{ status: ind.status, text: ind.reason ?? DATA_STATUS[ind.status].label }}
+      details={
+        value && (
+          <ul className="flex flex-col gap-0.5">
+            {ind.numerator != null && ind.denominator != null && (
+              <li>{T.fraction(ind.numerator, ind.denominator)}</li>
+            )}
+            {ind.period && <li>{T.quarter(ind.period)}</li>}
+            {market.market_name && <li>{T.market(market.market_name)}</li>}
+          </ul>
+        )
+      }
+      status={ind.status}
+      source={
+        <MetaLine source={ind.source} sourceNames space={ind.space} denominator={ind.denominator} />
+      }
+    />
   )
 }
 
@@ -129,46 +110,50 @@ function OfficialRiskCard({
   }
 
   return (
-    <CardShell id="official_risk" icon={Landmark} title={INDICATOR_NAME.official_risk}>
-      {quoted ? (
-        <p className="text-title font-bold text-gray-900">{quoted}</p>
-      ) : (
+    <IndicatorCard
+      id="official_risk"
+      icon={Landmark}
+      iconClassName="text-blue-500"
+      title={INDICATOR_NAME.official_risk}
+      // 수치·등급을 만들지 않는다: 공표값을 수기 인용한 경우만 값, 아니면 값 자리에 확인 안내
+      value={quoted}
+      empty={{ status: ind.status, text: T.officialRiskGuide }}
+      status={ind.status}
+      source={<MetaLine source={ind.source} sourceNames />}
+      actions={
         <>
-          <StatusLabel status={ind.status} />
-          <p className="text-caption text-gray-900">{T.officialRiskGuide}</p>
+          <div className="flex flex-wrap gap-2">
+            {link && (
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-full bg-blue-500 px-3 py-1.5 text-caption font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              >
+                {T.officialRiskLink}
+                <span className="sr-only">{T.officialRiskNewWindow}</span>
+                <ExternalLink className="size-3.5" aria-hidden="true" />
+              </a>
+            )}
+            {copyText && (
+              <button
+                type="button"
+                onClick={() => void copy()}
+                title={T.officialRiskCopyHint}
+                className="inline-flex items-center gap-1 rounded-full border border-blue-500 px-3 py-1.5 text-caption font-semibold text-blue-700 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              >
+                <Copy className="size-3.5" aria-hidden="true" />
+                {T.officialRiskCopy}
+              </button>
+            )}
+          </div>
+          {copyText && <p className="mt-2 text-micro text-gray-600">“{copyText}”</p>}
+          <p className="text-micro font-semibold text-blue-700" aria-live="polite">
+            {copyState === 'done' ? T.copied : copyState === 'fail' ? T.copyFailed : ''}
+          </p>
         </>
-      )}
-      <div className="mt-1 flex flex-wrap gap-2">
-        {link && (
-          <a
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 rounded-full bg-blue-500 px-3 py-1.5 text-caption font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-          >
-            {T.officialRiskLink}
-            <span className="sr-only">{T.officialRiskNewWindow}</span>
-            <ExternalLink className="size-3.5" aria-hidden="true" />
-          </a>
-        )}
-        {copyText && (
-          <button
-            type="button"
-            onClick={() => void copy()}
-            title={T.officialRiskCopyHint}
-            className="inline-flex items-center gap-1 rounded-full border border-blue-500 px-3 py-1.5 text-caption font-semibold text-blue-700 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-          >
-            <Copy className="size-3.5" aria-hidden="true" />
-            {T.officialRiskCopy}
-          </button>
-        )}
-      </div>
-      {copyText && <p className="text-micro text-gray-600">“{copyText}”</p>}
-      <p className="text-micro font-semibold text-blue-700" aria-live="polite">
-        {copyState === 'done' ? T.copied : copyState === 'fail' ? T.copyFailed : ''}
-      </p>
-      <MetaLine source={ind.source} sourceNames />
-    </CardShell>
+      }
+    />
   )
 }
 
@@ -176,17 +161,16 @@ function OfficialRiskCard({
 function MarketChangeCard({ ind }: { ind: MetricIndicator }) {
   const value = formatIndicatorValue(ind)
   return (
-    <CardShell id="market_change" icon={Shuffle} title={INDICATOR_NAME.market_change}>
-      {value ? (
-        <>
-          <p className="text-title font-bold text-gray-900">{value}</p>
-          <p className="text-caption text-gray-600">{T.marketChangeRaw}</p>
-          <StatusLabel status={ind.status} />
-        </>
-      ) : (
-        <StatusLabel status={ind.status} reason={ind.reason} />
-      )}
-      <MetaLine source={ind.source} sourceNames period={ind.period} space={ind.space} />
-    </CardShell>
+    <IndicatorCard
+      id="market_change"
+      icon={Shuffle}
+      iconClassName="text-blue-500"
+      title={INDICATOR_NAME.market_change}
+      value={value}
+      empty={{ status: ind.status, text: ind.reason ?? DATA_STATUS[ind.status].label }}
+      details={value && <p>{T.marketChangeRaw}</p>}
+      status={ind.status}
+      source={<MetaLine source={ind.source} sourceNames period={ind.period} space={ind.space} />}
+    />
   )
 }

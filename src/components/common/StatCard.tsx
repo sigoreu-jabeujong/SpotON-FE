@@ -30,7 +30,7 @@ export default function StatCard({
   return (
     <div
       className={cn(
-        'flex items-start gap-4 rounded-control border border-gray-300 bg-gray-0 px-5 py-4',
+        'flex items-start gap-4 rounded-control border border-gray-300 bg-gray-0 p-5',
         className,
       )}
     >
