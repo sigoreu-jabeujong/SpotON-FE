@@ -19,7 +19,7 @@ type Props = {
 
 /** 점포 현황 카드 4개 — 모든 값은 서버 값 그대로 */
 export default function StoreStatusCards({ activity, risk }: Props) {
-  const competitor = risk.data?.indicators.find(
+  const competitor = risk.data?.indicators?.find(
     (i): i is MetricIndicator => i.id === 'competitor_count',
   )
   const period = formatPeriod(activity.recent_12m.period)
@@ -61,7 +61,7 @@ export default function StoreStatusCards({ activity, risk }: Props) {
         <StatCard icon={Clock} label={T.avgPeriod} footer={T.avgPeriodHint}>
           {/* 세부 업종별로 따로 — 합치거나 평균 내지 않는다 */}
           <ul className="mt-0.5 flex flex-col gap-0.5">
-            {activity.by_sub_category.map((s) => (
+            {(activity.by_sub_category ?? []).map((s) => (
               <li key={s.sub_category} className="flex items-baseline justify-between gap-2">
                 <span className="text-caption text-gray-600">
                   {SUB_CATEGORY_LABEL[s.sub_category]}

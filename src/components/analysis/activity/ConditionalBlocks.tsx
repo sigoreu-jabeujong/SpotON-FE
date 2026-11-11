@@ -17,8 +17,9 @@ type Props = { activity: MarketActivity }
  * 집계 단위가 달라 블록과 메타 줄을 따로 두고, 자료가 없으면 "자료 없음" 카드만 보여준다.
  */
 export default function ConditionalBlocks({ activity }: Props) {
-  const salesMissing = !activity.sales || activity.flags.missing.includes('sales')
-  const livingMissing = !activity.living_pop || activity.flags.missing.includes('living_pop')
+  const missing = activity.flags?.missing ?? []
+  const salesMissing = !activity.sales || missing.includes('sales')
+  const livingMissing = !activity.living_pop || missing.includes('living_pop')
   return (
     <div className="grid grid-cols-2 gap-6">
       <Block title={T.salesTitle} icon={Wallet} notice={T.salesNotice}>

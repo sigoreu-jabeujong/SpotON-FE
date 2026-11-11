@@ -25,7 +25,8 @@ type Props = { trend: MarketActivity['yearly_trend'] }
  * 연도별 개업·폐업 추이 — 데이터가 있는 연도만, 서버 값 그대로.
  * 같은 숫자를 담은 표는 화면에서 접기/펼치기 하되, 접혀 있어도 화면 읽기 프로그램은 읽을 수 있다.
  */
-export default function YearlyTrendChart({ trend }: Props) {
+export default function YearlyTrendChart({ trend: rawTrend }: Props) {
+  const trend = rawTrend ?? []
   const [showTable, setShowTable] = useState(false)
   const tableId = useId()
 

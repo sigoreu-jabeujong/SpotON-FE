@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router'
 import LoadingState from './components/common/LoadingState'
 import LegacyRedirect from './components/layout/LegacyRedirect'
 import LandingPage from './pages/LandingPage'
+import RouteErrorPage from './pages/RouteErrorPage'
 import { LEGACY_RESULT_REDIRECTS, ROUTES } from './constants/routes'
 
 /**
@@ -17,6 +18,8 @@ export const router = createBrowserRouter([
   {
     // 처음 들어온 화면을 나눠 불러오는 동안 보여줄 표시
     HydrateFallback: () => <LoadingState />,
+    // 예상 못 한 오류로 화면 전체가 멈추면 흰 화면 대신 안내 (섹션 단위 오류는 SectionErrorBoundary가 먼저 잡는다)
+    errorElement: <RouteErrorPage />,
     children: [
       // 랜딩·입력은 디자인대로 화면마다 자체 틀(로고 포함)을 쓴다
       { path: ROUTES.landing, element: <LandingPage /> },

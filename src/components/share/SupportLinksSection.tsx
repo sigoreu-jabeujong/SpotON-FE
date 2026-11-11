@@ -23,7 +23,7 @@ export default function SupportLinksSection() {
   if (links.isPending) return <LoadingState />
   if (links.isError) return <ErrorState error={links.error} onRetry={() => void links.refetch()} />
 
-  const all = links.data.data.links
+  const all = links.data.data.links ?? []
   const consulting = all.filter((l) => l.type === 'consulting')
   const support = all.filter((l) => l.type === 'support_program')
   const meta = links.data.meta

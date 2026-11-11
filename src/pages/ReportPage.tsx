@@ -177,13 +177,14 @@ function ReportHeader({ isDemo, data }: { isDemo: boolean; data: Data }) {
 function HistoryBlock({ data }: { data: Data }) {
   const h = data.history.data?.data
   if (!h) return null
-  const rows = [...h.stores].sort((a, b) => b.open_date.localeCompare(a.open_date))
+  const stores = h.stores ?? []
+  const rows = [...stores].sort((a, b) => b.open_date.localeCompare(a.open_date))
   return (
     <Block title={T.historyTitle}>
       <p className="mb-1">
         {MESSAGES.history.summary(h.total)}
-        {h.stores.length > HISTORY_ROWS && (
-          <span className="text-gray-600"> ({T.historyMore(HISTORY_ROWS, h.stores.length)})</span>
+        {stores.length > HISTORY_ROWS && (
+          <span className="text-gray-600"> ({T.historyMore(HISTORY_ROWS, stores.length)})</span>
         )}
       </p>
       {rows.length === 0 ? (
@@ -279,7 +280,7 @@ function ActivityBlock({ data }: { data: Data }) {
           </li>
           <li>
             {A.avgPeriod}:{' '}
-            {a.by_sub_category
+            {(a.by_sub_category ?? [])
               .map(
                 (s) =>
                   `${SUB_CATEGORY_LABEL[s.sub_category]} ${formatOperatingMonths(s.avg_operating_months) ?? T.infoMissing}`,
@@ -289,7 +290,7 @@ function ActivityBlock({ data }: { data: Data }) {
           <li>
             {A.salesTitle}:{' '}
             {a.sales
-              ? a.sales.markets
+              ? (a.sales.markets ?? [])
                   .map((m) => `${m.market_name} ${formatKrwApprox(m.est_sales)}(${A.estimate})`)
                   .join(' · ')
               : T.noData}
@@ -313,7 +314,7 @@ function ActivityBlock({ data }: { data: Data }) {
               <th scope="col" className="border border-gray-300 px-1 py-0.5">
                 {A.trendYearHeader}
               </th>
-              {a.yearly_trend.map((y) => (
+              {(a.yearly_trend ?? []).map((y) => (
                 <th key={y.year} scope="col" className="border border-gray-300 px-1 py-0.5">
                   {y.year}
                 </th>
@@ -325,7 +326,7 @@ function ActivityBlock({ data }: { data: Data }) {
               <th scope="row" className="border border-gray-300 px-1 py-0.5">
                 {A.trendOpened}
               </th>
-              {a.yearly_trend.map((y) => (
+              {(a.yearly_trend ?? []).map((y) => (
                 <Td key={y.year}>{y.opened}</Td>
               ))}
             </tr>
@@ -333,7 +334,7 @@ function ActivityBlock({ data }: { data: Data }) {
               <th scope="row" className="border border-gray-300 px-1 py-0.5">
                 {A.trendClosed}
               </th>
-              {a.yearly_trend.map((y) => (
+              {(a.yearly_trend ?? []).map((y) => (
                 <Td key={y.year}>{y.closed}</Td>
               ))}
             </tr>
@@ -454,17 +455,23 @@ function AiBlock({ data }: { data: Data }) {
         <div className="rounded border border-blue-500 px-2 py-1">
           <Badge tone="blue">{ai.label}</Badge>
           <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1">
-            <AiList title={A.sections.official} items={ai.official_values.map((v) => v.text)} />
+            <AiList
+              title={A.sections.official}
+              items={(ai.official_values ?? []).map((v) => v.text)}
+            />
             <AiList
               title={A.sections.missing}
-              items={ai.missing_data.map((v) => `${v.text} — ${v.reason}`)}
+              items={(ai.missing_data ?? []).map((v) => `${v.text} — ${v.reason}`)}
             />
-            <AiList title={A.sections.favorable} items={ai.favorable.map((v) => v.text)} />
-            <AiList title={A.sections.unfavorable} items={ai.unfavorable.map((v) => v.text)} />
+            <AiList title={A.sections.favorable} items={(ai.favorable ?? []).map((v) => v.text)} />
+            <AiList
+              title={A.sections.unfavorable}
+              items={(ai.unfavorable ?? []).map((v) => v.text)}
+            />
           </div>
           <AiList
             title={A.sections.checklist}
-            items={ai.checklist.map((c) => `□ ${c.item} (${c.why})`)}
+            items={(ai.checklist ?? []).map((c) => `□ ${c.item} (${c.why})`)}
             plain
           />
           <p className="mt-0.5 text-[9.5px] text-gray-600">{A.notice}</p>

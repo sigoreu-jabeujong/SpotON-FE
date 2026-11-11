@@ -40,7 +40,7 @@ export default function HistorySection() {
               </p>
             )}
           </div>
-          {history.data.data.total === 0 || history.data.data.stores.length === 0 ? (
+          {history.data.data.total === 0 || !history.data.data.stores?.length ? (
             <EmptyState message={history.data.data.message ?? MESSAGES.common.empty} />
           ) : (
             <HistoryTable stores={history.data.data.stores} />

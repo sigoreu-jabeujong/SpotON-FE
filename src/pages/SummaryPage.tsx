@@ -3,6 +3,7 @@ import { toCommonQueryParams } from '../api/params'
 import PastViewNote from '../components/analysis/nearby/PastViewNote'
 import Card from '../components/common/Card'
 import ErrorState from '../components/common/ErrorState'
+import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
 import LoadingState from '../components/common/LoadingState'
 import AiInterpretation from '../components/summary/ai/AiInterpretation'
 import MarketCard from '../components/summary/MarketCard'
@@ -26,6 +27,8 @@ export default function SummaryPage() {
   const params = coords ? toCommonQueryParams(query, coords) : null
   // 상권 활동 섹션과 같은 쿼리 키 → 캐시 공유
   const risk = useRisk(params)
+  // 실제 응답에서 목록이 null로 와도 카드가 멈추지 않게 (값은 바꾸지 않음)
+  const indicators = risk.data?.data.indicators ?? []
 
   return (
     <Card className="flex flex-col gap-10">
@@ -40,7 +43,7 @@ export default function SummaryPage() {
         />
       ) : (
         <>
-          {risk.data.data.flags.insufficient_sample && (
+          {risk.data.data.flags?.insufficient_sample && (
             <p
               role="status"
               className="flex items-center gap-2 rounded-control bg-orange-100 px-4 py-3 text-body font-semibold text-orange-700"
@@ -49,28 +52,41 @@ export default function SummaryPage() {
               {T.insufficient}
             </p>
           )}
-          <MarketCard market={risk.data.data.market} />
-          <OfficialIndicators
-            indicators={risk.data.data.indicators}
-            market={risk.data.data.market}
-            query={risk.data.data.query}
-          />
-          <ReferenceIndicators indicators={risk.data.data.indicators} />
-          <SeoulCompare indicators={risk.data.data.indicators} />
+          {/* 카드 묶음마다 오류 경계 — 하나가 깨져도 다른 지표는 계속 보인다 */}
+          <SectionErrorBoundary resetKey={search}>
+            <MarketCard market={risk.data.data.market} />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary resetKey={search}>
+            <OfficialIndicators
+              indicators={indicators}
+              market={risk.data.data.market}
+              query={risk.data.data.query}
+            />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary resetKey={search}>
+            <ReferenceIndicators indicators={indicators} />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary resetKey={search}>
+            <SeoulCompare indicators={indicators} />
+          </SectionErrorBoundary>
         </>
       )}
 
       {/* AI 해석 — 지표를 불러온 뒤에만. 조건(search)이 바뀌면 key로 새로 만들어 이전 결과를 지운다 */}
       {risk.data && params && (
-        <AiInterpretation
-          key={search}
-          risk={risk.data.data}
-          params={params}
-          onReloadIndicators={() => void risk.refetch()}
-        />
+        <SectionErrorBoundary resetKey={search}>
+          <AiInterpretation
+            key={search}
+            risk={risk.data.data}
+            params={params}
+            onReloadIndicators={() => void risk.refetch()}
+          />
+        </SectionErrorBoundary>
       )}
 
-      <SummaryInfoGrid meta={risk.data?.meta} />
+      <SectionErrorBoundary resetKey={search}>
+        <SummaryInfoGrid meta={risk.data?.meta} />
+      </SectionErrorBoundary>
     </Card>
   )
 }

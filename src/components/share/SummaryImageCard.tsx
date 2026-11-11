@@ -44,7 +44,7 @@ const SummaryImageCard = forwardRef<HTMLDivElement, { data: Data }>(function Sum
   const activity = data.activity.data?.data
   const history = data.history.data?.data
   const metric = (id: MetricIndicator['id']) =>
-    risk?.data.indicators.find((i): i is MetricIndicator => i.id === id)
+    risk?.data.indicators?.find((i): i is MetricIndicator => i.id === id)
   const metas = [data.history.data?.meta, data.activity.data?.meta, risk?.meta]
   const sources = [...new Set(metas.flatMap((m) => parseSourceIds(m?.source)))]
     .map((id) => `${SOURCES[id]?.name ?? id}(${id})`)
