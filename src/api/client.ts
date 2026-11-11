@@ -5,6 +5,21 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 /** API 경로 접두사 (BE 작업계획서와 공통 기준) */
 export const API_PREFIX = '/api'
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
+/**
+ * 목업 모드에서도 실제 서버로 부를 경로 (BE가 완성한 API부터 단계적으로 연결).
+ * 형식은 mocks/index.ts의 mockRoutes 키와 같다 (예: "/geocode"). 목업 모드가 아니면 무시한다.
+ */
+const REAL_API_PATHS: ReadonlySet<string> = new Set(
+  USE_MOCK
+    ? (import.meta.env.VITE_REAL_API_PATHS ?? '')
+        .split(',')
+        .map((p) => p.trim())
+        .filter((p) => p !== '')
+    : [],
+)
+if (import.meta.env.DEV && REAL_API_PATHS.size > 0) {
+  console.info(`[api] 실제 서버: ${[...REAL_API_PATHS].join(', ')}`)
+}
 const TIMEOUT_MS = 15000
 
 /** 서버 오류·네트워크 오류를 화면에서 한 가지 방식으로 다루기 위한 에러 */
@@ -50,7 +65,7 @@ async function request<T>(
   init?: RequestInit,
   timeoutMs: number = TIMEOUT_MS,
 ): Promise<ApiResult<T>> {
-  if (USE_MOCK) {
+  if (USE_MOCK && !REAL_API_PATHS.has(path.split('?')[0])) {
     const mock = await getMockResponse<T>(path, init)
     if (mock) return unwrap(mock.body, mock.status)
   }

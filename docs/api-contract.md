@@ -351,6 +351,12 @@
 | 503 | `AI_VERIFY_FAILED` | 재생성 후에도 숫자·출처 불일치 | AI 해석을 불러오지 못했어요. (지표는 그대로 표시) |
 | 500 | `INTERNAL_ERROR` | 서버 내부 오류 | 일시적인 오류가 발생했어요. |
 
+### BE 단계 연결 (API별 목업 스위치)
+
+- `.env`에 `VITE_USE_MOCK=true`를 두고 `VITE_REAL_API_PATHS`에 BE가 완성한 경로만 쉼표로 적는다 (예: `VITE_REAL_API_PATHS=/geocode,/stores/history`). 적은 경로는 `VITE_API_BASE_URL` 서버로, 나머지는 목업으로 호출한다.
+- 경로는 `src/api/mocks/index.ts`의 `mockRoutes` 키와 같은 형식이다. 빈 값이면 전부 목업, `VITE_USE_MOCK=false`면 이 값은 무시되고 전부 실제 서버로 간다.
+- `.env`를 바꾸면 개발 서버를 다시 시작한다. 개발 모드에서는 콘솔에 `[api] 실제 서버: …`로 어떤 경로가 실제 서버로 가는지 표시된다.
+
 FE 전용 오류 (`src/api/client.ts`): `TIMEOUT`(15초 초과), `NETWORK_ERROR`(서버 연결 실패), `INVALID_RESPONSE`(형식 오류), `EMPTY_DATA`(`data`가 `null`).
 
 오류 응답 예시 (PDF v1.1):
