@@ -90,7 +90,7 @@ type ApiResponse<T> = {
 - 브랜치: `main`(최종) ← `develop`(통합) ← `feat/기능명`, `fix/버그명`, `docs/문서명`
 - `main`, `develop`에 직접 커밋·push 하지 않는다. 작업은 항상 새 브랜치에서
 - 커밋 메시지: `타입: 내용` (예: `feat: 입지 진단 결과 화면 추가`)
-  - 타입: feat, fix, refactor, docs, style, chore
+  - 타입: feat, fix, refactor, perf, docs, style, chore
 
 ## 절대 하지 말 것
 - **API 키·비밀값을 프론트 코드나 `VITE_` 환경변수에 넣지 않는다** (브라우저에 그대로 노출됨). 외부 API 호출이 키를 필요로 하면 백엔드를 거친다

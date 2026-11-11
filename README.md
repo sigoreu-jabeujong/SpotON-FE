@@ -134,7 +134,7 @@ SpotON-FE/
 - 브랜치: `main`(최종) ← `develop`(통합) ← `feat/기능명`, `fix/버그명`, `docs/문서명`, `chore/작업명`
 - `main`, `develop`에 직접 커밋·push 하지 않아요. 기능 하나 = 브랜치 하나 = PR 하나 (`develop` 대상)
 - 커밋 메시지: `타입: 내용` (예: `feat: 입지 진단 결과 화면 추가`)
-  - 타입: `feat`, `fix`, `refactor`, `docs`, `style`, `chore`
+  - 타입: `feat`, `fix`, `refactor`, `perf`, `docs`, `style`, `chore`
 - PR 전에 `npm run lint`, `npm run format:check`, `npm run build`를 모두 통과해요
 - FE PR은 merge commit으로 머지해요 (커밋 기록 보존)
 
