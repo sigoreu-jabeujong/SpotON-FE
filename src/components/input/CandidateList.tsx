@@ -22,7 +22,8 @@ export default function CandidateList({ candidates, onSelect }: Props) {
   }, [candidates])
 
   return (
-    <div className="mt-4 rounded-control border border-blue-500/40 bg-blue-100/60 p-3">
+    // 나타날 때 위에서 살짝 펼쳐지듯 (동작 줄이기면 바로 보임)
+    <div className="mt-4 origin-top rounded-control border border-blue-500/40 bg-blue-100/60 p-3 motion-safe:animate-expand-in">
       <p
         id="candidate-title"
         role="status"
@@ -37,7 +38,7 @@ export default function CandidateList({ candidates, onSelect }: Props) {
               ref={i === 0 ? firstRef : undefined}
               type="button"
               onClick={() => onSelect(c)}
-              className="flex w-full items-center gap-3 rounded-control bg-gray-0 px-3 py-2.5 text-left transition-colors hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-blue-500"
+              className="group flex w-full interactive-lift items-center gap-3 rounded-control bg-gray-0 px-3 py-2.5 text-left hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-blue-500"
             >
               <MapPin className="size-4 shrink-0 text-blue-500" aria-hidden="true" />
               <span className="min-w-0 flex-1">
@@ -50,7 +51,10 @@ export default function CandidateList({ candidates, onSelect }: Props) {
                   </span>
                 )}
               </span>
-              <ChevronRight className="size-4 shrink-0 text-gray-600" aria-hidden="true" />
+              <ChevronRight
+                className="size-4 shrink-0 arrow-nudge text-gray-600"
+                aria-hidden="true"
+              />
             </button>
           </li>
         ))}

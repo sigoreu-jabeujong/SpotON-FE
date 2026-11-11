@@ -175,7 +175,7 @@ function FilterForm({
             aria-disabled={!changed}
             title={changed ? undefined : T.unchanged}
             className={cn(
-              'flex h-9 items-center gap-1.5 rounded-full px-5 text-caption font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+              'flex h-9 items-center gap-1.5 rounded-full px-5 text-caption font-semibold motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
               changed
                 ? 'bg-blue-500 text-white hover:bg-blue-700'
                 : 'cursor-default bg-gray-100 text-gray-600',
@@ -218,7 +218,7 @@ function Choice({
   return (
     <label
       className={cn(
-        'cursor-pointer rounded-full border px-3 py-1 text-caption font-semibold transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-500',
+        'cursor-pointer rounded-full border px-3 py-1 text-caption font-semibold motion-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-500',
         checked
           ? 'border-blue-500 bg-blue-100 text-blue-700'
           : 'border-gray-300 text-gray-900 hover:bg-gray-100',

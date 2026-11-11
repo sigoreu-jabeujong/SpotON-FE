@@ -6,8 +6,8 @@ import { useStoreHistory } from '../../hooks/useStores'
 import { formatDataBaseline } from '../../utils/format'
 import EmptyState from '../common/EmptyState'
 import ErrorState from '../common/ErrorState'
+import LoadingSkeleton from '../common/Skeleton'
 import InfoBox from '../common/InfoBox'
-import LoadingState from '../common/LoadingState'
 import MetaLine from '../common/MetaLine'
 import AnalysisSection from './AnalysisSection'
 import HistoryTable from './history/HistoryTable'
@@ -23,7 +23,7 @@ export default function HistorySection() {
   return (
     <AnalysisSection id="history">
       {history.isPending ? (
-        <LoadingState />
+        <LoadingSkeleton variant="table" />
       ) : history.isError ? (
         <ErrorState error={history.error} onRetry={() => void history.refetch()} />
       ) : (

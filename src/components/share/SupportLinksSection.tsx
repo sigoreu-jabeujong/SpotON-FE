@@ -6,7 +6,7 @@ import type { SupportLink } from '../../types/support'
 import { formatDate } from '../../utils/format'
 import EmptyState from '../common/EmptyState'
 import ErrorState from '../common/ErrorState'
-import LoadingState from '../common/LoadingState'
+import LoadingSkeleton from '../common/Skeleton'
 import MetaLine from '../common/MetaLine'
 import SubTitle from '../common/SubTitle'
 
@@ -20,7 +20,7 @@ export default function SupportLinksSection() {
   const { query } = useDiagnosisQuery()
   const links = useSupportLinks({ sigungu: query.sigungu, category: query.category })
 
-  if (links.isPending) return <LoadingState />
+  if (links.isPending) return <LoadingSkeleton variant="links" />
   if (links.isError) return <ErrorState error={links.error} onRetry={() => void links.refetch()} />
 
   const all = links.data.data.links ?? []
@@ -73,7 +73,7 @@ function LinkGroup({
                 href={l.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-start justify-between gap-3 rounded-control border border-gray-300 bg-gray-0 px-4 py-3 transition-colors hover:border-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                className="group flex interactive-lift items-start justify-between gap-3 rounded-control border border-gray-300 bg-gray-0 px-4 py-3 hover:border-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
               >
                 <span className="min-w-0">
                   <span className="block text-micro font-semibold text-blue-700">{l.org_name}</span>
@@ -85,7 +85,7 @@ function LinkGroup({
                 </span>
                 <span className="flex shrink-0 items-center gap-1 text-caption font-semibold text-blue-700">
                   <span className="sr-only">{T.newWindow}</span>
-                  <ExternalLink className="size-4" aria-hidden="true" />
+                  <ExternalLink className="size-4 arrow-nudge" aria-hidden="true" />
                 </span>
               </a>
             </li>

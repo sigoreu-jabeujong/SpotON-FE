@@ -92,7 +92,7 @@ export default function DiagnosisForm({
         </div>
         <div
           className={cn(
-            'mt-3 flex h-12 items-center gap-2 rounded-full border-[1.5px] bg-gray-0 pr-1.5 pl-4 transition-colors focus-within:border-blue-700 focus-within:ring-2 focus-within:ring-blue-500/30',
+            'mt-3 flex h-12 items-center gap-2 rounded-full border-[1.5px] bg-gray-0 pr-1.5 pl-4 motion-colors focus-within:border-blue-700 focus-within:ring-2 focus-within:ring-blue-500/30',
             missing.address || apiError ? 'border-danger' : 'border-blue-500',
           )}
         >
@@ -166,7 +166,7 @@ export default function DiagnosisForm({
                   onChange?.()
                 }}
                 className={cn(
-                  'flex h-12 items-center justify-center gap-2 rounded-full border text-body font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+                  'flex h-12 interactive-lift items-center justify-center gap-2 rounded-full border text-body font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
                   selected
                     ? 'border-blue-500 bg-blue-100 text-blue-700'
                     : missing.category
@@ -186,8 +186,11 @@ export default function DiagnosisForm({
         type="submit"
         disabled={loading}
         className={cn(
-          'mt-9 flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait',
-          ready ? 'bg-blue-500 text-white hover:bg-blue-700' : 'bg-blue-100 text-gray-600',
+          'group mt-9 flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait',
+          'transition-[color,background-color,transform] duration-(--duration-fast) ease-(--ease-out-soft)',
+          ready
+            ? 'bg-blue-500 text-white hover:bg-blue-700 motion-safe:enabled:hover:-translate-y-px motion-safe:enabled:active:translate-y-0 motion-safe:enabled:active:scale-[0.98]'
+            : 'bg-blue-100 text-gray-600',
         )}
       >
         {loading ? (
@@ -198,7 +201,7 @@ export default function DiagnosisForm({
         ) : (
           <>
             {T.submit}
-            <ArrowRight className="size-5" aria-hidden="true" />
+            <ArrowRight className={cn('size-5', ready && 'arrow-nudge')} aria-hidden="true" />
           </>
         )}
       </button>

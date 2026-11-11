@@ -1,12 +1,13 @@
 import { useRef, useState } from 'react'
 import { toCommonQueryParams } from '../../api/params'
 import { getAsOfRangeMessage, MESSAGES } from '../../constants/messages'
+import { scrollBehavior } from '../../constants/motion'
 import { getCoordinates, useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { useNearbyStores } from '../../hooks/useStores'
 import { formatDataBaseline, formatDate, formatYearMonthKo } from '../../utils/format'
 import EmptyState from '../common/EmptyState'
 import ErrorState from '../common/ErrorState'
-import LoadingState from '../common/LoadingState'
+import LoadingSkeleton from '../common/Skeleton'
 import MetaLine from '../common/MetaLine'
 import SectionErrorBoundary from '../common/SectionErrorBoundary'
 import SubTitle from '../common/SubTitle'
@@ -32,7 +33,7 @@ export default function NearbySection() {
   /** 표에서 고르면 지도가 보이게 올려 주고 마커를 강조한다 */
   const selectFromTable = (id: string) => {
     setSelectedId(id)
-    mapWrapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    mapWrapRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: 'nearest' })
   }
 
   const pastLabel = formatYearMonthKo(query.asOf)
@@ -48,7 +49,7 @@ export default function NearbySection() {
         <div className="flex flex-col gap-3">
           <SubTitle>{T.mapTitle}</SubTitle>
           {nearby.isPending ? (
-            <LoadingState />
+            <LoadingSkeleton variant="map" />
           ) : nearby.isError ? (
             <ErrorState
               error={nearby.error}
@@ -102,7 +103,7 @@ export default function NearbySection() {
           <SubTitle>{T.tableTitle}</SubTitle>
           <ConditionFilterBar />
           {nearby.isPending ? (
-            <LoadingState />
+            <LoadingSkeleton variant="table" />
           ) : nearby.isError ? null : (
             data &&
             (data.count === 0 || !data.markers?.length ? (

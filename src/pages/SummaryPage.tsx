@@ -4,7 +4,8 @@ import PastViewNote from '../components/analysis/nearby/PastViewNote'
 import Card from '../components/common/Card'
 import ErrorState from '../components/common/ErrorState'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
-import LoadingState from '../components/common/LoadingState'
+import LoadingSkeleton from '../components/common/Skeleton'
+import Reveal from '../components/common/Reveal'
 import AiInterpretation from '../components/summary/ai/AiInterpretation'
 import MarketCard from '../components/summary/MarketCard'
 import OfficialIndicators from '../components/summary/OfficialIndicators'
@@ -34,7 +35,7 @@ export default function SummaryPage() {
     <Card className="flex flex-col gap-10">
       <PastViewNote asOf={query.asOf} />
       {risk.isPending ? (
-        <LoadingState />
+        <LoadingSkeleton variant="summary" />
       ) : risk.isError ? (
         <ErrorState
           error={risk.error}
@@ -53,35 +54,45 @@ export default function SummaryPage() {
             </p>
           )}
           {/* 카드 묶음마다 오류 경계 — 하나가 깨져도 다른 지표는 계속 보인다 */}
-          <SectionErrorBoundary resetKey={search}>
-            <MarketCard market={risk.data.data.market} />
-          </SectionErrorBoundary>
-          <SectionErrorBoundary resetKey={search}>
-            <OfficialIndicators
-              indicators={indicators}
-              market={risk.data.data.market}
-              query={risk.data.data.query}
-            />
-          </SectionErrorBoundary>
-          <SectionErrorBoundary resetKey={search}>
-            <ReferenceIndicators indicators={indicators} />
-          </SectionErrorBoundary>
-          <SectionErrorBoundary resetKey={search}>
-            <SeoulCompare indicators={indicators} />
-          </SectionErrorBoundary>
+          <Reveal>
+            <SectionErrorBoundary resetKey={search}>
+              <MarketCard market={risk.data.data.market} />
+            </SectionErrorBoundary>
+          </Reveal>
+          <Reveal>
+            <SectionErrorBoundary resetKey={search}>
+              <OfficialIndicators
+                indicators={indicators}
+                market={risk.data.data.market}
+                query={risk.data.data.query}
+              />
+            </SectionErrorBoundary>
+          </Reveal>
+          <Reveal>
+            <SectionErrorBoundary resetKey={search}>
+              <ReferenceIndicators indicators={indicators} />
+            </SectionErrorBoundary>
+          </Reveal>
+          <Reveal>
+            <SectionErrorBoundary resetKey={search}>
+              <SeoulCompare indicators={indicators} />
+            </SectionErrorBoundary>
+          </Reveal>
         </>
       )}
 
       {/* AI 해석 — 지표를 불러온 뒤에만. 조건(search)이 바뀌면 key로 새로 만들어 이전 결과를 지운다 */}
       {risk.data && params && (
-        <SectionErrorBoundary resetKey={search}>
-          <AiInterpretation
-            key={search}
-            risk={risk.data.data}
-            params={params}
-            onReloadIndicators={() => void risk.refetch()}
-          />
-        </SectionErrorBoundary>
+        <Reveal>
+          <SectionErrorBoundary resetKey={search}>
+            <AiInterpretation
+              key={search}
+              risk={risk.data.data}
+              params={params}
+              onReloadIndicators={() => void risk.refetch()}
+            />
+          </SectionErrorBoundary>
+        </Reveal>
       )}
 
       <SectionErrorBoundary resetKey={search}>

@@ -3,6 +3,7 @@ import type { MouseEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { CATEGORIES, RESTAURANT_SUB_CATEGORIES } from '../../constants/diagnosis'
 import { MESSAGES } from '../../constants/messages'
+import { scrollBehavior } from '../../constants/motion'
 import { ANALYSIS_SECTIONS, RESULT_STEPS, ROUTES } from '../../constants/routes'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { cn } from '../../utils/cn'
@@ -19,8 +20,6 @@ const STEP_ICON: Record<number, LucideIcon> = {
 function currentStepOf(pathname: string): number {
   return RESULT_STEPS.find((s) => s.path === pathname)?.step ?? 2
 }
-
-const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 /** 결과 화면 왼쪽 고정 사이드바: 로고 + STEP 01~04 진행 표시 */
 export default function ResultSidebar({ activeSection }: { activeSection: string | null }) {
@@ -41,7 +40,7 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
     const el = document.getElementById(id)
     if (!el) return
     e.preventDefault()
-    el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' })
+    el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
     el.focus({ preventScroll: true })
     navigate({ search, hash: `#${id}` }, { replace: true, preventScrollReset: true })
   }
@@ -70,7 +69,7 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
                 <span
                   aria-hidden="true"
                   className={cn(
-                    'relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full',
+                    'relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full motion-colors',
                     done || current ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600',
                   )}
                 >
@@ -84,7 +83,7 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
                   >
                     <span
                       className={cn(
-                        'block text-micro font-semibold',
+                        'block text-micro font-semibold motion-colors',
                         done || current ? 'text-blue-700' : 'text-gray-600',
                       )}
                     >
@@ -94,7 +93,7 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
                     </span>
                     <span
                       className={cn(
-                        'block text-body font-bold group-hover:text-blue-700',
+                        'block text-body font-bold motion-colors group-hover:text-blue-700',
                         current ? 'text-blue-700' : 'text-gray-900',
                       )}
                     >
@@ -125,7 +124,7 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
                               onClick={(e) => goToSection(e, section.id)}
                               aria-current={active ? 'location' : undefined}
                               className={cn(
-                                'block rounded border-l-2 py-0.5 pl-2.5 text-caption focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+                                'block rounded border-l-2 py-0.5 pl-2.5 text-caption motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
                                 active
                                   ? 'border-blue-500 font-semibold text-blue-700'
                                   : 'border-transparent text-gray-600 hover:text-blue-700',

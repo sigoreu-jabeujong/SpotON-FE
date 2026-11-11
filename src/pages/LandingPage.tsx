@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { IMAGES } from '../assets/images'
 import Logo from '../components/common/Logo'
@@ -7,6 +8,15 @@ import { ROUTES } from '../constants/routes'
 import { usePageTitle } from '../hooks/usePageTitle'
 
 const T = MESSAGES.landing
+
+/**
+ * 첫 진입 때 제목 → 설명 → 버튼 → 지도 순서로 한 번 떠오르며 등장.
+ * 순서 n번째 요소는 --duration-stagger × n 만큼 늦게 시작한다 (동작 줄이기면 효과 없음)
+ */
+const rise = 'motion-safe:animate-rise-in'
+const delay = (n: number): CSSProperties => ({
+  animationDelay: `calc(var(--duration-stagger) * ${n})`,
+})
 
 /** ① 랜딩 — 로고, 제목, 시작 버튼, 오른쪽 전국 지도 그림 (1.Home) */
 export default function LandingPage() {
@@ -20,23 +30,29 @@ export default function LandingPage() {
       </header>
 
       <main className="relative mx-auto flex w-full max-w-[1200px] flex-1 flex-col px-10 pt-16">
-        <p className="text-caption font-semibold text-blue-700">{T.slogan}</p>
-        <h1 className="mt-3 text-[2.5rem] leading-tight font-bold text-gray-900">
-          {T.titleLine1}
-          <br />
-          {T.titleLine2}
-        </h1>
-        <p className="mt-3 text-subtitle text-gray-600">{T.description}</p>
-        <div className="mt-8">
+        <div className={rise} style={delay(0)}>
+          <p className="text-caption font-semibold text-blue-700">{T.slogan}</p>
+          <h1 className="mt-3 text-[2.5rem] leading-tight font-bold text-gray-900">
+            {T.titleLine1}
+            <br />
+            {T.titleLine2}
+          </h1>
+        </div>
+        <p className={`mt-3 text-subtitle text-gray-600 ${rise}`} style={delay(1)}>
+          {T.description}
+        </p>
+        <div className={`mt-8 ${rise}`} style={delay(2)}>
           <Link
             to={ROUTES.input}
-            className="inline-flex h-13 items-center gap-2 rounded-full bg-blue-500 px-7 text-subtitle font-semibold text-white shadow-card transition-colors hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            className="group inline-flex h-13 interactive-lift items-center gap-2 rounded-full bg-blue-500 px-7 text-subtitle font-semibold text-white shadow-card hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
           >
             {T.start}
-            <ArrowRight className="size-5" aria-hidden="true" />
+            <ArrowRight className="size-5 arrow-nudge" aria-hidden="true" />
           </Link>
         </div>
-        <p className="mt-6 text-caption text-gray-600">{T.scope}</p>
+        <p className={`mt-6 text-caption text-gray-600 ${rise}`} style={delay(2)}>
+          {T.scope}
+        </p>
       </main>
 
       <footer className="relative mx-auto w-full max-w-[1200px] px-10 pt-10 pb-8 text-micro text-gray-600">
@@ -54,7 +70,8 @@ function LandingMap() {
     return (
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-[16%] right-[3%] w-[52%] max-w-[820px]"
+        className={`pointer-events-none absolute top-[16%] right-[3%] w-[52%] max-w-[820px] ${rise}`}
+        style={delay(3)}
       >
         {IMAGES.landingGradient && (
           <img
@@ -68,7 +85,8 @@ function LandingMap() {
           src={IMAGES.landingMap}
           alt=""
           aria-hidden="true"
-          className="relative w-full object-contain"
+          // 아주 느리게 위아래로 떠 있는 효과 (진폭 8px, 동작 줄이기면 정지)
+          className="relative w-full object-contain motion-safe:animate-float"
         />
       </div>
     )
