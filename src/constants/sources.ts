@@ -57,3 +57,20 @@ export function parseSourceIds(source: string | readonly string[] | null | undef
   const list = typeof source === 'string' ? source.split(',') : source
   return list.map((s) => s.trim()).filter(Boolean)
 }
+
+/**
+ * 서비스가 실제로 쓰는 데이터 출처 (랜딩·하단 안내용). 사례 조사·문서 출처(R10·R11·R13 등)는 넣지 않는다.
+ * 기관 로고 없이 이름만 글자로 보여준다.
+ */
+export const SERVICE_SOURCE_IDS = [
+  'R5',
+  'R6',
+  'R1',
+  'R2',
+  'R15',
+  'R16',
+  'R3',
+  'R4',
+  'R9',
+  'R8',
+] as const

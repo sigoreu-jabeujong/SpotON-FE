@@ -22,6 +22,17 @@ export const MESSAGES = {
     start: '진단 시작하기',
     scope: '현재 서울특별시 카페·음식점(한식·중식·일식·양식)을 진단할 수 있어요',
   },
+  /** 랜딩·입력 화면 공통 하단 (결과 화면은 ResultFooter) */
+  siteFooter: {
+    team: '시고르자브종 · 청년 공공AX 서포터즈',
+    usageTitle: '이용 안내',
+    /** 이용 대상(layout.ageNotice)·면책(disclaimer)과 함께 보여주는 개인정보 안내 */
+    privacy: '회원가입 없이 이용하며 개인정보를 저장하지 않아요.',
+    dataTitle: '데이터 출처',
+    linksTitle: '프로젝트',
+    repository: '소스 코드 저장소',
+    newWindow: '(새 창)',
+  },
   /** ② 주소·업종 입력 (주소 검색 API 오류 문구는 ERROR_MESSAGES 사용) */
   input: {
     eyebrow: 'DATA-BASED INSIGHT',

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router'
 import { IMAGES } from '../assets/images'
 import Logo from '../components/common/Logo'
+import SiteFooter from '../components/layout/SiteFooter'
 import CandidateList from '../components/input/CandidateList'
 import DiagnosisForm from '../components/input/DiagnosisForm'
 import InputIntro from '../components/input/InputIntro'
@@ -42,43 +43,43 @@ export default function InputPage() {
   }
 
   return (
-    <div className="relative flex min-h-full flex-col overflow-hidden bg-bg">
-      <InputBackground />
-      <header className="relative mx-auto w-full max-w-[1200px] px-10 pt-10">
-        <Logo />
-      </header>
-      <main className="relative mx-auto flex w-full max-w-[1200px] flex-1 items-center justify-between gap-12 px-10 py-12">
-        <InputIntro />
-        <DiagnosisForm
-          initialAddress={query.address}
-          initialCategory={query.category}
-          loading={geocode.isPending}
-          apiError={geocode.error ? getErrorMessageFrom(geocode.error) : null}
-          onChange={() => {
-            // 주소·업종을 바꾸면 이전 검색 결과(후보·오류)를 지운다
-            if (geocode.data || geocode.error) geocode.reset()
-          }}
-          onSubmit={(address, category) =>
-            geocode.mutate(
-              { query: address, category },
-              {
-                onSuccess: ({ data }) => {
-                  // 후보가 여러 개면 목록을 보여주고, 1건이면 바로 결과 화면으로
-                  if (data.candidates.length <= 1) goToResult(data.candidates[0] ?? data)
+    <div className="flex min-h-full flex-col bg-bg">
+      {/* 첫 화면은 그대로, 하단 안내는 공통 SiteFooter로 */}
+      <div className="relative flex min-h-screen flex-col overflow-hidden bg-bg">
+        <InputBackground />
+        <header className="relative mx-auto w-full max-w-[1200px] px-10 pt-10">
+          <Logo />
+        </header>
+        <main className="relative mx-auto flex w-full max-w-[1200px] flex-1 items-center justify-between gap-12 px-10 py-12">
+          <InputIntro />
+          <DiagnosisForm
+            initialAddress={query.address}
+            initialCategory={query.category}
+            loading={geocode.isPending}
+            apiError={geocode.error ? getErrorMessageFrom(geocode.error) : null}
+            onChange={() => {
+              // 주소·업종을 바꾸면 이전 검색 결과(후보·오류)를 지운다
+              if (geocode.data || geocode.error) geocode.reset()
+            }}
+            onSubmit={(address, category) =>
+              geocode.mutate(
+                { query: address, category },
+                {
+                  onSuccess: ({ data }) => {
+                    // 후보가 여러 개면 목록을 보여주고, 1건이면 바로 결과 화면으로
+                    if (data.candidates.length <= 1) goToResult(data.candidates[0] ?? data)
+                  },
                 },
-              },
-            )
-          }
-        >
-          {candidates.length > 1 && <CandidateList candidates={candidates} onSelect={goToResult} />}
-        </DiagnosisForm>
-      </main>
-      <footer className="relative mx-auto w-full max-w-[1200px] px-10 pb-6 text-micro text-gray-600">
-        {/* 건물 그림 위에서도 글자가 읽히도록 배경색 띠 */}
-        <p className="inline rounded bg-bg/90 [box-decoration-break:clone] px-1 py-0.5">
-          {MESSAGES.layout.ageNotice} {MESSAGES.disclaimer}
-        </p>
-      </footer>
+              )
+            }
+          >
+            {candidates.length > 1 && (
+              <CandidateList candidates={candidates} onSelect={goToResult} />
+            )}
+          </DiagnosisForm>
+        </main>
+      </div>
+      <SiteFooter />
     </div>
   )
 }
