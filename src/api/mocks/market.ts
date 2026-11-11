@@ -1,18 +1,30 @@
 /** GET /api/market/activity 목업 — 시연용 가상 값 */
 import type { ActivityInclude, MarketActivity } from '../../types/market'
-import { DEMO_META, isRestaurant, monthEnd, ok, radiusSpace } from './common'
+import type { ApiSubCategory } from '../../types/stores'
+import { DEMO_META, ok, radiusSpace } from './common'
 import type { MockHandler } from './index'
-import { shiftMonth } from '../../utils/date'
+import { storeStats } from './nearby'
 
-/** 음식점 세부 업종별 목업 값 (avg_operating_months가 null인 업종도 하나 둠 → "정보 없음" 표시 확인) */
-const RESTAURANT_SUBS: MarketActivity['by_sub_category'] = [
-  { sub_category: 'korean', open_count: 21, avg_operating_months: 52 },
-  { sub_category: 'japanese', open_count: 8, avg_operating_months: 33 },
-  { sub_category: 'western', open_count: 5, avg_operating_months: null },
-]
+/** 목업 전용: 지금 영업 중 점포를 세부 업종별로 (점포 수·평균 영업 기간) */
+function bySubCategory(stats: ReturnType<typeof storeStats>): MarketActivity['by_sub_category'] {
+  const groups = new Map<ApiSubCategory, number[]>()
+  for (const m of stats.openNow) {
+    groups.set(m.sub_category, [...(groups.get(m.sub_category) ?? []), m.operating_months])
+  }
+  return [...groups].map(([sub_category, months]) => ({
+    sub_category,
+    open_count: months.length,
+    // 양식은 "정보 없음" 표시 확인용으로 평균 영업 기간을 비워 둔다 (목업 테스트 규칙)
+    avg_operating_months:
+      sub_category === 'western'
+        ? null
+        : Math.floor(months.reduce((a, b) => a + b, 0) / months.length),
+  }))
+}
 
 /**
  * 테스트용 규칙 (실제 데이터 보유 범위를 흉내)
+ * - 점포 수·개폐업 수는 nearby.ts 점포 목록에서 센다 (지도·동종업체 수와 같은 집합)
  * - include에 없는 조건부 항목 → null + flags.missing
  * - 기준 시점(as_of)이 2025-01 이전 → 추정매출 없음 (상권 데이터 보유본 2025년 1분기~)
  * - 기준 시점이 2021-01 이전 → 생활인구도 없음
@@ -20,37 +32,23 @@ const RESTAURANT_SUBS: MarketActivity['by_sub_category'] = [
 export const marketActivityMock: MockHandler = (query) => {
   const include = (query.get('include') ?? '').split(',').filter(Boolean)
   const { space } = radiusSpace(query)
-  const asOfMonth = query.get('as_of')
-  const asOf = monthEnd(asOfMonth)
-  const t = asOfMonth ?? '2026-10'
-  const year = Number(t.slice(0, 4))
+  const stats = storeStats(query)
+  const asOf = stats.t
+  const t = asOf.slice(0, 7)
   const salesAvailable = include.includes('sales') && t >= '2025-01'
   const livingAvailable = include.includes('living_pop') && t >= '2021-01'
   const missing: ActivityInclude[] = []
   if (!salesAvailable) missing.push('sales')
   if (!livingAvailable) missing.push('living_pop')
 
-  const subs = (query.get('sub_category') ?? '').split(',').filter(Boolean)
-  const restaurantSubs = subs.length
-    ? RESTAURANT_SUBS.filter((s) => subs.includes(s.sub_category))
-    : RESTAURANT_SUBS
-
-  // 기준 시점에 따라 숫자가 조금씩 달라지게 (목업 안에서만)
-  const shift = (year % 3) - 1
   const data: MarketActivity = {
     recent_12m: {
-      period: `${shiftMonth(t, -11)}~${t}`,
-      opened: 6 + shift,
-      closed: 8 - shift,
+      period: stats.period12m,
+      opened: stats.opened12m,
+      closed: stats.closed12m,
     },
-    yearly_trend: [5, 4, 3, 2, 1].map((back, i) => ({
-      year: year - back,
-      opened: [9, 7, 5, 6, 8][i] + shift,
-      closed: [5, 6, 7, 8, 6][i],
-    })),
-    by_sub_category: isRestaurant(query)
-      ? restaurantSubs
-      : [{ sub_category: 'cafe', open_count: 38 + shift, avg_operating_months: 41 }],
+    yearly_trend: stats.yearly,
+    by_sub_category: bySubCategory(stats),
     sales: salesAvailable
       ? {
           markets: [
@@ -85,5 +83,5 @@ export const marketActivityMock: MockHandler = (query) => {
       : null,
     flags: { missing },
   }
-  return ok(data, { ...DEMO_META, as_of: asOf, space, denominator: 46 })
+  return ok(data, { ...DEMO_META, as_of: asOf, space, denominator: stats.openNow.length })
 }
