@@ -2,9 +2,40 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- 파비콘: 로고 심볼(src/assets/logo.webp)로 만든 정적 파일. 로고가 바뀌면 public/ 아이콘도 다시 만든다 -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#3376fd" />
     <title>Spot:ON — 계약 전, 그 자리를 진단하세요</title>
+    <meta
+      name="description"
+      content="서울 카페·음식점 예비창업자를 위한 공공데이터 기반 창업 입지 진단. 주소별 과거 점포 이력, 과거 시점 조회, 서울시 공식 지표와 참고지표를 근거와 함께 보여줘요. 창업 성공·실패를 판단하지 않는 참고 정보예요."
+    />
+
+    <!-- 공유 미리보기 (og:image는 배포 도메인이 정해지면 절대 주소로 바꾼다 — docs/decisions.md) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Spot:ON" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="Spot:ON — 계약 전, 그 자리를 진단하세요" />
+    <meta
+      property="og:description"
+      content="서울 카페·음식점 창업 입지를 공공데이터로 확인하는 참고 서비스. 주소별 과거 점포 이력과 주변 점포, 서울시 공식 지표를 근거와 함께 보여줘요."
+    />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Spot:ON 로고와 전국 지도 그림, 창업 전 그 자리의 과거를 확인하세요"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Spot:ON — 계약 전, 그 자리를 진단하세요" />
+    <meta
+      name="twitter:description"
+      content="서울 카페·음식점 창업 입지를 공공데이터로 확인하는 참고 서비스예요."
+    />
+    <meta name="twitter:image" content="/og-image.png" />
   </head>
   <body>
     <div id="root"></div>
