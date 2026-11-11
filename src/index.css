@@ -93,7 +93,8 @@
 
   --animate-rise-in: rise-in var(--duration-slow) var(--ease-out-soft) both;
   --animate-expand-in: expand-in var(--duration-base) var(--ease-out-soft) both;
-  --animate-float: float-y var(--duration-float) var(--ease-in-out-soft) infinite;
+  /* 한 번만 왕복하고 원래 자리(translateY 0)에서 멈춤 — 5초 넘게 자동으로 움직이지 않게 (웹 접근성) */
+  --animate-float: float-y var(--duration-float) var(--ease-in-out-soft) 1 both;
   --animate-shimmer: shimmer var(--duration-shimmer) ease-in-out infinite;
 
   /* 아래에서 살짝 떠오르며 등장 */
@@ -118,7 +119,7 @@
       transform: none;
     }
   }
-  /* 아주 느리게 위아래로 떠 있기 (진폭 작게) */
+  /* 아주 느리게 위아래로 한 번 떠올랐다 내려오기 (진폭 작게, 끝은 원래 자리) */
   @keyframes float-y {
     0%,
     100% {
@@ -145,7 +146,7 @@
   --duration-base: 250ms; /* 떠오름·펼침 */
   --duration-slow: 400ms; /* 화면·섹션 등장 */
   --duration-stagger: 80ms; /* 순서대로 등장할 때 항목 사이 간격 */
-  --duration-float: 6s; /* 랜딩 지도 떠 있기 한 번 왕복 */
+  --duration-float: 4s; /* 랜딩 지도 떠 있기 한 번 왕복 (1회만, 5초 이내) */
   --duration-shimmer: 1.6s; /* 스켈레톤 반짝임 한 번 */
 }
 
