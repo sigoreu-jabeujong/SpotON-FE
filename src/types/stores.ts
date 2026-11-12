@@ -72,19 +72,32 @@ export type StoreHistory = {
 
 /* ───── GET /api/stores/nearby ───── */
 
+/**
+ * 주변 점포 마커 한 건 (BE docs/fe-nearby-api-request.md 2장).
+ * 식별은 source + license_no (utils/storeKey) — 지도 마커·정보창·표 선택이 모두 같은 규칙.
+ * null은 키 생략이 아니라 "값 없음" — 화면은 utils/storeDisplay로 "정보 없음"·사유를 보여준다.
+ */
 export type NearbyMarker = {
+  source: StoreSource
   license_no: string
-  name: string
+  /** 상호. 없으면 null */
+  name: string | null
   sub_category: ApiSubCategory
   lat: number
   lng: number
+  /** 서버가 계산한 실제 거리(m). 표시용 반올림 값으로 다시 거르거나 정렬하지 않는다 */
   distance_m: number
+  /** 시점 판단을 통과한 유효 개업일 (성공 마커에서는 null 아님) */
   open_date: string
   close_date: string | null
-  operating_months: number
+  /** 최신 데이터 기준 전체 영업 기간(개월). 0은 실제 0개월, null은 미산정 — 과거 시점까지로 자르지 않음 */
+  operating_months: number | null
+  operating_period_status: OperatingPeriodStatus
+  operating_period_reason: OperatingPeriodReason | null
+  /** 최신 데이터 기준 상태 (선택한 과거 시점의 상태가 아님) */
   current_status: StoreStatus
   franchise: FranchiseStatus
-  /** 신고 면적 ㎡. 정보 없으면 null */
+  /** 신고 면적 ㎡. 정보 없음(원본 0 포함)이면 null */
   area_m2: number | null
 }
 
@@ -93,23 +106,31 @@ export type NearbyStores = {
   radius_m: number
   as_of: string
   count: number
-  /** 좌표가 없어 제외된 점포 수 */
+  /**
+   * 좌표가 없어 제외된 점포 수 — 반경 안 수가 아니라 서울 전체의 같은 비공간 조건 범위
+   * (meta.excluded_no_coord_scope = seoul_nonspatial_cohort). 주변 점포 수와 합치지 않는다
+   */
   excluded_no_coord: number
+  /** BE 실제 거리 순서 그대로 */
   markers: NearbyMarker[]
   message: string | null
 }
 
 /* ───── GET /api/stores/snapshot ───── */
 
+/** 시점 조회 점포 한 건 (BE docs/fe-store-snapshot-api-request.md 2장). nearby의 거리·가맹·면적은 없다 */
 export type SnapshotStore = {
+  source: StoreSource
   license_no: string
-  name: string
+  name: string | null
   sub_category: ApiSubCategory
   lat: number
   lng: number
   open_date: string
   close_date: string | null
-  operating_months: number
+  operating_months: number | null
+  operating_period_status: OperatingPeriodStatus
+  operating_period_reason: OperatingPeriodReason | null
   current_status: StoreStatus
 }
 
@@ -124,4 +145,6 @@ export type StoreSnapshot = {
   other: number
   stores: SnapshotStore[]
   summary_text: string
+  /** 좌표가 없어 제외된 점포 수 (서울 전체 범위 — N에 포함하지 않음) */
+  excluded_no_coord: number
 }

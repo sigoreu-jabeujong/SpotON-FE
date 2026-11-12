@@ -21,7 +21,9 @@ type Props = {
  * min_month ~ max_month 밖의 연·월·빠른 선택은 비활성. "조회"를 눌러야 반영된다.
  */
 export default function AsOfPicker({ value, onChange, range, status }: Props) {
-  const disabled = status !== 'ready' || !range
+  // 최소 월이 null이면(유효 표본 없음) 과거 월·빠른 선택을 막고 "현재"만 둔다
+  const noPast = status === 'ready' && !!range && !range.min_month
+  const disabled = status !== 'ready' || !range || noPast
   const selected = parseYearMonth(value)
   const min = parseYearMonth(range?.min_month)
   const max = parseYearMonth(range?.max_month)
@@ -127,7 +129,8 @@ export default function AsOfPicker({ value, onChange, range, status }: Props) {
           {T.asOfUnavailable}
         </p>
       )}
-      {status === 'ready' && range && (
+      {noPast && <p className="text-micro text-gray-600">{T.asOfNoPast}</p>}
+      {status === 'ready' && range?.min_month && (
         <p className="text-micro text-gray-600">
           {T.asOfRange(formatDate(range.min_month) ?? '', formatDate(range.max_month) ?? '')}
         </p>

@@ -1,6 +1,7 @@
 import type { CommonQueryParams } from '../types/api'
 import type { ActivityInclude } from '../types/market'
 import type { DiagnosisQuery } from '../types/diagnosis'
+import type { DataRangeParams } from '../types/meta'
 import type { StoreHistoryParams } from '../types/stores'
 
 export type Coordinates = { lat: number; lng: number }
@@ -30,6 +31,17 @@ export function toCommonQueryParams(
   }
   if (query.asOf) params.as_of = query.asOf
   return params
+}
+
+/**
+ * 진단 조건 → /meta/data-range 파라미터 (업종이 없으면 null).
+ * 주변 조회와 같은 업종 조건 — 음식점에서 세부 업종을 골랐을 때만 sub_category (카페는 생략)
+ */
+export function toDataRangeParams(query: DiagnosisQuery): DataRangeParams | null {
+  if (!query.category) return null
+  return query.category === 'restaurant' && query.subCategories.length > 0
+    ? { category: query.category, sub_category: [...query.subCategories] }
+    : { category: query.category }
 }
 
 /**

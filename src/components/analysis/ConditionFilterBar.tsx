@@ -1,5 +1,6 @@
 import { Info, Search } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
+import { toDataRangeParams } from '../../api/params'
 import {
   FACILITY_SIZE_OPTIONS,
   FRANCHISE_OPTIONS,
@@ -60,7 +61,8 @@ function FilterForm({
   }
   const [draft, setDraft] = useState<Draft>(applied)
   // 기준 시점 선택 가능 범위 (로딩·오류면 시점 선택만 비활성)
-  const dataRange = useDataRange(query.category ? { category: query.category } : null)
+  // 적용된 업종·세부 업종 기준 (주변 조회와 같은 조건)
+  const dataRange = useDataRange(toDataRangeParams(query))
   const changed = !sameDraft(draft, applied)
   const isRestaurant = query.category === 'restaurant'
 

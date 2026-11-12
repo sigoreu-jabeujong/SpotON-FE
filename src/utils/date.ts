@@ -27,7 +27,10 @@ export function parseYearMonth(
   return m ? { year: Number(m[1]), month: Number(m[2]) } : null
 }
 
-/** min ≤ ym ≤ max 인지 ("YYYY-MM"은 글자 순서 = 시간 순서) */
-export function isMonthInRange(ym: string, min: string, max: string): boolean {
-  return ym >= min && ym <= max
+/**
+ * min ≤ ym ≤ max 인지 ("YYYY-MM"은 글자 순서 = 시간 순서).
+ * min이 null(유효 표본 없음)이면 고를 수 있는 과거 월이 없으므로 항상 false
+ */
+export function isMonthInRange(ym: string, min: string | null, max: string): boolean {
+  return min !== null && ym >= min && ym <= max
 }
