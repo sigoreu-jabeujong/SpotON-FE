@@ -300,8 +300,8 @@ const INDICATOR_NAME: Partial<Record<IndicatorId, string>> = {
   official_closure_rate: '서울시 공식 폐업률',
   market_change: '상권변화지표',
   closure_rate_12m: '참고 폐업률(최근 12개월)',
-  survival_rate_1y: '1년 생존율',
-  survival_rate_3y: '3년 생존율',
+  survival_rate_1y: '개업 1주년 생존율',
+  survival_rate_3y: '개업 3주년 생존율',
   day_night_ratio: '주야간 인구 비',
 }
 
@@ -352,7 +352,7 @@ function buildInterpretation(risk: Risk): RiskInterpretation {
   const favorable: RiskInterpretation['favorable'] = []
   if (isFact(survival1y))
     favorable.push({
-      text: `반경 ${r}m 1년 생존율은 ${pct(survival1y.value)}%(${survival1y.denominator}곳 중 ${survival1y.numerator}곳)로, 최근 문을 연 점포 상당수가 1년 넘게 영업을 이어 갔습니다.`,
+      text: `반경 ${r}m 개업 1주년 생존율은 ${pct(survival1y.value)}%(${survival1y.denominator}곳 중 ${survival1y.numerator}곳)로, 최근 문을 연 점포 상당수가 1년 넘게 영업을 이어 갔습니다.`,
       indicator_ids: ['survival_rate_1y'],
       sources: ['R5', 'R6'],
     })

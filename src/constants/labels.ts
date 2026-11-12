@@ -64,8 +64,9 @@ export const INDICATOR_NAME = {
   official_risk: '서울시 창업위험도',
   market_change: '상권변화지표',
   closure_rate_12m: '참고 폐업률 (최근 12개월)',
-  survival_rate_1y: '1년 생존율',
-  survival_rate_3y: '3년 생존율',
+  /** 개업 n주년 당일에 영업 중이었는지 보는 고정 관측 지표 — 현재 잔존율 아님 (BE fe-risk-reference-api-request.md) */
+  survival_rate_1y: '개업 1주년 생존율',
+  survival_rate_3y: '개업 3주년 생존율',
   competitor_count: '반경 안 동종업체 수',
   day_night_ratio: '주야간 인구비',
 } as const
