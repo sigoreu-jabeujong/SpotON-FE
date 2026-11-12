@@ -254,7 +254,8 @@ export const MESSAGES = {
     opened12m: '최근 12개월 개업 수',
     closed12m: '최근 12개월 폐업 수',
     avgPeriod: '평균 영업 기간',
-    avgPeriodHint: '세부 업종별 값 그대로',
+    /** BE 정의: 기준 시점에 영업하던 점포가 그 시점까지 경과한 개월의 평균 (폐업 점포 수명 아님) */
+    avgPeriodHint: '기준 시점까지 경과 기간 평균',
     periodLabel: (p: string) => `기간 ${p}`,
     loadingValue: '불러오는 중',
     failedValue: '불러오지 못했어요',
@@ -268,6 +269,9 @@ export const MESSAGES = {
     trendHideTable: '표 숨기기',
     trendCaption: '연도별 개업·폐업 수 (데이터가 있는 연도만)',
     trendEmpty: '연도별 추이를 보여줄 데이터가 없어요',
+    /** meta.yearly_comparison_basis = same_month_day_ytd 일 때 — 연간 전체가 아님을 안내 */
+    trendYtd: (monthDay: string) =>
+      `매년 1월 1일부터 ${monthDay}까지 같은 기간끼리 비교한 값이에요`,
     trendUnit: (n: number) => `${n.toLocaleString('ko-KR')}곳`,
     salesTitle: '인근 상권 추정매출',
     salesNotice: '상권 단위 추정치로, 이 자리 점포의 실제 매출이 아니에요',
@@ -280,6 +284,12 @@ export const MESSAGES = {
     livingGrids: '포함 격자 수',
     livingMissing: '결측 격자 수',
     missingData: '아직 확보하지 못한 자료예요',
+    /** meta.optional_data[item].status = pending — 0이나 원천 없음이 아니라 집계 기준 확인 중 */
+    pendingData: '자료 확인 중',
+    /** 가맹 분류 미확인(franchise_classification pending)인데 프랜차이즈 조건을 골랐을 때 */
+    franchisePendingTitle: '프랜차이즈 분류 확인 중',
+    franchisePending:
+      '프랜차이즈 분류를 확인하고 있어, 선택한 분류로 확인할 수 있는 정보가 없거나 적을 수 있어요. 점포가 없다는 뜻은 아니에요.',
     people: (n: number) => `${n.toLocaleString('ko-KR')}명`,
     grids: (n: number) => `${n.toLocaleString('ko-KR')}개`,
   },
@@ -326,6 +336,7 @@ export const MESSAGES = {
       boundary_period_not_verified: '공식 상권 적용 기준을 확인 중이에요',
       boundary_version_not_selected: '공식 상권 경계를 확인 중이에요',
       population_aggregation_and_grid_time_unverified: '생활인구 집계 기준을 확인 중이에요',
+      source_period_and_boundary_unverified: '매출 집계 기간과 적용 경계를 확인하고 있어요',
       not_applicable: '서울 비교 대상이 아니에요',
       outside_market: '상권 밖 주소라 상권 단위 지표가 없어요',
     } as Record<string, string>,
@@ -351,7 +362,7 @@ export const MESSAGES = {
       pdf: { title: 'PDF 진단서 저장', desc: '인쇄 화면에서 "PDF로 저장"을 골라 주세요' },
       image: { title: '요약 이미지 저장', desc: '핵심 숫자를 담은 1080×1350 PNG' },
       consulting: { title: '공공 창업 상담센터 안내', desc: '전문가 상담을 받아 보세요' },
-      support: { title: '소상공인 지원사업 안내', desc: '받을 수 있는 지원을 찾아보세요' },
+      support: { title: '소상공인 지원사업 안내', desc: '지원사업과 모집 공고를 확인해 보세요' },
     },
     imageMaking: '이미지를 만드는 중이에요',
     imageDone: '요약 이미지를 저장했어요',
@@ -377,6 +388,12 @@ export const MESSAGES = {
     supportTitle: '소상공인 지원사업',
     linksEmpty: '안내할 기관 링크가 아직 없어요',
     lastChecked: (date: string) => `${date} 확인`,
+    /** 구 지정 시 서버가 맨 앞에 둔 관할 센터 (가까운 순·맞춤 추천 아님) */
+    districtBadge: '관할 지역센터 연락처',
+    districtSource: (published: string | null, checked: string | null, page: number | null) =>
+      `관할 연락처는 중소벤처기업부 공고${published ? `(${published})` : ''}${page ? ` 첨부 ${page}쪽` : ''} 기준이에요${checked ? ` · ${checked} 확인` : ''}`,
+    linksNotice:
+      '모집 기간·지원 조건은 연결된 공식 사이트에서 확인해 주세요. 링크는 정기적으로 점검해요.',
     newWindow: '(새 창)',
     rediagnoseTitle: '다른 자리도 궁금하신가요?',
     rediagnoseDesc: '새로운 주소를 진단해 보세요!',
