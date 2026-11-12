@@ -1,5 +1,5 @@
 import { forwardRef, type CSSProperties } from 'react'
-import { CATEGORIES } from '../../constants/diagnosis'
+import { CATEGORIES, FRANCHISE_OPTIONS } from '../../constants/diagnosis'
 import { DATA_STATUS } from '../../constants/labels'
 import { MESSAGES } from '../../constants/messages'
 import { parseSourceIds, SOURCES } from '../../constants/sources'
@@ -114,6 +114,8 @@ const SummaryImageCard = forwardRef<HTMLDivElement, { data: Data }>(function Sum
             query.radius,
             formatYearMonthKo(query.asOf) ?? T.image.asOfCurrent,
           )}
+          {query.franchise !== 'all' &&
+            ` · ${FRANCHISE_OPTIONS.find((f) => f.id === query.franchise)?.label ?? ''}`}
         </div>
         {history && (
           <div style={{ fontSize: 28, marginTop: 20, ...pill(C.blueLight, C.blueDark) }}>

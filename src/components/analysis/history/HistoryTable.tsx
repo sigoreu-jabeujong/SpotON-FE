@@ -1,23 +1,19 @@
 import { useMemo } from 'react'
 import {
-  FRANCHISE_LABEL,
   LOCATION_MATCH_LABEL,
   STORE_STATUS_LABEL,
   SUB_CATEGORY_LABEL,
 } from '../../../constants/labels'
 import { MESSAGES } from '../../../constants/messages'
 import { useShowMore } from '../../../hooks/useShowMore'
-import type {
-  FranchiseStatus,
-  HistoryStore,
-  LocationMatch,
-  StoreStatus,
-} from '../../../types/stores'
+import type { HistoryStore, LocationMatch, StoreStatus } from '../../../types/stores'
 import { cn } from '../../../utils/cn'
 import { sortHistoryRecentFirst } from '../../../utils/history'
 import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
 import Badge, { type BadgeTone } from '../../common/Badge'
+import FranchiseNote from '../../common/FranchiseNote'
+import StoreFranchiseCell from '../../common/StoreFranchiseCell'
 import ShowMoreButton from '../../common/ShowMoreButton'
 import StatusLabel from '../../common/StatusLabel'
 
@@ -115,7 +111,7 @@ export default function HistoryTable({ stores }: Props) {
                     <LocationCell match={s.location_match} />
                   </td>
                   <td className="px-3 py-3">
-                    <FranchiseCell franchise={s.franchise} />
+                    <StoreFranchiseCell store={s} />
                   </td>
                 </tr>
               )
@@ -123,6 +119,7 @@ export default function HistoryTable({ stores }: Props) {
           </tbody>
         </table>
       </div>
+      <FranchiseNote rows={stores} />
       <p className="sr-only" aria-live="polite">
         {MESSAGES.list.shownCount(shown, total)}
       </p>
@@ -137,12 +134,4 @@ export default function HistoryTable({ stores }: Props) {
 function LocationCell({ match }: { match: LocationMatch }) {
   if (match === 'unverified') return <StatusLabel status="location_unverified" />
   return <Badge tone={match === 'same_spot' ? 'blue' : 'gray'}>{LOCATION_MATCH_LABEL[match]}</Badge>
-}
-
-/** 프랜차이즈 — 정보 없음은 상태 라벨(unknown) */
-function FranchiseCell({ franchise }: { franchise: FranchiseStatus }) {
-  if (franchise === 'unknown') return <StatusLabel status="unknown" />
-  return (
-    <Badge tone={franchise === 'franchise' ? 'blue' : 'gray'}>{FRANCHISE_LABEL[franchise]}</Badge>
-  )
 }

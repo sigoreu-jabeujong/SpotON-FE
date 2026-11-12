@@ -1,8 +1,10 @@
 import { TriangleAlert } from 'lucide-react'
+import { useAsOfRangeMessage } from '../hooks/useAsOfRangeMessage'
 import { toCommonQueryParams } from '../api/params'
 import PastViewNote from '../components/analysis/nearby/PastViewNote'
 import Card from '../components/common/Card'
 import ErrorState from '../components/common/ErrorState'
+import FranchiseFilterNotice from '../components/common/FranchiseFilterNotice'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
 import LoadingSkeleton from '../components/common/Skeleton'
 import Reveal from '../components/common/Reveal'
@@ -12,7 +14,7 @@ import OfficialIndicators from '../components/summary/OfficialIndicators'
 import ReferenceIndicators from '../components/summary/ReferenceIndicators'
 import SeoulCompare from '../components/summary/SeoulCompare'
 import SummaryInfoGrid from '../components/summary/SummaryInfoGrid'
-import { getAsOfRangeMessage, MESSAGES } from '../constants/messages'
+import { MESSAGES } from '../constants/messages'
 import { getCoordinates, useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
 import { useRisk } from '../hooks/useRisk'
 
@@ -24,6 +26,7 @@ const T = MESSAGES.summary
  */
 export default function SummaryPage() {
   const { query, search } = useDiagnosisQuery()
+  const asOfRangeMessage = useAsOfRangeMessage()
   const coords = getCoordinates(query)
   const params = coords ? toCommonQueryParams(query, coords) : null
   // 상권 활동 섹션과 같은 쿼리 키 → 캐시 공유
@@ -39,8 +42,8 @@ export default function SummaryPage() {
       ) : risk.isError ? (
         <ErrorState
           error={risk.error}
-          message={getAsOfRangeMessage(risk.error) ?? undefined}
-          onRetry={getAsOfRangeMessage(risk.error) ? undefined : () => void risk.refetch()}
+          message={asOfRangeMessage(risk.error) ?? undefined}
+          onRetry={asOfRangeMessage(risk.error) ? undefined : () => void risk.refetch()}
         />
       ) : (
         <>
@@ -53,6 +56,8 @@ export default function SummaryPage() {
               {T.insufficient}
             </p>
           )}
+          {/* 가맹 필터 지표는 목록명 일치로 고른 점포의 계산 — 당시 실제 프랜차이즈 코호트 아님 (요청서 5장) */}
+          <FranchiseFilterNotice franchise={query.franchise} meta={risk.data.meta} />
           {/* 카드 묶음마다 오류 경계 — 하나가 깨져도 다른 지표는 계속 보인다 */}
           <Reveal>
             <SectionErrorBoundary resetKey={search}>

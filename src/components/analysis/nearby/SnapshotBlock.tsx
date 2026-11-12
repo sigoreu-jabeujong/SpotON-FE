@@ -1,6 +1,7 @@
 import { CircleCheck, CircleHelp, CircleX, History, Info, Store } from 'lucide-react'
+import { useAsOfRangeMessage } from '../../../hooks/useAsOfRangeMessage'
 import { toCommonQueryParams, toDataRangeParams } from '../../../api/params'
-import { getAsOfRangeMessage, MESSAGES } from '../../../constants/messages'
+import { MESSAGES } from '../../../constants/messages'
 import { useDataRange } from '../../../hooks/useDataRange'
 import { getCoordinates, useDiagnosisQuery } from '../../../hooks/useDiagnosisQuery'
 import { useStoreSnapshot } from '../../../hooks/useStores'
@@ -12,6 +13,7 @@ import LoadingState from '../../common/LoadingState'
 import MetaLine from '../../common/MetaLine'
 import StatCard from '../../common/StatCard'
 import SubTitle from '../../common/SubTitle'
+import { franchiseEmptyMessage } from '../../../utils/storeDisplay'
 import SnapshotTable from './SnapshotTable'
 
 const T = MESSAGES.snapshot
@@ -22,6 +24,7 @@ const T = MESSAGES.snapshot
  */
 export default function SnapshotBlock() {
   const { query, updateQuery } = useDiagnosisQuery()
+  const asOfRangeMessage = useAsOfRangeMessage()
   const coords = getCoordinates(query)
   const params = coords ? toCommonQueryParams(query, coords) : null
   const snapshot = useStoreSnapshot(params)
@@ -35,14 +38,18 @@ export default function SnapshotBlock() {
       ) : snapshot.isPending ? (
         <LoadingState />
       ) : snapshot.isError ? (
-        getAsOfRangeMessage(snapshot.error) ? (
+        asOfRangeMessage(snapshot.error) ? (
           // 범위 밖 시점은 다시 시도해도 같으므로 기간 안내만
-          <ErrorState message={getAsOfRangeMessage(snapshot.error) ?? undefined} />
+          <ErrorState message={asOfRangeMessage(snapshot.error) ?? undefined} />
         ) : (
           <ErrorState error={snapshot.error} onRetry={() => void snapshot.refetch()} />
         )
       ) : (
-        <SnapshotResult data={snapshot.data} periodLabel={periodLabel ?? ''} />
+        <SnapshotResult
+          data={snapshot.data}
+          periodLabel={periodLabel ?? ''}
+          emptyMessage={franchiseEmptyMessage(query.franchise) ?? T.emptyStores}
+        />
       )}
     </div>
   )
@@ -51,9 +58,12 @@ export default function SnapshotBlock() {
 function SnapshotResult({
   data: { data, meta },
   periodLabel,
+  emptyMessage,
 }: {
   data: NonNullable<ReturnType<typeof useStoreSnapshot>['data']>
   periodLabel: string
+  /** 0건 문구 — 가맹 필터면 "분류 자료가 없어 0곳" (storeDisplay.franchiseEmptyMessage) */
+  emptyMessage: string
 }) {
   const count = (n: number) => formatCount(n, MESSAGES.units.store)
   return (
@@ -69,7 +79,7 @@ function SnapshotResult({
         <StatCard icon={CircleHelp} label={T.cards.other} value={count(data.other)} />
       </div>
       {!data.stores?.length ? (
-        <EmptyState message={T.emptyStores} />
+        <EmptyState message={emptyMessage} />
       ) : (
         <SnapshotTable stores={data.stores} periodLabel={periodLabel} />
       )}

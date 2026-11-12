@@ -1,7 +1,7 @@
 /** GET /api/market/activity 목업 — 시연용 가상 값 */
 import type { ActivityInclude, MarketActivity } from '../../types/market'
 import type { ApiSubCategory } from '../../types/stores'
-import { DEMO_META, fail, ok, radiusSpace } from './common'
+import { DEMO_META, fail, isMockResult, ok, radiusSpace, unknownFlags } from './common'
 import type { MockHandler } from './index'
 import { storeStats } from './nearby'
 
@@ -51,6 +51,8 @@ const PENDING_REASON: Record<ActivityInclude, string> = {
 }
 
 export const marketActivityMock: MockHandler = (query) => {
+  const flags = unknownFlags(query)
+  if (isMockResult(flags)) return flags
   const raw = query.get('include')
   const include = (raw ?? '').split(',')
   // 실제 BE: 빈 문자열·빈 토큰·중복·모르는 항목은 422 (미요청이면 파라미터 생략)
@@ -123,7 +125,10 @@ export const marketActivityMock: MockHandler = (query) => {
     space,
     denominator: null,
     operating_period_basis: 'elapsed_months_of_active_at_as_of',
-    franchise_classification: { status: 'pending', reason: 'brand_mapping_blocked' },
+    // 가맹 분류: 기본은 목록 적용(estimate, DEMO_META), pending 시나리오는 미적용 DB처럼
+    ...(pending
+      ? { franchise_classification: { status: 'pending', reason: 'brand_mapping_blocked' } }
+      : {}),
     ...(optional_data ? { optional_data } : {}),
   })
 }

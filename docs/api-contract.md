@@ -67,7 +67,10 @@
 | `as_of` | string | 선택 (`snapshot`은 필수) | 현재 월 | `YYYY-MM`. 서버는 그 달 말일을 기준일로 계산 |
 | `area` | enum | 선택 | `all` | `lt33` / `33to66` / `66to99` / `gte99` / `all` (신고 면적 ㎡) |
 | `franchise` | enum | 선택 | `all` | `all` / `franchise`(프랜차이즈 추정) / `independent`(개인 매장) |
-| `include_unknown` | bool | 선택 | `true` | 면적·프랜차이즈가 "정보 없음"인 점포 포함 여부 |
+| `include_unknown_area` | bool | 선택 | `true` | 면적 "정보 없음" 점포 포함 (화면 "정보 없음 점포 포함" 체크박스) |
+| `include_unknown_franchise` | bool | 선택 | `true` | 가맹 "정보 없음" 점포 포함 — 가맹 필터가 "전체"면 체크박스 값, **프랜차이즈·개인 매장이면 항상 `false`** (BE 가맹 추정 요청서 3장) |
+
+- FE는 legacy `include_unknown`을 더 쓰지 않는다 (개별 플래그와 섞으면 422). 변환은 `src/api/params.ts` `toCommonQueryParams` 한 곳 — nearby·snapshot·activity·risk·AI 본문이 같은 값.
 
 - 확인 대기: 시설 규모 **다중 선택** 여부와 배열 표현(BE 작업계획서 9절 "필터"). FE 적용 기준: API `area`가 단일값이므로 **하나만 선택**(URL 쿼리 `area`) → [decisions.md](decisions.md)
 
@@ -114,6 +117,44 @@
 | 검색 결과 없음 | 404 `ADDRESS_NOT_FOUND` | 주소 다시 입력 안내 |
 | 서울 외 | 422 `OUT_OF_SEOUL` | 다음 단계 진행 차단 |
 | 카카오 오류·쿼터 초과 | 502 `UPSTREAM_ERROR` | 잠시 후 다시 시도 |
+
+### 2-1-1. 프랜차이즈 추정 — 이력·주변·시점 공통 (BE PR #93)
+
+> 2026-11-12 BE `docs/fe-franchise-classification-api-request.md` 반영 (BE 요청서 최신본 11/12 17:38 기준)
+
+공정위 기준년도(지금 2025년) 브랜드 목록과 인허가 상호가 **정확히 일치**한 기록을 "프랜차이즈(추정)"으로 준다. 실제 가맹계약·직영/가맹·현재 소속·개업 당시 소속을 확인한 값이 아니다. FE는 이름 매칭을 다시 하지 않는다.
+
+| 행 필드 (history·nearby·snapshot) | 값 | 화면 (`utils/storeDisplay.storeFranchise`, `common/StoreFranchiseCell`) |
+|---|---|---|
+| `franchise` | `franchise` / `independent` / `unknown` | snapshot에도 신규 추가 |
+| `franchise_basis` | `catalog_exact_name` | "프랜차이즈(추정)" + "2025년 브랜드 목록과 상호 일치 · 실제 계약·과거 소속 아님" |
+|  | `external_classification` | 기존 분류 값 그대로 ("프랜차이즈"/"개인 매장") + "기존 분류 자료 기준" — 자동 일치·계약 증빙이라고 설명하지 않음 |
+|  | `null` | `unknown` → "정보 없음" (개인 매장으로 바꾸지 않음) |
+| `franchise_reference_year` | 정수(2025) 또는 null | 추정 도움말의 연도 |
+
+- 표 아래 안내(`common/FranchiseNote`): 추정 행이 있으면 "프랜차이즈(추정)은 2025년 공정위 브랜드 목록과 상호가 같은 점포예요. 실제 가맹계약·직영 여부·개업 당시 소속을 확인한 값은 아니에요." — 이력·주변·시점 표, 진단서 이력 표 같은 문구. 지도 정보창도 같은 근거 문구.
+- "당시 프랜차이즈였다" 같은 과거 소속 표현 금지. 과거 이력의 연도와 기준년도가 달라도 오류가 아님.
+
+**필터** (요청 인자 추가 없음)
+
+| 화면 선택 | 요청 |
+|---|---|
+| 전체 | `franchise=all`, `include_unknown_franchise`=체크박스 |
+| 프랜차이즈(추정)만 | `franchise=franchise` + `include_unknown_franchise=false` |
+| 개인 매장 | `franchise=independent` + `include_unknown_franchise=false` — 기존 외부 분류(false)만 고르므로 지금 자료로는 거의 0건 |
+
+- **개인 매장 선택지는 남겨 두고 0건을 오해하지 않게 안내** (선택지를 막으면 기존 분류 자료가 생겼을 때 다시 바꿔야 해서): 조회 조건 옆 도움말 "기존 분류 자료가 있는 점포만 · 0곳으로 보일 수 있어요", 0건이면 "개인 매장 분류 자료가 아직 없어 0곳으로 보여요. 이 조건의 점포가 없다는 뜻은 아니에요" (주변 표·시점 조회), 상권 활동·종합 진단·진단서에 기준 안내 (`common/FranchiseFilterNotice`).
+- 프랜차이즈만 0건이면 "브랜드 목록과 상호가 일치한 점포가 없어 0곳으로 보여요. 프랜차이즈 점포가 없다는 뜻은 아니에요".
+- history는 가맹 필터를 받지 않는다 (건물 이력 그대로).
+
+**meta·Risk·AI**
+
+- `meta.franchise_classification`: 미적용 `pending`/`brand_mapping_blocked` → "프랜차이즈 분류 확인 중" 안내, 적용 `estimate`/`reference_catalog_name_match` + `reference_year`·`coverage=partial` 등 → 가맹 필터 시 "프랜차이즈(추정) 조건은 2025년 브랜드 목록과 상호가 같은 점포만 골라 계산해요…" 안내. 지표 상태(fact·pending)·상권 unverified와 다른 축.
+- `meta.data_version.brand_mapping`(UUID·hash)은 화면에 표시하거나 조회 조건·AI 본문으로 다시 보내지 않는다.
+- Risk `meta.limitations`에 `franchise_name_match_not_contract_or_history`가 올 수 있다 (오류 아님 — 가맹 필터 안내로 반영).
+- 가맹 필터의 참고 폐업률·생존율은 목록명 일치로 고른 기록의 계산이며 당시 실제 프랜차이즈 코호트가 아님 (종합 진단·진단서 안내).
+- AI `missing_data`의 `reason=franchise_name_match_estimate`(적용) / `classification_unverified`(미적용) → 사유 문구 (`MESSAGES.summary.reasonCodes`), 서버 `text`는 그대로.
+- 진단서·요약 이미지는 가맹 필터를 골랐을 때만 조건에 "프랜차이즈(추정)/개인 매장"을 덧붙인다 (기본 "전체"는 전과 같음).
 
 ### 2-2. `GET /api/stores/history` — 같은 건물의 과거 점포 (F-02)
 
@@ -180,7 +221,7 @@ FE 처리 (이력 표·출력용 진단서 공통 — 정렬 `src/utils/history.
 
 > 2026-11-12 BE 실제 계약 반영 (BE `docs/fe-nearby-api-request.md`, `docs/fe-system-audit-request.md` 4·5번)
 
-요청: 공통 조회 파라미터 전체. unknown 토글은 FE가 `include_unknown` 하나만 보낸다 (BE는 `include_unknown_area`·`include_unknown_franchise`에 같은 값으로 적용, 섞으면 422).
+요청: 공통 조회 파라미터 전체. unknown 토글은 `include_unknown_area`·`include_unknown_franchise` 두 개 (1-2 참고, legacy `include_unknown`과 섞으면 422).
 
 | 응답 `data` | 설명 |
 |---|---|
@@ -381,7 +422,7 @@ FE 처리 (지도·표 공통)
 | `sub_category` | 음식점 세부 업종 배열 (있을 때만) |
 | `as_of` | `YYYY-MM` — **최신 조회면 생략** (오늘 월을 넣지 않음, 응답의 일 단위 날짜를 자르지 않음) |
 | `area`, `franchise` | Risk GET과 같은 값 |
-| `include_unknown` | FE는 이 하나만 쓴다 (`include_unknown_area`·`include_unknown_franchise`와 섞으면 422) |
+| `include_unknown_area`, `include_unknown_franchise` | Risk GET과 같은 값 (legacy `include_unknown`과 섞으면 422) |
 | `include` | Risk GET에 넣었을 때만 같은 값 (지금 FE는 Risk GET에 쓰지 않아 생략) |
 
 - 보내지 않는 것: Risk 응답의 `market`·`indicators`·`flags`·`context`, 응답 `query`(`radius_m`·`filters`), `building_key`·`floor_unit`, 주소·상호·화면 수치. 서버가 같은 조건으로 Risk를 다시 계산해 문장을 조립한다.

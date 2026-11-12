@@ -6,7 +6,9 @@ import { cn } from '../../../utils/cn'
 import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
 import Badge, { type BadgeTone } from '../../common/Badge'
+import FranchiseNote from '../../common/FranchiseNote'
 import ShowMoreButton from '../../common/ShowMoreButton'
+import StoreFranchiseCell from '../../common/StoreFranchiseCell'
 import StorePeriodCell from '../../common/StorePeriodCell'
 
 const T = MESSAGES.snapshot
@@ -81,12 +83,16 @@ export default function SnapshotTable({ stores, periodLabel }: Props) {
                       {CURRENT_STATUS_LABEL[s.current_status]}
                     </Badge>
                   </td>
+                  <td className="px-3 py-3">
+                    <StoreFranchiseCell store={s} />
+                  </td>
                 </tr>
               )
             })}
           </tbody>
         </table>
       </div>
+      <FranchiseNote rows={stores} />
       <p className="sr-only" aria-live="polite">
         {MESSAGES.list.shownCount(shown, total)}
       </p>

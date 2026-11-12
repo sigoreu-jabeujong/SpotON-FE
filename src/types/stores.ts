@@ -6,6 +6,15 @@ export type StoreStatus = 'open' | 'closed' | 'other'
 /** 프랜차이즈: 프랜차이즈(추정) / 개인 매장 / 정보 없음 */
 export type FranchiseStatus = 'franchise' | 'independent' | 'unknown'
 
+/**
+ * 프랜차이즈 근거 (BE docs/fe-franchise-classification-api-request.md 2장)
+ * - catalog_exact_name: 기준년도 공정위 브랜드 목록과 상호가 정확히 일치 → "프랜차이즈(추정)"
+ * - external_classification: 기존 외부 분류 값 (자동 일치·계약 증빙이라고 설명하지 않음)
+ * - null: 분류 없음 (unknown)
+ * 실제 가맹계약·직영 여부·과거(개업 당시) 소속을 확인한 값이 아니다.
+ */
+export type FranchiseBasis = 'catalog_exact_name' | 'external_classification'
+
 /** 위치 일치: 같은 자리 / 같은 건물 다른 위치 / 상세 위치 미확인 */
 export type LocationMatch = 'same_spot' | 'same_building' | 'unverified'
 
@@ -58,6 +67,8 @@ export type HistoryStore = {
   operating_period_reason: OperatingPeriodReason | null
   store_status: StoreStatus
   franchise: FranchiseStatus
+  franchise_basis: FranchiseBasis | null
+  franchise_reference_year: number | null
   floor_unit: string | null
   location_match: LocationMatch
 }
@@ -97,6 +108,8 @@ export type NearbyMarker = {
   /** 최신 데이터 기준 상태 (선택한 과거 시점의 상태가 아님) */
   current_status: StoreStatus
   franchise: FranchiseStatus
+  franchise_basis: FranchiseBasis | null
+  franchise_reference_year: number | null
   /** 신고 면적 ㎡. 정보 없음(원본 0 포함)이면 null */
   area_m2: number | null
 }
@@ -132,6 +145,10 @@ export type SnapshotStore = {
   operating_period_status: OperatingPeriodStatus
   operating_period_reason: OperatingPeriodReason | null
   current_status: StoreStatus
+  /** 신규 — 시점 조회 행에도 가맹 분류·근거 (거리·면적은 없음) */
+  franchise: FranchiseStatus
+  franchise_basis: FranchiseBasis | null
+  franchise_reference_year: number | null
 }
 
 export type StoreSnapshot = {

@@ -26,6 +26,19 @@ export type ApiDistrictContactSource = {
   table?: string | null
 }
 
+/**
+ * 가맹 분류 방법의 상태 (history·nearby·snapshot·activity·risk meta).
+ * 미적용 DB: pending / brand_mapping_blocked, 적용 DB: estimate / reference_catalog_name_match.
+ * 지표의 fact·pending이나 상권 unverified와 다른 축이다. coverage=partial은 정확도·제공률이 아니다.
+ */
+export type ApiFranchiseClassification = ApiStatusReason & {
+  reference_year?: number | null
+  source?: string[] | null
+  coverage?: string | null
+  historical_contract_verified?: boolean | null
+  industry_mapping_verified?: boolean | null
+}
+
 /** 데이터 버전 (화면 표시 안 함, 캐시·디버깅용) */
 export type ApiDataVersion = {
   stores_batch_ids?: string[] | null
@@ -33,6 +46,8 @@ export type ApiDataVersion = {
   trdar_quarter?: string | null
   map_version?: string | null
   rule_version?: string | null
+  /** 가맹 목록 적용 기록 (UUID·hash — 화면에 표시하거나 조회 조건·AI 본문으로 다시 보내지 않음) */
+  brand_mapping?: Record<string, string | number | null> | null
 }
 
 /**
@@ -72,7 +87,9 @@ export type ApiMeta = {
   /** market/activity: 연도별 비교 기간 { "2026": { start, end } } */
   yearly_periods?: Record<string, ApiPeriod> | null
   /** market/activity: 가맹 분류 상태 (지금 BE는 pending / brand_mapping_blocked) */
-  franchise_classification?: ApiStatusReason | null
+  franchise_classification?: ApiFranchiseClassification | null
+  /** risk: 계산 한계 코드 (예: franchise_name_match_not_contract_or_history) */
+  limitations?: string[] | null
   /** market/activity: 요청한 선택 항목(sales·living_pop)의 상태 — 요청한 항목만 있음 */
   optional_data?: Partial<Record<'sales' | 'living_pop', ApiStatusReason>> | null
   /** market/activity: 좌표 미확보 수 (서울 전체 범위, T 이전 개업 기록 — 점포 수와 합치지 않음) */
@@ -119,5 +136,10 @@ export type CommonQueryParams = {
   as_of?: string
   area?: ApiArea
   franchise?: FranchiseFilter
-  include_unknown?: boolean
+  /**
+   * 정보 없음 포함 — 면적·가맹을 따로 보낸다 (legacy include_unknown과 섞으면 422라 쓰지 않음).
+   * 프랜차이즈·개인 매장만 볼 때는 include_unknown_franchise=false (BE 가맹 추정 요청서 3장)
+   */
+  include_unknown_area?: boolean
+  include_unknown_franchise?: boolean
 }
