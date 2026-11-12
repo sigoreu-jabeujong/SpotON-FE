@@ -13,6 +13,7 @@ import LoadingSkeleton from '../common/Skeleton'
 import MetaLine from '../common/MetaLine'
 import SectionErrorBoundary from '../common/SectionErrorBoundary'
 import SubTitle from '../common/SubTitle'
+import { CLUSTER_MIN_GROUPS, groupMarkers } from '../map/groupMarkers'
 import MapLegend from '../map/MapLegend'
 import NearbyMap from '../map/NearbyMap'
 import AnalysisSection from './AnalysisSection'
@@ -86,7 +87,7 @@ export default function NearbySection() {
                   </SectionErrorBoundary>
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <MapLegend />
+                  <MapLegend {...legendFlags(data.markers ?? [])} />
                   {/* 전체 수는 서버 count 그대로 */}
                   <p className="text-caption font-semibold text-gray-900">{T.total(data.count)}</p>
                 </div>
@@ -140,4 +141,14 @@ export default function NearbySection() {
       </div>
     </AnalysisSection>
   )
+}
+
+/** 범례에 묶음 항목을 넣을지 — 지도와 같은 묶음 규칙(groupMarkers)으로 판단 (표시용) */
+function legendFlags(markers: Parameters<typeof groupMarkers>[0]) {
+  const groups = groupMarkers(markers)
+  return {
+    hasGroups: groups.some((g) => g.stores.length > 1),
+    hasMixed: groups.some((g) => g.status === 'mixed'),
+    clustered: groups.length > CLUSTER_MIN_GROUPS,
+  }
 }
