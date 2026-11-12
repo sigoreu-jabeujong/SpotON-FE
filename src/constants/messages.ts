@@ -64,7 +64,7 @@ export const MESSAGES = {
     stepLabel: (n: number) => `${n}단계`,
     dataTitle: '이런 데이터를 사용해요',
     dataDescription:
-      '공공기관이 공개한 데이터를 서버에서 모아 계산하고, 출처와 기준일을 함께 보여줘요.',
+      '공공데이터와 지도 서비스 정보를 서버에서 모아 계산하고, 출처와 기준일을 함께 보여줘요.',
     dataNotice: '공공데이터 기반 참고 정보이며 창업 성공·실패를 판단하지 않아요.',
     ctaTitle: '계약 전에, 그 자리를 한 번 더 확인해 보세요',
     ctaDescription: '주소와 업종만 입력하면 바로 볼 수 있어요.',
