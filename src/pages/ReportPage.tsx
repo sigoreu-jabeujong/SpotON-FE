@@ -25,6 +25,7 @@ import { parseSourceIds, SOURCES } from '../constants/sources'
 import { isDiagnosisReady, toDiagnosisSearch } from '../hooks/useDiagnosisQuery'
 import { useReportData } from '../hooks/useReportData'
 import type { ApiMeta } from '../types/api'
+import type { MarketActivity } from '../types/market'
 import type { MetricIndicator, OfficialRiskIndicator, RiskIndicator } from '../types/risk'
 import { usePageTitle } from '../hooks/usePageTitle'
 import {
@@ -124,7 +125,8 @@ export default function ReportPage() {
         )}
       </div>
 
-      <main className="report mx-auto my-6 max-w-[210mm] bg-gray-0 px-[12mm] py-[10mm] text-[11px] leading-snug text-gray-900 shadow-card print:my-0 print:max-w-none print:p-0 print:shadow-none">
+      {/* 진단서 전체: 한국어는 단어 단위로 줄바꿈 (A4 폭의 좁은 표 칸에서 "폐/업률"처럼 끊기지 않게) */}
+      <main className="report mx-auto my-6 max-w-[210mm] bg-gray-0 px-[12mm] py-[10mm] text-[11px] leading-snug break-keep text-gray-900 shadow-card print:my-0 print:max-w-none print:p-0 print:shadow-none">
         {data.loading ? (
           <LoadingState message={T.loading} />
         ) : (
@@ -268,6 +270,76 @@ function HistoryBlock({ data }: { data: Data }) {
   )
 }
 
+/** 진단서 연도별 표 — 이 개수 이하면 오른쪽 칸에 한 줄 */
+const TREND_INLINE_MAX = 6
+/** 연도가 많을 때 한 줄에 넣는 연도 수 (A4 폭 안) */
+const TREND_ROW_SIZE = 12
+
+/**
+ * 연도별 개업·폐업 표 — 연도를 자르거나 고르지 않고 perRow개씩 여러 표로 나눠 모두 싣는다.
+ * 숫자는 서버 값 그대로 (없는 연도를 채우지 않음)
+ */
+function TrendTables({
+  trend,
+  perRow,
+  className,
+}: {
+  trend: MarketActivity['yearly_trend']
+  perRow: number
+  className?: string
+}) {
+  const A = MESSAGES.activity
+  const rows: MarketActivity['yearly_trend'][] = []
+  for (let i = 0; i < trend.length; i += perRow) rows.push(trend.slice(i, i + perRow))
+  const th = 'border border-gray-300 px-1 py-0.5'
+  return (
+    <div className={cn('flex flex-col gap-1', className)}>
+      {rows.map((chunk, n) => (
+        <table
+          key={chunk[0]?.year ?? n}
+          className={cn(
+            'w-full border-collapse text-center',
+            rows.length > 1 && 'table-fixed break-inside-avoid',
+          )}
+        >
+          {n === 0 && <caption className="text-left text-gray-600">{A.trendTitle}</caption>}
+          <thead>
+            <tr className="bg-gray-100">
+              <th scope="col" className={th}>
+                {A.trendYearHeader}
+              </th>
+              {chunk.map((y) => (
+                <th key={y.year} scope="col" className={th}>
+                  {y.year}
+                </th>
+              ))}
+              {/* 마지막 줄도 같은 칸 너비로 (빈 칸은 화면 읽기에서 숨김) */}
+              {Array.from({ length: Math.max(0, perRow - chunk.length) }, (_, i) => (
+                <td key={`pad-${i}`} aria-hidden="true" />
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {(['opened', 'closed'] as const).map((k) => (
+              <tr key={k}>
+                <th scope="row" className={th}>
+                  {k === 'opened' ? A.trendOpened : A.trendClosed}
+                </th>
+                {chunk.map((y) => (
+                  <Td key={y.year}>{y[k]}</Td>
+                ))}
+                {Array.from({ length: Math.max(0, perRow - chunk.length) }, (_, i) => (
+                  <td key={`pad-${i}`} aria-hidden="true" />
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ))}
+    </div>
+  )
+}
+
 function Td({ children, nowrap }: { children: ReactNode; nowrap?: boolean }) {
   return (
     <td
@@ -325,9 +397,12 @@ function ActivityBlock({ data }: { data: Data }) {
     s.kind === 'pending' ? `${s.label} (${s.reason})` : T.noData
   const sales = optionalDataState(a, meta, 'sales')
   const living = optionalDataState(a, meta, 'living_pop')
+  const trend = a.yearly_trend ?? []
+  // 연도가 적으면(목업 5개 등) 예전처럼 오른쪽 칸, 많으면(실제 24~60개) 아래 전체 폭에 여러 줄로
+  const inline = trend.length <= TREND_INLINE_MAX
   return (
     <Block title={T.activityTitle}>
-      <div className="grid grid-cols-2 gap-x-4">
+      <div className={cn('grid gap-x-4', inline ? 'grid-cols-2' : 'grid-cols-1')}>
         <ul className="list-inside list-disc">
           <li>
             {A.opened12m} <b>{formatCount(a.recent_12m.opened, MESSAGES.units.store)}</b> ·{' '}
@@ -363,40 +438,9 @@ function ActivityBlock({ data }: { data: Data }) {
               : missingText(living)}
           </li>
         </ul>
-        <table className="w-full border-collapse text-center">
-          <caption className="text-left text-gray-600">{A.trendTitle}</caption>
-          <thead>
-            <tr className="bg-gray-100">
-              <th scope="col" className="border border-gray-300 px-1 py-0.5">
-                {A.trendYearHeader}
-              </th>
-              {(a.yearly_trend ?? []).map((y) => (
-                <th key={y.year} scope="col" className="border border-gray-300 px-1 py-0.5">
-                  {y.year}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row" className="border border-gray-300 px-1 py-0.5">
-                {A.trendOpened}
-              </th>
-              {(a.yearly_trend ?? []).map((y) => (
-                <Td key={y.year}>{y.opened}</Td>
-              ))}
-            </tr>
-            <tr>
-              <th scope="row" className="border border-gray-300 px-1 py-0.5">
-                {A.trendClosed}
-              </th>
-              {(a.yearly_trend ?? []).map((y) => (
-                <Td key={y.year}>{y.closed}</Td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
+        {inline && <TrendTables trend={trend} perRow={Math.max(1, trend.length)} />}
       </div>
+      {!inline && <TrendTables trend={trend} perRow={TREND_ROW_SIZE} className="mt-1" />}
       <p className="mt-0.5 text-[9.5px] text-gray-600">
         {A.salesNotice} · {A.livingNotice}
       </p>
