@@ -1,24 +1,44 @@
 import type { Category } from '../constants/diagnosis'
 import type { DataStatus, IndicatorType } from '../constants/labels'
-import type { ApiSpace } from './api'
+import type { ApiSpace, CommonQueryParams } from './api'
 
 /** /risk 선택 지표 (조건부). LQ는 범위에서 제외 */
 export type RiskInclude = 'market_change' | 'day_night_ratio'
 
-/** 상권 판정: 상권 안 / 상권 밖 */
-export type MarketStatus = 'in_market' | 'outside'
+/**
+ * 상권 판정: 상권 안 / 상권 밖 / 확인 중(unverified).
+ * 지금 BE는 공식 상권 적용 기준(경계 버전·기간)을 확인 중이라 항상 unverified를 준다 —
+ * 이때는 상권 안·밖으로 확정하지 않는다 (상권 밖으로 바꿔 표시 금지).
+ */
+export type MarketStatus = 'in_market' | 'outside' | 'unverified'
 
 export type MarketRef = { market_code: string; market_name: string }
 
+/**
+ * 지정 경계 파일의 형상에 대한 공간 후보 (서버가 경계 버전을 명시한 경우만).
+ * ⚠️ 현재·과거 상권을 확정한 값이 아니다 — 확정 상권명이나 공식 수치로 쓰지 않는다 (화면에는 표시하지 않음).
+ */
+export type SpatialCandidate = {
+  spatial_status: 'in_market' | 'outside' | 'ambiguous'
+  primary?: MarketRef | null
+  candidates?: MarketRef[]
+  also_in?: MarketRef[]
+  nearby_markets?: MarketRef[]
+}
+
 export type MarketJudgement = {
   status: MarketStatus
+  /** unverified·outside면 null */
   market_code: string | null
   market_name: string | null
   market_type: string | null
-  /** 함께 속한 관광특구 */
+  /** 함께 속한 관광특구 (unverified면 빈 배열) */
   also_in: MarketRef[]
-  /** outside일 때 반경에 걸친 상권 */
+  /** outside일 때 반경에 걸친 상권 (unverified면 빈 배열) */
   nearby_markets: MarketRef[]
+  /** 미확인 사유 코드 (예: boundary_period_not_verified, boundary_version_not_selected) */
+  reason?: string | null
+  spatial_candidate?: SpatialCandidate | null
 }
 
 /** 지표 ID (BE 작업계획서 기준, LQ 제외) */
@@ -41,15 +61,22 @@ export type MetricIndicator = {
   /** %, 개, 배, grade, type */
   unit?: string | null
   seoul_avg?: number | null
+  /** 서울 비교가 없을 때 사유 코드 (예: not_applicable — 동종업체 수는 서울 비교 대상 아님) */
   seoul_avg_reason?: string | null
+  /** 서울 비교의 분자·분모 (같은 필터·좌표 확보 기록 기준, FE에서 역산하지 않음) */
+  seoul_numerator?: number | null
+  seoul_denominator?: number | null
+  /** 표본 부족·0분모면 null (denominator는 실제 표본 수 유지) */
   numerator?: number | null
   denominator?: number | null
   space?: ApiSpace | null
+  /** 기간. 참고지표는 "(L, U]" (시작일 제외·종료일 포함) */
   period?: string | null
-  /** 출처 번호 문자열 (예: "R5,R6") */
-  source?: string | null
+  /** 출처 번호 배열 (예: ["R5", "R6"]) — 지표마다 따로 표시 */
+  source?: string[] | null
   source_url?: string | null
   status: Exclude<DataStatus, 'link_only'>
+  /** 판단 보류·자료 없음 사유 코드 (예: insufficient_sample, zero_denominator) — 화면은 indicatorReasonText로 */
   reason?: string | null
 }
 
@@ -61,7 +88,7 @@ export type OfficialRiskPdf = {
   unit?: string | null
   status: Exclude<DataStatus, 'link_only'>
   reason?: string | null
-  source?: string | null
+  source?: string[] | null
   source_url?: string | null
   market_name?: string | null
 }
@@ -76,7 +103,7 @@ export type OfficialRiskLinkOnly = {
   /** "상권명 · 업종명" 복사 버튼용. 상권 밖이면 없을 수 있다 */
   copy_text?: string | null
   reason?: string | null
-  source?: string | null
+  source?: string[] | null
 }
 
 export type OfficialRiskIndicator = OfficialRiskPdf | OfficialRiskLinkOnly
@@ -106,13 +133,18 @@ export type Risk = {
 
 /* ───── POST /api/risk/interpret ───── */
 
+/**
+ * POST /risk/interpret 본문 — **원래 Risk GET 조회 조건만** (query-only).
+ * 서버가 Risk를 다시 계산하므로 Risk 응답(market·indicators·flags)·화면 수치·주소·건물 키·층은 보내지 않는다.
+ * 응답 query(radius_m·일 단위 as_of·filters)를 그대로 보내면 422가 된다.
+ * - radius(300/500/1000), as_of는 YYYY-MM이고 최신 조회면 생략 (오늘 월을 넣지 않음)
+ * - unknown 플래그는 FE 방식 그대로 include_unknown 하나만 (개별 플래그와 섞지 않음)
+ * - include는 Risk GET에 넣었을 때만 같은 값으로 (지금 FE는 Risk GET에 include를 쓰지 않음)
+ */
+export type RiskInterpretQuery = CommonQueryParams & { include?: RiskInclude[] }
+
 export type RiskInterpretRequest = {
-  query: RiskQuery
-  market: MarketJudgement
-  indicators: RiskIndicator[]
-  flags: RiskFlags
-  /** 이력 점포 수·12개월 개폐업 수 등 요약 (案) */
-  context?: Record<string, number | string | null>
+  query: RiskInterpretQuery
 }
 
 export type InterpretItem = { text: string; indicator_ids: IndicatorId[] }
@@ -122,17 +154,23 @@ export type InterpretSourcedItem = InterpretItem & { sources: string[] }
 export type RiskInterpretation = {
   /** 항상 "AI 해석" */
   label: string
+  /** 해석 방식 — 서버가 검증된 문장을 만들고 모델은 순서·체크리스트만 고른다 (server_sentences_model_ordering) */
+  method?: string
   official_values: InterpretItem[]
   favorable: InterpretSourcedItem[]
   unfavorable: InterpretSourcedItem[]
   missing_data: { text: string; reason: string }[]
   checklist: { item: string; why: string }[]
+  /** 선택 형식·문장 안전성 검사 통과 표시 — 사실 정확도·신뢰도 점수가 아니다 (화면에 점수로 보여주지 않음) */
   verification: {
     passed: boolean
+    /** 보이는 문장의 숫자 출현 횟수 (점수 아님) */
     checked_numbers: number
     mismatches: unknown[]
+    /** 이번 요청에서 검증 실패 후 1회 다시 만들었는지 (과거 재시도 이력 아님) */
     regenerated: boolean
   }
   model: string
+  /** 이번 응답의 서버 문장 조립 시각(UTC) — 새 모델 호출 시각이 아니다 */
   generated_at: string
 }

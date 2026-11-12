@@ -3,7 +3,7 @@ import { MESSAGES } from '../../constants/messages'
 import type { MetricIndicator, RiskIndicator } from '../../types/risk'
 import InfoBox from '../common/InfoBox'
 import SubTitle from '../common/SubTitle'
-import { formatIndicatorValue, formatSeoulAvg } from './indicatorFormat'
+import { formatIndicatorValue, formatSeoulAvg, indicatorReasonText } from './indicatorFormat'
 
 const T = MESSAGES.summary
 
@@ -18,7 +18,7 @@ export default function SeoulCompare({ indicators }: { indicators: RiskIndicator
   const rows = reference.filter(
     (i) => typeof i.value === 'number' && typeof i.seoul_avg === 'number',
   )
-  const reason = reference.find((i) => i.seoul_avg_reason)?.seoul_avg_reason
+  const reason = indicatorReasonText(reference.find((i) => i.seoul_avg_reason)?.seoul_avg_reason)
 
   return (
     <div className="flex flex-col gap-3">

@@ -1,4 +1,5 @@
 import type { IndicatorId, MetricIndicator } from '../../types/risk'
+import { MESSAGES } from '../../constants/messages'
 import { formatCount, formatPercent } from '../../utils/format'
 
 /**
@@ -38,4 +39,15 @@ export function indicatorGridSpan(index: number, count: number): string {
   if (count % 3 === 1 && index === count - 1) return 'col-span-6'
   if (count % 3 === 2 && index >= count - 2) return 'col-span-3'
   return 'col-span-2'
+}
+
+/**
+ * 지표·상권 사유 코드 → 화면 문구. BE는 사유를 코드로 준다 (예: insufficient_sample).
+ * 모르는 영문 코드는 그대로 보여주지 않고 일반 문구로, 이미 문장(한글)이면 그대로 쓴다.
+ */
+export function indicatorReasonText(reason: string | null | undefined): string | null {
+  if (!reason) return null
+  const known = MESSAGES.summary.reasonCodes[reason]
+  if (known) return known
+  return /^[a-z0-9_]+$/.test(reason) ? MESSAGES.summary.reasonUnknown : reason
 }

@@ -8,6 +8,7 @@ import IndicatorTypeLabel from '../../common/IndicatorTypeLabel'
 import MetaLine from '../../common/MetaLine'
 import StatCard from '../../common/StatCard'
 import StatusLabel from '../../common/StatusLabel'
+import { indicatorReasonText } from '../../summary/indicatorFormat'
 
 const T = MESSAGES.activity
 
@@ -42,7 +43,10 @@ export default function StoreStatusCards({ activity, risk }: Props) {
           }
           footer={
             competitor && competitor.status !== 'fact' ? (
-              <StatusLabel status={competitor.status} reason={competitor.reason} />
+              <StatusLabel
+                status={competitor.status}
+                reason={indicatorReasonText(competitor.reason)}
+              />
             ) : null
           }
         />

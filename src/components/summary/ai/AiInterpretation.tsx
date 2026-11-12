@@ -1,15 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { Bot, LoaderCircle, Sparkles } from 'lucide-react'
-import { ACTIVITY_INCLUDE, toStoreHistoryParams } from '../../../api/params'
 import { queryKeys } from '../../../api/queryKeys'
-import type { ApiResult } from '../../../api/client'
 import { MESSAGES } from '../../../constants/messages'
-import { useDiagnosisQuery } from '../../../hooks/useDiagnosisQuery'
 import { useRiskInterpret } from '../../../hooks/useRisk'
 import type { CommonQueryParams } from '../../../types/api'
-import type { MarketActivity } from '../../../types/market'
-import type { Risk, RiskInterpretRequest } from '../../../types/risk'
-import type { StoreHistory } from '../../../types/stores'
+import type { RiskInterpretRequest } from '../../../types/risk'
 import Button from '../../common/Button'
 import SubTitle from '../../common/SubTitle'
 import RobotArt from '../../common/RobotArt'
@@ -20,62 +15,31 @@ import AiResultCard from './AiResultCard'
 const T = MESSAGES.ai
 
 type Props = {
-  /** /risk 응답 data — 본문에 그대로 넣는다 */
-  risk: Risk
-  /** 이력·상권 활동 캐시를 찾을 때 쓰는 공통 조회 파라미터 */
+  /** 화면이 Risk GET에 쓴 원래 조회 조건 — AI 본문에 그대로 넣는다 (Risk 응답·화면 수치는 보내지 않음) */
   params: CommonQueryParams
-  /** 400 INVALID_PARAM일 때 지표를 다시 불러오기 */
-  onReloadIndicators: () => void
 }
 
 /**
  * STEP 03 AI 해석 (F-08) — "AI 해석 보기"를 눌러야만 POST /risk/interpret를 부른다 (자동 호출 금지).
- * 지표 카드와 독립이라, 실패해도 위쪽 지표는 그대로 남는다.
- * 조건(필터·시점)이 바뀌면 부모가 key를 바꿔 이 컴포넌트를 새로 만든다 → 이전 결과가 지워진다.
+ * 서버가 같은 조건으로 Risk를 다시 계산해 문장을 조립하므로, 본문은 조회 조건만(query-only) 보낸다.
+ * 지표 카드와 독립이라 실패해도 위쪽 지표는 그대로 남는다. 다시 시도는 사용자 버튼으로만.
+ * 조건(필터·시점)이 바뀌면 부모가 key를 바꿔 이 컴포넌트를 새로 만든다 → 이전 결과·진행 중 요청 결과가 보이지 않는다.
  */
-export default function AiInterpretation({ risk, params, onReloadIndicators }: Props) {
+export default function AiInterpretation({ params }: Props) {
   const interpret = useRiskInterpret()
   const queryClient = useQueryClient()
-  const { query } = useDiagnosisQuery()
-
-  /** 이미 불러온 서버 값만 요약해 context로 보낸다 (새로 요청하거나 숫자를 만들지 않음) */
-  const buildContext = (): RiskInterpretRequest['context'] => {
-    const historyParams = toStoreHistoryParams(query)
-    const history = historyParams
-      ? queryClient.getQueryData<ApiResult<StoreHistory>>(queryKeys.storeHistory(historyParams))
-      : undefined
-    const activity = queryClient.getQueryData<ApiResult<MarketActivity>>(
-      queryKeys.marketActivity(params, ACTIVITY_INCLUDE),
-    )
-    const context: Record<string, number | string | null> = {}
-    if (history) context.history_total = history.data.total
-    if (activity) {
-      context.recent_12m_period = activity.data.recent_12m.period
-      context.recent_12m_opened = activity.data.recent_12m.opened
-      context.recent_12m_closed = activity.data.recent_12m.closed
-    }
-    return Object.keys(context).length > 0 ? context : undefined
-  }
 
   const request = () => {
-    const body: RiskInterpretRequest = {
-      query: risk.query,
-      market: risk.market,
-      indicators: risk.indicators,
-      flags: risk.flags,
-    }
-    const context = buildContext()
-    interpret.mutate(context ? { ...body, context } : body, {
+    // Risk GET과 같은 조건 그대로 (lat·lng·category·radius·sub_category·as_of(있을 때만)·area·franchise·include_unknown).
+    // Risk GET에 include를 쓰지 않으므로 여기서도 넣지 않는다. 건물 키·층·주소는 보내지 않는다.
+    const body: RiskInterpretRequest = { query: { ...params } }
+    interpret.mutate(body, {
       onSuccess: (res) => {
         // 검증을 통과한 해석만 같은 조건 키로 저장 → 진단서(PDF)에서 다시 요청하지 않고 쓴다
         if (res.data.verification.passed !== false)
           queryClient.setQueryData(queryKeys.riskInterpretation(params), res)
       },
-      onError: (error) => {
-        // 서버 재계산 값과 맞지 않으면 지표를 다시 불러와 최신 값으로 다시 시도하게 한다
-        if (typeof error === 'object' && 'code' in error && error.code === 'INVALID_PARAM')
-          onReloadIndicators()
-      },
+      // 실패해도 지표는 그대로, 자동 재호출 없음 (422는 입력 형식 오류 — AiFailure가 안내)
     })
   }
 

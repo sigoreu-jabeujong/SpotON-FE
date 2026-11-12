@@ -285,6 +285,10 @@ export const MESSAGES = {
       `이 주소는 ${name} 상권${type ? `(${type})` : ''}에 속해요`,
     alsoIn: (names: string) => `함께 속한 관광특구: ${names}`,
     outside: '서울시 지정 상권 밖 주소예요',
+    /** market.status = unverified — 상권 안·밖으로 확정하지 않는다 */
+    unverified: '공식 상권 적용 기준을 확인 중이에요',
+    unverifiedHint:
+      '이 주소가 어느 서울시 상권에 속하는지 아직 확정하지 않았어요. 상권 단위 공식 지표는 확인이 끝나면 보여드려요.',
     outsideHint:
       '상권 단위로 집계하는 서울시 공식 지표는 "자료 없음"으로 보여요. 가까운 상권 수치로 대신하지 않아요.',
     nearbyMarkets: '반경에 걸친 상권 (참고)',
@@ -307,6 +311,20 @@ export const MESSAGES = {
     copied: '복사했어요',
     copyFailed: '복사하지 못했어요. 직접 선택해 복사해 주세요',
     marketChangeRaw: '서울시 원본 유형',
+    /**
+     * 지표 판단 보류·자료 없음 사유 코드 → 문구 (BE fe-risk-reference-api-request.md 4장).
+     * 모르는 코드는 indicatorReasonText가 일반 문구로 바꾼다 (코드를 그대로 보여주지 않음)
+     */
+    reasonCodes: {
+      insufficient_sample: '표본이 적어 판단을 보류했어요',
+      zero_denominator: '계산 대상 점포가 없어요',
+      boundary_period_not_verified: '공식 상권 적용 기준을 확인 중이에요',
+      boundary_version_not_selected: '공식 상권 경계를 확인 중이에요',
+      population_aggregation_and_grid_time_unverified: '생활인구 집계 기준을 확인 중이에요',
+      not_applicable: '서울 비교 대상이 아니에요',
+      outside_market: '상권 밖 주소라 상권 단위 지표가 없어요',
+    } as Record<string, string>,
+    reasonUnknown: '자료를 확인 중이에요',
     compareTitle: '서울 평균과 비교',
     compareDescription: '같은 정의로 계산한 서울 전체 동일 업종 값과 나란히 보여줘요.',
     compareThis: '이 자리 (반경)',
@@ -441,15 +459,19 @@ export const MESSAGES = {
   },
   ai: {
     unavailable: 'AI 해석을 불러오지 못했어요. 계산된 지표는 그대로 확인할 수 있어요',
-    intro: '위 지표를 바탕으로 유리·불리하게 볼 점과 계약 전 확인할 일을 AI가 정리해 드려요.',
+    intro:
+      'AI가 서버에서 검증한 설명의 순서와 계약 전 현장 확인 항목을 정리해 드려요. 새 사실을 조사하거나 성공·실패를 예측하지 않아요.',
     start: 'AI 해석 보기',
     startNotice: '만 18세 이상 대상 · 참고용 해석이에요',
     loading: 'AI가 해석을 만들고 있어요 (최대 20초)',
     retry: '다시 시도',
-    reloadedIndicators: '지표가 바뀌었을 수 있어 다시 불러왔어요. 다시 시도해 주세요.',
+    /** 422 INVALID_PARAM — 요청 형식 오류 (지표는 그대로, 다시 시도는 버튼으로만) */
+    invalidRequest:
+      '요청 형식이 맞지 않아 해석을 만들지 못했어요. 문제가 계속되면 조건을 바꿔 다시 진단해 주세요.',
     verifyFailed: '해석 문장을 검증하지 못해 보여드리지 않아요.',
     sections: {
-      official: '공식 통계·계산값 요약',
+      // 참고지표도 함께 담기므로 전체를 "공식 통계"라고 부르지 않는다
+      official: '확인된 계산값 요약',
       favorable: '유리하게 볼 요인',
       unfavorable: '불리하게 볼 요인',
       missing: '판단에 부족한 자료',
@@ -461,7 +483,8 @@ export const MESSAGES = {
     checklistHint: '확인한 항목을 체크해 보세요. 체크 상태는 저장되지 않아요.',
     checklistDone: (done: number, total: number) => `${total}개 중 ${done}개 확인`,
     model: '모델',
-    generatedAt: '생성 시각',
+    /** generated_at = 이번 응답의 서버 문장 조립 시각 (새 모델 호출 시각 아님) */
+    generatedAt: '응답 시각',
     notice:
       '이 해석은 서버가 계산한 지표만 바탕으로 만든 참고 문장이며, 창업 성공·실패를 판정하지 않아요.',
     empty: '해당 내용이 없어요',

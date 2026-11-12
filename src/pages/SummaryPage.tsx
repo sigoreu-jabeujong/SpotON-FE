@@ -85,12 +85,8 @@ export default function SummaryPage() {
       {risk.data && params && (
         <Reveal>
           <SectionErrorBoundary resetKey={search}>
-            <AiInterpretation
-              key={search}
-              risk={risk.data.data}
-              params={params}
-              onReloadIndicators={() => void risk.refetch()}
-            />
+            {/* 본문은 조회 조건(params)만 — 서버가 같은 조건으로 다시 계산한다 */}
+            <AiInterpretation key={search} params={params} />
           </SectionErrorBoundary>
         </Reveal>
       )}

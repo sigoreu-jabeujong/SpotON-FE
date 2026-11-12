@@ -247,95 +247,108 @@ FE 처리 (이력 표·출력용 진단서 공통, `src/utils/history.ts`)
 
 ### 2-7. `GET /api/risk` — 공식 지표 + 참고지표 (F-07)
 
-요청: 공통 조회 파라미터 전체 + `include`(선택 지표). 응답 `data` = `query`, `market`, `indicators[]`, `flags`.
+> 2026-11-12 BE 실제 계약 반영 (BE `docs/fe-risk-reference-api-request.md`, `docs/fe-system-audit-request.md` 2번)
+
+요청: 공통 조회 파라미터 전체 + `include`(선택 지표 `market_change`·`day_night_ratio`, 미요청이면 생략). 응답 `data` = `query`, `market`, `indicators[]`, `flags`.
+지금 FE는 Risk GET에 `include`를 넣지 않는다 (실제 BE는 이때 선택 지표 2개를 돌려주지 않을 수 있다 — 화면은 받은 지표만 그린다).
 
 **`data.market` (상권 판정)**
 
 | 필드 | 설명 |
 |---|---|
-| `status` | `in_market` / `outside` |
-| `market_code`, `market_name`, `market_type` | 판정된 상권 (`outside`면 `null`) |
-| `also_in[]` | 함께 속한 관광특구 `{ market_code, market_name }` |
-| `nearby_markets[]` | `outside`일 때 반경에 걸친 상권 `{ market_code, market_name }` |
+| `status` | `in_market` / `outside` / **`unverified`(공식 상권 적용 기준 확인 중)** — 지금 BE는 항상 `unverified` |
+| `market_code`, `market_name`, `market_type` | 판정된 상권 (`outside`·`unverified`면 `null`) |
+| `also_in[]` | 함께 속한 관광특구 (`unverified`면 `[]`) |
+| `nearby_markets[]` | `outside`일 때 반경에 걸친 상권 (`unverified`면 `[]`) |
+| `reason` | 미확인 사유 코드 (예: `boundary_period_not_verified`) |
+| `spatial_candidate` | (선택) 지정 경계 파일 형상에 대한 **후보** — 확정 상권이 아니다. **FE는 화면에 쓰지 않는다** |
 
-- 상권 밖이면 공식 수치는 `null`/`no_data` + "상권 밖 주소" 사유. 가까운 상권 수치로 대신하지 않는다.
+- **`unverified`는 상권 안·밖으로 확정하지 않는다** — "공식 상권 적용 기준을 확인 중이에요" 안내 (`MarketCard`·진단서 같은 기준). 상권 밖으로 바꿔 표시하지 않는다.
+- 상권 밖이면 공식 수치는 `null`/`no_data`. 가까운 상권 수치로 대신하지 않는다.
 
 **`indicators[]` 지표 객체**
 
 | 필드 | 설명 |
 |---|---|
 | `id`, `type` | 지표 ID, `official` / `reference` |
-| `value` | 숫자·문자열·`null` (산정 안 하면 `null`) |
+| `value` | 숫자·문자열·`null`. **실제 0은 `0` + `fact`**, 표본 부족·0분모는 `null` + `pending` |
 | `unit` | `%`, `개`, `배`, `grade`, `type` |
-| `seoul_avg`, `seoul_avg_reason` | 서울 비교값과 미산정 사유 (예: "서울 평균 산정 전") |
-| `numerator`, `denominator` | 분자·분모(표본) |
-| `space`, `period` | 공간 단위, 분석 기간 |
-| `source`, `source_url` | 출처 번호(예: `"R5,R6"` — 문자열), 공식 지표 원문 URL |
-| `status`, `reason` | 상태 라벨, 보류·결측 사유 |
+| `seoul_avg`, `seoul_avg_reason` | 서울 비교값(같은 필터·좌표 확보 기록의 분자합/분모합)과 미산정 사유 코드. 동종업체 수는 `not_applicable` |
+| `seoul_numerator`, `seoul_denominator` | 서울 비교의 분자·분모 (FE에서 역산하지 않음) |
+| `numerator`, `denominator` | 분자·분모. 표본 부족이면 `numerator=null`, `denominator`=실제 표본 수 |
+| `space`, `period` | 공간 단위, 분석 기간 (참고지표는 `(L, U]` — 시작일 제외·종료일 포함) |
+| `source`, `source_url` | 출처 번호 **배열** (예: `["R5","R6"]`), 원문/안내 URL 또는 `null` |
+| `status`, `reason` | 상태 라벨, 보류·결측 **사유 코드** |
 
-**지표 ID (BE 작업계획서 기준)**
+사유 코드 → 화면 문구 (`MESSAGES.summary.reasonCodes`, `indicatorReasonText`). 모르는 영문 코드는 일반 문구("자료를 확인 중이에요")로, 문장이면 그대로.
 
-| id | type | 내용 | 값이 없을 때 |
+| 코드 | 문구 |
+|---|---|
+| `insufficient_sample` | 표본이 적어 판단을 보류했어요 |
+| `zero_denominator` | 계산 대상 점포가 없어요 |
+| `boundary_period_not_verified` | 공식 상권 적용 기준을 확인 중이에요 |
+| `boundary_version_not_selected` | 공식 상권 경계를 확인 중이에요 |
+| `population_aggregation_and_grid_time_unverified` | 생활인구 집계 기준을 확인 중이에요 |
+| `not_applicable` (서울 비교) | 서울 비교 대상이 아니에요 |
+
+**지표 ID와 지금 BE 동작**
+
+| id | type | 내용 | 지금 BE |
 |---|---|---|---|
-| `official_closure_rate` | official | 서울시 공표 폐업률 그대로 인용, **정수 %**, 분기 단위 | 상권 밖·일치 행 없음 → `null` + `no_data` + 사유. 이전 분기로 대체 안 함 |
-| `market_change` | official (동기화 대기) | 서울시 원천 상권변화 유형 그대로 (조건부) | 자료 확보 전 `pending` |
-| `official_risk` | official | 서울시 창업위험도 — 수치 대신 **링크 안내** (案) | 아래 link_only 형식 |
-| `closure_rate_12m` | reference | 최근 12개월 참고 폐업률, 소수 첫째 자리 % | 표본 부족·분모 0 → `pending`/판단 보류 |
-| `survival_rate_1y`, `survival_rate_3y` | reference | 1년·3년 생존율 | 신규 점포 표본 부족 → `pending` |
-| `competitor_count` | reference | 반경 안 동종업체 수 (`/stores/nearby`의 `count`와 같은 집합) | — |
-| `day_night_ratio` | reference | 주야간 생활인구 비 (조건부) | 생활인구 결측 → `pending` |
-| ~~`lq`~~ | — | **제외** (BE 작업계획서) | 화면에 만들지 않음 |
+| `official_closure_rate` | official | 서울시 공표 폐업률 그대로 인용, **정수 %** | `null` + `pending` (`boundary_period_not_verified`) |
+| `official_risk` | official | 서울시 창업위험도 — 수치 대신 **링크 안내** | `link_only` + `link`, `copy_text=null` |
+| `closure_rate_12m` | reference | 최근 12개월 참고 폐업률, 소수 첫째 자리 % | 기간 분모 10건 미만 → `pending` |
+| `survival_rate_1y`, `survival_rate_3y` | reference | 개업 1·3주년 생존율 (고정 관측 — 현재 잔존율 아님) | 코호트 5건 미만 → `pending` |
+| `competitor_count` | reference | 반경 안 동종업체 수 (0도 `fact`) | 서울 비교 `not_applicable` |
+| `market_change` | official | 서울시 원천 상권변화 유형 (요청 시) | `pending` (`boundary_period_not_verified`) |
+| `day_night_ratio` | reference | 주야간 생활인구 비 (요청 시) | `pending` (`population_aggregation_and_grid_time_unverified`) |
+| ~~`lq`~~ | — | **제외** | 화면에 만들지 않음 |
 
-`official_risk` 링크 전용 보완안 (案, 확인 대기):
-
-```json
-{
-  "id": "official_risk",
-  "type": "official",
-  "value": null,
-  "status": "link_only",
-  "link": "https://golmok.seoul.go.kr/stateDistrict.do",
-  "copy_text": "상권명 · 업종명"
-}
-```
-
-- `copy_text`는 "복사" 버튼용. 사용자 주소·좌표는 들어가지 않는다. 상권 밖이면 이름을 만들지 않는다.
-- PDF v1.1 형식(`status: "no_data"`, `reason`, `source_url`)이 올 수도 있으니 FE는 두 형식을 모두 처리할 수 있게 만든다 (확정 전까지).
-
-`flags`: `{ insufficient_sample: bool, missing: string[] }`
+- `official_risk`는 PDF v1.1 형식(`no_data` + `source_url`)도 FE가 계속 처리한다 (목업의 상권 안 카페 예시).
+- `flags`: `{ insufficient_sample, missing }` — `insufficient_sample`은 참고 폐업률·생존율 표본 미달일 때만, `missing`은 공식 폐업률 검증 경계·요청한 선택 항목만.
+- 준비/DB 실패는 500 `INTERNAL_ERROR`. 정상 0건으로 바꾸지 않는다 (로컬 DB가 비어 있으면 500이 정상).
 
 ### 2-8. `POST /api/risk/interpret` — AI 해석 (F-08)
 
-사용자가 **"AI 해석 보기"를 눌렀을 때만** 호출한다.
+> 2026-11-12 BE 실제 계약 반영 (BE `docs/fe-risk-interpret-api-request.md`, `docs/fe-system-audit-request.md` 1번)
 
-| 요청 본문 | 필수 | 설명 |
-|---|---|---|
-| `query` | 필수 | `/risk` 응답의 `data.query` |
-| `market` | 필수 | `/risk` 응답의 `data.market` |
-| `indicators` | 필수 | `/risk` 응답의 `data.indicators` |
-| `flags` | 필수 | `/risk` 응답의 `data.flags` |
-| `context` | 선택 | 이력 점포 수·12개월 개폐업 수 등 요약 (案) |
+사용자가 **"AI 해석 보기"를 눌렀을 때만** 호출한다. 자동 재호출하지 않고, 다시 시도는 사용자 버튼으로만.
 
-- 서버는 FE가 보낸 숫자를 믿지 않고 다시 계산해 맞을 때만 AI에 넘긴다. 주소 원문은 AI에 보내지 않는다.
+**요청 본문 = 원래 조회 조건만 (query-only)** — `{ "query": { ... } }`
+
+| `query` 필드 | 설명 |
+|---|---|
+| `lat`, `lng` | JSON 숫자 |
+| `category` | `cafe` / `restaurant` |
+| `radius` | `300` / `500` / `1000` (응답의 `radius_m` 아님) |
+| `sub_category` | 음식점 세부 업종 배열 (있을 때만) |
+| `as_of` | `YYYY-MM` — **최신 조회면 생략** (오늘 월을 넣지 않음, 응답의 일 단위 날짜를 자르지 않음) |
+| `area`, `franchise` | Risk GET과 같은 값 |
+| `include_unknown` | FE는 이 하나만 쓴다 (`include_unknown_area`·`include_unknown_franchise`와 섞으면 422) |
+| `include` | Risk GET에 넣었을 때만 같은 값 (지금 FE는 Risk GET에 쓰지 않아 생략) |
+
+- 보내지 않는 것: Risk 응답의 `market`·`indicators`·`flags`·`context`, 응답 `query`(`radius_m`·`filters`), `building_key`·`floor_unit`, 주소·상호·화면 수치. 서버가 같은 조건으로 Risk를 다시 계산해 문장을 조립한다.
+- 코드: `AiInterpretation`이 `SummaryPage`의 `params`(Risk GET과 같은 조건)로 본문을 만든다. 전송 대기 25초 (서버 예산 20초 + 여유).
 
 | 응답 `data` | 설명 (화면 순서) |
 |---|---|
-| `label` | 항상 `"AI 해석"` |
-| `official_values[]` | (1) 공식 통계·계산값 요약 `{ text, indicator_ids[] }` |
-| `favorable[]` | (2) 유리하게 볼 요인 `{ text, indicator_ids[], sources[] }` |
-| `unfavorable[]` | (3) 불리하게 볼 요인 (같은 구조) |
+| `label`, `method` | `"AI 해석"`, `server_sentences_model_ordering` (서버가 검증한 문장을 모델이 정렬) |
+| `official_values[]` | (1) **확인된 계산값 요약** — 참고지표도 있으므로 "공식 통계"라고 부르지 않는다 |
+| `favorable[]` / `unfavorable[]` | (2)(3) 서울 비교가 가능한 비율만. 비어 있어도 채우지 않는다 |
 | `missing_data[]` | (4) 부족한 자료 `{ text, reason }` |
-| `checklist[]` | (5) 계약 전 현장 확인사항 `{ item, why }` |
-| `verification` | `{ passed, checked_numbers, mismatches, regenerated }` |
-| `model`, `generated_at` | 모델명, 생성 시각 |
-
-- `indicator_ids[]`로 **근거 지표 칩**을 그린다 (예: [동종업체 수] [참고 폐업률]).
+| `checklist[]` | (5) 계약 전 현장 확인사항 1~3개 |
+| `verification` | 형식·문장 안전성 검사 표시 — **정확도 점수 아님**. `regenerated` = 이번 요청에서 1회 재생성 여부 |
+| `model`, `generated_at` | 모델명, **이번 응답의 서버 문장 조립 시각(UTC)** — 새 모델 호출 시각 아님 (화면: "응답 시각") |
 
 | 예외 | 응답 | FE 처리 |
 |---|---|---|
-| 본문 형식 오류·재계산 값과 불일치 | 400 `INVALID_PARAM` | 지표 다시 조회 |
-| LLM 실패·타임아웃·한도 초과(429 포함) | 503 `AI_UNAVAILABLE` | 지표는 그대로 두고 "AI 해석을 불러오지 못했어요" |
-| 재생성 후에도 검증 실패 | 503 `AI_VERIFY_FAILED` | 위와 같음 |
+| 본문 형식 오류 | 422 `INVALID_PARAM` | 입력 형식 오류 안내 (지표 재조회 안 함), 지표 그대로 |
+| 서버 DB·준비 오류 | 500 `INTERNAL_ERROR` | 지표 그대로 + "AI 해석을 불러오지 못했어요" + 다시 시도 버튼 |
+| 공급자·한도·예산 실패 | 503 `AI_UNAVAILABLE` | 위와 같음 |
+| 검증 2회 실패 | 503 `AI_VERIFY_FAILED` | 위와 같음 |
+
+- 조건(필터·시점)이 바뀌면 AI 영역을 새로 만들어 이전 결과를 보이지 않게 한다 (`key={search}`).
+- 목업: 본문이 query-only가 아니면 422, `radius=1000` → 503 `AI_UNAVAILABLE`, `radius=300` → 503 `AI_VERIFY_FAILED`.
 
 ### 2-9. `GET /api/support-links` — 상담·지원 링크 (F-10)
 
