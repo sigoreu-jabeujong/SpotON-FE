@@ -79,11 +79,31 @@ export function formatYearMonthKo(value: Maybe<string>): string | null {
   return m ? `${m[1]}년 ${Number(m[2])}월` : null
 }
 
-/** 서버 기간 문자열 "2025-11~2026-10" → "2025.11 ~ 2026.10", "2026-Q2" → "2026년 2분기" (모양만 바꿈) */
+/** "YYYY-MM-DD"에 n일을 더한 날짜 (UTC 기준 달력 계산 — 시간대 영향 없음) */
+function shiftIsoDate(iso: string, days: number): string {
+  const [y, m, d] = iso.split('-').map(Number)
+  const t = new Date(Date.UTC(y, m - 1, d + days))
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${t.getUTCFullYear()}.${pad(t.getUTCMonth() + 1)}.${pad(t.getUTCDate())}`
+}
+
+/**
+ * 서버 기간 문자열을 사람이 읽는 모양으로 (값을 계산하지 않고 표기만 바꿈)
+ * - BE 구간 표기 "(2025-11-08, 2026-11-08]" (시작일 제외·종료일 포함) → "2025.11.09 ~ 2026.11.08"
+ *   제외 경계 "("는 다음 날, ")"는 전날로 바꿔 양 끝을 포함한 날짜로 보여준다 (docs/decisions.md)
+ * - "2025-11~2026-10" → "2025.11 ~ 2026.10", "2026-Q2" → "2026년 2분기"
+ */
 export function formatPeriod(value: Maybe<string>): string | null {
   if (!value) return null
   const quarter = /^(\d{4})-Q([1-4])$/.exec(value.trim())
   if (quarter) return `${quarter[1]}년 ${quarter[2]}분기`
+  const interval = /^([([])\s*(\d{4}-\d{2}-\d{2})\s*,\s*(\d{4}-\d{2}-\d{2})\s*([)\]])$/.exec(
+    value.trim(),
+  )
+  if (interval) {
+    const [, open, start, end, close] = interval
+    return `${shiftIsoDate(start, open === '(' ? 1 : 0)} ~ ${shiftIsoDate(end, close === ')' ? -1 : 0)}`
+  }
   return value
     .split('~')
     .map((part) => part.trim().replace(/-/g, '.'))
