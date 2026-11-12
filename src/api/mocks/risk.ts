@@ -21,13 +21,26 @@ const MIN_COHORT = 5
 /** 목업 전용: 소수 첫째 자리 % */
 const percent = (num: number, den: number) => Math.round((num / den) * 1000) / 10
 
+/** 공식 창업위험도 안내 링크 (서울시 상권분석서비스) */
+const OFFICIAL_RISK_LINK = 'https://golmok.seoul.go.kr/stateDistrict.do'
+
+/** 상권 판정 목업 규칙: lat 값으로 세 경우를 모두 볼 수 있게 (기본은 실제 BE와 같은 unverified) */
+function mockMarketStatus(lat: string | null): MarketJudgement['status'] {
+  if (lat === '37.5') return 'outside'
+  if (lat === '37.51') return 'in_market'
+  return 'unverified'
+}
+
 /**
- * 위험도 목업 — 시연용 가상 값. LQ는 범위 밖이라 넣지 않음.
+ * 위험도 목업 — 시연용 가상 값. LQ는 범위 밖이라 넣지 않음. 사유는 실제 BE처럼 코드로, 출처는 배열로.
  * 동종업체 수·참고 폐업률·생존율은 nearby.ts 점포 목록에서 센다 (지도·표·상권 활동과 같은 집합).
  * 화면 확인용 규칙 (/risk는 bk를 받지 않으므로 공통 조회 파라미터로 전환):
- * - lat=37.5 → 상권 밖(outside): 공식 폐업률 no_data, nearby_markets 제공
- * - category=restaurant → official_risk를 BE 보완안(link_only + link + copy_text) 형식으로, 서울 평균(seoul_avg) 있음
- * - category=cafe → official_risk를 PDF 형식(no_data + source_url)으로, 서울 평균 산정 전(null + 사유)
+ * - 상권 판정 (mockMarketStatus): 기본 → 확인 중(unverified, 실제 BE와 같음): 공식 폐업률·상권변화 판단 보류,
+ *   공식 창업위험도 링크만(copy_text null) / lat=37.51 → 상권 안(in_market, 공식 수치 예시) /
+ *   lat=37.5 → 상권 밖(outside, 공식 폐업률 no_data + nearby_markets)
+ * - 상권 안일 때: restaurant → official_risk BE 형식(link_only + copy_text), cafe → PDF 형식(no_data + source_url)
+ * - category=restaurant → 서울 평균 있음 / cafe → 서울 평균 산정 전(null + 사유)
+ * - 동종업체 수는 서울 비교 대상 아님 (seoul_avg_reason = not_applicable)
  * - 반경 안 동일 업종 10건 미만(필터 없으면 반경 300m) → 표본 부족(insufficient_sample), 참고 폐업률 판단 보류
  */
 export const riskMock: MockHandler = (query) => {
@@ -35,7 +48,9 @@ export const riskMock: MockHandler = (query) => {
   const { radius, space } = radiusSpace(query)
   const stats = storeStats(query)
   const asOf = stats.t
-  const outside = query.get('lat') === '37.5'
+  const marketStatus = mockMarketStatus(query.get('lat'))
+  const outside = marketStatus === 'outside'
+  const unverified = marketStatus === 'unverified'
   const restaurant = category === 'restaurant'
   const competitors = stats.openNow.length
   const small = competitors < MIN_STORES
@@ -56,9 +71,9 @@ export const riskMock: MockHandler = (query) => {
           denominator: c.denominator,
           space,
           period: c.period,
-          source: 'R5,R6',
+          source: ['R5', 'R6'],
           status: 'pending',
-          reason: '생존율 계산 대상 신규 점포 5건 미만',
+          reason: c.denominator === 0 ? 'zero_denominator' : 'insufficient_sample',
         }
       : {
           id,
@@ -70,76 +85,110 @@ export const riskMock: MockHandler = (query) => {
           denominator: c.denominator,
           space,
           period: c.period,
-          source: 'R5,R6',
+          source: ['R5', 'R6'],
           status: 'fact',
         }
 
-  const market: MarketJudgement = outside
+  const market: MarketJudgement = unverified
     ? {
-        status: 'outside',
+        // 공식 상권 적용 기준 확인 중 — 상권 안·밖으로 확정하지 않는다 (실제 BE 응답과 같은 모양)
+        status: 'unverified',
         market_code: null,
         market_name: null,
         market_type: null,
         also_in: [],
-        nearby_markets: [
-          { market_code: '3110aaa', market_name: '○○사거리 골목상권' },
-          { market_code: '3110bbb', market_name: '○○시장 전통시장' },
-        ],
-      }
-    : {
-        status: 'in_market',
-        market_code: '3110xxx',
-        market_name: '○○역',
-        market_type: '발달상권',
-        also_in: restaurant ? [] : [{ market_code: '3001xxx', market_name: '○○ 관광특구' }],
         nearby_markets: [],
+        reason: 'boundary_period_not_verified',
+        spatial_candidate: null,
       }
+    : outside
+      ? {
+          status: 'outside',
+          market_code: null,
+          market_name: null,
+          market_type: null,
+          also_in: [],
+          nearby_markets: [
+            { market_code: '3110aaa', market_name: '○○사거리 골목상권' },
+            { market_code: '3110bbb', market_name: '○○시장 전통시장' },
+          ],
+        }
+      : {
+          status: 'in_market',
+          market_code: '3110xxx',
+          market_name: '○○역',
+          market_type: '발달상권',
+          also_in: restaurant ? [] : [{ market_code: '3001xxx', market_name: '○○ 관광특구' }],
+          nearby_markets: [],
+        }
 
-  const officialClosure: MetricIndicator = outside
+  const officialClosure: MetricIndicator = unverified
     ? {
         id: 'official_closure_rate',
         type: 'official',
         value: null,
         unit: '%',
         space: 'market',
-        source: 'R2',
-        status: 'no_data',
-        reason: '상권 밖 주소',
+        source: ['R2'],
+        status: 'pending',
+        reason: 'boundary_period_not_verified',
       }
-    : {
-        id: 'official_closure_rate',
-        type: 'official',
-        value: 4,
-        unit: '%',
-        numerator: 3,
-        denominator: 71,
-        space: 'market',
-        period: '2026-Q2',
-        source: 'R2',
-        status: 'fact',
-      }
+    : outside
+      ? {
+          id: 'official_closure_rate',
+          type: 'official',
+          value: null,
+          unit: '%',
+          space: 'market',
+          source: ['R2'],
+          status: 'no_data',
+          reason: 'outside_market',
+        }
+      : {
+          id: 'official_closure_rate',
+          type: 'official',
+          value: 4,
+          unit: '%',
+          numerator: 3,
+          denominator: 71,
+          space: 'market',
+          period: '2026-Q2',
+          source: ['R2'],
+          status: 'fact',
+        }
 
-  const officialRisk: OfficialRiskIndicator = restaurant
+  const officialRisk: OfficialRiskIndicator = unverified
     ? {
+        // 실제 BE: 링크 안내만, 상권을 모르니 복사 문구 없음
         id: 'official_risk',
         type: 'official',
         value: null,
         status: 'link_only',
-        link: 'https://golmok.seoul.go.kr/stateDistrict.do',
-        copy_text: outside ? null : `○○역 · ${categoryName}`,
-        source: 'R1',
+        link: OFFICIAL_RISK_LINK,
+        copy_text: null,
+        source: ['R1'],
       }
-    : {
-        id: 'official_risk',
-        type: 'official',
-        value: null,
-        unit: 'grade',
-        status: 'no_data',
-        reason: '공식 창업위험도는 서울시 상권분석서비스에서 확인',
-        source: 'R1',
-        source_url: 'https://golmok.seoul.go.kr/stateDistrict.do',
-        market_name: outside ? null : '○○역',
-      }
+    : restaurant
+      ? {
+          id: 'official_risk',
+          type: 'official',
+          value: null,
+          status: 'link_only',
+          link: OFFICIAL_RISK_LINK,
+          copy_text: outside ? null : `○○역 · ${categoryName}`,
+          source: ['R1'],
+        }
+      : {
+          id: 'official_risk',
+          type: 'official',
+          value: null,
+          unit: 'grade',
+          status: 'no_data',
+          reason: '공식 창업위험도는 서울시 상권분석서비스에서 확인',
+          source: ['R1'],
+          source_url: OFFICIAL_RISK_LINK,
+          market_name: outside ? null : '○○역',
+        }
 
   function seoul(value: number) {
     return restaurant
@@ -162,13 +211,19 @@ export const riskMock: MockHandler = (query) => {
       {
         id: 'market_change',
         type: 'official',
-        value: outside ? null : restaurant ? 'LH' : null,
+        value: unverified || outside ? null : restaurant ? 'LH' : null,
         unit: 'type',
         space: 'market',
-        period: outside ? null : '2026-Q2',
-        source: 'R16',
-        status: outside ? 'no_data' : restaurant ? 'fact' : 'pending',
-        reason: outside ? '상권 밖 주소' : restaurant ? null : '상권변화지표 자료 확보 전',
+        period: unverified || outside ? null : '2026-Q2',
+        source: ['R16'],
+        status: unverified ? 'pending' : outside ? 'no_data' : restaurant ? 'fact' : 'pending',
+        reason: unverified
+          ? 'boundary_period_not_verified'
+          : outside
+            ? 'outside_market'
+            : restaurant
+              ? null
+              : '상권변화지표 자료 확보 전',
       },
       small
         ? {
@@ -181,9 +236,9 @@ export const riskMock: MockHandler = (query) => {
             denominator: stats.closureDenominator,
             space,
             period: stats.period12m,
-            source: 'R5,R6',
+            source: ['R5', 'R6'],
             status: 'pending',
-            reason: '반경 안 동일 업종 10건 미만',
+            reason: stats.closureDenominator === 0 ? 'zero_denominator' : 'insufficient_sample',
           }
         : {
             id: 'closure_rate_12m',
@@ -195,7 +250,7 @@ export const riskMock: MockHandler = (query) => {
             denominator: stats.closureDenominator,
             space,
             period: stats.period12m,
-            source: 'R5,R6',
+            source: ['R5', 'R6'],
             status: 'fact',
           },
       survival('survival_rate_1y', stats.survival1y, 78.4),
@@ -205,9 +260,12 @@ export const riskMock: MockHandler = (query) => {
         type: 'reference',
         value: competitors,
         unit: '개',
+        // 동종업체 수는 서울 평균 비교 대상이 아니다 (0곳도 fact)
+        seoul_avg: null,
+        seoul_avg_reason: 'not_applicable',
         space,
         period: asOf,
-        source: 'R5,R6',
+        source: ['R5', 'R6'],
         status: 'fact',
       },
       {
@@ -216,12 +274,16 @@ export const riskMock: MockHandler = (query) => {
         value: null,
         unit: '배',
         space: 'grid',
-        source: 'R4',
-        status: 'no_data',
-        reason: '생활인구 자료 없음',
+        source: ['R4'],
+        status: 'pending',
+        reason: 'population_aggregation_and_grid_time_unverified',
       },
     ],
-    flags: { insufficient_sample: small, missing: ['living_pop'] },
+    // missing: 공식 폐업률에 필요한 검증 경계(확인 중일 때)와 선택 항목만
+    flags: {
+      insufficient_sample: small,
+      missing: unverified ? ['official_closure_rate', 'living_pop'] : ['living_pop'],
+    },
   }
   return ok(data, {
     ...DEMO_META,
@@ -229,7 +291,7 @@ export const riskMock: MockHandler = (query) => {
     as_of: asOf,
     space,
     denominator: competitors,
-    data_version: { ...DEMO_META.data_version, trdar_quarter: '20262' },
+    data_version: { ...DEMO_META.data_version, trdar_quarter: unverified ? null : '20262' },
   })
 }
 
@@ -248,13 +310,13 @@ const quarterKo = (p: string | null | undefined) =>
   (p ?? '').replace(/^(\d{4})-Q([1-4])$/, '$1년 $2분기')
 
 /**
- * AI 해석 목업 — 요청에 담긴 지표 값으로만 문장을 만든다 (실제 서버도 지표 밖 숫자를 쓰지 않는다).
+ * AI 해석 목업 — 서버가 다시 계산한 Risk 값으로만 문장을 만든다 (실제 BE도 FE가 보낸 수치를 쓰지 않는다).
  * 그래서 반경·업종·시점이 바뀌어도 AI 문장 숫자가 지표 카드·지도와 같다.
  */
-function buildInterpretation(req: RiskInterpretRequest): RiskInterpretation {
-  const r = req.query.radius_m.toLocaleString('ko-KR')
+function buildInterpretation(risk: Risk): RiskInterpretation {
+  const r = risk.query.radius_m.toLocaleString('ko-KR')
   const metric = (id: MetricIndicator['id']) =>
-    req.indicators.find((i): i is MetricIndicator => i.id === id)
+    risk.indicators.find((i): i is MetricIndicator => i.id === id)
   const isFact = (i: MetricIndicator | undefined): i is MetricIndicator & { value: number } =>
     i?.status === 'fact' && typeof i.value === 'number'
   const official = metric('official_closure_rate')
@@ -268,24 +330,26 @@ function buildInterpretation(req: RiskInterpretRequest): RiskInterpretation {
   const official_values: RiskInterpretation['official_values'] = isFact(official)
     ? [
         {
-          text: `이 주소가 속한 ${req.market.market_name ?? ''} 상권의 ${quarterKo(official.period)} 공식 폐업률은 ${official.value}%(${official.denominator}곳 중 ${official.numerator}곳)입니다.`,
+          text: `이 주소가 속한 ${risk.market.market_name ?? ''} 상권의 ${quarterKo(official.period)} 공식 폐업률은 ${official.value}%(${official.denominator}곳 중 ${official.numerator}곳)입니다.`,
           indicator_ids: ['official_closure_rate'],
         },
       ]
     : [
         {
-          text: '상권 밖 주소라 서울시 공식 폐업률은 자료가 없습니다. 가까운 상권 수치로 대신하지 않았습니다.',
+          text:
+            risk.market.status === 'unverified'
+              ? '공식 상권 적용 기준을 확인 중이라 서울시 공식 폐업률은 아직 보여드리지 않습니다. 가까운 상권 수치로 대신하지 않았습니다.'
+              : '상권 밖 주소라 서울시 공식 폐업률은 자료가 없습니다. 가까운 상권 수치로 대신하지 않았습니다.',
           indicator_ids: ['official_closure_rate'],
         },
       ]
+  if (n !== null)
+    official_values.push({
+      text: `반경 ${r}m 안에 같은 업종 ${n}곳이 영업 중입니다.`,
+      indicator_ids: ['competitor_count'],
+    })
 
   const favorable: RiskInterpretation['favorable'] = []
-  if (n !== null)
-    favorable.push({
-      text: `반경 ${r}m 안에 같은 업종 ${n}곳이 영업 중이라 수요가 모이는 지역일 수 있습니다.`,
-      indicator_ids: ['competitor_count'],
-      sources: ['R5', 'R6'],
-    })
   if (isFact(survival1y))
     favorable.push({
       text: `반경 ${r}m 1년 생존율은 ${pct(survival1y.value)}%(${survival1y.denominator}곳 중 ${survival1y.numerator}곳)로, 최근 문을 연 점포 상당수가 1년 넘게 영업을 이어 갔습니다.`,
@@ -296,32 +360,27 @@ function buildInterpretation(req: RiskInterpretRequest): RiskInterpretation {
   const unfavorable: RiskInterpretation['unfavorable'] = isFact(closure)
     ? [
         {
-          text: `반경 ${r}m 최근 12개월 참고 폐업률은 ${pct(closure.value)}%(${closure.denominator}곳 중 ${closure.numerator}곳)입니다. 공식 폐업률과는 기간(12개월과 분기)과 공간(반경과 상권)이 달라 직접 비교할 수 없습니다.${n !== null ? ` 같은 ${n}곳은 경쟁이 치열하다는 뜻일 수도 있습니다.` : ''}`,
-          indicator_ids: ['closure_rate_12m', 'official_closure_rate', 'competitor_count'],
-          sources: ['R5', 'R6', 'R2'],
-        },
-      ]
-    : [
-        {
-          text: `반경 ${r}m 안 같은 업종이 ${n ?? 0}곳으로 적어 참고 폐업률은 판단을 보류했습니다. 숫자만으로 상권 흐름을 판단하기 어렵습니다.`,
-          indicator_ids: ['closure_rate_12m', 'competitor_count'],
+          text: `반경 ${r}m 최근 12개월 참고 폐업률은 ${pct(closure.value)}%(${closure.denominator}곳 중 ${closure.numerator}곳)입니다. 공식 폐업률과는 기간(12개월과 분기)과 공간(반경과 상권)이 달라 직접 비교할 수 없습니다.`,
+          indicator_ids: ['closure_rate_12m'],
           sources: ['R5', 'R6'],
         },
       ]
+    : []
 
-  const metrics = req.indicators.filter((i): i is MetricIndicator => i.id !== 'official_risk')
+  const metrics = risk.indicators.filter((i): i is MetricIndicator => i.id !== 'official_risk')
+  // 사유는 서버 코드 그대로 (화면이 indicatorReasonText로 문구로 바꾼다)
   const missing_data: RiskInterpretation['missing_data'] = metrics
     .filter((i) => (i.status === 'pending' || i.status === 'no_data') && INDICATOR_NAME[i.id])
-    .map((i) => ({
-      text: INDICATOR_NAME[i.id] ?? i.id,
-      reason: `${i.reason ?? '자료 없음'}${i.status === 'pending' ? ' (판단 보류)' : ''}`,
-    }))
-  const seoulMissing = metrics.find((i) => i.type === 'reference' && i.seoul_avg_reason)
+    .map((i) => ({ text: INDICATOR_NAME[i.id] ?? i.id, reason: i.reason ?? 'no_data' }))
+  const seoulMissing = metrics.find(
+    (i) => i.type === 'reference' && i.unit === '%' && i.seoul_avg_reason,
+  )
   if (seoulMissing?.seoul_avg_reason)
     missing_data.push({ text: '서울 평균 비교', reason: seoulMissing.seoul_avg_reason })
 
   return {
     label: 'AI 해석',
+    method: 'server_sentences_model_ordering',
     official_values,
     favorable,
     unfavorable,
@@ -339,55 +398,86 @@ function buildInterpretation(req: RiskInterpretRequest): RiskInterpretation {
         item: '반경 안 같은 업종 점포의 메뉴·가격대·영업시간을 직접 둘러보기',
         why: `동종업체 ${n ?? 0}곳 — 경쟁 정도는 숫자만으로 알 수 없음`,
       },
-      {
-        item: '초기 6개월 이상 운영할 수 있는 자금 계획 세우기',
-        why: isFact(closure)
-          ? `최근 12개월 참고 폐업률 ${pct(closure.value)}%`
-          : '참고 폐업률 판단 보류 — 표본 부족',
-      },
     ],
     verification: { passed: true, checked_numbers: 6, mismatches: [], regenerated: false },
     model: '(AI 설계서에서 확정)',
-    generated_at: '2026-11-09T14:02:11+09:00',
+    // 이번 응답의 서버 문장 조립 시각 (UTC)
+    generated_at: '2026-11-09T05:02:11Z',
   }
 }
 
 /** AI가 해석을 만드는 시간 흉내 (1~2초) */
 const AI_DELAY_MS = 1500
 
+/** query에 허용하는 키 (BE RiskQuery와 같은 이름). 그 밖의 키는 422 */
+const QUERY_KEYS = new Set([
+  'lat',
+  'lng',
+  'category',
+  'radius',
+  'sub_category',
+  'as_of',
+  'area',
+  'franchise',
+  'include',
+  'include_unknown',
+  'include_unknown_area',
+  'include_unknown_franchise',
+])
+
+const invalid = () => ({
+  ...fail(422, 'INVALID_PARAM', '요청 값을 확인해 주세요'),
+  delayMs: AI_DELAY_MS,
+})
+
 /**
- * POST /api/risk/interpret 목업 — 화면 확인용 규칙
- * - query.radius_m = 1000 → 503 AI_UNAVAILABLE (AI 실패 안내·다시 시도 확인)
- * - query.radius_m = 300 → 200이지만 verification.passed = false (화면은 실패로 처리해야 함)
- * - 본문에 query·indicators가 없으면 400 INVALID_PARAM
+ * POST /api/risk/interpret 목업 — 본문은 { query: 원래 조회 조건 }만 (query-only).
+ * - market·indicators·flags·context 등 다른 키, Risk 응답 query(radius_m·filters), building_key·floor_unit,
+ *   lat·lng 숫자 아님, as_of가 YYYY-MM 아님, include_unknown과 개별 unknown 플래그 혼용 → 422 INVALID_PARAM
+ * - radius = 1000 → 503 AI_UNAVAILABLE (AI 실패 안내·다시 시도 확인)
+ * - radius = 300 → 503 AI_VERIFY_FAILED (서버가 1회 재생성 후에도 검증 실패)
+ * - 정상이면 같은 조건으로 Risk를 다시 계산해 문장을 조립한다
  */
 export const riskInterpretMock: MockHandler = (_query, body) => {
-  const req = body as Partial<RiskInterpretRequest> | null
-  if (!req?.query || !req.indicators)
-    return { ...fail(400, 'INVALID_PARAM', '입력값을 다시 확인해 주세요.'), delayMs: AI_DELAY_MS }
-  if (req.query.radius_m === 1000)
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return invalid()
+  const keys = Object.keys(body)
+  if (keys.length !== 1 || keys[0] !== 'query') return invalid()
+  const q = (body as RiskInterpretRequest).query as Record<string, unknown>
+  if (!q || typeof q !== 'object') return invalid()
+  if (Object.keys(q).some((k) => !QUERY_KEYS.has(k))) return invalid()
+  if (typeof q.lat !== 'number' || typeof q.lng !== 'number' || typeof q.category !== 'string')
+    return invalid()
+  if (q.as_of !== undefined && !(typeof q.as_of === 'string' && /^\d{4}-\d{2}$/.test(q.as_of)))
+    return invalid()
+  if (
+    q.include_unknown !== undefined &&
+    (q.include_unknown_area !== undefined || q.include_unknown_franchise !== undefined)
+  )
+    return invalid()
+
+  const radius = Number(q.radius ?? 500)
+  if (radius === 1000)
+    return { ...fail(503, 'AI_UNAVAILABLE', 'AI 해석을 불러오지 못했어요.'), delayMs: AI_DELAY_MS }
+  if (radius === 300)
     return {
-      ...fail(503, 'AI_UNAVAILABLE', 'AI 해석을 불러오지 못했어요.'),
+      ...fail(503, 'AI_VERIFY_FAILED', 'AI 해석을 검증하지 못했어요.'),
       delayMs: AI_DELAY_MS,
     }
-  const interpretation = buildInterpretation(req as RiskInterpretRequest)
-  const data: RiskInterpretation =
-    req.query.radius_m === 300
-      ? {
-          ...interpretation,
-          verification: {
-            passed: false,
-            checked_numbers: 6,
-            mismatches: ['동종업체 수'],
-            regenerated: true,
-          },
-        }
-      : interpretation
+
+  // 같은 조건으로 Risk를 다시 계산 (FE가 보낸 수치는 받지 않는다)
+  const params = new URLSearchParams()
+  for (const [k, v] of Object.entries(q)) {
+    if (v === undefined || v === null) continue
+    params.set(k, Array.isArray(v) ? v.join(',') : String(v))
+  }
+  const recomputed = riskMock(params, null)
+  if (recomputed.status !== 200 || !recomputed.body.data) return invalid()
+  const risk = recomputed.body.data as Risk
   return {
-    ...ok(data, {
+    ...ok(buildInterpretation(risk), {
       ...DEMO_META,
       source: ['R2', 'R5', 'R6'],
-      as_of: req.query.as_of,
+      as_of: risk.query.as_of,
       denominator: null,
     }),
     delayMs: AI_DELAY_MS,
