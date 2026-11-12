@@ -236,6 +236,12 @@ export const MESSAGES = {
       `서울 전체 동일 조건 중 좌표 미확보 ${n.toLocaleString('ko-KR')}건 (지도·반경 점포 수에 포함하지 않아요)`,
     legendTitle: '최신 데이터 기준 상태',
     legendRadius: '진단 위치 반경',
+    /** 같은 좌표 점포 묶음 (지도에서 보이는 방식만 — 점포 수·표는 그대로) */
+    groupTitle: (n: number) => `같은 위치 점포 ${n.toLocaleString('ko-KR')}곳`,
+    groupHint: '점포를 고르면 아래 표에서도 함께 표시돼요',
+    legendGroup: '숫자: 같은 위치 점포 수',
+    legendMixed: '상태 섞임',
+    legendCluster: '큰 원: 가까운 점포 묶음 (누르면 확대)',
     sortNearest: '가까운 순',
     caption: '반경 안 같은 업종 점포 목록. 점포명을 누르면 지도에서 위치를 보여줘요',
     columns: {

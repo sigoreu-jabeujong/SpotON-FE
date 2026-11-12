@@ -25,7 +25,8 @@ export function loadKakaoMaps(): Promise<KakaoMapsNamespace> {
     const timer = window.setTimeout(() => fail('KAKAO_LOAD_TIMEOUT'), LOAD_TIMEOUT_MS)
 
     const script = document.createElement('script')
-    script.src = `${SDK_URL}?appkey=${encodeURIComponent(key)}&autoload=false`
+    // libraries=clusterer: 마커가 많을 때 묶어 그리는 무료 SDK 라이브러리 (새 npm 패키지 아님)
+    script.src = `${SDK_URL}?appkey=${encodeURIComponent(key)}&autoload=false&libraries=clusterer`
     script.async = true
     script.onerror = () => {
       window.clearTimeout(timer)
