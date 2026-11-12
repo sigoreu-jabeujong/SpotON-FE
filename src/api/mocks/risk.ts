@@ -9,7 +9,7 @@ import type {
   RiskInterpretation,
   RiskInterpretRequest,
 } from '../../types/risk'
-import { DEMO_META, fail, ok, radiusSpace } from './common'
+import { DEMO_META, fail, isMockResult, ok, radiusSpace, unknownFlags } from './common'
 import type { MockHandler } from './index'
 import { storeStats } from './nearby'
 
@@ -44,6 +44,8 @@ function mockMarketStatus(lat: string | null): MarketJudgement['status'] {
  * - 반경 안 동일 업종 10건 미만(필터 없으면 반경 300m) → 표본 부족(insufficient_sample), 참고 폐업률 판단 보류
  */
 export const riskMock: MockHandler = (query) => {
+  const flags = unknownFlags(query)
+  if (isMockResult(flags)) return flags
   const category = (query.get('category') ?? 'cafe') as Category
   const { radius, space } = radiusSpace(query)
   const stats = storeStats(query)
@@ -292,6 +294,10 @@ export const riskMock: MockHandler = (query) => {
     space,
     denominator: competitors,
     data_version: { ...DEMO_META.data_version, trdar_quarter: unverified ? null : '20262' },
+    // 가맹 필터를 고르면 이름 일치 추정의 한계 코드 (BE 가맹 추정 요청서 5장)
+    ...((query.get('franchise') ?? 'all') !== 'all'
+      ? { limitations: ['franchise_name_match_not_contract_or_history'] }
+      : {}),
   })
 }
 
@@ -377,6 +383,11 @@ function buildInterpretation(risk: Risk): RiskInterpretation {
   )
   if (seoulMissing?.seoul_avg_reason)
     missing_data.push({ text: '서울 평균 비교', reason: seoulMissing.seoul_avg_reason })
+  // 목록 적용 DB는 가맹 추정 한계를 함께 안내한다 (BE 가맹 추정 요청서 5장)
+  missing_data.push({
+    text: '프랜차이즈 여부는 2025년 브랜드 목록과 상호가 같은지로 추정한 값이에요',
+    reason: 'franchise_name_match_estimate',
+  })
 
   return {
     label: 'AI 해석',

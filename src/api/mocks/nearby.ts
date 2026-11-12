@@ -13,7 +13,17 @@
  */
 import type { NearbyMarker, NearbyStores, SnapshotStore, StoreSnapshot } from '../../types/stores'
 import { shiftMonth } from '../../utils/date'
-import { DEMO_META, fail, isRestaurant, monthEnd, ok, radiusSpace } from './common'
+import {
+  DEMO_META,
+  fail,
+  franchiseBasis,
+  isMockResult,
+  isRestaurant,
+  monthEnd,
+  ok,
+  radiusSpace,
+  unknownFlags,
+} from './common'
 import type { MockHandler } from './index'
 import { DATA_RANGE } from './meta'
 
@@ -58,8 +68,13 @@ const seed = (
   operating_period_reason: null,
   current_status,
   franchise,
+  // 근거: 프랜차이즈는 2025년 목록명 일치 추정, 일부는 기존 외부 분류 (세 가지 표시 확인용)
+  ...franchiseBasis(franchise, EXTERNAL_FRANCHISE.has(license_no)),
   area_m2,
 })
+
+/** 목업 전용: 기존 외부 분류로 프랜차이즈인 점포 (나머지 프랜차이즈는 목록명 일치 추정) */
+const EXTERNAL_FRANCHISE = new Set(['3130000-104-2019-00102', '3130000-101-2022-00255'])
 
 /* prettier-ignore */
 const CAFE_SEEDS: NearbySeed[] = [
@@ -193,14 +208,14 @@ function inArea(area: string | null, m2: number): boolean {
   return m2 >= 99
 }
 
-/** 목업 전용: as_of가 데이터 범위 밖이면 422 (API 명세와 같은 detail) */
+/**
+ * 목업 전용: as_of가 데이터 범위 밖이면 422. 실제 BE처럼 error.detail은 보내지 않는다
+ * (화면은 data-range 응답으로 범위를 안내 — useAsOfRangeMessage)
+ */
 function outOfRange(asOfMonth: string | null) {
-  if (!asOfMonth) return null
+  if (!asOfMonth || !DATA_RANGE.min_month) return null
   if (asOfMonth < DATA_RANGE.min_month || asOfMonth > DATA_RANGE.max_month)
-    return fail(422, 'AS_OF_OUT_OF_RANGE', '선택한 시점은 데이터 제공 범위 밖이에요.', {
-      min_month: DATA_RANGE.min_month,
-      max_month: DATA_RANGE.max_month,
-    })
+    return fail(422, 'AS_OF_OUT_OF_RANGE', '선택한 시점은 데이터 제공 범위 밖이에요.')
   return null
 }
 
@@ -212,7 +227,10 @@ function storesInRadius(query: URLSearchParams): NearbyMarker[] {
   const subs = (query.get('sub_category') ?? '').split(',').filter(Boolean)
   const area = query.get('area')
   const franchise = query.get('franchise') ?? 'all'
-  const includeUnknown = query.get('include_unknown') !== 'false'
+  // 면적·가맹 정보 없음 포함은 따로 (legacy include_unknown은 둘 다에 같은 값). 형식 오류는 핸들러가 먼저 422
+  const flags = unknownFlags(query)
+  const unknownArea = isMockResult(flags) ? true : flags.area
+  const unknownFranchise = isMockResult(flags) ? true : flags.franchise
 
   return (
     [
@@ -227,11 +245,11 @@ function storesInRadius(query: URLSearchParams): NearbyMarker[] {
       }))
       .filter((m) => m.distance_m <= radius)
       .filter((m) => subs.length === 0 || subs.includes(m.sub_category))
-      // 정보 없음(면적 null / 프랜차이즈 unknown)은 include_unknown일 때 필터와 상관없이 포함
-      .filter((m) => (m.area_m2 === null ? includeUnknown : inArea(area, m.area_m2)))
+      // 정보 없음(면적 null / 프랜차이즈 unknown)은 각 포함 플래그일 때 필터와 상관없이 포함
+      .filter((m) => (m.area_m2 === null ? unknownArea : inArea(area, m.area_m2)))
       .filter((m) =>
         m.franchise === 'unknown'
-          ? includeUnknown
+          ? unknownFranchise
           : franchise === 'all' || m.franchise === franchise,
       )
       .sort((a, b) => a.distance_m - b.distance_m)
@@ -309,6 +327,8 @@ export function storeStats(query: URLSearchParams) {
 export const nearbyStoresMock: MockHandler = (query) => {
   if (!query.get('category'))
     return fail(400, 'CATEGORY_REQUIRED', '카페 또는 음식점을 선택해 주세요.')
+  const flags = unknownFlags(query)
+  if (isMockResult(flags)) return flags
   const rangeError = outOfRange(query.get('as_of'))
   if (rangeError) return rangeError
   const { radius, space } = radiusSpace(query)
@@ -337,6 +357,8 @@ export const nearbyStoresMock: MockHandler = (query) => {
  * 같은 시드에서 뽑아 as_of에 따라 숫자가 달라지고, N = A + B + other가 항상 맞는다 (목업 안에서만 셈)
  */
 export const storeSnapshotMock: MockHandler = (query) => {
+  const flags = unknownFlags(query)
+  if (isMockResult(flags)) return flags
   const asOfMonth = query.get('as_of')
   if (!asOfMonth || !/^\d{4}-(0[1-9]|1[0-2])$/.test(asOfMonth))
     return fail(400, 'INVALID_PARAM', '입력값을 다시 확인해 주세요.')
@@ -357,6 +379,9 @@ export const storeSnapshotMock: MockHandler = (query) => {
     operating_period_status: m.operating_period_status,
     operating_period_reason: m.operating_period_reason,
     current_status: m.current_status,
+    franchise: m.franchise,
+    franchise_basis: m.franchise_basis,
+    franchise_reference_year: m.franchise_reference_year,
   }))
   const stillOpen = stores.filter((s) => s.current_status === 'open').length
   const closedSince = stores.filter((s) => s.current_status === 'closed').length
