@@ -7,19 +7,23 @@ import { storeStats } from './nearby'
 
 /** 목업 전용: 지금 영업 중 점포를 세부 업종별로 (점포 수·평균 영업 기간) */
 function bySubCategory(stats: ReturnType<typeof storeStats>): MarketActivity['by_sub_category'] {
-  const groups = new Map<ApiSubCategory, number[]>()
+  const groups = new Map<ApiSubCategory, (number | null)[]>()
   for (const m of stats.openNow) {
     groups.set(m.sub_category, [...(groups.get(m.sub_category) ?? []), m.operating_months])
   }
-  return [...groups].map(([sub_category, months]) => ({
-    sub_category,
-    open_count: months.length,
-    // 양식은 "정보 없음" 표시 확인용으로 평균 영업 기간을 비워 둔다 (목업 테스트 규칙)
-    avg_operating_months:
-      sub_category === 'western'
-        ? null
-        : Math.floor(months.reduce((a, b) => a + b, 0) / months.length),
-  }))
+  return [...groups].map(([sub_category, all]) => {
+    // 기간 미산정(null) 점포는 점포 수에는 넣고 평균에서는 뺀다
+    const months = all.filter((m): m is number => m !== null)
+    return {
+      sub_category,
+      open_count: all.length,
+      // 양식은 "정보 없음" 표시 확인용으로 평균 영업 기간을 비워 둔다 (목업 테스트 규칙)
+      avg_operating_months:
+        sub_category === 'western' || months.length === 0
+          ? null
+          : Math.floor(months.reduce((a, b) => a + b, 0) / months.length),
+    }
+  })
 }
 
 /**

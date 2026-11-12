@@ -7,6 +7,7 @@ import type { MockHandler } from './index'
 export const DATA_RANGE: DataRange = {
   min_month: '2010-01',
   max_month: '2026-11',
+  max_date: '2026-11-08',
   data_updated_at: '2026-11-08',
   collected_at: '2026-11-09',
 }
