@@ -35,7 +35,7 @@ export const MESSAGES = {
       {
         title: '과거 시점 조회',
         description:
-          '과거 특정 연·월에 영업하던 같은 업종 점포가 지금도 운영 중인지 확인할 수 있어요.',
+          '과거 특정 연·월에 영업하던 같은 업종 점포가 최신 데이터 기준으로 어떻게 됐는지 확인할 수 있어요.',
       },
       {
         title: '서울시 공식 지표와 참고지표 구분',
@@ -232,7 +232,7 @@ export const MESSAGES = {
      */
     excludedNoCoord: (n: number) =>
       `서울 전체 동일 조건 중 좌표 미확보 ${n.toLocaleString('ko-KR')}건 (지도·반경 점포 수에 포함하지 않아요)`,
-    legendTitle: '현재 상태',
+    legendTitle: '최신 데이터 기준 상태',
     legendRadius: '진단 위치 반경',
     sortNearest: '가까운 순',
     caption: '반경 안 같은 업종 점포 목록. 점포명을 누르면 지도에서 위치를 보여줘요',
@@ -244,7 +244,7 @@ export const MESSAGES = {
       area: '시설 규모',
       openDate: '개업일',
       period: '영업 기간',
-      status: '현재 상태',
+      status: '최신 데이터 기준 상태',
       franchise: '프랜차이즈',
     },
     showOnMap: '지도에서 보기',
@@ -257,23 +257,24 @@ export const MESSAGES = {
       category: '업종',
       openDate: '개업일',
       period: '영업 기간',
-      status: '현재 상태',
+      status: '최신 데이터 기준 상태',
       franchise: '프랜차이즈',
     },
   },
   /** STEP 02 ② 안의 시점 조회 (F-05) */
   snapshot: {
     title: '시점 조회',
-    guide: '과거 시점을 고르면 그때 영업하던 점포가 지금 어떻게 됐는지 볼 수 있어요',
+    guide:
+      '과거 시점을 고르면 그때 영업하던 점포가 최신 데이터 기준으로 어떻게 됐는지 볼 수 있어요',
     quickTitle: '빠른 선택',
     cards: {
       total: '그 시점 동일 업종 점포',
-      stillOpen: '지금도 운영 중',
+      stillOpen: '최신 데이터 기준 영업 중',
       closedSince: '이후 폐업',
       other: '기타(휴업 등)',
     },
     notice: '폐업은 행정상 신고 기록 기준이라 실제 영업 종료 시점과 다를 수 있어요',
-    caption: (ym: string) => `${ym}에 영업하던 같은 업종 점포와 지금 상태`,
+    caption: (ym: string) => `${ym}에 영업하던 같은 업종 점포와 최신 데이터 기준 상태`,
     columns: {
       no: '번호',
       name: '점포명',
@@ -281,7 +282,7 @@ export const MESSAGES = {
       openDate: '개업일',
       closeDate: '폐업일',
       period: '영업 기간',
-      status: '현재 상태',
+      status: '최신 데이터 기준 상태',
       franchise: '프랜차이즈',
     },
     noCloseDate: '폐업일 없음',

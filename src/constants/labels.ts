@@ -51,10 +51,13 @@ export const FRANCHISE_LABEL = {
   unknown: '정보 없음',
 } as const
 
-/** 주변 점포의 현재 상태 (기준 시점에 영업하던 점포가 지금 어떤지 — API current_status) */
+/**
+ * 주변·시점 점포의 상태 (API current_status) — **최신 데이터 기준** 상태다 (오늘 실시간 확인이 아님).
+ * 그래서 제목·범례·열 이름에 "최신 데이터 기준"을 붙이고, 라벨 자체는 짧게 둔다
+ */
 export const CURRENT_STATUS_LABEL = {
-  open: '지금 영업 중',
-  closed: '이후 폐업',
+  open: '영업 중',
+  closed: '폐업',
   other: '기타(휴업 등)',
 } as const
 
