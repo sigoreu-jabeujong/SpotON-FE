@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react'
+import { useAsOfRangeMessage } from '../../hooks/useAsOfRangeMessage'
 import { toCommonQueryParams } from '../../api/params'
-import { getAsOfRangeMessage, MESSAGES } from '../../constants/messages'
+import { MESSAGES } from '../../constants/messages'
 import { scrollBehavior } from '../../constants/motion'
 import { getCoordinates, useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { useNearbyStores } from '../../hooks/useStores'
+import { franchiseEmptyMessage } from '../../utils/storeDisplay'
 import { formatDataBaseline, formatDate, formatYearMonthKo } from '../../utils/format'
 import EmptyState from '../common/EmptyState'
 import ErrorState from '../common/ErrorState'
@@ -24,6 +26,7 @@ const T = MESSAGES.nearby
 /** STEP 02 ② 주변 점포 분석 — F-03 지도 · F-04 필터 (/stores/nearby) · F-05 시점 조회 (/stores/snapshot) */
 export default function NearbySection() {
   const { query } = useDiagnosisQuery()
+  const asOfRangeMessage = useAsOfRangeMessage()
   const coords = getCoordinates(query)
   const params = coords ? toCommonQueryParams(query, coords) : null
   const nearby = useNearbyStores(params)
@@ -61,9 +64,9 @@ export default function NearbySection() {
           ) : nearby.isError ? (
             <ErrorState
               error={nearby.error}
-              message={getAsOfRangeMessage(nearby.error) ?? undefined}
+              message={asOfRangeMessage(nearby.error) ?? undefined}
               // 범위 밖 시점은 다시 시도해도 같으므로 기간 안내만 (다시 시도 버튼 없음)
-              onRetry={getAsOfRangeMessage(nearby.error) ? undefined : () => void nearby.refetch()}
+              onRetry={asOfRangeMessage(nearby.error) ? undefined : () => void nearby.refetch()}
             />
           ) : (
             data && (
@@ -115,7 +118,11 @@ export default function NearbySection() {
           ) : nearby.isError ? null : (
             data &&
             (data.count === 0 || !data.markers?.length ? (
-              <EmptyState message={data.message ?? MESSAGES.common.empty} />
+              <EmptyState
+                message={
+                  franchiseEmptyMessage(query.franchise) ?? data.message ?? MESSAGES.common.empty
+                }
+              />
             ) : (
               <NearbyTable
                 markers={data.markers}

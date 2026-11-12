@@ -138,7 +138,7 @@ export type Risk = {
  * 서버가 Risk를 다시 계산하므로 Risk 응답(market·indicators·flags)·화면 수치·주소·건물 키·층은 보내지 않는다.
  * 응답 query(radius_m·일 단위 as_of·filters)를 그대로 보내면 422가 된다.
  * - radius(300/500/1000), as_of는 YYYY-MM이고 최신 조회면 생략 (오늘 월을 넣지 않음)
- * - unknown 플래그는 FE 방식 그대로 include_unknown 하나만 (개별 플래그와 섞지 않음)
+ * - unknown 플래그는 include_unknown_area·include_unknown_franchise 두 개 (legacy include_unknown과 섞지 않음)
  * - include는 Risk GET에 넣었을 때만 같은 값으로 (지금 FE는 Risk GET에 include를 쓰지 않음)
  */
 export type RiskInterpretQuery = CommonQueryParams & { include?: RiskInclude[] }

@@ -30,7 +30,7 @@ export default function AiInterpretation({ params }: Props) {
   const queryClient = useQueryClient()
 
   const request = () => {
-    // Risk GET과 같은 조건 그대로 (lat·lng·category·radius·sub_category·as_of(있을 때만)·area·franchise·include_unknown).
+    // Risk GET과 같은 조건 그대로 (lat·lng·category·radius·sub_category·as_of(있을 때만)·area·franchise·include_unknown_area·include_unknown_franchise).
     // Risk GET에 include를 쓰지 않으므로 여기서도 넣지 않는다. 건물 키·층·주소는 보내지 않는다.
     const body: RiskInterpretRequest = { query: { ...params } }
     interpret.mutate(body, {

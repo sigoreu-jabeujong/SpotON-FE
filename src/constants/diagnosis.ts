@@ -49,7 +49,7 @@ export const FACILITY_SIZE_OPTIONS = [
 export type FacilitySize = (typeof FACILITY_SIZE_OPTIONS)[number]['id']
 export const DEFAULT_AREA: FacilitySize = 'all'
 
-/** 면적·프랜차이즈 값이 "정보 없음"인 점포 포함 여부 (API include_unknown) */
+/** 면적·프랜차이즈 값이 "정보 없음"인 점포 포함 여부 (API include_unknown_area·include_unknown_franchise — params.ts) */
 export const DEFAULT_INCLUDE_UNKNOWN = true
 
 /** 프랜차이즈 필터 */
