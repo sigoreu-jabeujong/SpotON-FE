@@ -21,14 +21,41 @@ export type StoreHistoryParams = {
   category?: Category | null
 }
 
+/** 인허가 원천: 일반음식점 / 휴게음식점(카페 포함). 관리번호는 원천마다 따로 매겨져 겹칠 수 있다 */
+export type StoreSource = 'general_restaurant' | 'rest_cafe'
+
+/** 영업 기간 산정 상태: 계산 완료 / 미산정 (operating_months가 null이면 항상 no_data + 사유) */
+export type OperatingPeriodStatus = 'fact' | 'no_data'
+
+/** 영업 기간 미산정 사유 (BE docs/fe-store-history-api-request.md 2장) */
+export type OperatingPeriodReason =
+  | 'missing_open_date'
+  | 'invalid_open_date'
+  | 'missing_close_date'
+  | 'invalid_close_date'
+  | 'missing_source_date'
+  | 'invalid_date_order'
+  | 'other_status'
+
+/**
+ * 같은 건물의 과거 점포 한 건. 점포 식별은 source + license_no (utils/storeKey).
+ * null은 키 생략이 아니라 "값 없음" — 화면은 0이나 빈칸 대신 "정보 없음"·사유를 보여준다.
+ */
 export type HistoryStore = {
+  source: StoreSource
   license_no: string
-  name: string
+  /** 상호. 없으면 null */
+  name: string | null
   category: Category
   sub_category: ApiSubCategory
-  open_date: string
+  /** 개업(인허가)일 YYYY-MM-DD. 원본 없음·무효면 null */
+  open_date: string | null
+  /** 폐업일. 영업 중이면 null, 폐업인데 null인 경우도 있다(사유 참고) */
   close_date: string | null
-  operating_months: number
+  /** 달력상 완료 개월 수. 0은 실제 0개월, null은 미산정 */
+  operating_months: number | null
+  operating_period_status: OperatingPeriodStatus
+  operating_period_reason: OperatingPeriodReason | null
   store_status: StoreStatus
   franchise: FranchiseStatus
   floor_unit: string | null
@@ -37,7 +64,7 @@ export type HistoryStore = {
 
 export type StoreHistory = {
   total: number
-  /** 인허가일 오름차순 */
+  /** 개업일 오름차순, 개업일 미확인은 마지막 (화면은 utils/history의 sortHistoryRecentFirst로 다시 정렬) */
   stores: HistoryStore[]
   /** 0건일 때 안내 문구 */
   message: string | null

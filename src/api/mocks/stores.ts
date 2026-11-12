@@ -4,12 +4,26 @@ import type { HistoryStore, StoreHistory } from '../../types/stores'
 import { DEMO_META, fail, ok } from './common'
 import type { MockHandler } from './index'
 
+/** 기본 시나리오 행 — 날짜·기간이 모두 확인된 점포 (원천·기간 상태는 아래 withContract가 채움) */
+type BaseHistoryStore = Omit<
+  HistoryStore,
+  'source' | 'operating_period_status' | 'operating_period_reason'
+>
+
+/** 실제 BE 계약 필드 추가: 카페는 휴게음식점, 음식점은 일반음식점 원천. 기간이 있으면 fact */
+const withContract = (s: BaseHistoryStore): HistoryStore => ({
+  source: s.category === 'cafe' ? 'rest_cafe' : 'general_restaurant',
+  operating_period_status: 'fact',
+  operating_period_reason: null,
+  ...s,
+})
+
 /**
  * 이력 목업 — 시연용 가상 값. 지원 업종(카페·한식·중식·일식·양식)만.
  * same_spot / same_building / unverified, open / closed, franchise / independent / unknown 이 모두 나오게 8건.
- * API 규칙대로 인허가일 오름차순.
+ * API 규칙대로 개업일 오름차순.
  */
-const HISTORY_STORES: HistoryStore[] = [
+const BASE_HISTORY_STORES: BaseHistoryStore[] = [
   {
     license_no: '3130000-101-2009-00031',
     name: '○○한정식',
@@ -116,6 +130,8 @@ const HISTORY_STORES: HistoryStore[] = [
     location_match: 'same_spot',
   },
 ]
+
+const HISTORY_STORES: HistoryStore[] = BASE_HISTORY_STORES.map(withContract)
 
 const HISTORY_META: ApiMeta = {
   ...DEMO_META,
