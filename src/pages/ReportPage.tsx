@@ -39,13 +39,8 @@ import {
   formatYearMonthKo,
 } from '../utils/format'
 import { cn } from '../utils/cn'
-import {
-  historyCloseDate,
-  historyName,
-  historyOpenDate,
-  historyPeriod,
-  sortHistoryRecentFirst,
-} from '../utils/history'
+import { sortHistoryRecentFirst } from '../utils/history'
+import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../utils/storeDisplay'
 import { storeKey } from '../utils/storeKey'
 
 const T = MESSAGES.report
@@ -223,14 +218,14 @@ function HistoryBlock({ data }: { data: Data }) {
           </thead>
           <tbody>
             {rows.slice(0, HISTORY_ROWS).map((s) => {
-              const period = historyPeriod(s)
+              const period = storePeriod(s)
               return (
                 <tr key={storeKey(s.source, s.license_no)} className="break-inside-avoid">
-                  <Td>{historyName(s).text}</Td>
+                  <Td>{storeName(s).text}</Td>
                   {/* 기간 사유가 길어져도 업종(2~3글자)은 한 줄로 */}
                   <Td nowrap>{SUB_CATEGORY_LABEL[s.sub_category]}</Td>
-                  <Td>{historyOpenDate(s).text}</Td>
-                  <Td>{historyCloseDate(s)?.text ?? '—'}</Td>
+                  <Td>{storeOpenDate(s).text}</Td>
+                  <Td>{storeCloseDate(s, s.store_status)?.text ?? '—'}</Td>
                   <Td>
                     {period.text}
                     {period.reason && <span className="block text-gray-600">{period.reason}</span>}

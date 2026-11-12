@@ -159,7 +159,7 @@
 
 폐업인데 `close_date=null`인 폐업일 칸: `missing_close_date` → "폐업일 정보 없음", `invalid_date_order` → "개업일·폐업일 확인 필요", 그 밖(`invalid_close_date` 등) → "폐업일 확인 필요". null만 보고 원자료가 없었다고 단정하지 않는다.
 
-FE 처리 (이력 표·출력용 진단서 공통, `src/utils/history.ts`)
+FE 처리 (이력 표·출력용 진단서 공통 — 정렬 `src/utils/history.ts`, 결측 문구 `src/utils/storeDisplay.ts`는 주변 점포·시점 조회·지도와 같이 씀)
 
 - **점포 식별 = `source` + `license_no`** (`src/utils/storeKey.ts` → `"${source}:${license_no}"`). 관리번호가 같아도 원천이 다르면 두 행을 그대로 둔다 (BE DB `UNIQUE(source, license_no)`).
 - 정렬: 최근 개업 순, 개업일 미확인 맨 뒤, 같은 날짜는 source → license_no. API·캐시 배열은 복사 후 정렬.
@@ -178,56 +178,92 @@ FE 처리 (이력 표·출력용 진단서 공통, `src/utils/history.ts`)
 
 ### 2-3. `GET /api/stores/nearby` — 반경 안 동일 업종 점포 (F-03·F-04)
 
-요청: 공통 조회 파라미터 전체.
+> 2026-11-12 BE 실제 계약 반영 (BE `docs/fe-nearby-api-request.md`, `docs/fe-system-audit-request.md` 4·5번)
+
+요청: 공통 조회 파라미터 전체. unknown 토글은 FE가 `include_unknown` 하나만 보낸다 (BE는 `include_unknown_area`·`include_unknown_franchise`에 같은 값으로 적용, 섞으면 422).
 
 | 응답 `data` | 설명 |
 |---|---|
 | `center` | `{ lat, lng }` 입력 위치 |
 | `radius_m` | 적용 반경 (지도 원 그리기용) |
-| `as_of` | 기준일 T |
+| `as_of` | 실제 적용 기준일 (과거 월은 월말, 최신 월은 원천 갱신일 — FE가 월말로 바꾸지 않음) |
 | `count` | 마커 수 |
-| `excluded_no_coord` | 좌표가 없어 제외된 점포 수 → 화면에 함께 안내 |
-| `markers[]` | `license_no`, `name`, `sub_category`, `lat`, `lng`, `distance_m`, `open_date`, `close_date`, `operating_months`, `current_status`, `franchise`, `area_m2` |
-| `message` | 0건이면 "조건에 맞는 점포가 없어요" |
+| `excluded_no_coord` | 좌표가 없어 제외된 점포 수 — **반경 안 수가 아니라 서울 전체의 같은 비공간 조건 범위** (`meta.excluded_no_coord_scope=seoul_nonspatial_cohort`). 주변 점포 수와 합치지 않는다 |
+| `markers[]` | 아래 표. **BE의 실제 거리 순서 그대로** (표시 거리로 다시 정렬·필터하지 않음) |
+| `message` | 0건이면 안내 문구 |
+
+| `markers[]` 필드 | 설명 |
+|---|---|
+| `source` | `general_restaurant` / `rest_cafe` — **`license_no`와 함께 식별** |
+| `license_no` | 관리번호 (원천마다 따로 매겨져 겹칠 수 있음) |
+| `name` | 상호 또는 `null` → "정보 없음" |
+| `sub_category`, `lat`, `lng`, `distance_m` | 세부 업종, 좌표, 서버 계산 거리 |
+| `open_date` | 시점 판단을 통과한 유효 개업일 (null 아님) |
+| `close_date` | 날짜 또는 `null` |
+| `operating_months` | **최신 데이터 기준 전체 영업 기간** (`meta.operating_period_basis=latest_data`, 과거 T까지로 자르지 않음). `0`은 실제 0개월, `null`은 미산정 |
+| `operating_period_status`, `operating_period_reason` | `fact`/`no_data`, 이력 API와 같은 사유 코드 7종 또는 `null` |
+| `current_status` | 최신 데이터 기준 상태 (선택한 과거 시점의 상태로 바꾸지 않음) |
+| `franchise` | `franchise`/`independent`/`unknown` (unknown을 개인 매장으로 바꾸지 않음) |
+| `area_m2` | ㎡ 또는 `null` (원본 0㎡도 `null` = 정보 없음) |
+
+FE 처리 (지도·표 공통)
+
+- **점포 식별 = `storeKey(source, license_no)`** — 지도 마커 관리(`overlaysRef`) 키, 마커 클릭 인자, 선택 강조, 정보창 점포 찾기, 표의 React key·선택 비교·행/버튼 클릭 인자 모두 같은 값. 같은 관리번호·다른 원천은 서로 다른 점포.
+- 반경·필터·시점이 바뀌면 이전 마커를 지도에서 내리고 선택(강조·정보창)을 푼다 (조건을 되돌려도 이전 선택이 살아나지 않음).
+- 상호·기간 결측은 `src/utils/storeDisplay.ts`로 표시: 상호 `null` → "정보 없음", 기간 `null` → "정보 없음" + 사유. 표·정보창·마커 `title`·"지도에서 보기" 버튼 이름에 문자열 `null`·빈 제목이 나오지 않는다.
 
 | 예외 | 응답 |
 |---|---|
 | 조건에 맞는 점포 0건 | 200, `count: 0`, `markers: []`, `message` |
-| `category` 누락 | 400 `CATEGORY_REQUIRED` |
-| `radius` 허용값 외 | 400 `INVALID_PARAM` |
+| `category` 누락·잘못된 업종 | 422 `CATEGORY_REQUIRED` |
+| 그 밖의 잘못된 인자 (`radius` 허용값 외, 중복·미지원 인자 등) | 422 `INVALID_PARAM` |
 | `as_of` 범위 밖 | 422 `AS_OF_OUT_OF_RANGE` |
+| 기준일·배치 미준비, DB 오류 | 500 `INTERNAL_ERROR` — 0건으로 바꾸지 않음 (화면: 오류 안내 + 다시 시도) |
 
 - 기준 시점 T에 영업 중 = `인허가일 ≤ T` 그리고 (`폐업일 없음` 또는 `폐업일 > T`). 반경 경계(거리 = 반경)는 포함.
 - 마커 색은 `current_status`(지금 상태)로 구분한다.
+- 목업 규칙: 결과 화면 주소의 `bk` 또는 `address`에 `dup` → 300m 안에 경계 점포 4곳 추가 (같은 관리번호·다른 원천 2곳(좌표 다름, 표시 거리 같음) + 상호 `null` + 기간 `no_data`). nearby 요청에는 `bk`가 없어 목업이 화면 주소를 읽는다.
 
 ### 2-4. `GET /api/stores/snapshot` — 과거 시점 점포의 지금 상태 (F-05)
+
+> 2026-11-12 BE 실제 계약 반영 (BE `docs/fe-store-snapshot-api-request.md`)
 
 요청: 공통 조회 파라미터 전체, **`as_of` 필수**.
 
 | 응답 `data` | 설명 |
 |---|---|
-| `as_of` | 기준일 T |
+| `as_of` | 실제 적용 기준일 T |
 | `total_at_as_of` | N: T 시점 동일 업종 점포 수 |
-| `still_open` | A: 지금도 운영 중 |
-| `closed_since` | B: 이후 폐업 |
-| `other` | 휴업 등 기타 |
-| `stores[]` | `license_no`, `name`, `sub_category`, `lat`, `lng`, `open_date`, `close_date`, `operating_months`, `current_status` |
-| `summary_text` | 예: "2023.10 시점 동일 업종 12곳 → 지금도 운영 중 7곳 · 폐업 5곳" |
+| `still_open` | A: 최신 데이터 기준 영업 |
+| `closed_since` | B: T 이후 폐업 |
+| `other` | 휴업 등 기타/미확인 |
+| `stores[]` | `source`, `license_no`, `name`(null 가능), `sub_category`, `lat`, `lng`, `open_date`, `close_date`, `operating_months`(null 가능), `operating_period_status`, `operating_period_reason`, `current_status` — nearby의 거리·가맹·면적은 없음 |
+| `summary_text` | 서버 문장 그대로 (FE가 다시 만들지 않음) |
+| `excluded_no_coord` | 좌표 미확보 수 (서울 전체 범위, N에 포함하지 않음) |
 
-- 항상 `N = A + B + other`. FE는 계산하지 않고 받은 값을 그대로 쓴다.
+- 항상 `N = A + B + other = stores.length`. FE는 계산하지 않고 받은 값을 그대로 쓴다.
+- 표는 nearby와 같은 식별(`storeKey`)·결측 표시(`storeDisplay`). 폐업인데 폐업일이 없으면 이력과 같은 사유별 문구.
+- 같은 조건이면 snapshot `stores`와 nearby `markers`의 점포·순서·기간이 같다 (FE가 다시 거르거나 정렬하지 않음).
 
 | 예외 | 응답 |
 |---|---|
-| `as_of` 누락·형식 오류 | 400 `INVALID_PARAM` |
-| 가장 이른 인허가일 이전 / 미래 월 | 422 `AS_OF_OUT_OF_RANGE`, `detail`에 `min_month`·`max_month` |
+| `category` 누락·잘못된 업종 | 422 `CATEGORY_REQUIRED` |
+| `as_of` 누락·형식 오류, 일반 입력 오류 | 422 `INVALID_PARAM` |
+| 허용 월 밖 | 422 `AS_OF_OUT_OF_RANGE`, `detail`에 `min_month`·`max_month` |
+| 출처·기준일 미준비, DB 실패 | 500 `INTERNAL_ERROR` |
 
 ### 2-5. `GET /api/meta/data-range` — 시점 선택 가능 범위 (F-05)
 
-| 요청 | `category` |
-|---|---|
-| 응답 `data` | `min_month`(`YYYY-MM`), `max_month`(`YYYY-MM`), `data_updated_at`, `collected_at` |
+> 2026-11-12 BE 실제 계약 반영 (BE `docs/fe-data-range-api-request.md`)
 
-- 시점 선택 UI에서 범위 밖 월을 비활성화하는 데 쓴다. 유효 표본이 없으면 BE가 날짜를 만들어내지 않는다.
+| 요청 | `category`(필수), `sub_category`(선택, 쉼표) — **주변 조회와 같은 업종 조건** (`toDataRangeParams`: 음식점에서 세부 업종을 골랐을 때만, 카페는 생략). 좌표·반경·시점·면적·가맹은 보내지 않음 |
+|---|---|
+| 응답 `data` | `min_month`(`YYYY-MM` 또는 **`null`**), `max_month`(`YYYY-MM`), **`max_date`**(최신 월의 실제 기준일), `data_updated_at`, `collected_at`(현재 `null`) |
+
+- 시점 선택 UI에서 범위 밖 월을 비활성화하는 데 쓴다. 세부 업종이 바뀌면 다시 요청한다 (query key에 포함).
+- **`min_month=null`(유효 표본 없음)** 이면 연·월·빠른 선택을 모두 막고 "선택한 업종은 과거 시점 자료가 없어 현재 기준으로만 볼 수 있어요" 안내. `max_month`로 채우지 않는다.
+- 범위 조회 오류(500)는 빈 범위로 바꾸지 않고 "기간을 불러오지 못해 현재 기준으로만" 안내.
+- 최신 월의 기준일은 월말이 아니라 `max_date`·각 조회 응답의 `as_of`. `collected_at=null`을 오늘 날짜로 채우지 않는다.
 
 ### 2-6. `GET /api/market/activity` — 개·폐업 변화와 상권 지표 (F-06)
 

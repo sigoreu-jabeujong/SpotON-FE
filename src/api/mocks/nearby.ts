@@ -29,10 +29,13 @@ function monthsBetween(from: string, to: string): number {
   return (y2 - y1) * 12 + (m2 - m1) - (d2 < d1 ? 1 : 0)
 }
 
-/** 영업 기간은 폐업일(없으면 시연 기준일)까지로 맞춘다. 폐업일이 있으면 closed */
+/**
+ * 영업 기간은 폐업일(없으면 시연 기준일)까지로 맞춘다. 폐업일이 있으면 closed.
+ * 원천은 카페 = 휴게음식점(rest_cafe), 음식점 = 일반음식점(general_restaurant)
+ */
 const seed = (
   license_no: string,
-  name: string,
+  name: string | null,
   sub_category: NearbyMarker['sub_category'],
   [dx, dy]: [number, number],
   open_date: string,
@@ -40,7 +43,9 @@ const seed = (
   franchise: NearbyMarker['franchise'],
   area_m2: number | null,
   current_status: NearbyMarker['current_status'] = close_date ? 'closed' : 'open',
+  source: NearbyMarker['source'] = sub_category === 'cafe' ? 'rest_cafe' : 'general_restaurant',
 ): NearbySeed => ({
+  source,
   license_no,
   name,
   sub_category,
@@ -49,6 +54,8 @@ const seed = (
   open_date,
   close_date,
   operating_months: monthsBetween(open_date, close_date ?? DEMO_TODAY),
+  operating_period_status: 'fact',
+  operating_period_reason: null,
   current_status,
   franchise,
   area_m2,
@@ -114,6 +121,67 @@ const RESTAURANT_SEEDS: NearbySeed[] = [
   seed('3130000-101-2019-00122', '△△피자', 'western', [-600, 500], '2019-02-02', '2024-05-31', 'franchise', 66.0),
 ]
 
+/**
+ * 테스트 규칙: 결과 화면 주소창의 bk 또는 address에 "dup"이 있으면 (예: bk=마포구-dup-1)
+ * 식별·결측 경계 점포 4곳을 300m 안에 더한다 (BE docs/fe-system-audit-request.md 4·5번 재현용).
+ * - A·B: 관리번호는 같고 원천이 다른 두 점포 (좌표 다름, 표시 거리는 184m로 같음) → 서로 다른 점포
+ * - C: 상호 null / D: 기간 미산정 (no_data + other_status, 기타 상태)
+ * nearby·snapshot 요청에는 bk가 없어 화면 주소를 읽는다 (목업 전용).
+ */
+function dupScenario(): boolean {
+  if (typeof window === 'undefined') return false
+  const q = new URLSearchParams(window.location.search)
+  return /dup/i.test(`${q.get('bk') ?? ''} ${q.get('address') ?? ''}`)
+}
+
+function dupSeeds(sub: NearbyMarker['sub_category']): NearbySeed[] {
+  const no = 'DUP-2024-00001'
+  const periodMissing = seed(
+    'DUP-2021-00003',
+    '기간 미산정 테스트',
+    sub,
+    [-60, 200],
+    '2021-01-15',
+    null,
+    'independent',
+    42.0,
+    'other',
+  )
+  return [
+    seed(
+      no,
+      '같은 번호 테스트 A',
+      sub,
+      [-160, -90],
+      '2024-03-01',
+      null,
+      'independent',
+      40.0,
+      'open',
+      'rest_cafe',
+    ),
+    seed(
+      no,
+      '같은 번호 테스트 B',
+      sub,
+      [40, -180],
+      '2022-06-01',
+      null,
+      'independent',
+      55.0,
+      'open',
+      'general_restaurant',
+    ),
+    seed('DUP-2023-00002', null, sub, [120, 60], '2023-02-01', null, 'unknown', null),
+    {
+      ...periodMissing,
+      operating_months: null,
+      operating_period_status: 'no_data',
+      operating_period_reason: 'other_status',
+    },
+  ]
+}
+
 const M_PER_DEG_LAT = 111320
 
 /** 목업 전용: 시설 규모 구간 판정 */
@@ -147,7 +215,10 @@ function storesInRadius(query: URLSearchParams): NearbyMarker[] {
   const includeUnknown = query.get('include_unknown') !== 'false'
 
   return (
-    (isRestaurant(query) ? RESTAURANT_SEEDS : CAFE_SEEDS)
+    [
+      ...(isRestaurant(query) ? RESTAURANT_SEEDS : CAFE_SEEDS),
+      ...(dupScenario() ? dupSeeds(isRestaurant(query) ? 'korean' : 'cafe') : []),
+    ]
       .map(({ dx, dy, ...store }) => ({
         ...store,
         lat: Number((lat + dy / M_PER_DEG_LAT).toFixed(6)),
@@ -274,6 +345,7 @@ export const storeSnapshotMock: MockHandler = (query) => {
   const { space } = radiusSpace(query)
   const asOf = monthEnd(asOfMonth)
   const stores: SnapshotStore[] = storesAt(query).map((m) => ({
+    source: m.source,
     license_no: m.license_no,
     name: m.name,
     sub_category: m.sub_category,
@@ -282,6 +354,8 @@ export const storeSnapshotMock: MockHandler = (query) => {
     open_date: m.open_date,
     close_date: m.close_date,
     operating_months: m.operating_months,
+    operating_period_status: m.operating_period_status,
+    operating_period_reason: m.operating_period_reason,
     current_status: m.current_status,
   }))
   const stillOpen = stores.filter((s) => s.current_status === 'open').length
@@ -296,6 +370,7 @@ export const storeSnapshotMock: MockHandler = (query) => {
     other,
     stores,
     // N = A + B + 기타가 문장에서도 맞게, 기타(휴업 등)가 있으면 함께 적는다
+    excluded_no_coord: 1,
     summary_text: `${y}.${mo} 시점 동일 업종 ${stores.length}곳 → 지금도 운영 중 ${stillOpen}곳 · 폐업 ${closedSince}곳${other > 0 ? ` · 기타(휴업 등) ${other}곳` : ''}`,
   }
   return ok(data, {

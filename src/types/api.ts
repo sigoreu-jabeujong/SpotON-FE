@@ -35,6 +35,12 @@ export type ApiMeta = {
   data_updated_at?: string | null
   /** 수집 배치 완료일 (화면 "(수집 YYYY.MM.DD)") */
   collected_at?: string | null
+  /** collected_at이 null인 이유 코드 (예: source_completion_time_not_recorded) */
+  collection_reason?: string | null
+  /** 좌표 미확보 수의 집계 범위 (nearby·snapshot: seoul_nonspatial_cohort = 서울 전체 같은 조건) */
+  excluded_no_coord_scope?: string | null
+  /** 목록 영업 기간 기준 (nearby·snapshot: latest_data = 최신 데이터 기준 전체 기간) */
+  operating_period_basis?: string | null
   /** 시연용 가상 데이터·수기 인용값이면 true */
   is_demo?: boolean | null
   data_version?: ApiDataVersion | null

@@ -103,6 +103,26 @@ export const MESSAGES = {
     candidateJibun: '지번',
     scope: '현재 서울특별시 카페·음식점(한식·중식·일식·양식)을 진단할 수 있어요',
   },
+  /** 점포 목록 결측 표시 — 이력·주변 점포·시점 조회·지도 정보창 공통 (utils/storeDisplay) */
+  store: {
+    /** 상호·개업일·기간이 없을 때 (0이나 빈칸으로 표시하지 않음) */
+    missingValue: '정보 없음',
+    /** 폐업 상태인데 폐업일이 비어 있을 때 — 사유별로 구분 (null만 보고 원자료가 없었다고 단정하지 않음) */
+    closeDateMissing: '폐업일 정보 없음',
+    closeDateCheck: '폐업일 확인 필요',
+    openDateCheck: '개업일 확인 필요',
+    dateOrderCheck: '개업일·폐업일 확인 필요',
+    /** 영업 기간 미산정 사유 (BE 사유 코드 → 문구) */
+    periodReasons: {
+      missing_open_date: '개업일 정보가 없어 기간을 확인할 수 없어요',
+      invalid_open_date: '개업일 확인이 필요해요',
+      missing_close_date: '폐업일 정보가 없어 기간을 확인할 수 없어요',
+      invalid_close_date: '폐업일 확인이 필요해요',
+      missing_source_date: '데이터 기준일 확인이 필요해요',
+      invalid_date_order: '개업일과 폐업일 확인이 필요해요',
+      other_status: '영업 상태 확인이 필요해요',
+    },
+  },
   /** STEP 02 ① 과거 점포 이력 */
   history: {
     summary: (total: number) => `이 건물에서 확인된 음식점·카페 인허가 기록 ${total}건`,
@@ -121,23 +141,6 @@ export const MESSAGES = {
       franchise: '프랜차이즈',
     },
     noCloseDate: '폐업일 없음',
-    /** 상호·개업일·기간이 없을 때 (0이나 빈칸으로 표시하지 않음) */
-    missingValue: '정보 없음',
-    /** 폐업 상태인데 폐업일이 비어 있을 때 — 사유별로 구분 (null만 보고 원자료가 없었다고 단정하지 않음) */
-    closeDateMissing: '폐업일 정보 없음',
-    closeDateCheck: '폐업일 확인 필요',
-    openDateCheck: '개업일 확인 필요',
-    dateOrderCheck: '개업일·폐업일 확인 필요',
-    /** 영업 기간 미산정 사유 (BE 사유 코드 → 문구) */
-    periodReasons: {
-      missing_open_date: '개업일 정보가 없어 기간을 확인할 수 없어요',
-      invalid_open_date: '개업일 확인이 필요해요',
-      missing_close_date: '폐업일 정보가 없어 기간을 확인할 수 없어요',
-      invalid_close_date: '폐업일 확인이 필요해요',
-      missing_source_date: '데이터 기준일 확인이 필요해요',
-      invalid_date_order: '개업일과 폐업일 확인이 필요해요',
-      other_status: '영업 상태 확인이 필요해요',
-    },
     notices: [
       '공공데이터 기반 정보로 실제 현황과 다를 수 있어요.',
       '폐업일은 행정상 신고 기록 기준이에요.',
@@ -173,6 +176,8 @@ export const MESSAGES = {
     asOfBackToCurrent: '현재로 돌아가기',
     asOfRange: (min: string, max: string) => `선택할 수 있는 기간은 ${min} ~ ${max}이에요`,
     asOfLoading: '선택할 수 있는 기간을 불러오는 중이에요',
+    /** data-range min_month가 null — 고른 업종의 과거 자료가 없음 */
+    asOfNoPast: '선택한 업종은 과거 시점 자료가 없어 현재 기준으로만 볼 수 있어요',
     asOfUnavailable: '선택할 수 있는 기간을 불러오지 못해 지금은 현재 기준으로만 볼 수 있어요',
     asOfOutOfRangeHint: '범위 밖',
   },

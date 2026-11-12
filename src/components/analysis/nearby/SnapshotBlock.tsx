@@ -1,5 +1,5 @@
 import { CircleCheck, CircleHelp, CircleX, History, Info, Store } from 'lucide-react'
-import { toCommonQueryParams } from '../../../api/params'
+import { toCommonQueryParams, toDataRangeParams } from '../../../api/params'
 import { getAsOfRangeMessage, MESSAGES } from '../../../constants/messages'
 import { useDataRange } from '../../../hooks/useDataRange'
 import { getCoordinates, useDiagnosisQuery } from '../../../hooks/useDiagnosisQuery'
@@ -31,7 +31,7 @@ export default function SnapshotBlock() {
     <div className="flex flex-col gap-4">
       <SubTitle>{T.title}</SubTitle>
       {!query.asOf ? (
-        <SnapshotGuide category={query.category} onPick={(asOf) => updateQuery({ asOf })} />
+        <SnapshotGuide query={query} onPick={(asOf) => updateQuery({ asOf })} />
       ) : snapshot.isPending ? (
         <LoadingState />
       ) : snapshot.isError ? (
@@ -92,13 +92,14 @@ function SnapshotResult({
 
 /** 기준 시점이 없을 때: 안내 + 빠른 선택 (누르면 바로 조회) */
 function SnapshotGuide({
-  category,
+  query,
   onPick,
 }: {
-  category: ReturnType<typeof useDiagnosisQuery>['query']['category']
+  query: ReturnType<typeof useDiagnosisQuery>['query']
   onPick: (asOf: string) => void
 }) {
-  const range = useDataRange(category ? { category } : null).data?.data ?? null
+  // 같은 업종·세부 업종으로 범위 조회 (min_month가 null이면 빠른 선택 모두 비활성)
+  const range = useDataRange(toDataRangeParams(query)).data?.data ?? null
   return (
     <div className="flex flex-col items-center gap-3 rounded-control border border-dashed border-gray-300 bg-gray-100 px-6 py-8 text-center">
       <History className="size-7 text-blue-500" aria-hidden="true" />

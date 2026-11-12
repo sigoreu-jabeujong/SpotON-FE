@@ -4,7 +4,9 @@ import { CURRENT_STATUS_LABEL, FRANCHISE_LABEL, SUB_CATEGORY_LABEL } from '../..
 import { MESSAGES } from '../../constants/messages'
 import type { NearbyMarker } from '../../types/stores'
 import { cn } from '../../utils/cn'
-import { formatDate, formatOperatingMonths } from '../../utils/format'
+import { formatDate } from '../../utils/format'
+import { storeName, storePeriodLine } from '../../utils/storeDisplay'
+import { storeKey } from '../../utils/storeKey'
 import LoadingState from '../common/LoadingState'
 import type { KakaoCircle, KakaoCustomOverlay, KakaoMap, KakaoMarker } from './kakaoTypes'
 import { MARKER_COLOR } from './markerStyle'
@@ -21,7 +23,7 @@ type Props = {
   badge: string
   /** 과거 시점 배지 (예: "2023년 10월 기준"). 있으면 지도 위에 주황색으로 눈에 띄게 표시 */
   pastBadge?: string | null
-  /** 강조할 점포 license_no (표에서 고른 점포) */
+  /** 강조할 점포 식별값 storeKey(source, license_no) — 표에서 고른 점포 */
   selectedId: string | null
   onSelect: (id: string | null) => void
 }
@@ -107,7 +109,7 @@ export default function NearbyMap({
     mapRef.current.setBounds(circleRef.current.getBounds())
   }, [sdk, center.lat, center.lng, radiusM])
 
-  // 3) 점포 마커 다시 그리기
+  // 3) 점포 마커 다시 그리기 — 키·클릭 인자는 원천+관리번호 (관리번호만 같은 다른 원천 점포와 섞이지 않게)
   useEffect(() => {
     if (sdk.status !== 'ready' || !mapRef.current) return
     const map = mapRef.current
@@ -115,8 +117,9 @@ export default function NearbyMap({
     overlays.forEach(({ overlay }) => overlay.setMap(null))
     overlays.clear()
     for (const m of markers) {
+      const id = storeKey(m.source, m.license_no)
       const el = makeMarkerElement(m)
-      el.addEventListener('click', () => onSelectRef.current(m.license_no))
+      el.addEventListener('click', () => onSelectRef.current(id))
       const overlay = new sdk.maps.CustomOverlay({
         position: new sdk.maps.LatLng(m.lat, m.lng),
         content: el,
@@ -124,7 +127,12 @@ export default function NearbyMap({
         zIndex: 10,
         map,
       })
-      overlays.set(m.license_no, { overlay, el })
+      overlays.set(id, { overlay, el })
+    }
+    // 반경·필터·시점이 바뀌거나 지도가 사라지면 이전 마커를 지도에서 내린다
+    return () => {
+      overlays.forEach(({ overlay }) => overlay.setMap(null))
+      overlays.clear()
     }
   }, [sdk, markers])
 
@@ -138,7 +146,7 @@ export default function NearbyMap({
     })
     infoRef.current?.setMap(null)
     infoRef.current = null
-    const store = markers.find((m) => m.license_no === selectedId)
+    const store = markers.find((m) => storeKey(m.source, m.license_no) === selectedId)
     if (!store) return
     const pos = new sdk.maps.LatLng(store.lat, store.lng)
     infoRef.current = new sdk.maps.CustomOverlay({
@@ -205,7 +213,8 @@ function makeCenterLabel(): HTMLElement {
 function makeMarkerElement(m: NearbyMarker): HTMLElement {
   const el = document.createElement('div')
   const color = MARKER_COLOR[m.current_status]
-  el.title = `${m.name} · ${CURRENT_STATUS_LABEL[m.current_status]}`
+  // 상호가 없으면 "정보 없음" (문자열 "null"·빈 title이 나오지 않게)
+  el.title = `${storeName(m).text} · ${CURRENT_STATUS_LABEL[m.current_status]}`
   el.className = cn(
     'size-3.5 cursor-pointer rounded-full border-2 border-white shadow transition-transform',
     'data-[selected=true]:scale-150 data-[selected=true]:ring-4',
@@ -221,7 +230,7 @@ function makeInfoElement(m: NearbyMarker, onClose: () => void): HTMLElement {
     'relative w-60 rounded-control bg-gray-0 p-3 text-left text-caption text-gray-900 shadow-card ring-1 ring-gray-300'
   const title = document.createElement('p')
   title.className = 'pr-6 text-body font-bold'
-  title.textContent = m.name
+  title.textContent = storeName(m).text
   box.appendChild(title)
 
   const close = document.createElement('button')
@@ -235,7 +244,8 @@ function makeInfoElement(m: NearbyMarker, onClose: () => void): HTMLElement {
   const rows: [string, string][] = [
     [T.info.category, SUB_CATEGORY_LABEL[m.sub_category]],
     [T.info.openDate, formatDate(m.open_date) ?? '—'],
-    [T.info.period, formatOperatingMonths(m.operating_months) ?? '—'],
+    // 0은 "0개월", 미산정은 "정보 없음 (사유)"
+    [T.info.period, storePeriodLine(m)],
     [T.info.status, CURRENT_STATUS_LABEL[m.current_status]],
     [T.info.franchise, FRANCHISE_LABEL[m.franchise]],
   ]
