@@ -13,7 +13,7 @@ import type {
 import MetaLine from '../common/MetaLine'
 import IndicatorArea from './IndicatorArea'
 import IndicatorCard from './IndicatorCard'
-import { formatIndicatorValue, indicatorGridSpan } from './indicatorFormat'
+import { formatIndicatorValue, indicatorGridSpan, indicatorReasonText } from './indicatorFormat'
 
 const T = MESSAGES.summary
 
@@ -54,7 +54,10 @@ function OfficialClosureCard({ ind, market }: { ind: MetricIndicator; market: Ma
       iconClassName="text-blue-500"
       title={INDICATOR_NAME.official_closure_rate}
       value={value}
-      empty={{ status: ind.status, text: ind.reason ?? DATA_STATUS[ind.status].label }}
+      empty={{
+        status: ind.status,
+        text: indicatorReasonText(ind.reason) ?? DATA_STATUS[ind.status].label,
+      }}
       details={
         value && (
           <ul className="flex flex-col gap-0.5">
@@ -167,7 +170,10 @@ function MarketChangeCard({ ind }: { ind: MetricIndicator }) {
       iconClassName="text-blue-500"
       title={INDICATOR_NAME.market_change}
       value={value}
-      empty={{ status: ind.status, text: ind.reason ?? DATA_STATUS[ind.status].label }}
+      empty={{
+        status: ind.status,
+        text: indicatorReasonText(ind.reason) ?? DATA_STATUS[ind.status].label,
+      }}
       details={value && <p>{T.marketChangeRaw}</p>}
       status={ind.status}
       source={<MetaLine source={ind.source} sourceNames period={ind.period} space={ind.space} />}

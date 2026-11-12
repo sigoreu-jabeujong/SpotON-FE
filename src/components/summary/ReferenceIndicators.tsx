@@ -5,7 +5,12 @@ import type { IndicatorId, MetricIndicator, RiskIndicator } from '../../types/ri
 import MetaLine from '../common/MetaLine'
 import IndicatorArea from './IndicatorArea'
 import IndicatorCard from './IndicatorCard'
-import { formatIndicatorValue, formatSeoulAvg, indicatorGridSpan } from './indicatorFormat'
+import {
+  formatIndicatorValue,
+  formatSeoulAvg,
+  indicatorGridSpan,
+  indicatorReasonText,
+} from './indicatorFormat'
 
 const T = MESSAGES.summary
 
@@ -51,11 +56,16 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
       title={name}
       // 값이 없으면 숫자(0) 대신 상태 아이콘과 사유만
       value={value}
-      empty={{ status: ind.status, text: ind.reason ?? DATA_STATUS[ind.status].label }}
+      empty={{
+        status: ind.status,
+        text: indicatorReasonText(ind.reason) ?? DATA_STATUS[ind.status].label,
+      }}
       details={
         (seoulLine || fraction) && (
           <ul className="flex flex-col gap-0.5">
-            {seoulLine && <li>{seoul ? T.seoulAvg(seoul) : ind.seoul_avg_reason}</li>}
+            {seoulLine && (
+              <li>{seoul ? T.seoulAvg(seoul) : indicatorReasonText(ind.seoul_avg_reason)}</li>
+            )}
             {fraction && <li>{T.fraction(ind.numerator as number, ind.denominator as number)}</li>}
           </ul>
         )

@@ -5,6 +5,7 @@ import type { RiskInterpretation } from '../../../types/risk'
 import { formatDateTime } from '../../../utils/format'
 import RobotArt from '../../common/RobotArt'
 import EvidenceChips from './EvidenceChips'
+import { indicatorReasonText } from '../indicatorFormat'
 
 const T = MESSAGES.ai
 
@@ -77,7 +78,9 @@ export default function AiResultCard({
           items={result.missing_data.map((v) => ({
             key: v.text,
             text: v.text,
-            chips: <p className="mt-0.5 text-caption text-gray-600">{v.reason}</p>,
+            chips: (
+              <p className="mt-0.5 text-caption text-gray-600">{indicatorReasonText(v.reason)}</p>
+            ),
           }))}
         />
       </Part>
