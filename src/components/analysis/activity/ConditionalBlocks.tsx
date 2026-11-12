@@ -1,36 +1,41 @@
 import { Info, Users, Wallet } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { DATA_STATUS } from '../../../constants/labels'
 import { MESSAGES } from '../../../constants/messages'
+import type { ApiMeta } from '../../../types/api'
 import type { LivingPopulation, MarketActivity, MarketSales } from '../../../types/market'
 import { formatDate, formatKrwApprox } from '../../../utils/format'
 import Badge from '../../common/Badge'
 import InfoBox from '../../common/InfoBox'
 import MetaLine from '../../common/MetaLine'
 import SubTitle from '../../common/SubTitle'
+import { optionalDataState, type OptionalDataState } from './optionalData'
 
 const T = MESSAGES.activity
 
-type Props = { activity: MarketActivity }
+type Props = { activity: MarketActivity; meta: ApiMeta | null | undefined }
 
 /**
  * 조건부 지표 — 추정매출(상권 단위)과 생활인구(250m 격자 단위).
- * 집계 단위가 달라 블록과 메타 줄을 따로 두고, 자료가 없으면 "자료 없음" 카드만 보여준다.
+ * 집계 단위가 달라 블록과 메타 줄을 따로 두고, 값이 없으면 숫자 대신 상태 카드만 보여준다
+ * ("자료 확인 중" + 사유 / "자료 없음" — optionalData.ts).
  */
-export default function ConditionalBlocks({ activity }: Props) {
-  const missing = activity.flags?.missing ?? []
-  const salesMissing = !activity.sales || missing.includes('sales')
-  const livingMissing = !activity.living_pop || missing.includes('living_pop')
+export default function ConditionalBlocks({ activity, meta }: Props) {
+  const sales = optionalDataState(activity, meta, 'sales')
+  const living = optionalDataState(activity, meta, 'living_pop')
   return (
     <div className="grid grid-cols-2 gap-6">
       <Block title={T.salesTitle} icon={Wallet} notice={T.salesNotice}>
-        {salesMissing || !activity.sales ? <MissingCard /> : <SalesBody sales={activity.sales} />}
+        {sales.kind === 'data' && activity.sales ? (
+          <SalesBody sales={activity.sales} />
+        ) : (
+          <MissingCard state={sales} />
+        )}
       </Block>
       <Block title={T.livingTitle} icon={Users} notice={T.livingNotice}>
-        {livingMissing || !activity.living_pop ? (
-          <MissingCard />
-        ) : (
+        {living.kind === 'data' && activity.living_pop ? (
           <LivingBody living={activity.living_pop} />
+        ) : (
+          <MissingCard state={living} />
         )}
       </Block>
     </div>
@@ -132,7 +137,8 @@ function LivingBody({ living }: { living: LivingPopulation }) {
   )
 }
 
-/** flags.missing — 아직 확보하지 못한 자료 (결과 화면 공통 안내 상자 모양) */
-function MissingCard() {
-  return <InfoBox showTitle title={DATA_STATUS.no_data.label} description={T.missingData} />
+/** 값이 없을 때 — 자료 확인 중(사유) / 자료 없음 (결과 화면 공통 안내 상자 모양) */
+function MissingCard({ state }: { state: OptionalDataState }) {
+  if (state.kind === 'data') return null
+  return <InfoBox showTitle title={state.label} description={state.reason} />
 }

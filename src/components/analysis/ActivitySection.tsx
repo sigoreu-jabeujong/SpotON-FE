@@ -4,8 +4,10 @@ import { getAsOfRangeMessage, MESSAGES } from '../../constants/messages'
 import { getCoordinates, useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { useMarketActivity } from '../../hooks/useMarketActivity'
 import { useRisk } from '../../hooks/useRisk'
+import type { ApiMeta } from '../../types/api'
 import { formatDataBaseline } from '../../utils/format'
 import ErrorState from '../common/ErrorState'
+import InfoBox from '../common/InfoBox'
 import LoadingSkeleton from '../common/Skeleton'
 import MetaLine from '../common/MetaLine'
 import SubTitle from '../common/SubTitle'
@@ -27,6 +29,7 @@ export default function ActivitySection() {
   // 종합 진단 화면과 같은 쿼리 키(include 없음) → 캐시 공유
   const risk = useRisk(params)
   const meta = activity.data?.meta
+  const ytd = ytdMonthDay(meta)
 
   return (
     <AnalysisSection id="activity">
@@ -47,6 +50,10 @@ export default function ActivitySection() {
           />
         ) : (
           <>
+            {/* 가맹 분류 확인 중 + 프랜차이즈 조건 → 0건이어도 "점포 없음"으로 단정하지 않게 */}
+            {query.franchise !== 'all' && meta?.franchise_classification?.status === 'pending' && (
+              <InfoBox showTitle title={T.franchisePendingTitle} description={T.franchisePending} />
+            )}
             <div className="flex flex-col gap-3">
               <SubTitle>{T.statusTitle}</SubTitle>
               <StoreStatusCards
@@ -70,12 +77,25 @@ export default function ActivitySection() {
               <Suspense fallback={<LoadingSkeleton variant="chart" />}>
                 <YearlyTrendChart trend={activity.data.data.yearly_trend} />
               </Suspense>
+              {ytd && <p className="text-caption text-gray-600">{T.trendYtd(ytd)}</p>}
             </div>
 
-            <ConditionalBlocks activity={activity.data.data} />
+            <ConditionalBlocks activity={activity.data.data} meta={meta} />
           </>
         )}
       </div>
     </AnalysisSection>
   )
+}
+
+/**
+ * 연도별 비교가 "같은 월일까지(YTD)"이면 그 월일 ("10월 31일") — 가장 최근 연도 비교 기간의 끝 날짜.
+ * 서버 기간을 그대로 읽기만 한다 (날짜를 계산하지 않음). 기준이 없거나 다르면 null
+ */
+function ytdMonthDay(meta: ApiMeta | null | undefined): string | null {
+  if (meta?.yearly_comparison_basis !== 'same_month_day_ytd' || !meta.yearly_periods) return null
+  const latest = Object.keys(meta.yearly_periods).sort().at(-1)
+  const end = latest ? meta.yearly_periods[latest]?.end : null
+  const m = end ? /^\d{4}-(\d{2})-(\d{2})$/.exec(end) : null
+  return m ? `${Number(m[1])}월 ${Number(m[2])}일` : null
 }

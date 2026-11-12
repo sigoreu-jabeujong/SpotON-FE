@@ -42,6 +42,10 @@ import { cn } from '../utils/cn'
 import { sortHistoryRecentFirst } from '../utils/history'
 import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../utils/storeDisplay'
 import { storeKey } from '../utils/storeKey'
+import {
+  optionalDataState,
+  type OptionalDataState,
+} from '../components/analysis/activity/optionalData'
 
 const T = MESSAGES.report
 const HISTORY_ROWS = 8
@@ -294,6 +298,12 @@ function ActivityBlock({ data }: { data: Data }) {
   const a = data.activity.data?.data
   if (!a) return null
   const A = MESSAGES.activity
+  // 화면 블록과 같은 기준 — 값이 없으면 "자료 확인 중(사유)" 또는 "자료 없음" (숫자를 만들지 않음)
+  const meta = data.activity.data?.meta
+  const missingText = (s: OptionalDataState) =>
+    s.kind === 'pending' ? `${s.label} (${s.reason})` : T.noData
+  const sales = optionalDataState(a, meta, 'sales')
+  const living = optionalDataState(a, meta, 'living_pop')
   return (
     <Block title={T.activityTitle}>
       <div className="grid grid-cols-2 gap-x-4">
@@ -314,22 +324,22 @@ function ActivityBlock({ data }: { data: Data }) {
           </li>
           <li>
             {A.salesTitle}:{' '}
-            {a.sales
+            {sales.kind === 'data' && a.sales
               ? (a.sales.markets ?? [])
                   .map((m) => `${m.market_name} ${formatKrwApprox(m.est_sales)}(${A.estimate})`)
                   .join(' · ')
-              : T.noData}
+              : missingText(sales)}
           </li>
           <li>
             {A.livingTitle}:{' '}
-            {a.living_pop
+            {living.kind === 'data' && a.living_pop
               ? T.livingSummary(
                   A.people(a.living_pop.total),
                   A.estimate,
                   formatDate(a.living_pop.date) ?? '',
                   a.living_pop.missing_grid_count,
                 )
-              : T.noData}
+              : missingText(living)}
           </li>
         </ul>
         <table className="w-full border-collapse text-center">
