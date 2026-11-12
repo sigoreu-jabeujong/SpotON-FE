@@ -1,6 +1,6 @@
 # API 계약 요약 (FE 관점)
 
-> 마지막 갱신: 2026-11-10
+> 마지막 갱신: 2026-11-12
 > 기준: 06 API 명세서 v1.1(PDF, 2026-11-09) + BE 작업계획서(`SpotON-BE/docs/be-work-plan.md`). 둘이 다르면 BE 작업계획서를 따른다 → [차이 표](#명세서pdf-v11-vs-be-작업계획서-차이)
 > 응답 예시 숫자는 모두 시연용 가상 값이다.
 
@@ -117,26 +117,64 @@
 
 ### 2-2. `GET /api/stores/history` — 같은 건물의 과거 점포 (F-02)
 
+> 2026-11-12 BE 실제 계약 반영 (BE `docs/fe-store-history-api-request.md`, `docs/fe-system-audit-request.md` 3·4·5번)
+
 | 요청 | 필수 | 설명 |
 |---|---|---|
-| `building_key` | 필수 | `/geocode` 결과 |
-| `floor_unit` | 선택 | 있으면 점포별 `location_match` 판정에 사용 |
-| `category` | 선택 | 진단 맥락 업종. 의미는 [차이 표](#명세서pdf-v11-vs-be-작업계획서-차이) 참고 |
+| `building_key` | 필수 | `/geocode` 결과 그대로. 잘못된 값·지원하지 않는 파라미터는 422 `INVALID_PARAM` |
+| `floor_unit` | 선택 | 확인된 상세 위치만. 없으면 생략 |
+| `category` | 선택 | 진단 맥락 업종 — 이력 업종 필터가 **아님** (`cafe`로 요청해도 같은 건물의 지원 음식점 이력이 함께 나온다) |
 
 | 응답 `data` | 설명 |
 |---|---|
 | `total` | 이력 점포 수 |
-| `stores[]` | 인허가일 오름차순: `license_no`, `name`, `category`, `sub_category`, `open_date`, `close_date`, `operating_months`, `store_status`, `franchise`, `floor_unit`, `location_match` |
+| `stores[]` | 개업일 오름차순, **개업일 미확인은 마지막** (BE 정렬: null 마지막 → 날짜 → source → license_no) |
 | `message` | 0건일 때 안내 문구, 아니면 `null` |
+
+`stores[]` 항목 (`src/types/stores.ts`의 `HistoryStore`) — **null은 키 생략이 아니라 "값 없음"**
+
+| 필드 | 타입 | 화면 |
+|---|---|---|
+| `source` | `general_restaurant` \| `rest_cafe` | 점포 식별에 함께 사용 (아래) |
+| `license_no` | string | 단독 고유 식별자로 쓰지 않는다 |
+| `name` | string \| null | null → "정보 없음" |
+| `open_date` | `YYYY-MM-DD` \| null | null → "정보 없음"(`missing_open_date`) / "개업일 확인 필요"(`invalid_open_date`) |
+| `close_date` | `YYYY-MM-DD` \| null | 영업 중이면 null. **폐업인데 null**이면 상태는 폐업 유지 + 사유별 문구(아래) |
+| `operating_months` | 0 이상 정수 \| null | `0` + `fact` → "0개월" / `null` + `no_data` → "정보 없음" + 사유 |
+| `operating_period_status` | `fact` \| `no_data` | 기간 계산 완료 / 미산정 |
+| `operating_period_reason` | 사유 코드 \| null | 아래 표. `fact`면 null |
+| `category`, `sub_category`, `store_status`, `franchise`, `floor_unit`, `location_match` | (기존과 같음) | 서버 값 그대로 (FE에서 다시 판정하지 않음) |
+
+기간 미산정 사유 → 화면 문구 (`MESSAGES.history.periodReasons`)
+
+| 코드 | 문구 |
+|---|---|
+| `missing_open_date` | 개업일 정보가 없어 기간을 확인할 수 없어요 |
+| `invalid_open_date` | 개업일 확인이 필요해요 |
+| `missing_close_date` | 폐업일 정보가 없어 기간을 확인할 수 없어요 |
+| `invalid_close_date` | 폐업일 확인이 필요해요 |
+| `missing_source_date` | 데이터 기준일 확인이 필요해요 |
+| `invalid_date_order` | 개업일과 폐업일 확인이 필요해요 |
+| `other_status` | 영업 상태 확인이 필요해요 |
+
+폐업인데 `close_date=null`인 폐업일 칸: `missing_close_date` → "폐업일 정보 없음", `invalid_date_order` → "개업일·폐업일 확인 필요", 그 밖(`invalid_close_date` 등) → "폐업일 확인 필요". null만 보고 원자료가 없었다고 단정하지 않는다.
+
+FE 처리 (이력 표·출력용 진단서 공통, `src/utils/history.ts`)
+
+- **점포 식별 = `source` + `license_no`** (`src/utils/storeKey.ts` → `"${source}:${license_no}"`). 관리번호가 같아도 원천이 다르면 두 행을 그대로 둔다 (BE DB `UNIQUE(source, license_no)`).
+- 정렬: 최근 개업 순, 개업일 미확인 맨 뒤, 같은 날짜는 source → license_no. API·캐시 배열은 복사 후 정렬.
+- 날짜·기간을 프론트에서 만들거나 채우지 않는다. 화면·`title`에 문자열 `null`·빈칸이 나오지 않게 한다.
+- `meta.collected_at=null`(+ `collection_reason`)이면 수집일을 표시하지 않는다 (오늘 날짜로 채우지 않음).
 
 | 예외 | 응답 |
 |---|---|
 | 이력 0건 | 200, `total: 0`, `message: "이 건물에서 확인된 음식점·카페 인허가 기록이 없어요"` |
 | 층·호실 미확인 | 200, 그 점포 `location_match: "unverified"` (화면: "건물 단위 이력 / 상세 위치 미확인") |
-| `building_key` 누락 | 400 `INVALID_PARAM` |
+| `building_key` 누락·잘못된 값, 지원하지 않는 파라미터 | 422 `INVALID_PARAM` |
 
-- 건물 주소가 같아도 층·호실이 다르면 같은 자리가 아니다. 인허가번호가 다르면 다른 점포다.
+- 건물 주소가 같아도 층·호실이 다르면 같은 자리가 아니다.
 - 폐업은 **행정상 신고 기록 기준**이다.
+- 목업 규칙: `bk`에 `missing` → 결측·미산정·원천 중복 경계 응답, `empty` → 0건, `error` → 500.
 
 ### 2-3. `GET /api/stores/nearby` — 반경 안 동일 업종 점포 (F-03·F-04)
 
