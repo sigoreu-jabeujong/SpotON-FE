@@ -1,11 +1,11 @@
 import { MapPinOff } from 'lucide-react'
 import { useEffect, useRef } from 'react'
-import { CURRENT_STATUS_LABEL, FRANCHISE_LABEL, SUB_CATEGORY_LABEL } from '../../constants/labels'
+import { CURRENT_STATUS_LABEL, SUB_CATEGORY_LABEL } from '../../constants/labels'
 import { MESSAGES } from '../../constants/messages'
 import type { NearbyMarker } from '../../types/stores'
 import { cn } from '../../utils/cn'
 import { formatDate } from '../../utils/format'
-import { storeName, storePeriodLine } from '../../utils/storeDisplay'
+import { storeFranchise, storeName, storePeriodLine } from '../../utils/storeDisplay'
 import { storeKey } from '../../utils/storeKey'
 import LoadingState from '../common/LoadingState'
 import type { KakaoCircle, KakaoCustomOverlay, KakaoMap, KakaoMarker } from './kakaoTypes'
@@ -247,7 +247,8 @@ function makeInfoElement(m: NearbyMarker, onClose: () => void): HTMLElement {
     // 0은 "0개월", 미산정은 "정보 없음 (사유)"
     [T.info.period, storePeriodLine(m)],
     [T.info.status, CURRENT_STATUS_LABEL[m.current_status]],
-    [T.info.franchise, FRANCHISE_LABEL[m.franchise]],
+    // 표와 같은 근거 문구 (예: 프랜차이즈(추정) · 2025년 브랜드 목록과 상호 일치 · 실제 계약·과거 소속 아님)
+    [T.info.franchise, franchiseLine(m)],
   ]
   const dl = document.createElement('dl')
   dl.className = 'mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5'
@@ -261,4 +262,9 @@ function makeInfoElement(m: NearbyMarker, onClose: () => void): HTMLElement {
   }
   box.appendChild(dl)
   return box
+}
+
+function franchiseLine(m: NearbyMarker): string {
+  const f = storeFranchise(m)
+  return f.help ? `${f.label} (${f.help})` : f.label
 }

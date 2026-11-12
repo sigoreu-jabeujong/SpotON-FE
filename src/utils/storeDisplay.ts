@@ -3,8 +3,14 @@
  * ⚠️ 날짜·기간을 만들거나 계산하지 않는다. 서버 값이 없으면 "정보 없음"·사유 문구만 돌려준다.
  * (문자열 "null"·빈 제목이 화면에 나오지 않게 상호는 항상 이 함수를 거친다)
  */
+import type { FranchiseFilter } from '../constants/diagnosis'
 import { MESSAGES } from '../constants/messages'
-import type { OperatingPeriodReason, StoreStatus } from '../types/stores'
+import type {
+  FranchiseBasis,
+  FranchiseStatus,
+  OperatingPeriodReason,
+  StoreStatus,
+} from '../types/stores'
 import { formatDate, formatOperatingMonths } from './format'
 
 const T = MESSAGES.store
@@ -73,4 +79,59 @@ export function storePeriod(
 export function storePeriodLine(s: { operating_months: number | null } & WithReason): string {
   const p = storePeriod(s)
   return p.reason ? `${p.text} (${p.reason})` : p.text
+}
+
+type WithFranchise = {
+  franchise: FranchiseStatus
+  franchise_basis?: FranchiseBasis | null
+  franchise_reference_year?: number | null
+}
+
+/**
+ * 프랜차이즈 표시 (BE 가맹 추정 요청서 2장)
+ * - catalog_exact_name → "프랜차이즈(추정)" + "2025년 브랜드 목록과 상호 일치 · 실제 계약·과거 소속 아님"
+ * - external_classification → 기존 분류 값 그대로 (자동 일치·계약 증빙이라고 설명하지 않음)
+ * - unknown → "정보 없음" (개인 매장으로 바꾸지 않음)
+ * 근거 필드가 없는 예전 응답의 franchise는 기존처럼 "프랜차이즈(추정)".
+ */
+export function storeFranchise(s: WithFranchise): {
+  kind: 'estimate' | 'external' | 'unknown'
+  label: string
+  help: string | null
+} {
+  const F = T.franchise
+  if (s.franchise === 'unknown') return { kind: 'unknown', label: F.unknown, help: null }
+  if (s.franchise_basis === 'external_classification')
+    return {
+      kind: 'external',
+      label: s.franchise === 'franchise' ? F.external : F.independent,
+      help: F.externalHelp,
+    }
+  if (s.franchise === 'independent') return { kind: 'external', label: F.independent, help: null }
+  return {
+    kind: 'estimate',
+    label: F.estimate,
+    help:
+      s.franchise_basis === 'catalog_exact_name'
+        ? F.estimateHelp(s.franchise_reference_year ?? null)
+        : null,
+  }
+}
+
+/** 목록에 목록명 일치 추정 행이 있으면 그 기준년도 (표 아래 안내용), 없으면 undefined */
+export function franchiseEstimateYear(rows: readonly WithFranchise[]): number | null | undefined {
+  const row = rows.find(
+    (r) => r.franchise === 'franchise' && r.franchise_basis === 'catalog_exact_name',
+  )
+  return row ? (row.franchise_reference_year ?? null) : undefined
+}
+
+/**
+ * 가맹 필터로 0건일 때 — "점포가 없다"가 아니라 분류 자료가 없어 0건임을 알린다 (BE 가맹 추정 요청서 3장).
+ * 전체 조건이면 null (서버 message 사용)
+ */
+export function franchiseEmptyMessage(franchise: FranchiseFilter): string | null {
+  if (franchise === 'franchise') return MESSAGES.store.franchise.emptyFranchise
+  if (franchise === 'independent') return MESSAGES.store.franchise.emptyIndependent
+  return null
 }

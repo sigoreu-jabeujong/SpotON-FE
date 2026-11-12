@@ -105,6 +105,41 @@ export const MESSAGES = {
   },
   /** 점포 목록 결측 표시 — 이력·주변 점포·시점 조회·지도 정보창 공통 (utils/storeDisplay) */
   store: {
+    /**
+     * 프랜차이즈 표시 (BE 가맹 추정 요청서 2장) — 표·지도 정보창·진단서 공통.
+     * "당시 프랜차이즈였다"처럼 과거 소속·계약으로 읽히는 표현을 쓰지 않는다
+     */
+    franchise: {
+      estimate: '프랜차이즈(추정)',
+      external: '프랜차이즈',
+      independent: '개인 매장',
+      unknown: '정보 없음',
+      estimateHelp: (year: number | null) =>
+        `${year ? `${year}년 ` : ''}브랜드 목록과 상호 일치 · 실제 계약·과거 소속 아님`,
+      externalHelp: '기존 분류 자료 기준',
+      /** 표 아래 안내 (추정 행이 있을 때) */
+      /**
+       * 가맹 필터를 골랐을 때 안내 (요청서 3·5장) — 0건을 "이 조건의 점포가 없다"로 읽지 않게.
+       * 개인 매장은 기존 외부 분류(false)만 고르므로 지금 자료로는 거의 0건이다
+       */
+      filterNoticeTitle: '프랜차이즈 분류 기준 안내',
+      filterFranchise: (year: number | null) =>
+        `프랜차이즈(추정) 조건은 ${year ? `${year}년 ` : ''}브랜드 목록과 상호가 같은 점포만 골라 계산해요. 실제 가맹계약이나 개업 당시 소속 기준이 아니고, 분류가 확인되지 않은 점포는 빠져요.`,
+      filterIndependent:
+        '개인 매장 조건은 기존 분류 자료에서 개인 매장으로 확인된 점포만 골라요. 이 자료가 적어 0곳으로 보일 수 있고, 개인 매장이 없다는 뜻은 아니에요.',
+      /** 가맹 필터 + 0건일 때 빈 결과 문구 */
+      emptyFranchise:
+        '브랜드 목록과 상호가 일치한 점포가 없어 0곳으로 보여요. 프랜차이즈 점포가 없다는 뜻은 아니에요.',
+      emptyIndependent:
+        '개인 매장 분류 자료가 아직 없어 0곳으로 보여요. 이 조건의 점포가 없다는 뜻은 아니에요.',
+      /** 조회 조건의 가맹 선택지 옆 짧은 도움말 */
+      optionHint: {
+        franchise: '브랜드 목록 상호 일치 기준 · 분류 미확인 점포 제외',
+        independent: '기존 분류 자료가 있는 점포만 · 0곳으로 보일 수 있어요',
+      },
+      note: (year: number | null) =>
+        `프랜차이즈(추정)은 ${year ? `${year}년 ` : ''}공정위 브랜드 목록과 상호가 같은 점포예요. 실제 가맹계약·직영 여부·개업 당시 소속을 확인한 값은 아니에요.`,
+    },
     /** 상호·개업일·기간이 없을 때 (0이나 빈칸으로 표시하지 않음) */
     missingValue: '정보 없음',
     /** 폐업 상태인데 폐업일이 비어 있을 때 — 사유별로 구분 (null만 보고 원자료가 없었다고 단정하지 않음) */
@@ -144,7 +179,7 @@ export const MESSAGES = {
     notices: [
       '공공데이터 기반 정보로 실제 현황과 다를 수 있어요.',
       '폐업일은 행정상 신고 기록 기준이에요.',
-      '프랜차이즈 여부는 공정위 가맹정보와 상호를 비교한 추정값이에요.',
+      '프랜차이즈(추정)은 공정위 브랜드 목록과 상호가 같은지로 고른 값이에요. 실제 계약이나 과거 소속은 아니에요.',
     ],
     noticeTitle: '이력 확인 시 참고하세요',
     spaceBuilding: '건물 단위',
@@ -247,6 +282,7 @@ export const MESSAGES = {
       closeDate: '폐업일',
       period: '영업 기간',
       status: '현재 상태',
+      franchise: '프랜차이즈',
     },
     noCloseDate: '폐업일 없음',
     emptyStores: '그 시점에 조건에 맞는 점포가 없어요',
@@ -341,6 +377,10 @@ export const MESSAGES = {
       boundary_version_not_selected: '공식 상권 경계를 확인 중이에요',
       population_aggregation_and_grid_time_unverified: '생활인구 집계 기준을 확인 중이에요',
       source_period_and_boundary_unverified: '매출 집계 기간과 적용 경계를 확인하고 있어요',
+      /** AI 부족한 자료 — 가맹 분류 (BE 가맹 추정 요청서 5장) */
+      franchise_name_match_estimate:
+        '프랜차이즈 여부는 브랜드 목록과 상호 일치로 추정한 값이에요 (실제 계약·과거 소속 아님)',
+      classification_unverified: '프랜차이즈 분류를 확인하고 있어요',
       not_applicable: '서울 비교 대상이 아니에요',
       outside_market: '상권 밖 주소라 상권 단위 지표가 없어요',
     } as Record<string, string>,
@@ -418,6 +458,7 @@ export const MESSAGES = {
     radius: '반경',
     asOf: '기준 시점',
     asOfCurrent: '현재',
+    franchise: '프랜차이즈',
     historyTitle: '1. 과거 점포 이력',
     historyMore: (shown: number, total: number) => `최근 개업 순 ${total}건 중 ${shown}건`,
     nearbyTitle: '2. 주변 점포·시점 조회',
@@ -590,16 +631,23 @@ export function getErrorMessage(code: string | null | undefined): string {
  * AS_OF_OUT_OF_RANGE 오류면 error.detail의 min_month·max_month로
  * "선택할 수 있는 기간은 YYYY.MM ~ YYYY.MM이에요"를 만든다. 다른 오류·detail 없음이면 null
  */
-export function getAsOfRangeMessage(error: unknown): string | null {
+export function getAsOfRangeMessage(
+  error: unknown,
+  range?: { min_month: string | null; max_month: string } | null,
+): string | null {
   if (typeof error !== 'object' || error === null) return null
   if (!('code' in error) || error.code !== 'AS_OF_OUT_OF_RANGE') return null
-  const detail = 'detail' in error ? error.detail : null
-  if (typeof detail !== 'object' || detail === null) return ERROR_MESSAGES.AS_OF_OUT_OF_RANGE
-  const min = 'min_month' in detail ? detail.min_month : null
-  const max = 'max_month' in detail ? detail.max_month : null
-  if (typeof min !== 'string' || typeof max !== 'string') return ERROR_MESSAGES.AS_OF_OUT_OF_RANGE
   const dot = (ym: string) => ym.replace('-', '.')
-  return MESSAGES.filter.asOfRange(dot(min), dot(max))
+  const detail = 'detail' in error ? error.detail : null
+  const min =
+    typeof detail === 'object' && detail && 'min_month' in detail ? detail.min_month : null
+  const max =
+    typeof detail === 'object' && detail && 'max_month' in detail ? detail.max_month : null
+  if (typeof min === 'string' && typeof max === 'string')
+    return MESSAGES.filter.asOfRange(dot(min), dot(max))
+  // 지금 BE는 error.detail을 보내지 않는다 → 같은 업종 조건의 data-range 응답으로 범위를 안내
+  if (range?.min_month) return MESSAGES.filter.asOfRange(dot(range.min_month), dot(range.max_month))
+  return ERROR_MESSAGES.AS_OF_OUT_OF_RANGE
 }
 
 /** 잡힌 오류 객체(ApiRequestError 등)에서 code를 꺼내 안내 문구를 찾는다 */

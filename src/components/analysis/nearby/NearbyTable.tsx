@@ -1,20 +1,18 @@
 import { MapPin } from 'lucide-react'
 import { useMemo } from 'react'
-import {
-  CURRENT_STATUS_LABEL,
-  FRANCHISE_LABEL,
-  SUB_CATEGORY_LABEL,
-} from '../../../constants/labels'
+import { CURRENT_STATUS_LABEL, SUB_CATEGORY_LABEL } from '../../../constants/labels'
 import { MESSAGES } from '../../../constants/messages'
 import { useShowMore } from '../../../hooks/useShowMore'
-import type { FranchiseStatus, NearbyMarker, StoreStatus } from '../../../types/stores'
+import type { NearbyMarker, StoreStatus } from '../../../types/stores'
 import { cn } from '../../../utils/cn'
 import { formatArea, formatCount, formatDate } from '../../../utils/format'
 import { storeName, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
 import Badge, { type BadgeTone } from '../../common/Badge'
+import FranchiseNote from '../../common/FranchiseNote'
 import ShowMoreButton from '../../common/ShowMoreButton'
 import StatusLabel from '../../common/StatusLabel'
+import StoreFranchiseCell from '../../common/StoreFranchiseCell'
 import StorePeriodCell from '../../common/StorePeriodCell'
 
 const T = MESSAGES.nearby
@@ -106,7 +104,7 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                     </Badge>
                   </td>
                   <td className="px-3 py-3">
-                    <FranchiseCell franchise={m.franchise} />
+                    <StoreFranchiseCell store={m} />
                   </td>
                 </tr>
               )
@@ -114,6 +112,7 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
           </tbody>
         </table>
       </div>
+      <FranchiseNote rows={markers} />
       <p className="sr-only" aria-live="polite">
         {MESSAGES.list.shownCount(shown, total)}
       </p>
@@ -121,12 +120,5 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
         <ShowMoreButton shown={shown} total={total} onClick={showMore} controls={TABLE_ID} />
       )}
     </div>
-  )
-}
-
-function FranchiseCell({ franchise }: { franchise: FranchiseStatus }) {
-  if (franchise === 'unknown') return <StatusLabel status="unknown" />
-  return (
-    <Badge tone={franchise === 'franchise' ? 'blue' : 'gray'}>{FRANCHISE_LABEL[franchise]}</Badge>
   )
 }

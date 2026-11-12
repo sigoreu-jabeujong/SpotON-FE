@@ -11,9 +11,8 @@ import {
   formatSeoulAvg,
   indicatorReasonText,
 } from '../components/summary/indicatorFormat'
-import { CATEGORIES, RESTAURANT_SUB_CATEGORIES } from '../constants/diagnosis'
+import { CATEGORIES, FRANCHISE_OPTIONS, RESTAURANT_SUB_CATEGORIES } from '../constants/diagnosis'
 import {
-  FRANCHISE_LABEL,
   INDICATOR_NAME,
   INDICATOR_TYPE,
   LOCATION_MATCH_LABEL,
@@ -40,7 +39,14 @@ import {
 } from '../utils/format'
 import { cn } from '../utils/cn'
 import { sortHistoryRecentFirst } from '../utils/history'
-import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../utils/storeDisplay'
+import {
+  franchiseEstimateYear,
+  storeCloseDate,
+  storeFranchise,
+  storeName,
+  storeOpenDate,
+  storePeriod,
+} from '../utils/storeDisplay'
 import { storeKey } from '../utils/storeKey'
 import {
   optionalDataState,
@@ -164,6 +170,13 @@ function ReportHeader({ isDemo, data }: { isDemo: boolean; data: Data }) {
     [T.category, subs ? `${category} (${subs})` : category],
     [T.radius, `${query.radius.toLocaleString('ko-KR')}m`],
     [T.asOf, formatYearMonthKo(query.asOf) ?? T.asOfCurrent],
+    // 가맹 필터를 골랐을 때만 (기본 "전체"는 표시하지 않아 기존 진단서와 같음)
+    ...(query.franchise !== 'all'
+      ? ([[T.franchise, FRANCHISE_OPTIONS.find((f) => f.id === query.franchise)?.label ?? '']] as [
+          string,
+          string,
+        ][])
+      : []),
   ]
   return (
     <header className="break-inside-avoid">
@@ -236,12 +249,20 @@ function HistoryBlock({ data }: { data: Data }) {
                   </Td>
                   <Td>{STORE_STATUS_LABEL[s.store_status]}</Td>
                   <Td>{LOCATION_MATCH_LABEL[s.location_match]}</Td>
-                  <Td>{FRANCHISE_LABEL[s.franchise]}</Td>
+                  <Td>{storeFranchise(s).label}</Td>
                 </tr>
               )
             })}
           </tbody>
         </table>
+      )}
+      {/* 화면 표와 같은 가맹 근거 안내 — 진단서에 실린 행에 추정이 있을 때만 */}
+      {franchiseEstimateYear(rows.slice(0, HISTORY_ROWS)) !== undefined && (
+        <p className="mt-1 text-gray-600">
+          {MESSAGES.store.franchise.note(
+            franchiseEstimateYear(rows.slice(0, HISTORY_ROWS)) ?? null,
+          )}
+        </p>
       )}
     </Block>
   )
@@ -399,6 +420,16 @@ function IndicatorsBlock({ indicators, data }: { indicators: RiskIndicator[]; da
             ? S.inMarket(market.market_name, market.market_type)
             : S.outside}
       </p>
+      {/* 화면 종합 진단과 같은 가맹 필터 기준 안내 (FranchiseFilterNotice와 같은 문구) */}
+      {data.query.franchise !== 'all' && (
+        <p className="mb-1 text-gray-600">
+          {data.query.franchise === 'independent'
+            ? MESSAGES.store.franchise.filterIndependent
+            : MESSAGES.store.franchise.filterFranchise(
+                data.risk.data?.meta?.franchise_classification?.reference_year ?? null,
+              )}
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-3">
         <IndicatorTable type="official" rows={pick(OFFICIAL_IDS)} />
         <IndicatorTable type="reference" rows={pick(REFERENCE_IDS)} />
