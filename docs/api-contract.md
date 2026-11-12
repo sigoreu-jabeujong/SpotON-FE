@@ -267,19 +267,40 @@ FE 처리 (지도·표 공통)
 
 ### 2-6. `GET /api/market/activity` — 개·폐업 변화와 상권 지표 (F-06)
 
-요청: 공통 조회 파라미터 전체 + `include`(선택 항목: `sales`, `living_pop`, 쉼표 구분).
+> 2026-11-12 BE 실제 계약 반영 (BE `docs/fe-market-activity-api-request.md`)
+
+요청: 공통 조회 파라미터 전체 + `include`(선택 항목 `sales`, `living_pop`, 쉼표 구분). 미요청이면 **생략** (빈 문자열·빈 토큰·중복·대문자·모르는 항목은 422). FE는 `ACTIVITY_INCLUDE`로 두 항목을 항상 요청한다.
 
 | 응답 `data` | 설명 |
 |---|---|
-| `recent_12m` | `{ period, opened, closed }` 최근 12개월 개업·폐업 수 |
-| `yearly_trend[]` | `{ year, opened, closed }` 데이터 있는 연도만 |
-| `by_sub_category[]` | `{ sub_category, open_count, avg_operating_months }` |
-| `sales` | (조건부) `{ markets: [{ market_code, market_name, quarter, est_sales, unit }], status: "estimate", meta }` — **상권별로 따로**, 합산 금지 |
-| `living_pop` | (조건부) `{ date, total, grid_count, missing_grid_count, status: "estimate", meta }` — 250m 격자 |
-| `flags` | `{ missing: string[] }` 자료가 없는 선택 항목 (`sales`, `living_pop`) |
+| `recent_12m` | `{ period, opened, closed }` — `period`는 `(시작일, 종료일]` 실제 기간, 개·폐업 **사건 수** (폐업한 점포 기록 포함) |
+| `yearly_trend[]` | `{ year, opened, closed }` — **사건 기록이 있는 연도만** (없는 연도를 0으로 채우지 않음). 비교 기간은 `meta.yearly_comparison_basis`·`yearly_periods` |
+| `by_sub_category[]` | `{ sub_category, open_count, avg_operating_months }` — T에 유효한 점포 수, 그 점포들이 **T까지 경과한 개월의 평균(버림)**. `0` = 실제 0개월, `null` = 계산 불가(정보 없음) |
+| `sales` | (선택) `{ markets[], status: "estimate", meta }` — 상권별로 따로, 합산 금지. **지금 BE는 항상 `null`** |
+| `living_pop` | (선택) `{ date, total, grid_count, missing_grid_count, status: "estimate", meta }` — 250m 격자. **지금 BE는 항상 `null`** |
+| `flags.missing` | **요청했지만** 미산정인 선택 항목만 (미요청 항목은 넣지 않음) |
 
-- 요청하지 않았거나 자료가 없으면 `sales`/`living_pop`은 `null`이고 `flags.missing`에 이름이 들어간다.
-- BE 작업계획서: 조건부 지표는 자료 확보 전에는 `value = null`, `status = pending` + 사유로 준다 (동기화 대기).
+| `meta` (활동 전용, 선택 필드) | 설명 · FE 처리 |
+|---|---|
+| `denominator` | `null` — 활동 응답 전체의 분모 없음 (평균의 분모는 업종별 `open_count`) |
+| `cohort_size` | 폐업 기록 포함 활동 집계 대상 수 — 현재 영업 점포 수로 표시하지 않음 (화면에 안 씀) |
+| `yearly_comparison_basis`, `yearly_periods` | `same_month_day_ytd`면 연도별 추이 아래 "매년 1월 1일부터 M월 D일까지 같은 기간끼리 비교" 안내 (서버 기간을 읽기만 함) |
+| `operating_period_basis` | `elapsed_months_of_active_at_as_of` — 평균 영업 기간 카드 설명 "기준 시점까지 경과 기간 평균". 이력·주변의 전체 영업 기간과 합치지 않음 |
+| `franchise_classification` | 지금 `{ status: "pending", reason: "brand_mapping_blocked" }` — 프랜차이즈 조건을 고르면 "프랜차이즈 분류 확인 중… 점포가 없다는 뜻은 아니에요" 안내 |
+| `optional_data` | 요청한 선택 항목의 `{ status, reason }`. `pending`이면 블록에 **"자료 확인 중" + 사유 문구** (숫자 안 만듦) |
+| `excluded_no_coord` | 서울 전체 범위 좌표 미확보 수 (T 이전 개업 기록) — 화면에 안 씀, 점포 수와 합치지 않음 |
+| `collected_at` | `null` — 오늘 날짜로 채우지 않음 |
+
+선택 항목 표시 (`src/components/analysis/activity/optionalData.ts` — 화면 블록·진단서 공통)
+
+| 상태 | 화면 | 진단서 |
+|---|---|---|
+| 값 있음 | 상권별 추정매출 / 생활인구 카드 | 값 그대로 |
+| `optional_data[item].status = pending` | "자료 확인 중" + 사유 (`source_period_and_boundary_unverified` → 매출 집계 기간과 적용 경계를 확인하고 있어요, `population_aggregation_and_grid_time_unverified` → 생활인구 집계 기준을 확인 중이에요) | "자료 확인 중 (사유)" |
+| 그 밖에 값 없음 | "자료 없음 · 아직 확보하지 못한 자료예요" | "자료 없음" |
+
+- 오류: 입력 422 `INVALID_PARAM`·`CATEGORY_REQUIRED`, 범위 밖 422 `AS_OF_OUT_OF_RANGE`, 자료 준비 실패 500 `INTERNAL_ERROR` (화면: 오류 안내 + 다시 시도).
+- 목업 규칙: 기준 시점 2025-01 이전 → 추정매출 없음, 2021-01 이전 → 생활인구 없음 (자료 없음). 결과 화면 주소의 `bk`·`address`에 `pending` → 실제 BE처럼 두 항목 null + `optional_data` pending. 가맹 분류는 항상 pending, `denominator`는 null.
 
 ### 2-7. `GET /api/risk` — 공식 지표 + 참고지표 (F-07)
 
@@ -388,13 +409,30 @@ FE 처리 (지도·표 공통)
 
 ### 2-9. `GET /api/support-links` — 상담·지원 링크 (F-10)
 
+> 2026-11-12 BE 실제 계약 반영 (BE `docs/fe-support-links-api-request.md`, support-links-v2). DB 없이 동작
+
 | 요청 | 설명 |
 |---|---|
-| `sigungu` (선택) | 자치구. 지정하면 그 지역 센터를 앞에 정렬 |
-| `category` (선택) | 업종 관련 지원사업 우선 정렬 |
+| `sigungu` (선택) | 서울 25개 구의 정확한 이름 (예: `마포구`). "서울특별시" 접두사·빈 값·`null` 문자열은 422 → FE는 값이 없으면 보내지 않음 (client가 null·빈 값 생략) |
+| `category` (선택) | `cafe` / `restaurant`. **목록·순서에 영향 없음** (`category_applied: false`) |
 
-응답 `data.links[]` = `{ id, org_name, title, description, url, type(consulting / support_program), region, last_checked }`. 출처 R17.
-초기 목록 4곳: 서울시 자영업지원센터, 소상공인아카데미, 서울시 소상공인 지원사업 안내, 소상공인24.
+- 주소·좌표·건물 키는 보내지 않는다.
+- 응답 `data.links[]` = `{ id, org_name, title, description, url, type(consulting / support_program), region, last_checked }` (모든 키 있음). 출처 R17.
+- 구 생략: 공통 4곳 (서울시 자영업지원센터 → 소상공인아카데미 → 서울시 소상공인 지원사업 안내 → 소상공인24).
+- **구 지정: 관할 지역센터 1곳(`semas-seoul-*`)이 맨 앞 + 공통 4곳 = 5곳.** 서버 순서 그대로, 자르거나 다시 정렬하지 않음. key는 `id` (관할 센터 URL은 모두 같은 중기부 공고라 URL로 합치지 않음).
+  - 관할: jungbu 중구·종로구·성북구·동대문구 / dongbu 광진구·성동구·강동구·중랑구 / seobu 강서구·양천구·영등포구 / nambu 강남구·서초구·송파구 / bukbu 노원구·도봉구·강북구 / dongjak 동작구·용산구 / gwanak 관악구·구로구·금천구 / seodaemun 서대문구·은평구·마포구 (2026-10-01 공고 기준, 거리 순 아님)
+- 설명·확인일(`last_checked`)은 서버 값 그대로. "맞춤 지원사업·신청 가능·자격" 표현을 쓰지 않는다. 외부 링크는 새 창(`rel="noopener noreferrer"`).
+
+| `meta` (선택 필드) | 설명 · FE 처리 |
+|---|---|
+| `link_catalog_version` | `support-links-v2` |
+| `prioritization` | `not_applied`/`general_links_only` 또는 `applied`/`district_contact_first`(+`category_applied:false`) — `applied`면 첫 항목에 "관할 지역센터 연락처" 배지 |
+| `district_contact_source` | 구 지정 시만 `{ url, published_on, checked_on, page, table }` → "관할 연락처는 중소벤처기업부 공고(공고일) 첨부 N쪽 기준이에요 · 확인일" |
+| `data_updated_at` | 링크 확인일 최댓값 — 분석 기준일과 합치지 않음 (화면에 안 씀) |
+
+- 링크 아래 "모집 기간·지원 조건은 연결된 공식 사이트에서 확인해 주세요" 안내.
+- 오류: 422 `INVALID_PARAM`, 500 → 오류 안내 + 다시 시도.
+- 목업은 같은 구조 (관할 센터 문구는 2026-11-12 로컬 BE 응답을 옮김).
 
 ## 3. 열거값
 
