@@ -1,12 +1,14 @@
 # 결정 사항과 미결 사항
 
-> 마지막 갱신: 2026-11-11
+> 마지막 갱신: 2026-11-12
 > 새 결정은 날짜와 함께 위에 추가하고, 관련 문서([api-contract.md](api-contract.md), [screens.md](screens.md), [display-rules.md](display-rules.md))를 따라 고친다.
 
 ## 1. 결정됨
 
 | 날짜 | 결정 | 메모 |
 |---|---|---|
+| 2026-11-12 | **점포 식별 = `source` + `license_no`** (`"${source}:${license_no}"`, `src/utils/storeKey.ts`) | 일반음식점·휴게음식점 원천마다 관리번호가 따로 매겨져 같은 번호가 있을 수 있음 (BE DB `UNIQUE(source, license_no)`). 같은 관리번호·다른 원천은 합치지 않고 두 점포로 둔다. 이력부터 적용, 주변 점포·시점 조회·지도는 지시문 25에서 같은 규칙으로 |
+| 2026-11-12 | 점포 이력의 **결측은 "정보 없음"·사유로 표시** (0·빈칸·`null` 금지) | 개업일 미확인은 맨 뒤, 0개월(fact)과 미산정(no_data)을 구분, 폐업인데 폐업일 없음은 사유별 문구. 이력 표와 진단서가 `src/utils/history.ts` 하나를 같이 씀 |
 | 2026-11-11 | STEP 02 탭 제목은 **"입지 정보 분석 \| Spot:ON"으로 고정** | 보고 있는 섹션과 관계없이 같은 제목 (PR #16) |
 | 2026-11-11 | **CI가 develop 대상 PR에서도 돈다** (해결) | 커밋 312bfe7로 `branches: [main, develop]` 수정됨, 저장소 기본 브랜치도 develop |
 | 2026-11-10 | **FE PR은 류민지가 merge commit으로 머지**한다 | 커밋 기록 보존. BE 머지 방식은 BE가 정한다 (BE 작업계획서는 Squash) |

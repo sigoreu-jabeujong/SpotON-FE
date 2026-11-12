@@ -121,6 +121,23 @@ export const MESSAGES = {
       franchise: '프랜차이즈',
     },
     noCloseDate: '폐업일 없음',
+    /** 상호·개업일·기간이 없을 때 (0이나 빈칸으로 표시하지 않음) */
+    missingValue: '정보 없음',
+    /** 폐업 상태인데 폐업일이 비어 있을 때 — 사유별로 구분 (null만 보고 원자료가 없었다고 단정하지 않음) */
+    closeDateMissing: '폐업일 정보 없음',
+    closeDateCheck: '폐업일 확인 필요',
+    openDateCheck: '개업일 확인 필요',
+    dateOrderCheck: '개업일·폐업일 확인 필요',
+    /** 영업 기간 미산정 사유 (BE 사유 코드 → 문구) */
+    periodReasons: {
+      missing_open_date: '개업일 정보가 없어 기간을 확인할 수 없어요',
+      invalid_open_date: '개업일 확인이 필요해요',
+      missing_close_date: '폐업일 정보가 없어 기간을 확인할 수 없어요',
+      invalid_close_date: '폐업일 확인이 필요해요',
+      missing_source_date: '데이터 기준일 확인이 필요해요',
+      invalid_date_order: '개업일과 폐업일 확인이 필요해요',
+      other_status: '영업 상태 확인이 필요해요',
+    },
     notices: [
       '공공데이터 기반 정보로 실제 현황과 다를 수 있어요.',
       '폐업일은 행정상 신고 기록 기준이에요.',

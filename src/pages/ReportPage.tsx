@@ -34,6 +34,15 @@ import {
   formatSpace,
   formatYearMonthKo,
 } from '../utils/format'
+import { cn } from '../utils/cn'
+import {
+  historyCloseDate,
+  historyName,
+  historyOpenDate,
+  historyPeriod,
+  sortHistoryRecentFirst,
+} from '../utils/history'
+import { storeKey } from '../utils/storeKey'
 
 const T = MESSAGES.report
 const HISTORY_ROWS = 8
@@ -178,7 +187,8 @@ function HistoryBlock({ data }: { data: Data }) {
   const h = data.history.data?.data
   if (!h) return null
   const stores = h.stores ?? []
-  const rows = [...stores].sort((a, b) => b.open_date.localeCompare(a.open_date))
+  // 화면 이력 표와 같은 정렬·결측 표시 (utils/history)
+  const rows = sortHistoryRecentFirst(stores)
   return (
     <Block title={T.historyTitle}>
       <p className="mb-1">
@@ -208,18 +218,25 @@ function HistoryBlock({ data }: { data: Data }) {
             </tr>
           </thead>
           <tbody>
-            {rows.slice(0, HISTORY_ROWS).map((s) => (
-              <tr key={s.license_no} className="break-inside-avoid">
-                <Td>{s.name}</Td>
-                <Td>{SUB_CATEGORY_LABEL[s.sub_category]}</Td>
-                <Td>{formatDate(s.open_date)}</Td>
-                <Td>{formatDate(s.close_date) ?? '—'}</Td>
-                <Td>{formatOperatingMonths(s.operating_months)}</Td>
-                <Td>{STORE_STATUS_LABEL[s.store_status]}</Td>
-                <Td>{LOCATION_MATCH_LABEL[s.location_match]}</Td>
-                <Td>{FRANCHISE_LABEL[s.franchise]}</Td>
-              </tr>
-            ))}
+            {rows.slice(0, HISTORY_ROWS).map((s) => {
+              const period = historyPeriod(s)
+              return (
+                <tr key={storeKey(s.source, s.license_no)} className="break-inside-avoid">
+                  <Td>{historyName(s).text}</Td>
+                  {/* 기간 사유가 길어져도 업종(2~3글자)은 한 줄로 */}
+                  <Td nowrap>{SUB_CATEGORY_LABEL[s.sub_category]}</Td>
+                  <Td>{historyOpenDate(s).text}</Td>
+                  <Td>{historyCloseDate(s)?.text ?? '—'}</Td>
+                  <Td>
+                    {period.text}
+                    {period.reason && <span className="block text-gray-600">{period.reason}</span>}
+                  </Td>
+                  <Td>{STORE_STATUS_LABEL[s.store_status]}</Td>
+                  <Td>{LOCATION_MATCH_LABEL[s.location_match]}</Td>
+                  <Td>{FRANCHISE_LABEL[s.franchise]}</Td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       )}
@@ -227,8 +244,17 @@ function HistoryBlock({ data }: { data: Data }) {
   )
 }
 
-function Td({ children }: { children: ReactNode }) {
-  return <td className="border border-gray-300 px-1.5 py-0.5 align-top">{children}</td>
+function Td({ children, nowrap }: { children: ReactNode; nowrap?: boolean }) {
+  return (
+    <td
+      className={cn(
+        'border border-gray-300 px-1.5 py-0.5 align-top',
+        nowrap && 'whitespace-nowrap',
+      )}
+    >
+      {children}
+    </td>
+  )
 }
 
 function NearbyBlock({ data }: { data: Data }) {
