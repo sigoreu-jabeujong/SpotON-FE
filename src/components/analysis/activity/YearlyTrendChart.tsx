@@ -40,6 +40,7 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
   const tableId = useId()
 
   if (trend.length === 0) return <EmptyState message={T.trendEmpty} />
+  const yearTicks = axisTicks(trend.map((t) => t.year))
 
   return (
     <div className="flex flex-col gap-2">
@@ -47,8 +48,14 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={trend} margin={{ top: 8, right: 16, bottom: 0, left: -8 }} barGap={4}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e6e6e6" />
+            {/* 숫자 축: 실제 연도 간격대로 그린다 (없는 연도는 0으로 채우지 않고 빈 자리로 둔다 — 1971→2002가 붙어 보이지 않게) */}
             <XAxis
               dataKey="year"
+              type="number"
+              domain={[yearTicks[0] - 0.5, yearTicks[yearTicks.length - 1] + 0.5]}
+              ticks={yearTicks}
+              allowDecimals={false}
+              interval={0}
               tickFormatter={(y: number) => T.trendYear(y)}
               tick={{ fontSize: 12, fill: '#666666' }}
               axisLine={{ stroke: '#e6e6e6' }}
@@ -135,4 +142,21 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
       </div>
     </div>
   )
+}
+
+/**
+ * x축 눈금 연도 (표시용) — 10년 이하면 매년, 길면 5·10·20년 간격으로 끝 연도까지.
+ * 데이터 값은 바꾸지 않고 축 글자 위치만 정한다
+ */
+function axisTicks(years: number[]): number[] {
+  const min = Math.min(...years)
+  const max = Math.max(...years)
+  const span = max - min
+  if (span <= 10) return Array.from({ length: span + 1 }, (_, i) => min + i)
+  const step = span <= 30 ? 5 : span <= 60 ? 10 : 20
+  const ticks: number[] = []
+  for (let y = Math.ceil(min / step) * step; y <= max; y += step) ticks.push(y)
+  if (ticks[0] !== min) ticks.unshift(min)
+  if (ticks[ticks.length - 1] !== max) ticks.push(max)
+  return ticks
 }
