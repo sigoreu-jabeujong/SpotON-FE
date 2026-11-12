@@ -14,13 +14,8 @@ import type {
   StoreStatus,
 } from '../../../types/stores'
 import { cn } from '../../../utils/cn'
-import {
-  historyCloseDate,
-  historyName,
-  historyOpenDate,
-  historyPeriod,
-  sortHistoryRecentFirst,
-} from '../../../utils/history'
+import { sortHistoryRecentFirst } from '../../../utils/history'
+import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
 import Badge, { type BadgeTone } from '../../common/Badge'
 import ShowMoreButton from '../../common/ShowMoreButton'
@@ -62,10 +57,10 @@ export default function HistoryTable({ stores }: Props) {
           </thead>
           <tbody>
             {visible.map((s, i) => {
-              const name = historyName(s)
-              const open = historyOpenDate(s)
-              const close = historyCloseDate(s)
-              const period = historyPeriod(s)
+              const name = storeName(s)
+              const open = storeOpenDate(s)
+              const close = storeCloseDate(s, s.store_status)
+              const period = storePeriod(s)
               return (
                 <tr
                   // 관리번호가 같아도 원천이 다르면 다른 점포 — source+license_no로 구분
