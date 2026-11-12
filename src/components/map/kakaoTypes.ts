@@ -13,7 +13,19 @@ export interface KakaoLatLngBounds {
   extend(latlng: KakaoLatLng): void
 }
 
+export interface KakaoPoint {
+  x: number
+  y: number
+}
+
+/** 지도 좌표 ↔ 화면 픽셀 변환 (현재 확대 수준 기준) */
+export interface KakaoMapProjection {
+  pointFromCoords(latlng: KakaoLatLng): KakaoPoint
+  coordsFromPoint(point: KakaoPoint): KakaoLatLng
+}
+
 export interface KakaoMap {
+  getProjection(): KakaoMapProjection
   setCenter(latlng: KakaoLatLng): void
   panTo(latlng: KakaoLatLng): void
   setBounds(bounds: KakaoLatLngBounds, paddingTop?: number): void
@@ -43,6 +55,26 @@ export interface KakaoCustomOverlay {
   setZIndex(z: number): void
 }
 
+/**
+ * 마커 클러스터러 (SDK libraries=clusterer, 무료) — 마커가 많을 때 가까운 것끼리 묶어 그린다.
+ * CustomOverlay도 넣을 수 있다. https://apis.map.kakao.com/web/documentation/#MarkerClusterer
+ */
+export interface KakaoMarkerClusterer {
+  addMarkers(markers: KakaoCustomOverlay[], nodraw?: boolean): void
+  clear(): void
+  setMap(map: KakaoMap | null): void
+}
+
+export type KakaoClustererOptions = {
+  map: KakaoMap
+  averageCenter?: boolean
+  minLevel?: number
+  gridSize?: number
+  minClusterSize?: number
+  disableClickZoom?: boolean
+  styles?: Partial<CSSStyleDeclaration>[]
+}
+
 /** 확대·축소 버튼 (빈 객체 표식) */
 export type KakaoZoomControl = { readonly __kakaoZoomControl: unique symbol }
 
@@ -50,6 +82,7 @@ export interface KakaoMapsNamespace {
   load(callback: () => void): void
   LatLng: new (lat: number, lng: number) => KakaoLatLng
   LatLngBounds: new () => KakaoLatLngBounds
+  Point: new (x: number, y: number) => KakaoPoint
   Map: new (
     container: HTMLElement,
     options: { center: KakaoLatLng; level: number; draggable?: boolean },
@@ -81,6 +114,8 @@ export interface KakaoMapsNamespace {
     clickable?: boolean
   }) => KakaoCustomOverlay
   ZoomControl: new () => KakaoZoomControl
+  /** libraries=clusterer로 불러왔을 때만 있다 */
+  MarkerClusterer?: new (options: KakaoClustererOptions) => KakaoMarkerClusterer
   ControlPosition: { RIGHT: number; TOPRIGHT: number; BOTTOMRIGHT: number }
 }
 
