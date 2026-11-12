@@ -6,7 +6,11 @@ import ErrorState from '../components/common/ErrorState'
 import IndicatorTypeLabel from '../components/common/IndicatorTypeLabel'
 import LoadingState from '../components/common/LoadingState'
 import StatusLabel from '../components/common/StatusLabel'
-import { formatIndicatorValue, formatSeoulAvg } from '../components/summary/indicatorFormat'
+import {
+  formatIndicatorValue,
+  formatSeoulAvg,
+  indicatorReasonText,
+} from '../components/summary/indicatorFormat'
 import { CATEGORIES, RESTAURANT_SUB_CATEGORIES } from '../constants/diagnosis'
 import {
   FRANCHISE_LABEL,
@@ -383,9 +387,12 @@ function IndicatorsBlock({ indicators, data }: { indicators: RiskIndicator[]; da
   return (
     <Block title={T.indicatorsTitle}>
       <p className="mb-1">
-        {market.status === 'in_market' && market.market_name
-          ? S.inMarket(market.market_name, market.market_type)
-          : S.outside}
+        {/* 확인 중(unverified)은 상권 안·밖으로 확정하지 않는다 (화면 MarketCard와 같은 기준) */}
+        {market.status === 'unverified'
+          ? S.unverified
+          : market.status === 'in_market' && market.market_name
+            ? S.inMarket(market.market_name, market.market_type)
+            : S.outside}
       </p>
       <div className="grid grid-cols-2 gap-3">
         <IndicatorTable type="official" rows={pick(OFFICIAL_IDS)} />
@@ -452,9 +459,11 @@ function MetricText({ ind }: { ind: MetricIndicator }) {
   return (
     <span className="flex flex-wrap items-center gap-1">
       {value && <b>{value}</b>}
-      <StatusLabel status={ind.status} reason={value ? null : ind.reason} />
+      <StatusLabel status={ind.status} reason={value ? null : indicatorReasonText(ind.reason)} />
       {ind.unit === '%' && (seoul || ind.seoul_avg_reason) && (
-        <span className="text-gray-600">({seoul ? T.seoulAvg(seoul) : ind.seoul_avg_reason})</span>
+        <span className="text-gray-600">
+          ({seoul ? T.seoulAvg(seoul) : indicatorReasonText(ind.seoul_avg_reason)})
+        </span>
       )}
     </span>
   )
@@ -487,7 +496,9 @@ function AiBlock({ data }: { data: Data }) {
             />
             <AiList
               title={A.sections.missing}
-              items={(ai.missing_data ?? []).map((v) => `${v.text} — ${v.reason}`)}
+              items={(ai.missing_data ?? []).map(
+                (v) => `${v.text} — ${indicatorReasonText(v.reason) ?? ''}`,
+              )}
             />
             <AiList title={A.sections.favorable} items={(ai.favorable ?? []).map((v) => v.text)} />
             <AiList
