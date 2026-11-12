@@ -27,10 +27,18 @@ export default function NearbySection() {
   const coords = getCoordinates(query)
   const params = coords ? toCommonQueryParams(query, coords) : null
   const nearby = useNearbyStores(params)
+  // 선택 = 점포 식별값 storeKey(source, license_no). 지도 마커·정보창·표가 같은 값을 쓴다.
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  // 반경·필터·시점이 바뀌면 이전 선택(강조·정보창)을 푼다 — 조건을 되돌려도 다시 살아나지 않게
+  const paramsKey = JSON.stringify(params)
+  const [selectedFor, setSelectedFor] = useState(paramsKey)
+  if (selectedFor !== paramsKey) {
+    setSelectedFor(paramsKey)
+    setSelectedId(null)
+  }
   const mapWrapRef = useRef<HTMLDivElement>(null)
 
-  /** 표에서 고르면 지도가 보이게 올려 주고 마커를 강조한다 */
+  /** 표에서 고르면 지도가 보이게 올려 주고 마커를 강조한다 (id = storeKey) */
   const selectFromTable = (id: string) => {
     setSelectedId(id)
     mapWrapRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: 'nearest' })
@@ -62,7 +70,7 @@ export default function NearbySection() {
               <>
                 <div ref={mapWrapRef} className="scroll-mt-sticky">
                   {/* 지도가 깨져도 아래 조회 조건·점포 표는 그대로 보인다 */}
-                  <SectionErrorBoundary resetKey={JSON.stringify(params)}>
+                  <SectionErrorBoundary resetKey={paramsKey}>
                     <NearbyMap
                       center={data.center}
                       radiusM={data.radius_m}

@@ -9,10 +9,13 @@ import { MESSAGES } from '../../../constants/messages'
 import { useShowMore } from '../../../hooks/useShowMore'
 import type { FranchiseStatus, NearbyMarker, StoreStatus } from '../../../types/stores'
 import { cn } from '../../../utils/cn'
-import { formatArea, formatCount, formatDate, formatOperatingMonths } from '../../../utils/format'
+import { formatArea, formatCount, formatDate } from '../../../utils/format'
+import { storeName, storePeriod } from '../../../utils/storeDisplay'
+import { storeKey } from '../../../utils/storeKey'
 import Badge, { type BadgeTone } from '../../common/Badge'
 import ShowMoreButton from '../../common/ShowMoreButton'
 import StatusLabel from '../../common/StatusLabel'
+import StorePeriodCell from '../../common/StorePeriodCell'
 
 const T = MESSAGES.nearby
 const TABLE_ID = 'nearby-table'
@@ -25,7 +28,7 @@ const STATUS_TONE: Record<StoreStatus, BadgeTone> = {
 type Props = {
   markers: NearbyMarker[]
   selectedId: string | null
-  /** 행(점포명)을 누르면 지도에서 해당 마커를 강조·정보창 열기 */
+  /** 행(점포명)을 누르면 지도에서 해당 마커를 강조·정보창 열기. id = storeKey(source, license_no) */
   onSelect: (id: string) => void
 }
 
@@ -55,11 +58,15 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
           </thead>
           <tbody>
             {visible.map((m, i) => {
-              const selected = m.license_no === selectedId
+              // 관리번호가 같아도 원천이 다르면 다른 점포 — 키·선택 비교·클릭 인자 모두 source+license_no
+              const id = storeKey(m.source, m.license_no)
+              const selected = id === selectedId
+              const name = storeName(m)
+              const period = storePeriod(m)
               return (
                 <tr
-                  key={m.license_no}
-                  onClick={() => onSelect(m.license_no)}
+                  key={id}
+                  onClick={() => onSelect(id)}
                   className={cn(
                     'cursor-pointer border-t border-gray-300 motion-colors',
                     selected ? 'bg-blue-100' : 'even:bg-gray-100/60 hover:bg-blue-100/50',
@@ -71,15 +78,17 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                     <button
                       type="button"
                       aria-pressed={selected}
-                      aria-label={`${m.name} ${T.showOnMap}`}
+                      aria-label={`${name.text} ${T.showOnMap}`}
                       onClick={(e) => {
                         e.stopPropagation()
-                        onSelect(m.license_no)
+                        onSelect(id)
                       }}
                       className="inline-flex items-center gap-1 rounded hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
                     >
                       {selected && <MapPin className="size-3.5 text-blue-500" aria-hidden="true" />}
-                      {m.name}
+                      <span className={cn(name.missing && 'font-normal text-gray-600')}>
+                        {name.text}
+                      </span>
                     </button>
                   </th>
                   <td className="px-3 py-3">{SUB_CATEGORY_LABEL[m.sub_category]}</td>
@@ -88,8 +97,8 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                     {m.area_m2 === null ? <StatusLabel status="unknown" /> : formatArea(m.area_m2)}
                   </td>
                   <td className="px-3 py-3 whitespace-nowrap">{formatDate(m.open_date)}</td>
-                  <td className="px-3 py-3 font-semibold whitespace-nowrap">
-                    {formatOperatingMonths(m.operating_months)}
+                  <td className="px-3 py-3">
+                    <StorePeriodCell period={period} />
                   </td>
                   <td className="px-3 py-3">
                     <Badge tone={STATUS_TONE[m.current_status]}>
