@@ -129,6 +129,7 @@ export default function DiagnosisForm({
         )}
         <p id="address-example" className="mt-1.5 pl-4 text-micro text-gray-600">
           {T.addressExample}
+          <span className="block">{T.addressFloorHint}</span>
         </p>
         {children}
       </div>

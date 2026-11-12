@@ -93,7 +93,9 @@ export const MESSAGES = {
     cardDescription: '주소와 업종을 입력하면 과거 점포 이력부터 주변 상권까지 분석할 수 있어요.',
     addressLabel: '진단 위치 입력',
     addressPlaceholder: '도로명 주소 또는 지번 주소를 입력하세요',
-    addressExample: '예) 서울특별시 강남구 강남대로 396',
+    addressExample: '예) 서울특별시 마포구 양화로 45 2층',
+    /** 층·호수를 함께 쓰면 geocode가 floor_unit으로 읽어 이력의 "같은 자리" 판정에 쓴다 */
+    addressFloorHint: '층·호수까지 입력하면 같은 자리였는지 더 정확히 확인해요',
     searchButton: '주소 검색',
     categoryLabel: '업종 선택',
     required: '*필수 입력 항목입니다.',
