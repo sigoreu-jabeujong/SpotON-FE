@@ -49,18 +49,22 @@ npm run format           # Prettier 자동 정리 (커밋 전)
 npm run build            # 타입 검사 + 빌드
 ```
 - 백엔드 없이 화면을 개발할 때는 `.env`에 `VITE_USE_MOCK=true` → `src/api/mocks/index.ts`에 명세서 예시 응답 등록
+- **BE 단계 연결**: 목업 모드에서도 `VITE_REAL_API_PATHS`(쉼표 목록, 예: `/geocode,/support-links`)에 적은 경로만 실제 BE로 보낸다 (`src/api/client.ts`). BE가 꺼져 있으면 실행 환경에서만 값을 바꾸고 `.env`는 수정·출력하지 않는다
+- 개발 서버 포트는 `npx vite --port 5180` (카카오 지도 허용 도메인이 5180)
 
 ## API 응답 형식 (BE와 반드시 동일하게 유지)
 ```ts
-// 06 API 명세서 기준 (기존 success 필드 형식에서 변경 — BE CLAUDE.md 동기화 필요). 상세: docs/api-contract.md
+// 06 API 명세서 기준 (BE app/schemas/common.py의 공통 외피와 같음). 상세: docs/api-contract.md
 type ApiResponse<T> = {
-  data: T | null;
+  data: T | null;          // data와 error 중 하나만 값이 있다
   meta: {
     source?: string[] | null; as_of?: string | null; space?: string | null;
     denominator?: number | null; data_updated_at?: string | null; collected_at?: string | null;
     is_demo?: boolean | null; data_version?: { /* 배치 ID·기준 분기·매핑/규칙 버전 */ } | null;
-  } | null; // 오류 시 null 또는 {}
+    // + API별 선택 필드 (collection_reason, optional_data, prioritization 등 — 다른 API에 필수로 강제하지 않음)
+  } | null; // 오류 시 BE는 {}
   error: { code: string; message: string; detail?: Record<string, unknown> | null } | null;
+  // detail은 지금 BE가 보내지 않는다 (없을 때도 화면이 동작해야 함)
 };
 ```
 - 이 타입은 `src/types/api.ts`에 두고 모든 API 함수가 사용 (`src/api/client.ts`의 `apiGet`/`apiPost`)
@@ -68,6 +72,8 @@ type ApiResponse<T> = {
 - 형식을 바꾸면 `../SpotON-BE/CLAUDE.md`도 함께 수정한다
 - API 경로는 `/api/...` (예: `/api/geocode`), 기본 주소는 `import.meta.env.VITE_API_BASE_URL` (경로 접두사 없이 서버 주소만 지정)
 - 지원 업종은 카페와 음식점(한식·중식·일식·양식)이다. 카페는 별도 세부 업종을 선택하지 않는다.
+- **점포 식별은 `source` + `license_no`** (`src/utils/storeKey.ts`). 관리번호는 원천마다 따로 매겨져 겹칠 수 있다 — 이력·주변·시점 표, 지도 마커·선택, React key 모두 같은 규칙, 같은 번호·다른 원천을 합치지 않는다
+- null은 "값 없음"이다. 상호·날짜·기간이 null이면 0이나 빈칸 대신 "정보 없음"·사유(`src/utils/storeDisplay.ts`)를 보여주고, BE 사유 코드는 문구로 바꿔 보여준다 (영문 코드·문자열 `null` 노출 금지)
 - 키즈카페·라이브카페·분식·치킨·주점·기타 음식점·제과점은 분석 대상에서 제외한다.
 
 ## 코딩 규칙

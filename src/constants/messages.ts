@@ -64,7 +64,7 @@ export const MESSAGES = {
     stepLabel: (n: number) => `${n}단계`,
     dataTitle: '이런 데이터를 사용해요',
     dataDescription:
-      '공공기관이 공개한 데이터를 서버에서 모아 계산하고, 출처와 기준일을 함께 보여줘요.',
+      '공공데이터와 지도 서비스 정보를 서버에서 모아 계산하고, 출처와 기준일을 함께 보여줘요.',
     dataNotice: '공공데이터 기반 참고 정보이며 창업 성공·실패를 판단하지 않아요.',
     ctaTitle: '계약 전에, 그 자리를 한 번 더 확인해 보세요',
     ctaDescription: '주소와 업종만 입력하면 바로 볼 수 있어요.',
@@ -191,8 +191,12 @@ export const MESSAGES = {
     mapBadge: (radius: number, asOf: string | null) =>
       `반경 ${radius.toLocaleString('ko-KR')}m${asOf ? ` · 기준일 ${asOf}` : ''}`,
     total: (count: number) => `조건에 맞는 점포 ${count.toLocaleString('ko-KR')}곳`,
+    /**
+     * excluded_no_coord는 반경 안 수가 아니라 서울 전체 같은 조건(업종·시점·면적·가맹) 기준 (BE 제안 표현).
+     * 반경 점포 수와 합치지 않는다 — 화면·진단서 같은 문구
+     */
     excludedNoCoord: (n: number) =>
-      `좌표 정보가 없어 지도에서 제외된 점포 ${n.toLocaleString('ko-KR')}곳`,
+      `서울 전체 동일 조건 중 좌표 미확보 ${n.toLocaleString('ko-KR')}건 (지도·반경 점포 수에 포함하지 않아요)`,
     legendTitle: '현재 상태',
     legendRadius: '진단 위치 반경',
     sortNearest: '가까운 순',
