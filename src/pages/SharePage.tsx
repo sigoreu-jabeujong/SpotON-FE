@@ -1,7 +1,6 @@
 import { FileDown, Handshake, Headset, ImageDown, type LucideIcon } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import Card from '../components/common/Card'
-import Reveal from '../components/common/Reveal'
 import RediagnoseBanner from '../components/share/RediagnoseBanner'
 import SummaryImageCard from '../components/share/SummaryImageCard'
 import SupportLinksSection from '../components/share/SupportLinksSection'
@@ -62,14 +61,8 @@ export default function SharePage() {
           <span className="text-danger">{imageReady ? T.imageFailed : T.imageNeedsData}</span>
         )}
       </p>
-
-      <Reveal>
-        <SupportLinksSection />
-      </Reveal>
-
-      <Reveal>
-        <RediagnoseBanner />
-      </Reveal>
+      <SupportLinksSection />
+      <RediagnoseBanner />
 
       {/* 요약 이미지용 카드 — 화면 밖에 그려 두고 html2canvas가 읽는다 */}
       {imageReady && (
