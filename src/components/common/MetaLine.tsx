@@ -47,62 +47,68 @@ export default function MetaLine({
   className,
 }: Props) {
   const ids = parseSourceIds(source)
-  const parts: { key: string; node: ReactNode }[] = []
+  // 항목마다 앞에 작은 이름표(출처·데이터 기준일·기준일·기간·표본) + 값. 내용은 예전과 한 글자도 다르지 않다
+  const parts: { key: string; label?: string; node: ReactNode }[] = []
 
   if (ids.length > 0) {
     parts.push({
       key: 'source',
-      node: (
-        <>
-          {MESSAGES.meta.source}{' '}
-          {ids.map((id, i) => (
-            <span key={id}>
-              {i > 0 && '·'}
-              {sourceNames && SOURCES[id] ? (
-                `${SOURCES[id].name}(${id})`
-              ) : (
-                <abbr title={SOURCES[id]?.name ?? id} className="no-underline">
-                  {id}
-                </abbr>
-              )}
-            </span>
-          ))}
-        </>
-      ),
+      label: MESSAGES.meta.source,
+      node: ids.map((id, i) => (
+        <span key={id}>
+          {i > 0 && '·'}
+          {sourceNames && SOURCES[id] ? (
+            `${SOURCES[id].name}(${id})`
+          ) : (
+            <abbr title={SOURCES[id]?.name ?? id} className="no-underline">
+              {id}
+            </abbr>
+          )}
+        </span>
+      )),
     })
   }
-  if (baseline) parts.push({ key: 'baseline', node: baseline })
+  if (baseline) {
+    // "데이터 기준일 2026.11.08 (수집 …)" → 이름표 "데이터 기준일" + 값
+    const m = /^(데이터 기준일) (.+)$/.exec(baseline)
+    parts.push(
+      m ? { key: 'baseline', label: m[1], node: m[2] } : { key: 'baseline', node: baseline },
+    )
+  }
   const date = formatDate(asOf)
-  if (date) parts.push({ key: 'asOf', node: `${MESSAGES.meta.asOf} ${date}` })
+  if (date) parts.push({ key: 'asOf', label: MESSAGES.meta.asOf, node: date })
   const periodText = formatPeriod(period)
-  if (periodText) parts.push({ key: 'period', node: `${MESSAGES.meta.period} ${periodText}` })
+  if (periodText) parts.push({ key: 'period', label: MESSAGES.meta.period, node: periodText })
   const spaceName = spaceLabel ?? formatSpace(space)
   if (spaceName) parts.push({ key: 'space', node: spaceName })
   const sample = formatCount(denominator, MESSAGES.units.store)
-  if (sample) parts.push({ key: 'denominator', node: `${MESSAGES.meta.sample} ${sample}` })
+  if (sample) parts.push({ key: 'denominator', label: MESSAGES.meta.sample, node: sample })
 
   if (parts.length === 0 && !isDemo) return null
   return (
     <p
       className={cn(
-        'flex flex-wrap items-center gap-x-0 gap-y-1 text-micro text-gray-600',
+        'flex max-w-4xl flex-wrap items-baseline gap-y-1 text-micro leading-relaxed text-gray-600',
         className,
       )}
     >
-      {label && <span className="mr-1.5 font-semibold text-gray-900">{label}</span>}
+      {label && <span className="mr-2 font-semibold text-gray-900">{label}</span>}
       {isDemo && (
-        <Badge tone="orange" className="mr-2">
+        <Badge tone="orange" className="mr-2 self-center">
           {MESSAGES.meta.demo}
         </Badge>
       )}
       {parts.map((p, i) => (
         <span key={p.key}>
           {i > 0 && (
-            <span aria-hidden="true" className="mx-1">
+            <span aria-hidden="true" className="mx-2 text-gray-300">
               ·
             </span>
           )}
-          {p.node}
+          {/* 이름표와 값 사이에 실제 공백을 둬 읽기·복사 때 붙지 않게 */}
+          {p.label && <span className="font-medium text-gray-900">{p.label}</span>}
+          {p.label && ' '}
+          <span className="tabular-nums">{p.node}</span>
         </span>
       ))}
     </p>
