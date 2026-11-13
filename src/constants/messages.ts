@@ -543,6 +543,8 @@ export const MESSAGES = {
     intro:
       'AI가 서버에서 검증한 설명의 순서와 계약 전 현장 확인 항목을 정리해 드려요. 새 사실을 조사하거나 성공·실패를 예측하지 않아요.',
     start: 'AI 해석 보기',
+    /** 화면 읽기 프로그램에만 알리는 도착 안내 */
+    loadedAnnounce: 'AI 해석을 불러왔어요',
     startNotice: '만 18세 이상 대상 · 참고용 해석이에요',
     loading: 'AI가 해석을 만들고 있어요 (최대 20초)',
     retry: '다시 시도',

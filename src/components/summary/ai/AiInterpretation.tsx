@@ -1,10 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { Bot, LoaderCircle, Sparkles } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { queryKeys } from '../../../api/queryKeys'
 import { MESSAGES } from '../../../constants/messages'
 import { useRiskInterpret } from '../../../hooks/useRisk'
 import type { CommonQueryParams } from '../../../types/api'
-import type { RiskInterpretRequest } from '../../../types/risk'
+import type { RiskInterpretation, RiskInterpretRequest } from '../../../types/risk'
 import Button from '../../common/Button'
 import SubTitle from '../../common/SubTitle'
 import RobotArt from '../../common/RobotArt'
@@ -28,6 +29,11 @@ type Props = {
 export default function AiInterpretation({ params }: Props) {
   const interpret = useRiskInterpret()
   const queryClient = useQueryClient()
+  // 키보드: "AI 해석 보기"·"다시 시도"를 누르면 그 버튼이 사라지므로 포커스를 결과 영역으로 옮긴다 (본문 처음으로 튀지 않게)
+  const regionRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (interpret.isPending) regionRef.current?.focus()
+  }, [interpret.isPending])
 
   const request = () => {
     // Risk GET과 같은 조건 그대로 (lat·lng·category·radius·sub_category·as_of(있을 때만)·area·franchise·include_unknown_area·include_unknown_franchise).
@@ -70,6 +76,29 @@ export default function AiInterpretation({ params }: Props) {
         </div>
       )}
 
+      {!interpret.isIdle && (
+        <div ref={regionRef} tabIndex={-1} className="flex flex-col gap-3 focus:outline-none">
+          <AiOutcome interpret={interpret} result={result} verified={verified} onRetry={request} />
+        </div>
+      )}
+    </section>
+  )
+}
+
+/** 요청 뒤 영역 — 생성 중(status) / 실패(alert) / 결과(도착을 화면 읽기 프로그램에 한 번 알림) */
+function AiOutcome({
+  interpret,
+  result,
+  verified,
+  onRetry,
+}: {
+  interpret: ReturnType<typeof useRiskInterpret>
+  result: RiskInterpretation | undefined
+  verified: boolean
+  onRetry: () => void
+}) {
+  return (
+    <>
       {interpret.isPending && (
         <div
           role="status"
@@ -82,12 +111,17 @@ export default function AiInterpretation({ params }: Props) {
       )}
 
       {(interpret.isError || (result && !verified)) && (
-        <AiFailure error={interpret.error} verifyFailed={!!result && !verified} onRetry={request} />
+        <AiFailure error={interpret.error} verifyFailed={!!result && !verified} onRetry={onRetry} />
       )}
 
       {result && verified && (
-        <AiResultCard result={result} checklist={<AiChecklist items={result.checklist} />} />
+        <>
+          <p role="status" className="sr-only">
+            {T.loadedAnnounce}
+          </p>
+          <AiResultCard result={result} checklist={<AiChecklist items={result.checklist} />} />
+        </>
       )}
-    </section>
+    </>
   )
 }
