@@ -1,11 +1,12 @@
 import {
   ArrowRight,
+  CircleCheck,
   Coffee,
   LoaderCircle,
+  type LucideIcon,
   MapPin,
   Search,
   Utensils,
-  type LucideIcon,
 } from 'lucide-react'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { CATEGORIES, type Category } from '../../constants/diagnosis'
@@ -119,12 +120,13 @@ export default function DiagnosisForm({
             <Search className="size-5" aria-hidden="true" />
           </button>
         </div>
+        {/* 입력칸 아래 안내·오류는 같은 들여쓰기·8px 간격 */}
         {apiError && (
           <p id="address-api-error" role="alert" className="mt-2 pl-4 text-caption text-danger">
             {apiError}
           </p>
         )}
-        <p id="address-example" className="mt-1.5 pl-4 text-micro text-gray-600">
+        <p id="address-example" className="mt-2 pl-4 text-micro leading-relaxed text-gray-600">
           {T.addressExample}
           <span className="block">{T.addressFloorHint}</span>
         </p>
@@ -148,7 +150,7 @@ export default function DiagnosisForm({
           role="group"
           aria-labelledby="category-label"
           aria-describedby={missing.category ? 'category-required' : undefined}
-          className="mt-3 grid grid-cols-2 gap-2"
+          className="mt-3 grid grid-cols-2 gap-3"
         >
           {CATEGORIES.map((c) => {
             const Icon = CATEGORY_ICON[c.id]
@@ -163,17 +165,24 @@ export default function DiagnosisForm({
                   if (missing.category) setMissing((m) => ({ ...m, category: false }))
                   onChange?.()
                 }}
+                // 선택 카드: 고르면 파란 테두리 2px·옅은 파란 바탕·체크 표시 (색만으로 구분하지 않게 체크 아이콘)
                 className={cn(
-                  'flex h-12 interactive-lift items-center justify-center gap-2 rounded-full border text-body font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+                  'relative flex h-14 items-center justify-center gap-2 rounded-control border-2 text-body font-semibold motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
                   selected
                     ? 'border-blue-500 bg-blue-100 text-blue-700'
                     : missing.category
-                      ? 'border-danger text-gray-900 hover:bg-gray-100'
-                      : 'border-gray-300 text-gray-900 hover:bg-gray-100',
+                      ? 'border-danger bg-gray-0 text-gray-900 hover:bg-gray-100'
+                      : 'border-gray-300 bg-gray-0 text-gray-900 hover:border-blue-500/50 hover:bg-gray-100',
                 )}
               >
                 <Icon className="size-5" aria-hidden="true" />
                 {c.label}
+                {selected && (
+                  <CircleCheck
+                    className="absolute top-1/2 right-3 size-5 -translate-y-1/2 fill-blue-600 text-gray-0"
+                    aria-hidden="true"
+                  />
+                )}
               </button>
             )
           })}
