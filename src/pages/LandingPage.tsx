@@ -8,6 +8,7 @@ import SiteFooter from '../components/layout/SiteFooter'
 import { MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
 import { usePageTitle } from '../hooks/usePageTitle'
+import SkipLink, { MAIN_ID } from '../components/common/SkipLink'
 
 const T = MESSAGES.landing
 
@@ -25,7 +26,8 @@ export default function LandingPage() {
   usePageTitle(MESSAGES.titles.landing)
   return (
     <div className="flex min-h-full flex-col bg-gray-0">
-      <main className="flex-1">
+      <SkipLink />
+      <main id={MAIN_ID} tabIndex={-1} className="flex-1 focus:outline-none">
         {/* 첫 화면(1440×900) — 제목·버튼·전국 지도는 그대로, 아래에 소개 섹션이 이어진다 */}
         <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-0">
           <LandingMap />
@@ -49,7 +51,7 @@ export default function LandingPage() {
             <div className={`mt-8 ${rise}`} style={delay(2)}>
               <Link
                 to={ROUTES.input}
-                className="group inline-flex h-13 interactive-lift items-center gap-2 rounded-full bg-blue-500 px-7 text-subtitle font-semibold text-white shadow-card hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                className="group inline-flex h-13 interactive-lift items-center gap-2 rounded-full bg-blue-600 px-7 text-subtitle font-semibold text-white shadow-card hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
               >
                 {T.start}
                 <ArrowRight className="size-5 arrow-nudge" aria-hidden="true" />

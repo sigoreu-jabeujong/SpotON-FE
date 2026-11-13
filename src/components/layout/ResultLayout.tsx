@@ -8,6 +8,7 @@ import { useResultBaseline } from '../../hooks/useResultBaseline'
 import ConditionBar from './ConditionBar'
 import ResultFooter from './ResultFooter'
 import ResultHeader from './ResultHeader'
+import SkipLink from '../common/SkipLink'
 import ResultSidebar from './ResultSidebar'
 
 const SECTION_IDS = ANALYSIS_SECTIONS.map((s) => s.id)
@@ -42,12 +43,7 @@ export default function ResultLayout() {
 
   return (
     <div className="flex min-h-full bg-bg">
-      <a
-        href="#result-main"
-        className="sr-only z-50 rounded bg-blue-500 px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
-      >
-        {MESSAGES.layout.skipToContent}
-      </a>
+      <SkipLink target="result-main" />
       <ResultSidebar activeSection={activeSection} />
       <div className="flex min-w-0 flex-1 flex-col">
         <ResultHeader title={meta.title} description={meta.description} />
