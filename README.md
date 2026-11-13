@@ -130,6 +130,7 @@ npm run lint          # 코드 검사 (ESLint)
 npm run format        # 코드 자동 정리 (Prettier)
 npm run format:check  # 정리 상태 확인
 npm run build         # 타입 검사 + 빌드
+npm run test          # 핵심 함수 자동 테스트 (Vitest)
 ```
 
 ## 폴더 구조
