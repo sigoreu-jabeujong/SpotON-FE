@@ -5,7 +5,7 @@ import type { MarketActivity } from '../../../types/market'
 import type { MetricIndicator, Risk } from '../../../types/risk'
 import { formatCount, formatOperatingMonths, formatPeriod } from '../../../utils/format'
 import IndicatorTypeLabel from '../../common/IndicatorTypeLabel'
-import SourceLine from '../../common/SourceLine'
+import MetaLine from '../../common/MetaLine'
 import StatCard from '../../common/StatCard'
 import StatusLabel from '../../common/StatusLabel'
 import { indicatorReasonText } from '../../summary/indicatorFormat'
@@ -26,8 +26,8 @@ export default function StoreStatusCards({ activity, risk }: Props) {
   const period = formatPeriod(activity.recent_12m.period)
 
   return (
-    <div className="flex flex-col gap-stack-1">
-      <div className="grid grid-cols-4 gap-stack-2">
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           icon={Store}
           label={T.competitor}
@@ -83,8 +83,9 @@ export default function StoreStatusCards({ activity, risk }: Props) {
         </StatCard>
       </div>
       {competitor && (
-        <SourceLine
+        <MetaLine
           source={competitor.source}
+          sourceNames
           period={competitor.period}
           space={competitor.space}
           denominator={competitor.denominator}

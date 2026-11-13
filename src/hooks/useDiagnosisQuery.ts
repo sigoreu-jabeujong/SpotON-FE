@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import { useLocation, useNavigate, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
 import {
   CATEGORIES,
   DEFAULT_AREA,
@@ -104,20 +104,14 @@ export function getCoordinates(q: DiagnosisQuery): { lat: number; lng: number } 
 
 /** 현재 URL의 진단 조건을 읽고, 일부만 바꿔 갱신한다 */
 export function useDiagnosisQuery() {
-  const [params] = useSearchParams()
-  const { hash } = useLocation()
-  const navigate = useNavigate()
+  const [params, setParams] = useSearchParams()
   const query = useMemo(() => parseDiagnosisQuery(params), [params])
 
-  // #해시(STEP 02의 열린 탭)는 그대로 둔다 — 조건을 바꿔도 보던 탭에 머문다
   const updateQuery = useCallback(
     (patch: Partial<DiagnosisQuery>) => {
-      navigate(
-        { search: toDiagnosisSearch({ ...query, ...patch }), hash },
-        { replace: true, preventScrollReset: true },
-      )
+      setParams(new URLSearchParams(toDiagnosisSearch({ ...query, ...patch })), { replace: true })
     },
-    [query, hash, navigate],
+    [query, setParams],
   )
 
   return { query, updateQuery, isReady: isDiagnosisReady(query), search: toDiagnosisSearch(query) }

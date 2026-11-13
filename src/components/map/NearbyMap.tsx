@@ -271,7 +271,7 @@ export default function NearbyMap({
   }, [sdk, groups, activeKey, selectedId])
 
   return (
-    <div className="relative h-[520px] overflow-hidden rounded-card border border-gray-300 bg-gray-100">
+    <div className="relative h-[420px] overflow-hidden rounded-card border border-gray-300 bg-gray-100">
       {sdk.status === 'error' ? (
         <div
           role="alert"

@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router'
 import { MESSAGES } from '../../constants/messages'
-import { analysisTabFromHash, ROUTES } from '../../constants/routes'
+import { ANALYSIS_SECTIONS, ROUTES } from '../../constants/routes'
+import { useActiveSection } from '../../hooks/useActiveSection'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { useResultBaseline } from '../../hooks/useResultBaseline'
@@ -9,6 +10,8 @@ import ResultFooter from './ResultFooter'
 import ResultHeader from './ResultHeader'
 import SkipLink from '../common/SkipLink'
 import ResultSidebar from './ResultSidebar'
+
+const SECTION_IDS = ANALYSIS_SECTIONS.map((s) => s.id)
 
 /** 탭 제목: 화면 이름 (STEP 02는 섹션과 상관없이 하나로 고정) */
 function titleOf(pathname: string): string {
@@ -28,11 +31,10 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
  * 주소·업종·좌표·건물 키가 없으면 입력 화면으로 돌려보낸다 (데스크톱 1440 기준)
  */
 export default function ResultLayout() {
-  const { pathname, hash } = useLocation()
+  const { pathname } = useLocation()
   const { isReady, search } = useDiagnosisQuery()
   const baseline = useResultBaseline()
-  // STEP 02에서 지금 열린 탭 (URL #해시) — 사이드바 하위 항목 강조용
-  const activeSection = pathname === ROUTES.analysis ? analysisTabFromHash(hash) : null
+  const activeSection = useActiveSection(SECTION_IDS, pathname === ROUTES.analysis)
   usePageTitle(titleOf(pathname))
 
   if (!isReady) return <Navigate to={{ pathname: ROUTES.input, search }} replace />

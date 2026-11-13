@@ -185,11 +185,6 @@ export const MESSAGES = {
     ],
     noticeTitle: '이력 확인 시 참고하세요',
     spaceBuilding: '건물 단위',
-    /** 탭 요약 숫자 (서버 total·데이터 기준일 그대로) — 화면 문장 summary와 같은 뜻 */
-    tabTitle: '과거 점포 이력',
-    statTotal: '이 건물에서 확인된 음식점·카페 인허가 기록',
-    statBaseline: '데이터 기준일',
-    tableTitle: '이 건물을 거쳐 간 점포',
   },
   /** 진단 조건 필터 바 (STEP 02 ② 위쪽) */
   filter: {
@@ -222,14 +217,6 @@ export const MESSAGES = {
     asOfNoPast: '선택한 업종은 과거 시점 자료가 없어 현재 기준으로만 볼 수 있어요',
     asOfUnavailable: '선택할 수 있는 기간을 불러오지 못해 지금은 현재 기준으로만 볼 수 있어요',
     asOfOutOfRangeHint: '범위 밖',
-    /** 주변 점포 탭 — 적용된 조건 칩 + [조건 변경] */
-    chipsLabel: '지금 적용된 조회 조건',
-    chipAll: '전체',
-    chipCategory: '업종',
-    chipUnknown: '정보 없음 점포',
-    chipInclude: '포함',
-    chipExclude: '제외',
-    change: '조건 변경',
   },
   /** STEP 02 ② 주변 점포 분석 */
   nearby: {
@@ -237,11 +224,6 @@ export const MESSAGES = {
     pastViewHint: '지도·점포 표·시점 조회가 이 시점에 영업하던 점포를 기준으로 바뀌었어요.',
     pastBadge: (ym: string) => `${ym} 기준`,
     mapTitle: '주변 점포 분포',
-    /** 탭 요약 숫자 (서버 count·radius_m·as_of 그대로) */
-    tabTitle: '주변 점포',
-    statCount: '조건에 맞는 점포',
-    statRadius: '조회 반경',
-    statAsOf: '기준일',
     tableTitle: '점포 상세 조회',
     mapBadge: (radius: number, asOf: string | null) =>
       `반경 ${radius.toLocaleString('ko-KR')}m${asOf ? ` · 기준일 ${asOf}` : ''}`,
@@ -322,8 +304,6 @@ export const MESSAGES = {
   /** STEP 02 ③ 상권 활동 분석 (F-06) */
   activity: {
     statusTitle: '점포 현황',
-    /** 상권 활동 탭 맨 아래 출처 한 줄 이름 — /market/activity meta (점포 현황·연도별 추이 공통) */
-    sourceLabel: '점포 현황·연도별 추이',
     competitor: '반경 안 동종업체 수',
     opened12m: '최근 12개월 개업 수',
     closed12m: '최근 12개월 폐업 수',
@@ -529,20 +509,6 @@ export const MESSAGES = {
     asOf: '기준일',
     period: '기간',
     sample: '표본',
-    /** 출처 한 줄(SourceLine) — 기준일·공간 단위·표본은 늘 보이고, 출처 이름·수집일은 펼쳐서 */
-    sourceMore: '출처 자세히',
-  },
-  /** STEP 02 탭 */
-  analysisTabs: {
-    label: '입지 정보 분석 항목',
-  },
-  /** 화면 틀 공통 (요약 숫자·접는 안내·단계 이동) */
-  frame: {
-    summaryLabel: (title: string) => `${title} 요약`,
-    knowMore: '알아두세요',
-    stepNav: '다음 단계로 이동',
-    nextSummary: '종합 진단 결과 보기',
-    prevInput: '주소 및 업종 다시 입력',
   },
   /** 찾을 수 없는 페이지 */
   notFound: {
@@ -561,7 +527,6 @@ export const MESSAGES = {
   /** 단위·공통 글자 */
   units: {
     store: '곳',
-    record: '건',
   },
   common: {
     retry: '다시 시도',
