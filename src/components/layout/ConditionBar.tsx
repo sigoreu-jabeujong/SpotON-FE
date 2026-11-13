@@ -1,5 +1,5 @@
 import { History, MapPin, SlidersHorizontal, type LucideIcon } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import {
   CATEGORIES,
@@ -33,9 +33,26 @@ export default function ConditionBar() {
       ? FRANCHISE_OPTIONS.find((f) => f.id === query.franchise)?.label
       : null
   const past = formatYearMonthKo(query.asOf)
+  const barRef = useRef<HTMLElement>(null)
+
+  // 실제 높이를 CSS 변수로 알려 STEP 02 탭 바가 바로 아래에 붙게 한다 (칩이 두 줄이 되어도)
+  useLayoutEffect(() => {
+    const el = barRef.current
+    if (!el) return
+    const root = document.documentElement
+    const apply = () => root.style.setProperty('--condition-bar-h', `${el.offsetHeight}px`)
+    apply()
+    const observer = new ResizeObserver(apply)
+    observer.observe(el)
+    return () => {
+      observer.disconnect()
+      root.style.removeProperty('--condition-bar-h')
+    }
+  }, [])
 
   return (
     <section
+      ref={barRef}
       aria-label={T.label}
       className="sticky top-0 z-20 border-b border-gray-300 bg-bg/95 px-10 py-2.5 backdrop-blur"
     >

@@ -512,6 +512,10 @@ export const MESSAGES = {
     /** 출처 한 줄(SourceLine) — 기준일·공간 단위·표본은 늘 보이고, 출처 이름·수집일은 펼쳐서 */
     sourceMore: '출처 자세히',
   },
+  /** STEP 02 탭 */
+  analysisTabs: {
+    label: '입지 정보 분석 항목',
+  },
   /** 화면 틀 공통 (요약 숫자·접는 안내·단계 이동) */
   frame: {
     summaryLabel: (title: string) => `${title} 요약`,
