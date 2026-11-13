@@ -24,6 +24,11 @@ if (import.meta.env.DEV && REAL_API_PATHS.size > 0) {
   console.info(`[api] 실제 서버: ${[...REAL_API_PATHS].join(', ')}`)
 }
 const TIMEOUT_MS = 15000
+/**
+ * 잠든 무료 서버(Render)가 깨어나는 데 30초~1분 걸린다 — 미리 깨우기(health)와 첫 주소 검색만 이 시간을 쓴다.
+ * 나머지 API는 기본 15초 그대로 (결과 화면에 들어올 즈음엔 서버가 이미 깨어 있다)
+ */
+export const COLD_START_TIMEOUT_MS = 60000
 
 /** 서버 오류·네트워크 오류를 화면에서 한 가지 방식으로 다루기 위한 에러 */
 export class ApiRequestError extends Error {
@@ -114,8 +119,9 @@ function unwrap<T>(body: ApiResponse<T>, status: number): ApiResult<T> {
   return { data: body.data, meta: body.meta ?? null }
 }
 
-export function apiGet<T>(path: string, params?: QueryParams) {
-  return request<T>(`${path}${toQueryString(params)}`)
+/** @param options.timeoutMs 기본 15초. 잠든 무료 서버를 깨우는 첫 요청(health·첫 주소 검색)만 늘린다 */
+export function apiGet<T>(path: string, params?: QueryParams, options?: { timeoutMs?: number }) {
+  return request<T>(`${path}${toQueryString(params)}`, undefined, options?.timeoutMs)
 }
 
 /** @param options.timeoutMs 기본 15초. AI 해석처럼 오래 걸리는 요청만 늘린다 */
