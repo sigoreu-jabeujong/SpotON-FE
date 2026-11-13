@@ -321,6 +321,8 @@ export const MESSAGES = {
   /** STEP 02 ③ 상권 활동 분석 (F-06) */
   activity: {
     statusTitle: '점포 현황',
+    /** 상권 활동 탭 맨 아래 출처 한 줄 이름 — /market/activity meta (점포 현황·연도별 추이 공통) */
+    sourceLabel: '점포 현황·연도별 추이',
     competitor: '반경 안 동종업체 수',
     opened12m: '최근 12개월 개업 수',
     closed12m: '최근 12개월 폐업 수',
