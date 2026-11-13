@@ -58,8 +58,12 @@
 | `/result/summary` | ⑥ 창업 위험도 분석 → "종합 진단 결과" | STEP 03 | 6.Business Risk Analysis |
 | `/result/share` | ⑦ 저장·공유·상담 | STEP 04 | 7.Share&Consultation |
 
-- STEP 02는 **한 페이지에 섹션 3개를 세로로** 둔다. 섹션 컴포넌트: `src/components/analysis/{History,Nearby,Activity}Section.tsx`. 사이드바 하위 메뉴를 누르면 해당 섹션으로 부드럽게 스크롤하고, 보고 있는 섹션을 강조한다.
-- 예전 경로는 새 경로로 리다이렉트한다 (쿼리 유지): `/result/history|nearby|activity` → `/result/analysis#해당 섹션`, `/result/risk` → `/result/summary`.
+- STEP 02는 **탭 3개**([과거 점포 이력] [주변 점포] [상권 활동])로 한 번에 하나만 보여준다 (`AnalysisTabs`, `role=tablist`, 좌우 화살표·Home·End). 열린 탭은 URL `#해시`로 정해 예전 주소·다른 화면 링크도 그 탭으로 열리고, 조건을 바꿔도(`updateQuery`) 보던 탭에 머문다. 탭 바는 진단 조건 바 바로 아래에 붙는다. 사이드바 하위 메뉴는 탭을 바꾸고, 열린 탭을 강조한다. 맨 아래 "종합 진단 결과 보기 →"(`StepNav`).
+- 탭 내용 컴포넌트: `src/components/analysis/{History,Nearby,Activity}Section.tsx`. 공통 틀은 `PageHeader`(제목) → `SummaryStats`(서버 값 요약 숫자, 값 없으면 카드 생략) → `SectionCard`(내용 카드) → `SourceLine`(기준일·공간 단위·표본 한 줄 + "출처 자세히" 펼치기). 간격은 `@theme`의 `--spacing-stack-1~4`(8px 단위)
+  - 이력: 요약(기록 수·데이터 기준일) → 이력 표(더보기) → 출처 한 줄 → "알아두세요"(유의사항 접기, `KnowMore`)
+  - 주변 점포: 요약(점포 수·반경·기준일) → 지도(520px) → 조건 칩 + [조건 변경] 패널(필터 UI 그대로, 적용하면 닫힘) → 점포 표 → 시점 조회
+  - 상권 활동: 요약(점포 현황 카드 4개) → 연도별 추이 → 조건부 지표(추정매출·생활인구) → 출처 한 줄
+- 예전 경로는 새 경로로 리다이렉트한다 (쿼리 유지): `/result/history|nearby|activity` → `/result/analysis#해당 탭`, `/result/risk` → `/result/summary`.
 - 진단 조건(주소·업종·반경·기준 시점·필터)과 `/geocode` 결과(`lat`·`lng`·`bk`·`floor`·`gu`)는 URL 쿼리로 유지한다 (`useDiagnosisQuery`). 결과 화면은 `address`·`category`·`lat`·`lng`·`bk`가 모두 있어야 열린다.
 
 ## 2. 모든 결과 화면 공통
