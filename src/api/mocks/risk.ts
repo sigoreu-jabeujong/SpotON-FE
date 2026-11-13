@@ -11,6 +11,9 @@ import type {
 } from '../../types/risk'
 import { DEMO_META, fail, isMockResult, ok, radiusSpace, unknownFlags } from './common'
 import type { MockHandler } from './index'
+import { storeHistoryMock } from './stores'
+import type { StoreHistory } from '../../types/stores'
+import type { RiskInterpretHistory } from '../../types/risk'
 import { formatOperatingMonths } from '../../utils/format'
 import { SUB_CATEGORY_LABEL } from '../../constants/labels'
 import type { MarketActivity } from '../../types/market'
@@ -455,8 +458,12 @@ const invalid = () => ({
  */
 export const riskInterpretMock: MockHandler = (_query, body) => {
   if (!body || typeof body !== 'object' || Array.isArray(body)) return invalid()
+  // 본문 키는 query(필수)와 history(선택, BE #98)만
   const keys = Object.keys(body)
-  if (keys.length !== 1 || keys[0] !== 'query') return invalid()
+  if (!keys.includes('query') || keys.some((k) => k !== 'query' && k !== 'history'))
+    return invalid()
+  const history = (body as RiskInterpretRequest).history
+  if (history !== undefined && !validHistory(history)) return invalid()
   const q = (body as RiskInterpretRequest).query as Record<string, unknown>
   if (!q || typeof q !== 'object') return invalid()
   if (Object.keys(q).some((k) => !QUERY_KEYS.has(k))) return invalid()
@@ -494,6 +501,12 @@ export const riskInterpretMock: MockHandler = (_query, body) => {
   const activity = marketActivityMock(params, null)
   if (activity.status === 200 && activity.body.data)
     interpretation.official_values.push(...activitySentences(activity.body.data as MarketActivity))
+  // BE #98: 건물 키를 보냈을 때만 이력 문장 (최신 자료 기준·지원 업종 전체)
+  if (history) {
+    const h = historySentences(history)
+    interpretation.official_values.push(...h.values)
+    interpretation.missing_data.push(...h.missing)
+  }
   return {
     ...ok(interpretation, {
       ...DEMO_META,
@@ -522,4 +535,65 @@ function activitySentences(a: MarketActivity): RiskInterpretation['official_valu
     indicator_ids: ['avg_operating_months' as const],
   }))
   return [recent, ...avg]
+}
+
+/**
+ * 목업 전용: history 형식 (실제 BE와 같은 규칙) — 키는 building_key(빈 문자열 아님)·floor_unit(선택, 문자열이면 빈 값 아님 또는 null)만
+ */
+function validHistory(h: unknown): boolean {
+  if (!h || typeof h !== 'object' || Array.isArray(h)) return false
+  const o = h as Record<string, unknown>
+  if (Object.keys(o).some((k) => k !== 'building_key' && k !== 'floor_unit')) return false
+  if (typeof o.building_key !== 'string' || o.building_key.trim() === '') return false
+  if (o.floor_unit !== undefined && o.floor_unit !== null)
+    if (typeof o.floor_unit !== 'string' || o.floor_unit.trim() === '') return false
+  return true
+}
+
+/**
+ * 목업 전용: 이력 문맥 문장 (BE #98 모양) — 같은 건물 이력 목업에서 센다.
+ * 같은 자리 폐업 기록을 위험 판정으로 바꾸지 않고 건수·기간 범위만 말한다
+ */
+function historySentences(h: RiskInterpretHistory): {
+  values: RiskInterpretation['official_values']
+  missing: RiskInterpretation['missing_data']
+} {
+  const res = storeHistoryMock(
+    new URLSearchParams({
+      building_key: h.building_key,
+      ...(h.floor_unit ? { floor_unit: h.floor_unit } : {}),
+    }),
+    null,
+  )
+  const data = res.status === 200 ? (res.body.data as StoreHistory) : null
+  if (!data || data.total === 0)
+    return {
+      values: [],
+      missing: [{ text: '이 건물의 인허가 기록', reason: 'history_no_records' }],
+    }
+  const values: RiskInterpretation['official_values'] = [
+    {
+      text: `참고 기록: 최신 자료 기준으로 이 건물에서 확인된 음식점·카페(지원 업종 전체) 인허가 기록은 ${data.total}건입니다.`,
+      indicator_ids: ['building_history'],
+    },
+  ]
+  const missing: RiskInterpretation['missing_data'] = [
+    { text: '건물 이력의 기준 시점', reason: 'history_latest_data_basis' },
+  ]
+  if (!h.floor_unit) {
+    missing.push({ text: '같은 자리 이력', reason: 'history_floor_unit_missing' })
+    return { values, missing }
+  }
+  const same = data.stores.filter((s) => s.location_match === 'same_spot')
+  const open = same.filter((s) => s.store_status === 'open').length
+  const closed = same.filter((s) => s.store_status === 'closed').length
+  const years = same
+    .map((s) => s.open_date?.slice(0, 4))
+    .filter(Boolean)
+    .sort()
+  values.push({
+    text: `참고 기록: 같은 자리(${h.floor_unit}) 기록은 영업 ${open}건·폐업 ${closed}건이며 개업 연도는 ${years[0] ?? '-'}~${years.at(-1) ?? '-'}입니다.`,
+    indicator_ids: ['same_spot_history'],
+  })
+  return { values, missing }
 }

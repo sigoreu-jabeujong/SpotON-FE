@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import type { DiagnosisQuery } from '../types/diagnosis'
 import type { RiskInterpretRequest } from '../types/risk'
-import { toCommonQueryParams, toDataRangeParams, toStoreHistoryParams } from './params'
+import {
+  toCommonQueryParams,
+  toDataRangeParams,
+  toInterpretHistory,
+  toRiskInterpretRequest,
+  toStoreHistoryParams,
+} from './params'
 
 const coords = { lat: 37.5515, lng: 126.9139 }
 
@@ -74,17 +80,19 @@ describe('toCommonQueryParams — 빈 값 생략', () => {
   })
 })
 
-describe('AI 해석 요청 본문 — query-only', () => {
-  // AiInterpretation은 Risk GET과 같은 조회 조건(toCommonQueryParams)으로 { query: { ...params } }를 만든다
-  const body: RiskInterpretRequest = {
-    query: { ...toCommonQueryParams(query({ asOf: '2023-10' }), coords)! },
-  }
+describe('AI 해석 요청 본문 — query는 조회 조건만, 이력 문맥은 history 키로만 (BE #98)', () => {
+  // AiInterpretation은 toRiskInterpretRequest(Risk GET과 같은 조회 조건, URL의 bk·floor)로 본문을 만든다
+  const q = query({ asOf: '2023-10' })
+  const body: RiskInterpretRequest = toRiskInterpretRequest(
+    toCommonQueryParams(q, coords)!,
+    toInterpretHistory(q),
+  )
 
-  it('본문의 최상위 키는 query 하나', () => {
-    expect(Object.keys(body)).toEqual(['query'])
+  it('최상위 키는 query와 history뿐', () => {
+    expect(Object.keys(body).sort()).toEqual(['history', 'query'])
   })
 
-  it('주소·건물 키·층·자치구·화면 수치가 들어가지 않는다', () => {
+  it('query 안에는 주소·건물 키·층·자치구·화면 수치가 들어가지 않는다', () => {
     const keys = Object.keys(body.query)
     for (const k of [
       'address',
@@ -100,13 +108,14 @@ describe('AI 해석 요청 본문 — query-only', () => {
       'radius_m',
       'filters',
       'include_unknown',
+      'history',
     ])
       expect(keys).not.toContain(k)
-    expect(JSON.stringify(body)).not.toContain('마포구-테스트동')
+    expect(JSON.stringify(body.query)).not.toContain('마포구-테스트동')
     expect(JSON.stringify(body)).not.toContain('테스트로')
   })
 
-  it('보내는 키는 조회 조건만', () => {
+  it('query에 보내는 키는 조회 조건만', () => {
     const allowed = [
       'lat',
       'lng',
@@ -120,6 +129,35 @@ describe('AI 해석 요청 본문 — query-only', () => {
       'include_unknown_franchise',
     ]
     for (const k of Object.keys(body.query)) expect(allowed).toContain(k)
+  })
+
+  it('건물 키·층은 history에만, 다른 필드 없음', () => {
+    expect(body.history).toEqual({ building_key: '마포구-테스트동-1-0', floor_unit: '2층' })
+  })
+})
+
+describe('toInterpretHistory — 선택 이력 문맥', () => {
+  it('건물 키가 없으면 history 생략', () => {
+    expect(toInterpretHistory(query({ buildingKey: null }))).toBeUndefined()
+    expect(toInterpretHistory(query({ buildingKey: '  ' }))).toBeUndefined()
+    const params = toCommonQueryParams(query({ buildingKey: null }), coords)!
+    expect(Object.keys(toRiskInterpretRequest(params, undefined))).toEqual(['query'])
+  })
+
+  it.each([null, '', '   '])('층 %j → floor_unit null (빈 문자열을 보내지 않음)', (floorUnit) => {
+    expect(toInterpretHistory(query({ floorUnit }))).toEqual({
+      building_key: '마포구-테스트동-1-0',
+      floor_unit: null,
+    })
+  })
+
+  it('URL 값 그대로 (앞뒤 공백만 정리)', () => {
+    expect(
+      toInterpretHistory(query({ buildingKey: ' 중구-명동2가-83-5 ', floorUnit: 'B1' })),
+    ).toEqual({
+      building_key: '중구-명동2가-83-5',
+      floor_unit: 'B1',
+    })
   })
 })
 

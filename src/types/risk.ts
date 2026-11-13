@@ -143,8 +143,19 @@ export type Risk = {
  */
 export type RiskInterpretQuery = CommonQueryParams & { include?: RiskInclude[] }
 
+/**
+ * 선택 이력 문맥 (BE #98) — 결과 화면 URL의 bk·floor 그대로. 건물 키가 없으면 history를 통째로 생략.
+ * 층이 없으면 null (빈 문자열·다른 필드는 422). 요청 좌표에서 300m보다 먼 건물 키도 422
+ */
+export type RiskInterpretHistory = {
+  building_key: string
+  floor_unit: string | null
+}
+
 export type RiskInterpretRequest = {
+  /** 원래 조회 조건만 — 주소·건물 키·층·화면 수치는 여기에 넣지 않는다 */
   query: RiskInterpretQuery
+  history?: RiskInterpretHistory
 }
 
 /**
@@ -153,7 +164,9 @@ export type RiskInterpretRequest = {
  * - avg_operating_months: 기준일에 영업 중인 기록의 개업 후 경과 개월 평균 (점포 수명·생존 기간 아님)
  */
 export type ActivityEvidenceId = 'recent_open_close' | 'avg_operating_months'
-export type EvidenceId = IndicatorId | ActivityEvidenceId
+/** BE #98 이력 문맥 근거: 건물 전체 건수 / 같은 자리 영업·폐업과 기간 범위 (최신 자료 기준·지원 업종 전체) */
+export type HistoryEvidenceId = 'building_history' | 'same_spot_history'
+export type EvidenceId = IndicatorId | ActivityEvidenceId | HistoryEvidenceId
 
 export type InterpretItem = { text: string; indicator_ids: EvidenceId[] }
 export type InterpretSourcedItem = InterpretItem & { sources: string[] }
