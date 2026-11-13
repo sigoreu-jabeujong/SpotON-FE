@@ -15,6 +15,7 @@
 | [decisions.md](decisions.md) | 기준이 헷갈릴 때 | 결정된 사항(날짜)과 BE 확인을 기다리는 미결 사항 |
 | [demo.md](demo.md) | 시연을 준비할 때 | 3분 시연 순서, 꼭 보여줄 차별점, 목업 시연 방법, 실패 대비 |
 | [deploy.md](deploy.md) | 배포할 때 | 빌드 방법·환경변수, 새로고침 대비(모든 경로를 index.html로), 배포 후 할 일 |
+| [accessibility.md](accessibility.md) | 접근성을 점검할 때 | KWCAG 기본 항목 점검 결과·조치, 키보드 흐름, 그대로 둔 것과 이유 |
 
 ## 기준 우선순위
 

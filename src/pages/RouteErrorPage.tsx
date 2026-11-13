@@ -29,7 +29,7 @@ export default function RouteErrorPage() {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="inline-flex h-12 items-center gap-2 rounded-full bg-blue-500 px-6 text-body font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            className="inline-flex h-12 items-center gap-2 rounded-full bg-blue-600 px-6 text-body font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
           >
             <RotateCw className="size-5" aria-hidden="true" />
             {T.reload}

@@ -53,6 +53,7 @@ import {
   optionalDataState,
   type OptionalDataState,
 } from '../components/analysis/activity/optionalData'
+import SkipLink, { MAIN_ID } from '../components/common/SkipLink'
 
 const T = MESSAGES.report
 const HISTORY_ROWS = 8
@@ -97,6 +98,9 @@ export default function ReportPage() {
 
   return (
     <div className="min-h-full bg-gray-100 print:bg-gray-0">
+      <div className="print:hidden">
+        <SkipLink />
+      </div>
       {/* 화면 전용 도구 막대 (인쇄 시 숨김) */}
       <div className="sticky top-0 z-10 border-b border-gray-300 bg-gray-0 print:hidden">
         <div className="mx-auto flex max-w-[210mm] flex-wrap items-center justify-between gap-3 px-4 py-3">
@@ -112,7 +116,7 @@ export default function ReportPage() {
             type="button"
             onClick={print}
             disabled={data.loading}
-            className="flex h-10 items-center gap-1.5 rounded-full bg-blue-500 px-5 text-caption font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait disabled:bg-gray-300"
+            className="flex h-10 items-center gap-1.5 rounded-full bg-blue-600 px-5 text-caption font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait disabled:bg-gray-300"
           >
             <Printer className="size-4" aria-hidden="true" />
             {T.print}
@@ -126,7 +130,11 @@ export default function ReportPage() {
       </div>
 
       {/* 진단서 전체: 한국어는 단어 단위로 줄바꿈 (A4 폭의 좁은 표 칸에서 "폐/업률"처럼 끊기지 않게) */}
-      <main className="report mx-auto my-6 max-w-[210mm] bg-gray-0 px-[12mm] py-[10mm] text-[11px] leading-snug break-keep text-gray-900 shadow-card print:my-0 print:max-w-none print:p-0 print:shadow-none">
+      <main
+        id={MAIN_ID}
+        tabIndex={-1}
+        className="report mx-auto my-6 max-w-[210mm] bg-gray-0 px-[12mm] py-[10mm] text-[11px] leading-snug break-keep text-gray-900 shadow-card focus:outline-none print:my-0 print:max-w-none print:p-0 print:shadow-none"
+      >
         {data.loading ? (
           <LoadingState message={T.loading} />
         ) : (

@@ -13,6 +13,8 @@
   /* Main Blue (확정) */
   --color-blue-100: #f0f3fa;
   --color-blue-500: #3376fd;
+  /* 흰 글자를 올리는 파란 바탕 전용 — blue-500(#3376fd)은 흰 글자와 대비 4.08:1이라 4.5:1을 넘는 가장 가까운 색 (4.74:1) */
+  --color-blue-600: #2e6ce8;
   --color-blue-700: #0d50d7;
 
   /* 화면 배경 (확정, Background Color 2·3-7) */

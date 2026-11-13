@@ -131,7 +131,7 @@ function OfficialRiskCard({
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded-full bg-blue-500 px-3 py-1.5 text-caption font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1.5 text-caption font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
               >
                 {T.officialRiskLink}
                 <span className="sr-only">{T.officialRiskNewWindow}</span>

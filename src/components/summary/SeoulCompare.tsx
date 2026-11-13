@@ -22,7 +22,7 @@ export default function SeoulCompare({ indicators }: { indicators: RiskIndicator
 
   return (
     <div className="flex flex-col gap-3">
-      <SubTitle>{T.compareTitle}</SubTitle>
+      <SubTitle as="h2">{T.compareTitle}</SubTitle>
       {rows.length === 0 ? (
         <InfoBox
           showTitle

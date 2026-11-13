@@ -70,7 +70,7 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
                   aria-hidden="true"
                   className={cn(
                     'relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full motion-colors',
-                    done || current ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600',
+                    done || current ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600',
                   )}
                 >
                   <Icon className="size-4" strokeWidth={done ? 3 : 2} />

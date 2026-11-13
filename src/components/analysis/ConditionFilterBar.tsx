@@ -187,7 +187,7 @@ function FilterForm({
             className={cn(
               'flex h-9 items-center gap-1.5 rounded-full px-5 text-caption font-semibold motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
               changed
-                ? 'bg-blue-500 text-white hover:bg-blue-700'
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
                 : 'cursor-default bg-gray-100 text-gray-600',
             )}
           >

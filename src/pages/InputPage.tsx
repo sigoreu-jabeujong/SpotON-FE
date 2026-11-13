@@ -12,6 +12,7 @@ import { toDiagnosisSearch, useDiagnosisQuery } from '../hooks/useDiagnosisQuery
 import { useGeocodeSearch } from '../hooks/useGeocode'
 import type { GeocodeCandidate } from '../types/geocode'
 import { usePageTitle } from '../hooks/usePageTitle'
+import SkipLink, { MAIN_ID } from '../components/common/SkipLink'
 
 /** ② 주소·업종 입력 (STEP 01) — 2-1 기본 / 2-2 오류 / 2-3 완료. 사이드바 없음 */
 export default function InputPage() {
@@ -44,13 +45,18 @@ export default function InputPage() {
 
   return (
     <div className="flex min-h-full flex-col bg-bg">
+      <SkipLink />
       {/* 첫 화면은 그대로, 하단 안내는 공통 SiteFooter로 */}
       <div className="relative flex min-h-screen flex-col overflow-hidden bg-bg">
         <InputBackground />
         <header className="relative mx-auto w-full max-w-[1200px] px-10 pt-10">
           <Logo />
         </header>
-        <main className="relative mx-auto flex w-full max-w-[1200px] flex-1 items-center justify-between gap-12 px-10 py-12">
+        <main
+          id={MAIN_ID}
+          tabIndex={-1}
+          className="relative mx-auto flex w-full max-w-[1200px] flex-1 items-center justify-between gap-12 px-10 py-12 focus:outline-none"
+        >
           <InputIntro />
           <DiagnosisForm
             initialAddress={query.address}

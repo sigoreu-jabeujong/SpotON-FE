@@ -16,7 +16,7 @@ export default function IndicatorTypeLabel({ type, className }: Props) {
       className={cn(
         'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-micro font-semibold',
         official
-          ? 'bg-blue-500 text-white'
+          ? 'bg-blue-600 text-white'
           : 'bg-gray-0 text-gray-600 ring-1 ring-gray-300 ring-inset',
         className,
       )}
