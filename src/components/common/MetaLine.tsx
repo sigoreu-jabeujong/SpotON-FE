@@ -88,7 +88,7 @@ export default function MetaLine({
   return (
     <p
       className={cn(
-        'flex max-w-4xl flex-wrap items-baseline gap-y-1 text-micro leading-relaxed text-gray-600',
+        'flex max-w-[44em] flex-wrap items-baseline gap-y-1 text-micro leading-relaxed text-gray-600',
         className,
       )}
     >
@@ -100,10 +100,15 @@ export default function MetaLine({
       )}
       {parts.map((p, i) => (
         <span key={p.key}>
+          {/* 항목 사이는 가운뎃점 대신 얇은 세로선 (복사할 때는 공백으로 떨어지게 공백 글자를 함께 둔다) */}
           {i > 0 && (
-            <span aria-hidden="true" className="mx-2 text-gray-300">
-              ·
-            </span>
+            <>
+              {' '}
+              <span
+                aria-hidden="true"
+                className="mx-2.5 inline-block h-[0.9em] w-px bg-gray-300 align-[-0.1em]"
+              />
+            </>
           )}
           {/* 이름표와 값 사이에 실제 공백을 둬 읽기·복사 때 붙지 않게 */}
           {p.label && <span className="font-medium text-gray-900">{p.label}</span>}
