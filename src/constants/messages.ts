@@ -185,6 +185,11 @@ export const MESSAGES = {
     ],
     noticeTitle: '이력 확인 시 참고하세요',
     spaceBuilding: '건물 단위',
+    /** 탭 요약 숫자 (서버 total·데이터 기준일 그대로) — 화면 문장 summary와 같은 뜻 */
+    tabTitle: '과거 점포 이력',
+    statTotal: '이 건물에서 확인된 음식점·카페 인허가 기록',
+    statBaseline: '데이터 기준일',
+    tableTitle: '이 건물을 거쳐 간 점포',
   },
   /** 진단 조건 필터 바 (STEP 02 ② 위쪽) */
   filter: {
@@ -539,6 +544,7 @@ export const MESSAGES = {
   /** 단위·공통 글자 */
   units: {
     store: '곳',
+    record: '건',
   },
   common: {
     retry: '다시 시도',
