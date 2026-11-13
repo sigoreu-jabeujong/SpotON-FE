@@ -1,9 +1,12 @@
 import type { ApiMeta, ApiResponse } from '../types/api'
-import { getMockResponse } from './mocks'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 /** API 경로 접두사 (BE 작업계획서와 공통 기준) */
 export const API_PREFIX = '/api'
+/**
+ * 목업 모드 — 빌드할 때 값이 정해진다. 배포 빌드(VITE_USE_MOCK=false)에서는 아래 목업 분기와
+ * 동적 import('./mocks')가 통째로 빠져 목업 코드·가짜 점포 데이터가 결과물에 들어가지 않는다
+ */
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 /**
  * 목업 모드에서도 실제 서버로 부를 경로 (BE가 완성한 API부터 단계적으로 연결).
@@ -65,7 +68,9 @@ async function request<T>(
   init?: RequestInit,
   timeoutMs: number = TIMEOUT_MS,
 ): Promise<ApiResult<T>> {
-  if (USE_MOCK && !REAL_API_PATHS.has(path.split('?')[0])) {
+  // 조건에 import.meta.env를 직접 써야 빌드 때 false로 바뀌어 이 블록이 제거된다
+  if (import.meta.env.VITE_USE_MOCK === 'true' && !REAL_API_PATHS.has(path.split('?')[0])) {
+    const { getMockResponse } = await import('./mocks')
     const mock = await getMockResponse<T>(path, init)
     if (mock) return unwrap(mock.body, mock.status)
   }
