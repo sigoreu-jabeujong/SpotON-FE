@@ -104,7 +104,7 @@ function LinkGroup({
                 href={l.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex interactive-lift items-start justify-between gap-3 rounded-control border border-gray-300 bg-gray-0 px-4 py-3 hover:border-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                className="group flex items-start justify-between gap-3 rounded-control border border-gray-300 bg-gray-0 px-4 py-3 motion-colors hover:border-blue-500 hover:shadow-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
               >
                 <span className="min-w-0">
                   {l.id === districtId && (
