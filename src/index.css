@@ -153,6 +153,20 @@
   }
 }
 
+/*
+ * 차트(recharts)·카카오 지도처럼 클래스를 못 쓰고 JS로 색을 넘기는 곳의 색 — 기본 토큰을 가리키고,
+ * JS에서 utils/tokenColor로 읽는다 (static: 클래스에서 안 써도 항상 내보냄)
+ */
+@theme static {
+  --color-chart-opened: var(--color-blue-500); /* 개업 막대 */
+  --color-chart-closed: var(--color-pink-500); /* 폐업 막대 (상태 구분용, 등급 색 아님) */
+  --color-chart-grid: var(--color-gray-300); /* 가로 격자 (점선) */
+  --color-chart-axis: var(--color-gray-600); /* 축 글자 */
+  --color-chart-line: var(--color-gray-300); /* 축 선·도움말 테두리 */
+  --color-chart-text: var(--color-gray-900); /* 범례 글자 */
+  --color-map-radius: var(--color-blue-500); /* 진단 위치 반경 원 */
+}
+
 /* 모션 시간 토큰 — 유틸리티가 없는 값이라 static으로 항상 내보낸다 */
 @theme static {
   --duration-fast: 150ms; /* 색·눌림 같은 즉각 반응 */
