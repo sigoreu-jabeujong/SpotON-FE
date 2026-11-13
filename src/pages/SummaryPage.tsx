@@ -7,7 +7,6 @@ import ErrorState from '../components/common/ErrorState'
 import FranchiseFilterNotice from '../components/common/FranchiseFilterNotice'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
 import LoadingSkeleton from '../components/common/Skeleton'
-import Reveal from '../components/common/Reveal'
 import AiInterpretation from '../components/summary/ai/AiInterpretation'
 import MarketCard from '../components/summary/MarketCard'
 import OfficialIndicators from '../components/summary/OfficialIndicators'
@@ -59,41 +58,31 @@ export default function SummaryPage() {
           {/* 가맹 필터 지표는 목록명 일치로 고른 점포의 계산 — 당시 실제 프랜차이즈 코호트 아님 (요청서 5장) */}
           <FranchiseFilterNotice franchise={query.franchise} meta={risk.data.meta} />
           {/* 카드 묶음마다 오류 경계 — 하나가 깨져도 다른 지표는 계속 보인다 */}
-          <Reveal>
-            <SectionErrorBoundary resetKey={search}>
-              <MarketCard market={risk.data.data.market} />
-            </SectionErrorBoundary>
-          </Reveal>
-          <Reveal>
-            <SectionErrorBoundary resetKey={search}>
-              <OfficialIndicators
-                indicators={indicators}
-                market={risk.data.data.market}
-                query={risk.data.data.query}
-              />
-            </SectionErrorBoundary>
-          </Reveal>
-          <Reveal>
-            <SectionErrorBoundary resetKey={search}>
-              <ReferenceIndicators indicators={indicators} />
-            </SectionErrorBoundary>
-          </Reveal>
-          <Reveal>
-            <SectionErrorBoundary resetKey={search}>
-              <SeoulCompare indicators={indicators} />
-            </SectionErrorBoundary>
-          </Reveal>
+          <SectionErrorBoundary resetKey={search}>
+            <MarketCard market={risk.data.data.market} />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary resetKey={search}>
+            <OfficialIndicators
+              indicators={indicators}
+              market={risk.data.data.market}
+              query={risk.data.data.query}
+            />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary resetKey={search}>
+            <ReferenceIndicators indicators={indicators} />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary resetKey={search}>
+            <SeoulCompare indicators={indicators} />
+          </SectionErrorBoundary>
         </>
       )}
 
       {/* AI 해석 — 지표를 불러온 뒤에만. 조건(search)이 바뀌면 key로 새로 만들어 이전 결과를 지운다 */}
       {risk.data && params && (
-        <Reveal>
-          <SectionErrorBoundary resetKey={search}>
-            {/* 본문은 조회 조건(params)만 — 서버가 같은 조건으로 다시 계산한다 */}
-            <AiInterpretation key={search} params={params} history={toInterpretHistory(query)} />
-          </SectionErrorBoundary>
-        </Reveal>
+        <SectionErrorBoundary resetKey={search}>
+          {/* 본문은 조회 조건(params)만 — 서버가 같은 조건으로 다시 계산한다 */}
+          <AiInterpretation key={search} params={params} history={toInterpretHistory(query)} />
+        </SectionErrorBoundary>
       )}
 
       <SectionErrorBoundary resetKey={search}>

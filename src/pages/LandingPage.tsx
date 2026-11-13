@@ -38,14 +38,15 @@ export default function LandingPage() {
 
           <div className="relative mx-auto flex w-full max-w-[1200px] flex-1 flex-col px-10 pt-16">
             <div className={rise} style={delay(0)}>
-              <p className="text-caption font-semibold text-blue-700">{T.slogan}</p>
-              <h1 className="mt-3 text-[2.5rem] leading-tight font-bold text-gray-900">
+              <h1 className="text-[2.5rem] leading-tight font-bold text-gray-900">
                 {T.titleLine1}
                 <br />
                 {T.titleLine2}
               </h1>
+              {/* 팀 슬로건 — 제목 위 작은 라벨이 아니라 제목을 받쳐 주는 보조 문장으로 */}
+              <p className="mt-4 text-subtitle font-medium text-gray-900">{T.slogan}</p>
             </div>
-            <p className={`mt-3 text-subtitle text-gray-600 ${rise}`} style={delay(1)}>
+            <p className={`mt-1 text-subtitle text-gray-600 ${rise}`} style={delay(1)}>
               {T.description}
             </p>
             <div className={`mt-8 ${rise}`} style={delay(2)}>

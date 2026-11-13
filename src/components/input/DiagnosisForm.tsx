@@ -69,10 +69,7 @@ export default function DiagnosisForm({
       aria-labelledby="diagnosis-form-title"
       className="w-full max-w-[530px] rounded-card bg-gray-0 p-8 shadow-card"
     >
-      <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-micro font-semibold text-blue-700">
-        {T.step}
-      </span>
-      <h2 id="diagnosis-form-title" className="mt-4 text-section font-bold text-gray-900">
+      <h2 id="diagnosis-form-title" className="text-section font-bold text-gray-900">
         {T.cardTitle}
       </h2>
       <p className="mt-1 text-caption text-gray-600">{T.cardDescription}</p>
@@ -187,7 +184,7 @@ export default function DiagnosisForm({
         type="submit"
         disabled={loading}
         className={cn(
-          'group mt-9 flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait',
+          'group mt-9 flex h-12 w-full items-center justify-center gap-2 rounded-full text-body font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait',
           'transition-[color,background-color,transform] duration-(--duration-fast) ease-(--ease-out-soft)',
           ready
             ? 'bg-blue-600 text-white hover:bg-blue-700 motion-safe:enabled:hover:-translate-y-px motion-safe:enabled:active:translate-y-0 motion-safe:enabled:active:scale-[0.98]'

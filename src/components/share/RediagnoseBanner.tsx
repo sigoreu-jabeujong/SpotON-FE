@@ -15,7 +15,7 @@ export default function RediagnoseBanner() {
     <Link
       to={ROUTES.input}
       aria-label={T.rediagnoseLabel}
-      className="group flex interactive-lift items-center justify-between gap-4 rounded-card bg-blue-100 px-6 py-5 hover:bg-blue-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+      className="group flex items-center justify-between gap-4 rounded-card bg-blue-100 px-6 py-5 motion-colors hover:bg-blue-500/10 hover:shadow-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
     >
       <span className="flex items-center gap-4">
         <RobotArt className="size-16" />

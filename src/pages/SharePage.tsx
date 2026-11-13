@@ -1,7 +1,6 @@
 import { FileDown, Handshake, Headset, ImageDown, type LucideIcon } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import Card from '../components/common/Card'
-import Reveal from '../components/common/Reveal'
 import RediagnoseBanner from '../components/share/RediagnoseBanner'
 import SummaryImageCard from '../components/share/SummaryImageCard'
 import SupportLinksSection from '../components/share/SupportLinksSection'
@@ -11,19 +10,10 @@ import { scrollBehavior } from '../constants/motion'
 import { ROUTES } from '../constants/routes'
 import { useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
 import { useReportData } from '../hooks/useReportData'
-import { cn } from '../utils/cn'
 
 const T = MESSAGES.share
 
-type CardTone = 'pink' | 'green' | 'orange' | 'purple'
-const TONE: Record<CardTone, { bg: string; icon: string }> = {
-  pink: { bg: 'bg-pink-100', icon: 'text-pink-700' },
-  green: { bg: 'bg-green-100', icon: 'text-green-700' },
-  orange: { bg: 'bg-orange-100', icon: 'text-orange-700' },
-  purple: { bg: 'bg-purple-100', icon: 'text-purple-700' },
-}
-
-/** STEP 04 결과 저장 및 상담 (F-09·F-10) — 디자인 07 B안(색깔 카드) */
+/** STEP 04 결과 저장 및 상담 (F-09·F-10) — 디자인 07 B안의 카드 4장을 흰 카드 + 파란 아이콘으로 통일 */
 export default function SharePage() {
   const navigate = useNavigate()
   const { search } = useDiagnosisQuery()
@@ -39,14 +29,12 @@ export default function SharePage() {
     <Card className="flex flex-col gap-10">
       <div className="grid grid-cols-4 gap-4">
         <ActionCard
-          tone="pink"
           icon={FileDown}
           title={T.cards.pdf.title}
           desc={T.cards.pdf.desc}
           onClick={() => navigate({ pathname: ROUTES.report, search })}
         />
         <ActionCard
-          tone="green"
           icon={ImageDown}
           title={T.cards.image.title}
           desc={imageStatus === 'making' ? T.imageMaking : T.cards.image.desc}
@@ -54,14 +42,12 @@ export default function SharePage() {
           onClick={() => void saveImage()}
         />
         <ActionCard
-          tone="orange"
           icon={Headset}
           title={T.cards.consulting.title}
           desc={T.cards.consulting.desc}
           onClick={() => scrollTo('links-consulting')}
         />
         <ActionCard
-          tone="purple"
           icon={Handshake}
           title={T.cards.support.title}
           desc={T.cards.support.desc}
@@ -75,14 +61,8 @@ export default function SharePage() {
           <span className="text-danger">{imageReady ? T.imageFailed : T.imageNeedsData}</span>
         )}
       </p>
-
-      <Reveal>
-        <SupportLinksSection />
-      </Reveal>
-
-      <Reveal>
-        <RediagnoseBanner />
-      </Reveal>
+      <SupportLinksSection />
+      <RediagnoseBanner />
 
       {/* 요약 이미지용 카드 — 화면 밖에 그려 두고 html2canvas가 읽는다 */}
       {imageReady && (
@@ -95,14 +75,12 @@ export default function SharePage() {
 }
 
 export function ActionCard({
-  tone,
   icon: Icon,
   title,
   desc,
   onClick,
   disabled,
 }: {
-  tone: CardTone
   icon: LucideIcon
   title: string
   desc: string
@@ -114,13 +92,11 @@ export function ActionCard({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={cn(
-        'flex interactive-lift flex-col items-center gap-3 rounded-card px-4 py-7 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait disabled:opacity-70',
-        TONE[tone].bg,
-      )}
+      // 흰 카드 + 파란 아이콘 하나 — 누르면 떠오르지 않고 테두리·그림자·색만 바뀐다
+      className="group flex flex-col items-center gap-3 rounded-card border border-gray-300 bg-gray-0 px-4 py-7 text-center motion-colors hover:border-blue-500/50 hover:shadow-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait disabled:opacity-70"
     >
-      <span className="flex size-14 items-center justify-center rounded-full bg-gray-0 shadow-card">
-        <Icon className={cn('size-7', TONE[tone].icon)} aria-hidden="true" />
+      <span className="flex size-14 items-center justify-center rounded-full bg-blue-100 motion-colors group-hover:bg-blue-500/15">
+        <Icon className="size-7 text-blue-700" aria-hidden="true" />
       </span>
       <span className="text-body font-bold break-keep text-gray-900">{title}</span>
       <span className="text-micro break-keep text-gray-600">{desc}</span>

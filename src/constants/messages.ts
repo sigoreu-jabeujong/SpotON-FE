@@ -82,13 +82,11 @@ export const MESSAGES = {
   },
   /** ② 주소·업종 입력 (주소 검색 API 오류 문구는 ERROR_MESSAGES 사용) */
   input: {
-    eyebrow: 'DATA-BASED INSIGHT',
     introTitleLine1: '좋은 자리는,',
     introTitleLine2: '데이터로 보입니다.',
     introDescription:
       '데이터를 바탕으로 과거 점포 이력과 주변 상권을 분석해, 더 나은 창업 결정을 돕습니다.',
     features: ['객관적인 데이터 분석', '한눈에 보는 상권 정보', '창업 전 체크리스트 제공'],
-    step: 'STEP 01',
     cardTitle: '진단할 주소와 업종을 선택해 주세요',
     cardDescription: '주소와 업종을 입력하면 과거 점포 이력부터 주변 상권까지 분석할 수 있어요.',
     addressLabel: '진단 위치 입력',
@@ -604,7 +602,6 @@ export const MESSAGES = {
     editHint: '입력 화면으로 이동해요. 지금 주소와 업종은 그대로 채워져 있어요',
   },
   layout: {
-    eyebrow: 'DATA - BASED INSIGHT',
     ageNotice: '만 18세 이상 예비창업자를 대상으로 해요.',
     baselinePending: '데이터 기준일은 결과를 불러오면 표시돼요.',
     skipToContent: '본문 바로가기',
