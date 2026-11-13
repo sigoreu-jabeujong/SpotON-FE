@@ -147,7 +147,15 @@ export type RiskInterpretRequest = {
   query: RiskInterpretQuery
 }
 
-export type InterpretItem = { text: string; indicator_ids: IndicatorId[] }
+/**
+ * AI 해석 근거 ID — Risk 지표 ID + 상권 활동 참고 계산 ID (BE #96: official_values 끝 문장에만)
+ * - recent_open_close: 최근 구간 개업·폐업 기록
+ * - avg_operating_months: 기준일에 영업 중인 기록의 개업 후 경과 개월 평균 (점포 수명·생존 기간 아님)
+ */
+export type ActivityEvidenceId = 'recent_open_close' | 'avg_operating_months'
+export type EvidenceId = IndicatorId | ActivityEvidenceId
+
+export type InterpretItem = { text: string; indicator_ids: EvidenceId[] }
 export type InterpretSourcedItem = InterpretItem & { sources: string[] }
 
 /** POST /api/risk/interpret 응답 data (화면 표시 순서) */

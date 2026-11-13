@@ -561,6 +561,13 @@ export const MESSAGES = {
       checklist: '계약 전 현장 확인사항',
     },
     evidence: '근거 지표',
+    /** 지표 카드가 없는 근거 칩 이름 (상권 활동 참고 계산, BE #96) — 서버 문장은 그대로 두고 칩 이름만 */
+    evidenceNames: {
+      recent_open_close: '최근 개폐업 기록',
+      avg_operating_months: '평균 경과 기간',
+    } as Record<string, string>,
+    /** 이름 표에 없는 새 근거 ID (영문 코드를 보이지 않게) */
+    otherEvidence: '기타 근거',
     sources: '출처',
     goToIndicator: (name: string) => `${name} 카드로 이동`,
     checklistHint: '확인한 항목을 체크해 보세요. 체크 상태는 저장되지 않아요.',
