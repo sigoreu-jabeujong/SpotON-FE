@@ -11,6 +11,10 @@ import type {
 } from '../../types/risk'
 import { DEMO_META, fail, isMockResult, ok, radiusSpace, unknownFlags } from './common'
 import type { MockHandler } from './index'
+import { formatOperatingMonths } from '../../utils/format'
+import { SUB_CATEGORY_LABEL } from '../../constants/labels'
+import type { MarketActivity } from '../../types/market'
+import { marketActivityMock } from './market'
 import { storeStats } from './nearby'
 
 /** 표본 부족 기준: 반경 안 동일 업종 10건 미만 (분석 로직 정의서) */
@@ -484,8 +488,14 @@ export const riskInterpretMock: MockHandler = (_query, body) => {
   const recomputed = riskMock(params, null)
   if (recomputed.status !== 200 || !recomputed.body.data) return invalid()
   const risk = recomputed.body.data as Risk
+  const interpretation = buildInterpretation(risk)
+  // BE #96: 같은 조건의 상권 활동 집계로 참고 계산 문장을 official_values 끝에 덧붙인다
+  // (최근 개폐업 1개 + 세부 업종마다 평균 경과 기간 1개 — 카페 1개, 음식점 전체 4개)
+  const activity = marketActivityMock(params, null)
+  if (activity.status === 200 && activity.body.data)
+    interpretation.official_values.push(...activitySentences(activity.body.data as MarketActivity))
   return {
-    ...ok(buildInterpretation(risk), {
+    ...ok(interpretation, {
       ...DEMO_META,
       source: ['R2', 'R5', 'R6'],
       as_of: risk.query.as_of,
@@ -493,4 +503,23 @@ export const riskInterpretMock: MockHandler = (_query, body) => {
     }),
     delayMs: AI_DELAY_MS,
   }
+}
+
+/**
+ * 목업 전용: 상권 활동 참고 계산 문장 (BE #96 모양). 평균 경과 기간은 기준일에 영업 중인 기록의
+ * 개업 후 경과 개월 평균 — 점포 수명·생존 기간으로 쓰지 않는다
+ */
+function activitySentences(a: MarketActivity): RiskInterpretation['official_values'] {
+  const recent = {
+    text: `참고 계산: 최근 12개월(${a.recent_12m.period.replace('~', ' ~ ')}) 반경 안 같은 업종 개업 ${a.recent_12m.opened}건, 폐업 ${a.recent_12m.closed}건이 기록됐습니다.`,
+    indicator_ids: ['recent_open_close' as const],
+  }
+  const avg = a.by_sub_category.map((s) => ({
+    text:
+      s.avg_operating_months === null
+        ? `참고 계산: ${SUB_CATEGORY_LABEL[s.sub_category]} 업종은 기준일에 영업 중인 기록의 평균 경과 기간을 계산하지 않았습니다.`
+        : `참고 계산: ${SUB_CATEGORY_LABEL[s.sub_category]} 업종에서 기준일에 영업 중인 기록 ${s.open_count}건의 개업 후 평균 경과 기간은 ${formatOperatingMonths(s.avg_operating_months)}입니다.`,
+    indicator_ids: ['avg_operating_months' as const],
+  }))
+  return [recent, ...avg]
 }

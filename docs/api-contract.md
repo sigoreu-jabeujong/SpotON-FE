@@ -431,12 +431,25 @@ FE 처리 (지도·표 공통)
 | 응답 `data` | 설명 (화면 순서) |
 |---|---|
 | `label`, `method` | `"AI 해석"`, `server_sentences_model_ordering` (서버가 검증한 문장을 모델이 정렬) |
-| `official_values[]` | (1) **확인된 계산값 요약** — 참고지표도 있으므로 "공식 통계"라고 부르지 않는다 |
+| `official_values[]` | (1) **확인된 계산값 요약** — 참고지표도 있으므로 "공식 통계"라고 부르지 않는다. BE #96부터 끝에 상권 활동 **참고 계산 문장**(최근 개폐업 1개 + 세부 업종마다 평균 경과 기간 1개 — 카페 1개, 음식점 전체 4개)이 붙는다 |
 | `favorable[]` / `unfavorable[]` | (2)(3) 서울 비교가 가능한 비율만. 비어 있어도 채우지 않는다 |
 | `missing_data[]` | (4) 부족한 자료 `{ text, reason }` |
 | `checklist[]` | (5) 계약 전 현장 확인사항 1~3개 |
 | `verification` | 형식·문장 안전성 검사 표시 — **정확도 점수 아님**. `regenerated` = 이번 요청에서 1회 재생성 여부 |
 | `model`, `generated_at` | 모델명, **이번 응답의 서버 문장 조립 시각(UTC)** — 새 모델 호출 시각 아님 (화면: "응답 시각") |
+
+**근거 칩 (`indicator_ids`, `EvidenceChips` · `ai/evidenceChip.ts`)**
+
+| ID | 칩 이름 | 누르면 |
+|---|---|---|
+| Risk 지표 ID (`closure_rate_12m` 등) | 지표 이름 (`INDICATOR_NAME`) | 종합 진단의 그 지표 카드로 이동 |
+| `recent_open_close` (BE #96) | 최근 개폐업 기록 | **이동하지 않는 글자 칩** — 해당 카드는 STEP 02 상권 활동에 있어 옮겨 가면 보고 있던 AI 해석이 사라짐 |
+| `avg_operating_months` (BE #96) | 평균 경과 기간 | 이동하지 않는 글자 칩 |
+| 그 밖의 새 ID | 기타 근거 | 이동하지 않음 (영문 코드 노출 금지) |
+
+- `avg_operating_months`는 여러 문장에 반복되므로 목록 key는 문장 text, 칩 key는 `ID-순서`.
+- 평균 경과 기간 = 기준일에 영업 중인 기록의 개업 후 경과 개월 평균(버림). 점포 수명·생존 기간·영업 성과로 바꿔 쓰지 않고 서버 문장 그대로.
+- favorable/unfavorable의 `indicator_ids`는 기존 Risk 지표 ID만 온다. 활동 집계와 Risk가 맞지 않으면 서버 500 → 기존 AI 실패 처리(지표 유지).
 
 | 예외 | 응답 | FE 처리 |
 |---|---|---|
