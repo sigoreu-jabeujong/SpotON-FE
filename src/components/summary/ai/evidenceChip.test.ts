@@ -15,7 +15,9 @@ describe('evidenceChip — AI 근거 칩 이름·이동', () => {
   it.each([
     ['recent_open_close', '최근 개폐업 기록'],
     ['avg_operating_months', '평균 경과 기간'],
-  ])('상권 활동 근거 %s → "%s", 이동하지 않음', (id, label) => {
+    ['building_history', '건물 이력'],
+    ['same_spot_history', '같은 자리 이력'],
+  ])('카드가 없는 근거(상권 활동·이력) %s → "%s", 이동하지 않음', (id, label) => {
     expect(evidenceChip(id)).toEqual({ label, target: null })
   })
 
