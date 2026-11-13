@@ -8,6 +8,7 @@ import SiteFooter from '../components/layout/SiteFooter'
 import { MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useWarmUpBackend } from '../hooks/useWarmUpBackend'
 import SkipLink, { MAIN_ID } from '../components/common/SkipLink'
 
 const T = MESSAGES.landing
@@ -24,6 +25,8 @@ const delay = (n: number): CSSProperties => ({
 /** ① 랜딩 — 로고, 제목, 시작 버튼, 오른쪽 전국 지도 그림 (1.Home) */
 export default function LandingPage() {
   usePageTitle(MESSAGES.titles.landing)
+  // 잠든 무료 서버를 미리 깨운다 (실제 서버 모드에서만, 탭당 한 번)
+  useWarmUpBackend()
   return (
     <div className="flex min-h-full flex-col bg-gray-0">
       <SkipLink />

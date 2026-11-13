@@ -12,11 +12,14 @@ import { toDiagnosisSearch, useDiagnosisQuery } from '../hooks/useDiagnosisQuery
 import { useGeocodeSearch } from '../hooks/useGeocode'
 import type { GeocodeCandidate } from '../types/geocode'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useWarmUpBackend } from '../hooks/useWarmUpBackend'
 import SkipLink, { MAIN_ID } from '../components/common/SkipLink'
 
 /** ② 주소·업종 입력 (STEP 01) — 2-1 기본 / 2-2 오류 / 2-3 완료. 사이드바 없음 */
 export default function InputPage() {
   usePageTitle(MESSAGES.titles.input)
+  // 주소를 입력하는 동안 잠든 무료 서버를 미리 깨운다 (실제 서버 모드에서만, 탭당 한 번)
+  useWarmUpBackend()
   const navigate = useNavigate()
   // 결과 화면 STEP 01 링크로 돌아오면 이전 주소·업종을 채워 둔다
   const { query } = useDiagnosisQuery()
