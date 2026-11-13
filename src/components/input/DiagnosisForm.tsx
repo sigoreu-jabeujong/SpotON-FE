@@ -8,7 +8,7 @@ import {
   Search,
   Utensils,
 } from 'lucide-react'
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { CATEGORIES, type Category } from '../../constants/diagnosis'
 import { MESSAGES } from '../../constants/messages'
 import { cn } from '../../utils/cn'
@@ -33,6 +33,9 @@ type Props = {
 
 type Required = { address: boolean; category: boolean }
 
+/** 주소 검색이 이 시간보다 오래 걸리면 "서버 준비 중" 안내로 바꾼다 */
+const SLOW_SEARCH_MS = 3000
+
 /** 입력 화면 오른쪽 흰 카드: STEP 01, ① 진단 위치 입력, ② 업종 선택, "이 자리 진단하기" */
 export default function DiagnosisForm({
   initialAddress = '',
@@ -46,6 +49,16 @@ export default function DiagnosisForm({
   const [address, setAddress] = useState(initialAddress)
   const [category, setCategory] = useState<Category | null>(initialCategory)
   const [missing, setMissing] = useState<Required>({ address: false, category: false })
+  // 주소 검색이 오래 걸리면(잠든 서버가 깨어나는 중) 버튼 문구를 "서버 준비 중…"으로 바꾼다
+  const [slow, setSlow] = useState(false)
+  useEffect(() => {
+    if (!loading) return
+    const timer = window.setTimeout(() => setSlow(true), SLOW_SEARCH_MS)
+    return () => {
+      window.clearTimeout(timer)
+      setSlow(false)
+    }
+  }, [loading])
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -203,7 +216,7 @@ export default function DiagnosisForm({
         {loading ? (
           <>
             <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
-            <span role="status">{T.searching}</span>
+            <span role="status">{slow ? T.serverWaking : T.searching}</span>
           </>
         ) : (
           <>

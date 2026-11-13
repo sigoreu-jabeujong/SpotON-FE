@@ -99,6 +99,8 @@ export const MESSAGES = {
     required: '*필수 입력 항목입니다.',
     submit: '이 자리 진단하기',
     searching: '주소를 찾는 중이에요',
+    /** 주소 검색이 3초 넘게 걸릴 때 — 잠든 서버가 깨어나는 중 (첫 검색은 최대 1분 기다림) */
+    serverWaking: '서버 준비 중… 처음엔 1분까지 걸릴 수 있어요',
     candidatesTitle: '주소 후보가 여러 개예요. 진단할 주소를 골라 주세요.',
     candidateJibun: '지번',
     scope: '현재 서울특별시 카페·음식점(한식·중식·일식·양식)을 진단할 수 있어요',
@@ -665,7 +667,8 @@ export const ERROR_MESSAGES = {
   AI_UNAVAILABLE: 'AI 해석을 불러오지 못했어요.',
   AI_VERIFY_FAILED: 'AI 해석을 불러오지 못했어요.',
   INTERNAL_ERROR: '일시적인 문제가 생겼어요. 잠시 후 다시 시도해 주세요.',
-  TIMEOUT: '응답이 늦어지고 있어요. 잠시 후 다시 시도해 주세요.',
+  /** 잠든 무료 서버(Render)가 깨어나는 동안 시간 초과가 날 수 있다 — 고장이 아니라 준비 중이라고 안내 */
+  TIMEOUT: '서버를 준비하는 중이에요. 잠시 후 다시 시도해 주세요.',
   NETWORK_ERROR: '서버에 연결할 수 없어요. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.',
 } as const
 export type ErrorCode = keyof typeof ERROR_MESSAGES
