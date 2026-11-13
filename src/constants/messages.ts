@@ -222,6 +222,13 @@ export const MESSAGES = {
     asOfNoPast: '선택한 업종은 과거 시점 자료가 없어 현재 기준으로만 볼 수 있어요',
     asOfUnavailable: '선택할 수 있는 기간을 불러오지 못해 지금은 현재 기준으로만 볼 수 있어요',
     asOfOutOfRangeHint: '범위 밖',
+    /** 주변 점포 탭 — 적용된 조건 칩 + [조건 변경] */
+    chipsLabel: '지금 적용된 조회 조건',
+    chipAll: '전체',
+    chipUnknown: '정보 없음 점포',
+    chipInclude: '포함',
+    chipExclude: '제외',
+    change: '조건 변경',
   },
   /** STEP 02 ② 주변 점포 분석 */
   nearby: {
@@ -229,6 +236,11 @@ export const MESSAGES = {
     pastViewHint: '지도·점포 표·시점 조회가 이 시점에 영업하던 점포를 기준으로 바뀌었어요.',
     pastBadge: (ym: string) => `${ym} 기준`,
     mapTitle: '주변 점포 분포',
+    /** 탭 요약 숫자 (서버 count·radius_m·as_of 그대로) */
+    tabTitle: '주변 점포',
+    statCount: '조건에 맞는 점포',
+    statRadius: '조회 반경',
+    statAsOf: '기준일',
     tableTitle: '점포 상세 조회',
     mapBadge: (radius: number, asOf: string | null) =>
       `반경 ${radius.toLocaleString('ko-KR')}m${asOf ? ` · 기준일 ${asOf}` : ''}`,

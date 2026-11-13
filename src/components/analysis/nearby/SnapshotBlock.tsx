@@ -10,7 +10,7 @@ import { formatCount, formatDataBaseline, formatYearMonthKo } from '../../../uti
 import EmptyState from '../../common/EmptyState'
 import ErrorState from '../../common/ErrorState'
 import LoadingState from '../../common/LoadingState'
-import MetaLine from '../../common/MetaLine'
+import SourceLine from '../../common/SourceLine'
 import StatCard from '../../common/StatCard'
 import SubTitle from '../../common/SubTitle'
 import { franchiseEmptyMessage } from '../../../utils/storeDisplay'
@@ -31,7 +31,7 @@ export default function SnapshotBlock() {
   const periodLabel = formatYearMonthKo(query.asOf)
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-stack-2">
       <SubTitle>{T.title}</SubTitle>
       {!query.asOf ? (
         <SnapshotGuide query={query} onPick={(asOf) => updateQuery({ asOf })} />
@@ -87,9 +87,8 @@ function SnapshotResult({
         <Info className="size-4 shrink-0" aria-hidden="true" />
         {T.notice}
       </p>
-      <MetaLine
+      <SourceLine
         source={meta?.source}
-        sourceNames
         asOf={meta?.as_of}
         baseline={formatDataBaseline(meta)}
         space={meta?.space}

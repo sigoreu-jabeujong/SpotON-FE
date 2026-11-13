@@ -27,7 +27,7 @@ export default function LoadingSkeleton({
     <div role="status" aria-live="polite" aria-busy="true">
       <span className="sr-only">{message}</span>
       {variant === 'table' && <TableSkeleton />}
-      {variant === 'map' && <SkeletonBlock className="h-[420px] rounded-card" />}
+      {variant === 'map' && <SkeletonBlock className="h-[520px] rounded-card" />}
       {variant === 'cards' && <CardsSkeleton count={4} />}
       {variant === 'chart' && <SkeletonBlock className="h-64 rounded-control" />}
       {variant === 'summary' && (
