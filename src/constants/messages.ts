@@ -225,6 +225,7 @@ export const MESSAGES = {
     /** 주변 점포 탭 — 적용된 조건 칩 + [조건 변경] */
     chipsLabel: '지금 적용된 조회 조건',
     chipAll: '전체',
+    chipCategory: '업종',
     chipUnknown: '정보 없음 점포',
     chipInclude: '포함',
     chipExclude: '제외',
@@ -541,6 +542,7 @@ export const MESSAGES = {
     knowMore: '알아두세요',
     stepNav: '다음 단계로 이동',
     nextSummary: '종합 진단 결과 보기',
+    prevInput: '주소 및 업종 다시 입력',
   },
   /** 찾을 수 없는 페이지 */
   notFound: {

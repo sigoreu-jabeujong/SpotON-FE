@@ -48,7 +48,18 @@ export default function HistorySection() {
               },
             ]}
           />
-          <SectionCard title={T.tableTitle}>
+          <SectionCard
+            title={T.tableTitle}
+            footer={
+              <SourceLine
+                source={meta?.source}
+                baseline={formatDataBaseline(meta)}
+                spaceLabel={T.spaceBuilding}
+                denominator={meta?.denominator}
+                isDemo={meta?.is_demo}
+              />
+            }
+          >
             {!query.floorUnit && (
               <p className="flex items-center gap-1.5 text-caption text-gray-600">
                 <Info className="size-4 shrink-0" aria-hidden="true" />
@@ -60,13 +71,6 @@ export default function HistorySection() {
             ) : (
               <HistoryTable stores={history.data.data.stores} />
             )}
-            <SourceLine
-              source={meta?.source}
-              baseline={formatDataBaseline(meta)}
-              spaceLabel={T.spaceBuilding}
-              denominator={meta?.denominator}
-              isDemo={meta?.is_demo}
-            />
           </SectionCard>
           <KnowMore items={T.notices} title={`${MESSAGES.frame.knowMore} · ${T.noticeTitle}`} />
         </>

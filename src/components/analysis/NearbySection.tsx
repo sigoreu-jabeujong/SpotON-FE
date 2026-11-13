@@ -87,7 +87,23 @@ export default function NearbySection() {
         />
       )}
 
-      <SectionCard title={T.mapTitle}>
+      <SectionCard
+        title={T.mapTitle}
+        footer={
+          !nearby.isPending &&
+          !nearby.isError &&
+          data && (
+            <SourceLine
+              source={meta?.source}
+              asOf={meta?.as_of}
+              baseline={formatDataBaseline(meta)}
+              space={meta?.space}
+              denominator={meta?.denominator}
+              isDemo={meta?.is_demo}
+            />
+          )
+        }
+      >
         {nearby.isPending ? (
           <LoadingSkeleton variant="map" />
         ) : nearby.isError ? (
@@ -124,14 +140,6 @@ export default function NearbySection() {
                   {T.excludedNoCoord(data.excluded_no_coord)}
                 </p>
               )}
-              <SourceLine
-                source={meta?.source}
-                asOf={meta?.as_of}
-                baseline={formatDataBaseline(meta)}
-                space={meta?.space}
-                denominator={meta?.denominator}
-                isDemo={meta?.is_demo}
-              />
             </>
           )
         )}

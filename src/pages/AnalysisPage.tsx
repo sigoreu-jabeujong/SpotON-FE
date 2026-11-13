@@ -76,7 +76,11 @@ export default function AnalysisPage() {
           </div>
         ))}
       </div>
-      <StepNav to={ROUTES.summary} search={search} label={MESSAGES.frame.nextSummary} />
+      <StepNav
+        search={search}
+        prev={{ to: ROUTES.input, label: MESSAGES.frame.prevInput }}
+        next={{ to: ROUTES.summary, label: MESSAGES.frame.nextSummary }}
+      />
     </div>
   )
 }
