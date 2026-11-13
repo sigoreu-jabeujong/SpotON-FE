@@ -28,14 +28,15 @@ export default function SnapshotTable({ stores, periodLabel }: Props) {
   const { visible, shown, total, hasMore, showMore } = useShowMore(stores)
   return (
     <div>
-      <div className="overflow-hidden rounded-card border border-gray-300 bg-gray-0">
+      <div className="overflow-clip rounded-card border border-gray-300 bg-gray-0">
         <table
           id={TABLE_ID}
           // 숫자 열은 고정폭 숫자, 점포명(행 머리 th)은 보통 숫자 — 상호 속 숫자가 벌어지지 않게
           className="w-full text-center text-caption tabular-nums [&_tbody_th]:normal-nums"
         >
           <caption className="sr-only">{T.caption(periodLabel)}</caption>
-          <thead className="border-b border-gray-300 bg-blue-100/70 text-gray-900">
+          {/* 머리글은 표가 길어도 진단 조건 바 바로 아래에 붙어 있다 (overflow-clip이라 sticky가 화면 기준으로 동작) */}
+          <thead className="text-gray-900 [&_th]:sticky [&_th]:top-condition-bar [&_th]:z-[1] [&_th]:bg-blue-100 [&_th]:shadow-[inset_0_-1px_0_var(--color-gray-300)]">
             <tr>
               {Object.values(T.columns).map((label) => (
                 <th key={label} scope="col" className="px-3 py-3.5 font-bold whitespace-nowrap">
