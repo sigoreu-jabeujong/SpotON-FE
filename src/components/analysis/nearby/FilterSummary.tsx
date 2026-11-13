@@ -1,5 +1,6 @@
 import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import {
+  CATEGORIES,
   FACILITY_SIZE_OPTIONS,
   FRANCHISE_OPTIONS,
   RESTAURANT_SUB_CATEGORIES,
@@ -27,13 +28,22 @@ export default function FilterSummary({ open, onToggle, panelId }: Props) {
   const subs = RESTAURANT_SUB_CATEGORIES.filter((s) => query.subCategories.includes(s.id))
     .map((s) => s.label)
     .join('·')
+  const category = CATEGORIES.find((c) => c.id === query.category)?.label
   const area = FACILITY_SIZE_OPTIONS.find((a) => a.id === query.area)?.label
   const franchise = FRANCHISE_OPTIONS.find((f) => f.id === query.franchise)?.label
   const chips: { key: string; name: string; value: string }[] = [
     { key: 'radius', name: T.radius, value: `${query.radius.toLocaleString('ko-KR')}m` },
-    ...(query.category === 'restaurant'
-      ? [{ key: 'sub', name: T.subCategory, value: subs || T.chipAll }]
-      : []),
+    {
+      key: 'category',
+      name: T.chipCategory,
+      // 음식점은 세부 업종(없으면 음식점 전체), 카페는 세부 업종 없음
+      value:
+        query.category === 'restaurant'
+          ? subs
+            ? `${category} (${subs})`
+            : `${category} ${T.chipAll}`
+          : (category ?? ''),
+    },
     { key: 'area', name: T.area, value: area ?? T.chipAll },
     { key: 'franchise', name: T.franchise, value: franchise ?? T.chipAll },
     { key: 'asOf', name: T.asOf, value: formatYearMonthKo(query.asOf) ?? T.asOfCurrent },
