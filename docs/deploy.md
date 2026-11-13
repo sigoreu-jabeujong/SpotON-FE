@@ -1,7 +1,7 @@
 # 배포 안내 (SpotON-FE)
 
-> 배포 위치는 개발 완료 후 결정한다 (docs/decisions.md). 이 문서는 어디에 올리든 공통으로 필요한 것만 적는다.
-> 특정 호스팅 서비스용 설정 파일은 저장소에 넣지 않는다.
+> 지금 미리보기 배포는 **Vercel** (5장). 1~4장은 어디에 올리든 공통으로 필요한 것이다.
+> 호스팅 설정 파일은 실제로 쓰는 Vercel용 `vercel.json`만 둔다.
 
 ## 1. 빌드
 
@@ -40,7 +40,8 @@ npm run preview -- --port 5180           # (선택) 배포 결과물을 로컬�
 | 없는 주소 | `index.html` (화면이 404 페이지를 보여줌) |
 | `/assets/index-xxxx.js`, `/og-image.png`, `/favicon.png` | 그 파일 그대로 |
 
-호스팅별 설정 예 (참고용 — 해당 서비스를 고르면 그때 설정):
+호스팅별 설정 예:
+- **Vercel: 저장소 루트 `vercel.json`** (5장) — 이미 들어 있음
 - Nginx: `try_files $uri $uri/ /index.html;`
 - Apache: `FallbackResource /index.html`
 - 정적 호스팅 서비스: "SPA 모드"·"모든 경로를 index.html로 rewrite" 옵션 (서비스마다 이름이 다름)
@@ -50,8 +51,35 @@ npm run preview -- --port 5180           # (선택) 배포 결과물을 로컬�
 ## 4. 배포 후 할 일
 
 - [ ] **카카오 개발자 콘솔** → 앱 → 플랫폼 → Web에 배포 도메인(예: `https://spoton.예시.kr`) 추가 — 안 하면 지도 자리에 "지도를 불러오지 못했어요"만 보인다
-- [ ] **og:image 절대 주소**: `index.html`의 `og:image`·`twitter:image`를 `https://배포-도메인/og-image.png`로 바꾸고 다시 빌드 (상대 경로면 일부 메신저 공유 미리보기에 그림이 안 나옴)
+- [x] **og:image 절대 주소**: `index.html`의 `og:image`·`twitter:image` = `https://spot-on-fe.vercel.app/og-image.png` (배포 주소가 바뀌면 이 두 줄도 바꾸고 다시 빌드 — 상대 경로면 일부 메신저 공유 미리보기에 그림이 안 나옴)
 - [ ] **BE `CORS_ORIGINS`에 FE 도메인 추가** (BE 담당 — 쉼표 목록, 예: `https://spoton.예시.kr`). 빠지면 모든 API가 "서버에 연결할 수 없어요"로 보인다
 - [ ] **`src/constants/links.ts` 저장소 주소**를 최종 제출 저장소(공공 GitLab) 주소로 바꾸기 (푸터·랜딩의 소스 코드 링크)
 - [ ] 배포 주소에서 확인: 주소 검색 → STEP 02~04, 결과 화면에서 새로고침, PDF 인쇄·요약 이미지 저장, 화면에 "시연 데이터" 표시가 없는지
 - [ ] BE를 잠깐 멈췄을 때 "서버에 연결할 수 없어요" 안내가 나오는지 (배포 BE 주소가 틀려도 같은 안내)
+
+## 5. Vercel (미리보기 배포)
+
+- 배포 주소: **https://spot-on-fe.vercel.app**
+- Production Branch = **`develop`** — develop에 PR을 머지하면 자동으로 다시 빌드·배포된다. PR마다 미리보기 주소도 달린다
+- 빌드: Vercel이 `npm install` → `npm run build` → `dist/`를 올린다 (Vite 기본 설정 인식)
+- **새로고침 404 방지 `vercel.json`**: 실제 파일이 없는 모든 경로를 `/index.html`로 돌려준다 (`/assets/…`·`/og-image.png`·`/favicon.png` 같은 실제 파일은 Vercel이 먼저 그대로 내보낸다)
+
+  ```json
+  { "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+  ```
+
+**Vercel 환경변수** (프로젝트 Settings → Environment Variables, 값은 이 문서에 쓰지 않는다)
+
+| 이름 | 지금 (BE 배포 전) | BE 배포 후 |
+|---|---|---|
+| `VITE_USE_MOCK` | `true` (목업 — 화면에 "시연 데이터" 표시) | `false` |
+| `VITE_API_BASE_URL` | (목업이라 쓰이지 않음) | 배포한 BE 주소 |
+| `VITE_KAKAO_JS_KEY` | 카카오맵 JavaScript 키 | 그대로 |
+
+- `VITE_` 값은 **빌드할 때** 들어가므로, 바꾼 뒤에는 Vercel에서 다시 배포(Redeploy)해야 반영된다
+- 카카오 개발자 콘솔 JavaScript SDK 도메인에 `https://spot-on-fe.vercel.app` **등록 완료** (지도 표시 확인됨)
+
+**BE 배포 후 할 일**
+- [ ] Vercel 환경변수 `VITE_USE_MOCK=false`, `VITE_API_BASE_URL=<BE 주소>`로 바꾸고 Redeploy
+- [ ] BE `CORS_ORIGINS`에 `https://spot-on-fe.vercel.app` 추가 (BE 담당)
+- [ ] 배포 주소에서 4장 확인 항목(주소 검색 → STEP 02~04, 새로고침, "시연 데이터" 표시 없음) 다시 확인
