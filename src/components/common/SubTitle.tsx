@@ -12,14 +12,11 @@ type Props = {
   as?: 'h2' | 'h3'
 }
 
-/** "| 주변 점포 분석" — 왼쪽 파란 세로 막대 소제목 */
+/** "주변 점포 분석" — 굵은 소제목 (왼쪽 색 막대 없이 크기·굵기로 섹션 제목과 구분) */
 export default function SubTitle({ children, right, id, as: Heading = 'h3' }: Props) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <Heading
-        id={id}
-        className="border-l-[3px] border-blue-500 pl-2 text-subtitle leading-tight font-bold text-gray-900"
-      >
+      <Heading id={id} className="text-subtitle leading-tight font-bold text-gray-900">
         {children}
       </Heading>
       {right}

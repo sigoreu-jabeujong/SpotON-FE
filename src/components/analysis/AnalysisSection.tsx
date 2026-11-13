@@ -16,12 +16,7 @@ export default function AnalysisSection({ id, children }: Props) {
       tabIndex={-1}
       className="scroll-mt-sticky focus:outline-none"
     >
-      <SectionHeader
-        id={titleId}
-        number={meta.number}
-        title={meta.label}
-        description={meta.description}
-      />
+      <SectionHeader id={titleId} title={meta.label} description={meta.description} />
       <div className="mt-6">{children}</div>
     </section>
   )
