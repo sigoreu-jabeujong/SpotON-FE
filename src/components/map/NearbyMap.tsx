@@ -136,12 +136,18 @@ export default function NearbyMap({
       zIndex: 31,
       map,
     })
-    // SDK가 넣는 카카오 로고 링크에는 이름이 없어 화면 읽기 프로그램용 이름을 붙인다 (SDK 동작은 그대로)
+    // SDK가 넣는 카카오 로고 링크·마커 영역에는 이름이 없어 화면 읽기 프로그램용 이름을 붙인다 (SDK 동작은 그대로)
     const container = containerRef.current
-    const labelLinks = () =>
+    const labelLinks = () => {
       container.querySelectorAll('a:not([aria-label])').forEach((a) => {
         if (!a.textContent?.trim()) a.setAttribute('aria-label', T.kakaoLogo)
       })
+      // 진단 위치 마커의 이미지 맵 영역(<area alt="">)도 title을 대체 텍스트로
+      container.querySelectorAll('area').forEach((area) => {
+        const title = area.getAttribute('title')
+        if (title && !area.getAttribute('alt')) area.setAttribute('alt', title)
+      })
+    }
     labelLinks()
     const observer = new MutationObserver(labelLinks)
     observer.observe(container, { childList: true, subtree: true })
