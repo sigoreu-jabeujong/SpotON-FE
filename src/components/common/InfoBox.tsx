@@ -26,7 +26,8 @@ export default function InfoBox({ title, showTitle, description, items, classNam
       )}
     >
       <Info className="mt-0.5 size-4 shrink-0 text-blue-500" aria-hidden="true" />
-      <div className="min-w-0">
+      {/* 긴 안내도 읽기 좋은 길이(약 72자)에서 줄을 바꾸고 줄 간격을 넉넉하게 */}
+      <div className="max-w-[72ch] min-w-0 leading-relaxed">
         {showTitle && <p className="font-semibold text-gray-900">{title}</p>}
         {description && <p className={cn(showTitle && 'mt-0.5')}>{description}</p>}
         {items && items.length > 0 && (
