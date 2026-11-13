@@ -16,6 +16,7 @@ import AnalysisSection from './AnalysisSection'
 import ConditionalBlocks from './activity/ConditionalBlocks'
 import StoreStatusCards from './activity/StoreStatusCards'
 import PastViewNote from './nearby/PastViewNote'
+import { focusConditionFilter } from '../../utils/focusConditionFilter'
 
 const T = MESSAGES.activity
 /** 차트 라이브러리(recharts)는 이 섹션이 그려질 때만 따로 불러온다 */
@@ -47,6 +48,7 @@ export default function ActivitySection() {
             error={activity.error}
             message={asOfRangeMessage(activity.error) ?? undefined}
             onRetry={asOfRangeMessage(activity.error) ? undefined : () => void activity.refetch()}
+            onEditConditions={asOfRangeMessage(activity.error) ? focusConditionFilter : undefined}
           />
         ) : (
           <>

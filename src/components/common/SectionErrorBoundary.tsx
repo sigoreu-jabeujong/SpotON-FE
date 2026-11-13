@@ -38,7 +38,13 @@ export default class SectionErrorBoundary extends Component<Props, State> {
 
   render() {
     if (!this.state.hasError) return this.props.children
-    const fallback = <ErrorState message={MESSAGES.common.sectionError} onRetry={this.retry} />
+    const fallback = (
+      <ErrorState
+        title={MESSAGES.common.sectionError}
+        message={MESSAGES.common.sectionErrorHint}
+        onRetry={this.retry}
+      />
+    )
     return this.props.wrap ? this.props.wrap(fallback) : fallback
   }
 }

@@ -183,6 +183,8 @@ export const MESSAGES = {
     ],
     noticeTitle: '이력 확인 시 참고하세요',
     spaceBuilding: '건물 단위',
+    /** 이력 0건 — 다음 행동 (입력 화면에서 주소·층을 바꿔 다시 진단) */
+    emptyHint: '다른 주소나 층·호수로 다시 진단해 볼 수 있어요',
   },
   /** 진단 조건 필터 바 (STEP 02 ② 위쪽) */
   filter: {
@@ -222,6 +224,8 @@ export const MESSAGES = {
     pastViewHint: '지도·점포 표·시점 조회가 이 시점에 영업하던 점포를 기준으로 바뀌었어요.',
     pastBadge: (ym: string) => `${ym} 기준`,
     mapTitle: '주변 점포 분포',
+    /** 주변 점포 0건 — 다음 행동 (바로 위 조회 조건) */
+    emptyHint: '위 조회 조건에서 반경을 넓히거나 필터를 바꿔 보세요',
     tableTitle: '점포 상세 조회',
     mapBadge: (radius: number, asOf: string | null) =>
       `반경 ${radius.toLocaleString('ko-KR')}m${asOf ? ` · 기준일 ${asOf}` : ''}`,
@@ -298,6 +302,7 @@ export const MESSAGES = {
     },
     noCloseDate: '폐업일 없음',
     emptyStores: '그 시점에 조건에 맞는 점포가 없어요',
+    emptyHint: '위 조회 조건에서 다른 기준 시점을 골라 보세요',
   },
   /** STEP 02 ③ 상권 활동 분석 (F-06) */
   activity: {
@@ -513,6 +518,7 @@ export const MESSAGES = {
     code: '404',
     title: '페이지를 찾을 수 없어요',
     description: '주소가 바뀌었거나 없는 페이지예요. 처음 화면에서 다시 시작해 주세요.',
+    note: (code: string) => `오류 코드 ${code}`,
     home: '처음으로',
     start: '진단 시작하기',
   },
@@ -531,8 +537,14 @@ export const MESSAGES = {
     loading: '불러오는 중이에요',
     error: '정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요',
     empty: '조건에 맞는 결과가 없어요',
+    /** 빈 결과·오류 화면 공통 (StatePanel): 제목 한 줄 + 설명 한 줄 + 다음 행동 */
+    emptyHint: '조건을 바꿔 다시 확인해 보세요',
+    errorTitle: '정보를 불러오지 못했어요',
+    errorHint: '잠시 후 다시 시도해 주세요',
+    editConditions: '조건 바꾸기',
     /** 섹션 하나가 그려지다 멈췄을 때 (나머지 섹션은 그대로 보인다) */
     sectionError: '이 정보를 표시하지 못했어요',
+    sectionErrorHint: '다른 정보는 그대로 볼 수 있어요. 다시 시도해 주세요',
   },
   /** 화면 전체가 그려지다 멈췄을 때 (라우터 오류 화면) */
   appError: {
