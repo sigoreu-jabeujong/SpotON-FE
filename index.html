@@ -13,7 +13,7 @@
       content="서울 카페·음식점 예비창업자를 위한 공공데이터 기반 창업 입지 진단. 주소별 과거 점포 이력, 과거 시점 조회, 서울시 공식 지표와 참고지표를 근거와 함께 보여줘요. 창업 성공·실패를 판단하지 않는 참고 정보예요."
     />
 
-    <!-- 공유 미리보기 (og:image는 배포 도메인이 정해지면 절대 주소로 바꾼다 — docs/decisions.md) -->
+    <!-- 공유 미리보기 — 메신저가 그림을 찾을 수 있게 og:image는 배포 주소 기준 절대 주소 (docs/deploy.md "Vercel") -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Spot:ON" />
     <meta property="og:locale" content="ko_KR" />
@@ -22,7 +22,7 @@
       property="og:description"
       content="서울 카페·음식점 창업 입지를 공공데이터로 확인하는 참고 서비스. 주소별 과거 점포 이력과 주변 점포, 서울시 공식 지표를 근거와 함께 보여줘요."
     />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image" content="https://spot-on-fe.vercel.app/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
@@ -35,7 +35,7 @@
       name="twitter:description"
       content="서울 카페·음식점 창업 입지를 공공데이터로 확인하는 참고 서비스예요."
     />
-    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:image" content="https://spot-on-fe.vercel.app/og-image.png" />
   </head>
   <body>
     <div id="root"></div>
