@@ -3,13 +3,8 @@ import type { MouseEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { CATEGORIES, RESTAURANT_SUB_CATEGORIES } from '../../constants/diagnosis'
 import { MESSAGES } from '../../constants/messages'
-import {
-  analysisTabId,
-  ANALYSIS_SECTIONS,
-  RESULT_STEPS,
-  ROUTES,
-  type AnalysisSectionId,
-} from '../../constants/routes'
+import { scrollBehavior } from '../../constants/motion'
+import { ANALYSIS_SECTIONS, RESULT_STEPS, ROUTES } from '../../constants/routes'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { cn } from '../../utils/cn'
 import Logo from '../common/Logo'
@@ -39,12 +34,15 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
     .map((s) => s.label)
     .join('·')
 
-  /** 같은 화면이면 해당 탭으로 바꾸고 키보드 초점을 그 탭에 둔다 (다른 화면이면 #해시 링크로 이동 → 그 탭이 열림) */
-  const goToSection = (e: MouseEvent<HTMLAnchorElement>, id: AnalysisSectionId) => {
-    if (!onAnalysis) return
+  /** 같은 페이지 안에서는 부드럽게 스크롤하고, 섹션 제목으로 키보드 초점을 옮긴다 */
+  const goToSection = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
+    if (!onAnalysis) return // 다른 화면이면 링크 이동 → AnalysisPage가 #해시로 스크롤
+    const el = document.getElementById(id)
+    if (!el) return
     e.preventDefault()
+    el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
+    el.focus({ preventScroll: true })
     navigate({ search, hash: `#${id}` }, { replace: true, preventScrollReset: true })
-    requestAnimationFrame(() => document.getElementById(analysisTabId(id))?.focus())
   }
 
   return (

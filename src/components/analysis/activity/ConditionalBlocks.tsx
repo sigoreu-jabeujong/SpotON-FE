@@ -6,7 +6,7 @@ import type { LivingPopulation, MarketActivity, MarketSales } from '../../../typ
 import { formatDate, formatKrwApprox } from '../../../utils/format'
 import Badge from '../../common/Badge'
 import InfoBox from '../../common/InfoBox'
-import SourceLine from '../../common/SourceLine'
+import MetaLine from '../../common/MetaLine'
 import SubTitle from '../../common/SubTitle'
 import { optionalDataState, type OptionalDataState } from './optionalData'
 
@@ -93,8 +93,9 @@ function SalesBody({ sales }: { sales: MarketSales }) {
           </li>
         ))}
       </ul>
-      <SourceLine
+      <MetaLine
         source={sales.meta?.source}
+        sourceNames
         asOf={sales.meta?.as_of}
         space={sales.meta?.space}
         denominator={sales.meta?.denominator}
@@ -125,8 +126,9 @@ function LivingBody({ living }: { living: LivingPopulation }) {
           ))}
         </dl>
       </div>
-      <SourceLine
+      <MetaLine
         source={living.meta?.source}
+        sourceNames
         asOf={living.meta?.as_of}
         space={living.meta?.space}
         denominator={living.meta?.denominator}

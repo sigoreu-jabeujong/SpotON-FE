@@ -10,8 +10,8 @@ import { formatDataBaseline } from '../../utils/format'
 import ErrorState from '../common/ErrorState'
 import FranchiseFilterNotice from '../common/FranchiseFilterNotice'
 import LoadingSkeleton from '../common/Skeleton'
-import SectionCard from '../common/SectionCard'
-import SourceLine from '../common/SourceLine'
+import MetaLine from '../common/MetaLine'
+import SubTitle from '../common/SubTitle'
 import AnalysisSection from './AnalysisSection'
 import ConditionalBlocks from './activity/ConditionalBlocks'
 import StoreStatusCards from './activity/StoreStatusCards'
@@ -21,10 +21,7 @@ const T = MESSAGES.activity
 /** 차트 라이브러리(recharts)는 이 섹션이 그려질 때만 따로 불러온다 */
 const YearlyTrendChart = lazy(() => import('./activity/YearlyTrendChart'))
 
-/**
- * STEP 02 탭 ③ 상권 활동 (F-06) — /market/activity + /risk의 competitor_count.
- * 요약(점포 현황 카드) → 연도별 차트 → 조건부 지표 → 출처 한 줄
- */
+/** STEP 02 ③ 상권 활동 분석 (F-06) — /market/activity + /risk의 competitor_count */
 export default function ActivitySection() {
   const { query } = useDiagnosisQuery()
   const asOfRangeMessage = useAsOfRangeMessage()
@@ -38,51 +35,53 @@ export default function ActivitySection() {
 
   return (
     <AnalysisSection id="activity">
-      <PastViewNote asOf={query.asOf} />
-      {activity.isPending ? (
-        <div className="flex flex-col gap-stack-3">
-          <LoadingSkeleton variant="cards" />
-          <LoadingSkeleton variant="chart" />
-        </div>
-      ) : activity.isError ? (
-        <ErrorState
-          error={activity.error}
-          message={asOfRangeMessage(activity.error) ?? undefined}
-          onRetry={asOfRangeMessage(activity.error) ? undefined : () => void activity.refetch()}
-        />
-      ) : (
-        <>
-          {/* 가맹 필터를 고르면 기준 안내 — 0건이어도 "점포 없음"으로 단정하지 않게 */}
-          <FranchiseFilterNotice franchise={query.franchise} meta={meta} />
-          {/* 요약 — 점포 현황 카드 4개 (서버 값 그대로) */}
-          <StoreStatusCards
-            activity={activity.data.data}
-            risk={{ data: risk.data?.data, isPending: risk.isPending, isError: risk.isError }}
+      <div className="flex flex-col gap-6">
+        <PastViewNote asOf={query.asOf} />
+        {activity.isPending ? (
+          <div className="flex flex-col gap-6">
+            <LoadingSkeleton variant="cards" />
+            <LoadingSkeleton variant="chart" />
+          </div>
+        ) : activity.isError ? (
+          <ErrorState
+            error={activity.error}
+            message={asOfRangeMessage(activity.error) ?? undefined}
+            onRetry={asOfRangeMessage(activity.error) ? undefined : () => void activity.refetch()}
           />
+        ) : (
+          <>
+            {/* 가맹 필터를 고르면 기준 안내 — 0건이어도 "점포 없음"으로 단정하지 않게 */}
+            <FranchiseFilterNotice franchise={query.franchise} meta={meta} />
+            <div className="flex flex-col gap-3">
+              <SubTitle>{T.statusTitle}</SubTitle>
+              <StoreStatusCards
+                activity={activity.data.data}
+                risk={{ data: risk.data?.data, isPending: risk.isPending, isError: risk.isError }}
+              />
+              <MetaLine
+                label={T.statusTitle}
+                source={meta?.source}
+                sourceNames
+                asOf={meta?.as_of}
+                baseline={formatDataBaseline(meta)}
+                space={meta?.space}
+                denominator={meta?.denominator}
+                isDemo={meta?.is_demo}
+              />
+            </div>
 
-          <SectionCard title={T.trendTitle}>
-            <Suspense fallback={<LoadingSkeleton variant="chart" />}>
-              <YearlyTrendChart trend={activity.data.data.yearly_trend} />
-            </Suspense>
-            {ytd && <p className="text-caption text-gray-600">{T.trendYtd(ytd)}</p>}
-          </SectionCard>
+            <div className="flex flex-col gap-3">
+              <SubTitle>{T.trendTitle}</SubTitle>
+              <Suspense fallback={<LoadingSkeleton variant="chart" />}>
+                <YearlyTrendChart trend={activity.data.data.yearly_trend} />
+              </Suspense>
+              {ytd && <p className="text-caption text-gray-600">{T.trendYtd(ytd)}</p>}
+            </div>
 
-          <SectionCard>
             <ConditionalBlocks activity={activity.data.data} meta={meta} />
-          </SectionCard>
-
-          {/* 점포 현황·연도별 추이의 출처 (조건부 지표는 블록마다 따로) */}
-          <SourceLine
-            label={T.sourceLabel}
-            source={meta?.source}
-            asOf={meta?.as_of}
-            baseline={formatDataBaseline(meta)}
-            space={meta?.space}
-            denominator={meta?.denominator}
-            isDemo={meta?.is_demo}
-          />
-        </>
-      )}
+          </>
+        )}
+      </div>
     </AnalysisSection>
   )
 }
