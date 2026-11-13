@@ -395,6 +395,11 @@ export const MESSAGES = {
       franchise_name_match_estimate:
         '프랜차이즈 여부는 브랜드 목록과 상호 일치로 추정한 값이에요 (실제 계약·과거 소속 아님)',
       classification_unverified: '프랜차이즈 분류를 확인하고 있어요',
+      /** AI 부족한 자료 — 이력 문맥 (BE #98). 서버 문장은 그대로 두고 사유 줄만 */
+      history_no_records: '이 건물의 인허가 기록이 없어요',
+      history_floor_unit_missing: '층·호수가 없어 건물 전체 기준이에요',
+      history_detail_incomplete: '일부 기록의 상세 위치를 확인할 수 없어요',
+      history_latest_data_basis: '건물 이력은 최신 자료 기준이에요',
       not_applicable: '서울 비교 대상이 아니에요',
       outside_market: '상권 밖 주소라 상권 단위 지표가 없어요',
     } as Record<string, string>,
@@ -565,6 +570,9 @@ export const MESSAGES = {
     evidenceNames: {
       recent_open_close: '최근 개폐업 기록',
       avg_operating_months: '평균 경과 기간',
+      // BE #98 이력 문맥 (최신 자료 기준·지원 업종 전체 — 서버 문장 그대로, "위험한 자리" 같은 판정 없음)
+      building_history: '건물 이력',
+      same_spot_history: '같은 자리 이력',
     } as Record<string, string>,
     /** 이름 표에 없는 새 근거 ID (영문 코드를 보이지 않게) */
     otherEvidence: '기타 근거',
