@@ -412,7 +412,16 @@ FE 처리 (지도·표 공통)
 
 사용자가 **"AI 해석 보기"를 눌렀을 때만** 호출한다. 자동 재호출하지 않고, 다시 시도는 사용자 버튼으로만.
 
-**요청 본문 = 원래 조회 조건만 (query-only)** — `{ "query": { ... } }`
+**요청 본문 = 원래 조회 조건(query) + 선택 이력 문맥(history, BE #98)** — `{ "query": { ... }, "history"?: { "building_key": "…", "floor_unit": "…" | null } }`
+
+| `history` (선택) | 설명 |
+|---|---|
+| `building_key` | 결과 화면 URL의 `bk` 그대로. **없으면 `history` 키 자체를 생략** (#96과 같은 결과) |
+| `floor_unit` | URL의 `floor` 그대로, 없으면 `null` (**빈 문자열 금지**) |
+
+- 빈 문자열·다른 필드·요청 좌표에서 300m보다 먼 건물 키 → 422 `INVALID_PARAM` (지표 카드는 그대로, "요청 형식" 안내)
+- 코드: `api/params.ts`의 `toInterpretHistory`(URL → history)·`toRiskInterpretRequest`(본문), `SummaryPage` → `AiInterpretation`
+
 
 | `query` 필드 | 설명 |
 |---|---|
@@ -425,7 +434,7 @@ FE 처리 (지도·표 공통)
 | `include_unknown_area`, `include_unknown_franchise` | Risk GET과 같은 값 (legacy `include_unknown`과 섞으면 422) |
 | `include` | Risk GET에 넣었을 때만 같은 값 (지금 FE는 Risk GET에 쓰지 않아 생략) |
 
-- 보내지 않는 것: Risk 응답의 `market`·`indicators`·`flags`·`context`, 응답 `query`(`radius_m`·`filters`), `building_key`·`floor_unit`, 주소·상호·화면 수치. 서버가 같은 조건으로 Risk를 다시 계산해 문장을 조립한다.
+- `query`에 넣지 않는 것: Risk 응답의 `market`·`indicators`·`flags`·`context`, 응답 `query`(`radius_m`·`filters`), `building_key`·`floor_unit`(이건 `history`에만), 주소·상호·화면 수치. 서버가 같은 조건으로 Risk를 다시 계산해 문장을 조립한다.
 - 코드: `AiInterpretation`이 `SummaryPage`의 `params`(Risk GET과 같은 조건)로 본문을 만든다. 전송 대기 25초 (서버 예산 20초 + 여유).
 
 | 응답 `data` | 설명 (화면 순서) |
@@ -445,8 +454,12 @@ FE 처리 (지도·표 공통)
 | Risk 지표 ID (`closure_rate_12m` 등) | 지표 이름 (`INDICATOR_NAME`) | 종합 진단의 그 지표 카드로 이동 |
 | `recent_open_close` (BE #96) | 최근 개폐업 기록 | **이동하지 않는 글자 칩** — 해당 카드는 STEP 02 상권 활동에 있어 옮겨 가면 보고 있던 AI 해석이 사라짐 |
 | `avg_operating_months` (BE #96) | 평균 경과 기간 | 이동하지 않는 글자 칩 |
+| `building_history` (BE #98) | 건물 이력 | 이동하지 않는 글자 칩 — BE는 `#history` 이동을 권장했지만 #96 칩과 같은 이유(옮기면 AI 해석이 사라짐)로 비이동 |
+| `same_spot_history` (BE #98) | 같은 자리 이력 | 이동하지 않는 글자 칩 |
 | 그 밖의 새 ID | 기타 근거 | 이동하지 않음 (영문 코드 노출 금지) |
 
+- 이력 문맥(BE #98) 문장은 **최신 자료 기준·지원 업종 전체** 기록이며 기준 시점·필터와 무관하다. 같은 자리 폐업 기록을 "위험한 자리" 같은 판정으로 바꾸지 않고 서버 문장 그대로.
+- `missing_data` 사유(BE #98): `history_no_records`·`history_floor_unit_missing`·`history_detail_incomplete`·`history_latest_data_basis` → 서버 `text` 그대로 + 사유 문구(`MESSAGES.summary.reasonCodes`, 영문 코드 노출 없음)
 - `avg_operating_months`는 여러 문장에 반복되므로 목록 key는 문장 text, 칩 key는 `ID-순서`.
 - 평균 경과 기간 = 기준일에 영업 중인 기록의 개업 후 경과 개월 평균(버림). 점포 수명·생존 기간·영업 성과로 바꿔 쓰지 않고 서버 문장 그대로.
 - favorable/unfavorable의 `indicator_ids`는 기존 Risk 지표 ID만 온다. 활동 집계와 Risk가 맞지 않으면 서버 500 → 기존 AI 실패 처리(지표 유지).
