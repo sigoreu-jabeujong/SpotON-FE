@@ -89,6 +89,8 @@ npm run dev
 
 `.env`를 바꾼 뒤에는 개발 서버를 다시 켜야 반영돼요.
 
+배포용 빌드(`npm run build`)와 배포 후 할 일은 [docs/deploy.md](docs/deploy.md)에 있어요.
+
 5173 포트를 이미 다른 프로그램이 쓰고 있다면 다른 포트로 실행하세요.
 
 ```bash
