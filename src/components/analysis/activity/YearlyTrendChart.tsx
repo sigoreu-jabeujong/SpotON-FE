@@ -123,7 +123,7 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
         />
       </button>
       <div id={tableId} className={showTable ? '' : 'sr-only'}>
-        <table className="w-full overflow-hidden rounded-control text-center text-caption ring-1 ring-gray-300">
+        <table className="w-full overflow-hidden rounded-control text-center text-caption tabular-nums ring-1 ring-gray-300">
           <caption className="sr-only">{T.trendCaption}</caption>
           <thead className="bg-blue-100">
             <tr>

@@ -89,7 +89,7 @@ function Bar({
       <span className="h-3 flex-1 overflow-hidden rounded-full bg-gray-100">
         <span className={`block h-full rounded-full ${className}`} style={{ width }} />
       </span>
-      <span className="w-14 shrink-0 text-right text-caption font-semibold text-gray-900">
+      <span className="w-14 shrink-0 text-right text-caption font-semibold text-gray-900 tabular-nums">
         {text}
       </span>
     </div>

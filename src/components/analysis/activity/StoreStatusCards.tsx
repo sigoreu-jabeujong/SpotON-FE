@@ -73,7 +73,7 @@ export default function StoreStatusCards({ activity, risk }: Props) {
                 {s.avg_operating_months === null ? (
                   <StatusLabel status="unknown" />
                 ) : (
-                  <span className="text-subtitle font-bold text-gray-900">
+                  <span className="text-subtitle font-bold text-gray-900 tabular-nums">
                     {formatOperatingMonths(s.avg_operating_months)}
                   </span>
                 )}

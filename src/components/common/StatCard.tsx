@@ -43,7 +43,9 @@ export default function StatCard({
           {badge}
         </div>
         {children ?? (
-          <p className="text-title leading-tight font-bold text-gray-900">{value ?? '—'}</p>
+          <p className="text-title leading-tight font-bold text-gray-900 tabular-nums">
+            {value ?? '—'}
+          </p>
         )}
         {/* 한국어는 단어 중간에서 줄이 바뀌지 않게 (예: "평/균") */}
         {footer && <div className="mt-1 text-micro break-keep text-gray-600">{footer}</div>}

@@ -43,7 +43,7 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
     <div>
       {nearestFirst && <p className="mb-2 text-right text-micro text-gray-600">{T.sortNearest}</p>}
       <div className="overflow-hidden rounded-control border border-gray-300">
-        <table id={TABLE_ID} className="w-full text-center text-caption">
+        <table id={TABLE_ID} className="w-full text-center text-caption tabular-nums">
           <caption className="sr-only">{T.caption}</caption>
           <thead className="bg-blue-100 text-gray-900">
             <tr>
