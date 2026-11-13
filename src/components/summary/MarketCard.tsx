@@ -19,7 +19,7 @@ export default function MarketCard({ market }: { market: MarketJudgement }) {
   const Icon = inside ? MapPinned : unverified ? SearchCheck : MapPinOff
   return (
     <div className="flex flex-col gap-3">
-      <SubTitle>{T.marketTitle}</SubTitle>
+      <SubTitle as="h2">{T.marketTitle}</SubTitle>
       <div className="flex items-start gap-3 rounded-control border border-gray-300 bg-gray-0 px-5 py-4">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-500">
           <Icon className="size-5" aria-hidden="true" />

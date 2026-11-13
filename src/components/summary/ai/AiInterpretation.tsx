@@ -48,7 +48,7 @@ export default function AiInterpretation({ params }: Props) {
 
   return (
     <section aria-labelledby="ai-title" className="flex flex-col gap-3">
-      <SubTitle id="ai-title">
+      <SubTitle id="ai-title" as="h2">
         <span className="inline-flex items-center gap-1.5">
           <Bot className="size-4 text-blue-500" aria-hidden="true" />
           {result?.label ?? MESSAGES.summary.aiTitle}

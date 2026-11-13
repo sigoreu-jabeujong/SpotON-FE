@@ -88,7 +88,7 @@ function LinkGroup({
       aria-labelledby={`${id}-title`}
       className="flex scroll-mt-sticky flex-col gap-3"
     >
-      <SubTitle id={`${id}-title`}>
+      <SubTitle id={`${id}-title`} as="h2">
         <span className="inline-flex items-center gap-1.5">
           <Icon className="size-4 text-blue-500" aria-hidden="true" />
           {title}
