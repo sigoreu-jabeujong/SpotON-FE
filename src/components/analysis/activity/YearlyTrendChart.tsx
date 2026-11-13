@@ -14,11 +14,19 @@ import { MESSAGES } from '../../../constants/messages'
 import { MOTION_MS, prefersReducedMotion } from '../../../constants/motion'
 import type { MarketActivity } from '../../../types/market'
 import { cn } from '../../../utils/cn'
+import { tokenColor } from '../../../utils/tokenColor'
 import EmptyState from '../../common/EmptyState'
 
 const T = MESSAGES.activity
-/** 디자인 토큰과 같은 색 (blue-500 개업 / pink-500 폐업) — 상태 구분용, 등급 색 아님 */
-const COLOR = { opened: '#3376fd', closed: '#dc3cb4' } as const
+/** 차트 색은 디자인 토큰에서 읽는다 (index.css --color-chart-*). 개업 파랑 / 폐업 분홍 — 상태 구분용, 등급 색 아님 */
+const chartColors = () => ({
+  opened: tokenColor('--color-chart-opened', '#3376fd'),
+  closed: tokenColor('--color-chart-closed', '#dc3cb4'),
+  grid: tokenColor('--color-chart-grid', '#e6e6e6'),
+  axis: tokenColor('--color-chart-axis', '#545b66'),
+  line: tokenColor('--color-chart-line', '#e6e6e6'),
+  text: tokenColor('--color-chart-text', '#1a1a1a'),
+})
 
 /** 막대 등장 시간은 모션 토큰(느림)과 맞추고, 동작 줄이기면 애니메이션 없이 바로 그린다 */
 const barMotion = () =>
@@ -38,6 +46,8 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
   const trend = rawTrend ?? []
   const [showTable, setShowTable] = useState(false)
   const tableId = useId()
+  // 토큰 색은 처음 그릴 때 한 번 읽는다 (CSS는 이미 불러온 뒤)
+  const [COLOR] = useState(chartColors)
 
   if (trend.length === 0) return <EmptyState message={T.trendEmpty} />
   const yearTicks = axisTicks(trend.map((t) => t.year))
@@ -53,7 +63,7 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
             barGap={trend.length > 20 ? 1 : 4}
           >
             {/* 가로 격자는 옅게 — 막대가 먼저 보이게 */}
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={COLOR.grid} />
             {/* 숫자 축: 실제 연도 간격대로 그린다 (없는 연도는 0으로 채우지 않고 빈 자리로 둔다 — 1971→2002가 붙어 보이지 않게) */}
             <XAxis
               dataKey="year"
@@ -63,22 +73,22 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
               allowDecimals={false}
               interval={0}
               tickFormatter={(y: number) => T.trendYear(y)}
-              tick={{ fontSize: 12, fill: '#666666' }}
-              axisLine={{ stroke: '#e6e6e6' }}
+              tick={{ fontSize: 12, fill: COLOR.axis }}
+              axisLine={{ stroke: COLOR.line }}
               tickLine={false}
             />
             <YAxis
               allowDecimals={false}
-              tick={{ fontSize: 12, fill: '#666666' }}
+              tick={{ fontSize: 12, fill: COLOR.axis }}
               axisLine={false}
               tickLine={false}
               width={40}
             />
             <Tooltip
-              cursor={{ fill: 'rgb(51 118 253 / 0.06)' }}
+              cursor={{ fill: COLOR.opened, fillOpacity: 0.06 }}
               labelFormatter={(y) => T.trendYear(Number(y))}
               formatter={(value, name) => [T.trendUnit(Number(value)), name]}
-              contentStyle={{ borderRadius: 10, borderColor: '#e6e6e6', fontSize: 13 }}
+              contentStyle={{ borderRadius: 10, borderColor: COLOR.line, fontSize: 13 }}
               animationDuration={MOTION_MS.fast}
               isAnimationActive={!prefersReducedMotion()}
             />
@@ -86,7 +96,7 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
             <Legend
               iconType="circle"
               wrapperStyle={{ fontSize: 13 }}
-              formatter={(value) => <span style={{ color: '#1a1a1a' }}>{value}</span>}
+              formatter={(value) => <span style={{ color: COLOR.text }}>{value}</span>}
             />
             <Bar
               dataKey="opened"

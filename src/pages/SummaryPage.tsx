@@ -2,7 +2,6 @@ import { TriangleAlert } from 'lucide-react'
 import { useAsOfRangeMessage } from '../hooks/useAsOfRangeMessage'
 import { toCommonQueryParams, toInterpretHistory } from '../api/params'
 import PastViewNote from '../components/analysis/nearby/PastViewNote'
-import Card from '../components/common/Card'
 import ErrorState from '../components/common/ErrorState'
 import FranchiseFilterNotice from '../components/common/FranchiseFilterNotice'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
@@ -34,7 +33,8 @@ export default function SummaryPage() {
   const indicators = risk.data?.data.indicators ?? []
 
   return (
-    <Card className="flex flex-col gap-10">
+    // 바깥 흰 카드 없이 화면 배경 위에 바로 — 상자는 [영역 > 지표 카드] 2겹까지
+    <div className="flex flex-col gap-10">
       <PastViewNote asOf={query.asOf} />
       {risk.isPending ? (
         <LoadingSkeleton variant="summary" />
@@ -88,6 +88,6 @@ export default function SummaryPage() {
       <SectionErrorBoundary resetKey={search}>
         <SummaryInfoGrid meta={risk.data?.meta} />
       </SectionErrorBoundary>
-    </Card>
+    </div>
   )
 }

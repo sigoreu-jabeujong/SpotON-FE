@@ -18,7 +18,7 @@ export default function RediagnoseBanner() {
       className="group flex items-center justify-between gap-4 rounded-card bg-blue-100 px-6 py-5 motion-colors hover:bg-blue-500/10 hover:shadow-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
     >
       <span className="flex items-center gap-4">
-        <RobotArt className="size-16" />
+        <RobotArt className="size-10" />
         <span>
           <span className="block text-body font-bold text-gray-900">{T.rediagnoseTitle}</span>
           <span className="block text-caption text-gray-600">{T.rediagnoseDesc}</span>

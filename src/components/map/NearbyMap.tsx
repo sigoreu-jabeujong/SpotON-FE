@@ -18,6 +18,7 @@ import type {
 } from './kakaoTypes'
 import { MARKER_COLOR, MIXED_COLOR } from './markerStyle'
 import { useKakaoMaps } from './useKakaoMaps'
+import { tokenColor } from '../../utils/tokenColor'
 
 const T = MESSAGES.nearby
 
@@ -44,13 +45,14 @@ const CLUSTER_STYLE: Partial<CSSStyleDeclaration> = {
   height: '38px',
   lineHeight: '34px',
   borderRadius: '19px',
-  background: 'rgba(13, 80, 215, 0.85)',
-  border: '2px solid #ffffff',
-  color: '#ffffff',
+  // DOM 스타일이라 디자인 토큰(CSS 변수)을 그대로 쓴다
+  background: 'color-mix(in oklab, var(--color-blue-700) 85%, transparent)',
+  border: '2px solid var(--color-gray-0)',
+  color: 'var(--color-gray-0)',
   textAlign: 'center',
   fontWeight: '700',
   fontSize: '13px',
-  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)',
+  boxShadow: '0 2px 6px color-mix(in oklab, var(--color-gray-900) 22%, transparent)',
 }
 
 /**
@@ -116,10 +118,11 @@ export default function NearbyMap({
       center: pos,
       radius: radiusM,
       strokeWeight: 2,
-      strokeColor: '#3376fd',
+      // 카카오 SDK는 var()를 못 읽어 토큰 값을 꺼내 넘긴다
+      strokeColor: tokenColor('--color-map-radius', '#3376fd'),
       strokeOpacity: 0.8,
       strokeStyle: 'shortdash',
-      fillColor: '#3376fd',
+      fillColor: tokenColor('--color-map-radius', '#3376fd'),
       fillOpacity: 0.08,
       map,
     })

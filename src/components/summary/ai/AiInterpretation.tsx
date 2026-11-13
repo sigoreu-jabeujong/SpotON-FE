@@ -71,9 +71,10 @@ export default function AiInterpretation({ params, history }: Props) {
       </SubTitle>
 
       {interpret.isIdle && (
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-card bg-blue-100 px-6 py-5">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-card bg-gray-0 px-6 py-5 shadow-card">
           <div className="flex items-center gap-3">
-            <RobotArt className="size-20" />
+            {/* 장식이라 아이콘 크기로 — 설명 문장이 먼저 보이게 */}
+            <RobotArt className="size-10" />
             <p className="text-body text-gray-900">{T.intro}</p>
           </div>
           <div className="flex items-center gap-3">
@@ -112,7 +113,7 @@ function AiOutcome({
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center justify-center gap-2 rounded-card bg-blue-100 px-6 py-8 text-body text-blue-700"
+          className="flex items-center justify-center gap-2 rounded-card bg-gray-0 px-6 py-8 text-body text-blue-700 shadow-card"
         >
           <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
           {T.loading}

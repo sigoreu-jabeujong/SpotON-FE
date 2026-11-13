@@ -12,7 +12,8 @@ type Props = {
 
 /**
  * 지표 영역 — "서울시 공식"과 "Spot:ON 참고지표"를 시각적으로 분리한다.
- * 공식은 파란 테두리 영역, 참고는 회색 테두리 영역 (등급 색이 아니라 영역 구분용)
+ * 테두리 없이 배경색·여백으로만 구분: 공식은 옅은 파랑, 참고는 흰 바탕 (등급 색이 아니라 영역 구분용).
+ * 영역 라벨(IndicatorTypeLabel)과 제목은 그대로
  */
 export default function IndicatorArea({ type, title, description, children }: Props) {
   const official = type === 'official'
@@ -20,10 +21,7 @@ export default function IndicatorArea({ type, title, description, children }: Pr
   return (
     <section
       aria-labelledby={headingId}
-      className={cn(
-        'rounded-card border-2 p-6',
-        official ? 'border-blue-500/30 bg-blue-100/40' : 'border-gray-300 bg-gray-100/50',
-      )}
+      className={cn('rounded-card p-6', official ? 'bg-blue-500/8' : 'bg-gray-0 shadow-card')}
     >
       <div className="flex flex-wrap items-center gap-2">
         <IndicatorTypeLabel type={type} />

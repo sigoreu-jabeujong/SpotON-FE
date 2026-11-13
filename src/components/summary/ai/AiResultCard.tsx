@@ -36,7 +36,7 @@ export default function AiResultCard({
       className="flex flex-col gap-6 rounded-card border border-blue-500/30 bg-blue-100/50 p-6"
     >
       <header className={`flex items-center gap-3 ${rise}`} style={stagger(0)}>
-        <RobotArt className="size-16" />
+        <RobotArt className="size-8" />
         <span className="rounded-full bg-blue-600 px-3 py-1 text-caption font-bold text-white">
           {result.label}
         </span>

@@ -13,6 +13,8 @@ import type {
 import MetaLine from '../common/MetaLine'
 import IndicatorArea from './IndicatorArea'
 import IndicatorCard from './IndicatorCard'
+import { useToast } from '../../hooks/useToast'
+import { copyToast } from '../../utils/toast'
 import { formatIndicatorValue, indicatorGridSpan, indicatorReasonText } from './indicatorFormat'
 
 const T = MESSAGES.summary
@@ -102,13 +104,16 @@ function OfficialRiskCard({
     (ind.status === 'link_only' ? ind.copy_text : null) ??
     (marketName && categoryLabel ? `${marketName} · ${categoryLabel}` : null)
 
+  const toast = useToast()
   const copy = async () => {
     if (!copyText) return
     try {
       await navigator.clipboard.writeText(copyText)
       setCopyState('done')
+      toast(copyToast(true))
     } catch {
       setCopyState('fail')
+      toast(copyToast(false))
     }
   }
 
@@ -151,7 +156,8 @@ function OfficialRiskCard({
             )}
           </div>
           {copyText && <p className="mt-2 text-micro text-gray-600">“{copyText}”</p>}
-          <p className="text-micro font-semibold text-blue-700" aria-live="polite">
+          {/* 화면 글자는 그대로, 화면 읽기 알림은 토스트 하나로 */}
+          <p className="text-micro font-semibold text-blue-700">
             {copyState === 'done' ? T.copied : copyState === 'fail' ? T.copyFailed : ''}
           </p>
         </>
