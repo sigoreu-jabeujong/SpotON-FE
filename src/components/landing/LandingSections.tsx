@@ -37,11 +37,13 @@ export default function LandingSections() {
           {T.features.map((f, i) => {
             const Icon = FEATURE_ICONS[i]
             return (
+              // 누를 수 없는 소개 카드 — hover 시 떠오름·그림자·옅은 파랑 테두리(outline이라 크기 변화 없음)
               <li
                 key={f.title}
-                className="flex flex-col gap-3 rounded-card bg-gray-0 p-6 shadow-card"
+                className="group flex hover-card flex-col gap-3 rounded-card bg-gray-0 p-6 shadow-card outline outline-1 outline-transparent hover:outline-blue-500/25"
               >
-                <span className="flex size-12 items-center justify-center rounded-full bg-blue-100 text-blue-500">
+                {/* 아이콘 동그라미: 연파랑 → 파랑(blue-600, 흰 아이콘 대비 4.74:1) + 한 번 살짝 커짐 */}
+                <span className="flex size-12 icon-pop items-center justify-center rounded-full bg-blue-100 text-blue-500 motion-colors group-hover:bg-blue-600 group-hover:text-white">
                   <Icon className="size-6" aria-hidden="true" />
                 </span>
                 <h3 className="text-subtitle font-bold break-keep text-gray-900">{f.title}</h3>
@@ -59,10 +61,11 @@ export default function LandingSections() {
             return (
               <li
                 key={s.title}
-                className="relative flex flex-col gap-3 rounded-card border border-gray-300 bg-gray-0 p-6"
+                className="group relative flex hover-card flex-col gap-3 rounded-card border border-gray-300 bg-gray-0 p-6 hover:border-blue-500/30"
               >
                 <span className="flex items-center gap-2">
-                  <span className="flex size-10 items-center justify-center rounded-full bg-blue-600 text-white">
+                  {/* 단계 아이콘은 원래 파랑 바탕 — hover 시 한 번 살짝 커짐만 */}
+                  <span className="flex size-10 icon-pop items-center justify-center rounded-full bg-blue-600 text-white">
                     <Icon className="size-5" aria-hidden="true" />
                   </span>
                   <span className="text-caption font-semibold text-blue-700">
@@ -72,8 +75,9 @@ export default function LandingSections() {
                 <h3 className="text-subtitle font-bold text-gray-900">{s.title}</h3>
                 <p className="text-body break-keep text-gray-600">{s.description}</p>
                 {i < T.steps.length - 1 && (
+                  // 단계 사이 화살표 — 카드에 마우스를 올리면 오른쪽으로 살짝 (arrow-nudge)
                   <ArrowRight
-                    className="absolute top-1/2 -right-[14px] z-10 size-5 -translate-y-1/2 rounded-full bg-bg text-gray-600"
+                    className="absolute top-1/2 -right-[14px] z-10 size-5 -translate-y-1/2 arrow-nudge rounded-full bg-bg text-gray-600"
                     aria-hidden="true"
                   />
                 )}

@@ -181,6 +181,43 @@
   }
 }
 
+/*
+ * 누를 수 없는 소개 카드(랜딩): hover 시 살짝(3px) 떠오르고 그림자가 커진다.
+ * interactive-lift와 달리 눌림·포인터 커서가 없다 (클릭 동작이 없으니까). 동작 줄이기면 그림자·색만
+ */
+@utility hover-card {
+  transition-property: transform, box-shadow, border-color, outline-color;
+  transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-out-soft);
+  &:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+}
+
+/* 카드 안 아이콘: 부모(.group)에 마우스를 올리면 한 번만 살짝 커졌다 돌아온다 (반복 없음, 동작 줄이기면 없음) */
+@utility icon-pop {
+  @media (prefers-reduced-motion: no-preference) {
+    :where(.group):hover & {
+      animation: icon-pop var(--duration-base) var(--ease-out-soft) 1;
+    }
+  }
+}
+
+@keyframes icon-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
 /* 화살표 아이콘: 부모(.group)에 마우스를 올리거나 키보드 초점이 오면 오른쪽으로 살짝 이동 */
 @utility arrow-nudge {
   transition: transform var(--duration-base) var(--ease-out-soft);
