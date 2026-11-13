@@ -81,6 +81,24 @@
   --spacing-sidebar: 17.5rem; /* 280px */
   /* 위에 붙는 진단 조건 바 높이만큼 앵커 이동 위치를 내린다 (scroll-mt-sticky) */
   --spacing-sticky: 5.5rem;
+  /*
+   * STEP 02 탭 바는 진단 조건 바 바로 아래에 붙는다. 조건 칩이 두 줄이 되면 바 높이가 바뀌므로
+   * ConditionBar가 실제 높이를 --condition-bar-h로 알려 준다 (없으면 한 줄 높이 57px)
+   */
+  --spacing-condition-bar: var(--condition-bar-h, 3.5625rem);
+  /* 조건 바 + 탭 바(52px) 아래로 내용이 오게 하는 앵커 여백 (scroll-mt-sticky-tabs) */
+  --spacing-sticky-tabs: calc(var(--condition-bar-h, 3.5625rem) + 4rem);
+
+  /*
+   * 화면 틀 간격 — 8px 단위 4단계만 쓴다 (gap-stack-*, p-stack-*, mt-stack-* …)
+   * 1 = 8px(묶음 안), 2 = 16px(요소 사이), 3 = 24px(카드 안 여백·카드 사이), 4 = 32px(큰 덩어리 사이)
+   * 공통 틀(PageHeader·SummaryStats·SectionCard·SourceLine·StepNav)은 이 간격과
+   * 글자 4단계(section 22 · subtitle 17 · body 15 · caption 13)만 쓴다
+   */
+  --spacing-stack-1: 0.5rem;
+  --spacing-stack-2: 1rem;
+  --spacing-stack-3: 1.5rem;
+  --spacing-stack-4: 2rem;
 
   /*
    * 모션 (움직임·반응) — 아래 시간·곡선만 쓴다. transform·opacity만 움직이고,

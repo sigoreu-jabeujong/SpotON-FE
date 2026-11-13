@@ -1,58 +1,86 @@
-import { useEffect, type ReactNode } from 'react'
-import { useLocation } from 'react-router'
+import { useEffect, useRef, type ReactNode } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 import ActivitySection from '../components/analysis/ActivitySection'
 import AnalysisSection from '../components/analysis/AnalysisSection'
+import AnalysisTabs from '../components/analysis/AnalysisTabs'
 import HistorySection from '../components/analysis/HistorySection'
 import NearbySection from '../components/analysis/NearbySection'
-import Card from '../components/common/Card'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
-import type { AnalysisSectionId } from '../constants/routes'
+import StepNav from '../components/common/StepNav'
+import { MESSAGES } from '../constants/messages'
+import {
+  analysisPanelId,
+  ANALYSIS_SECTIONS,
+  analysisTabFromHash,
+  analysisTabId,
+  ROUTES,
+  type AnalysisSectionId,
+} from '../constants/routes'
 
-/** 섹션이 깨져도 머리·앵커(#id)는 남겨 사이드바 이동이 그대로 되게 한다 */
+/** 탭 내용이 깨져도 머리(제목·설명)는 남겨 어느 탭인지 알 수 있게 한다 */
 const keepSection = (id: AnalysisSectionId) => (fallback: ReactNode) => (
   <AnalysisSection id={id}>{fallback}</AnalysisSection>
 )
 
-/** #섹션으로 들어온 뒤 위쪽 내용이 자리 잡을 때까지 목표 섹션을 따라가는 시간 */
-const SETTLE_MS = 4000
+const PANELS: Record<AnalysisSectionId, ReactNode> = {
+  history: <HistorySection />,
+  nearby: <NearbySection />,
+  activity: <ActivitySection />,
+}
 
-/** STEP 02 입지 정보 분석 — 섹션 3개를 세로로 (#history, #nearby, #activity) */
+/**
+ * STEP 02 입지 정보 분석 — 탭 3개 (과거 점포 이력 · 주변 점포 · 상권 활동), 한 번에 하나만 보여준다.
+ * 열린 탭은 URL #해시(#history·#nearby·#activity)로 정해져 예전 주소·다른 화면 링크도 그 탭으로 열린다.
+ */
 export default function AnalysisPage() {
   const { hash, search } = useLocation()
+  const navigate = useNavigate()
+  const active = analysisTabFromHash(hash)
+  const panelsRef = useRef<HTMLDivElement>(null)
+  const firstRender = useRef(true)
 
-  // 다른 화면·예전 경로에서 #섹션으로 들어오면 그 섹션으로 이동
+  // 탭을 바꿨을 때 이미 아래로 내려와 있으면 새 탭의 처음(탭 바 바로 아래)으로 올린다
   useEffect(() => {
-    if (!hash) return
-    const target = document.getElementById(decodeURIComponent(hash.slice(1)))
-    if (!target) return
-    target.scrollIntoView()
-    // 위쪽 섹션(지도·표·차트)이 늦게 불러와져 높이가 커지면 목표 섹션이 밀려나므로,
-    // 잠시 동안 크기가 바뀔 때마다 다시 맞춘다. 사용자가 직접 스크롤하면 바로 멈춘다.
-    const observer = new ResizeObserver(() => target.scrollIntoView())
-    // body는 높이가 화면 크기로 고정이라, 실제로 커지는 본문(main)을 지켜본다
-    observer.observe(target.closest('main') ?? document.documentElement)
-    const stop = () => observer.disconnect()
-    const timer = window.setTimeout(stop, SETTLE_MS)
-    const userEvents = ['wheel', 'touchstart', 'keydown', 'mousedown'] as const
-    userEvents.forEach((e) => window.addEventListener(e, stop, { once: true, passive: true }))
-    return () => {
-      stop()
-      window.clearTimeout(timer)
-      userEvents.forEach((e) => window.removeEventListener(e, stop))
+    if (firstRender.current) {
+      firstRender.current = false
+      return
     }
-  }, [hash])
+    const el = panelsRef.current
+    if (!el) return
+    const offset = parseFloat(getComputedStyle(el).scrollMarginTop) || 0
+    if (el.getBoundingClientRect().top < offset) el.scrollIntoView({ block: 'start' })
+  }, [active])
+
+  const select = (id: AnalysisSectionId) =>
+    navigate({ search, hash: `#${id}` }, { replace: true, preventScrollReset: true })
 
   return (
-    <Card className="flex flex-col gap-16">
-      <SectionErrorBoundary resetKey={search} wrap={keepSection('history')}>
-        <HistorySection />
-      </SectionErrorBoundary>
-      <SectionErrorBoundary resetKey={search} wrap={keepSection('nearby')}>
-        <NearbySection />
-      </SectionErrorBoundary>
-      <SectionErrorBoundary resetKey={search} wrap={keepSection('activity')}>
-        <ActivitySection />
-      </SectionErrorBoundary>
-    </Card>
+    <div className="flex flex-col gap-stack-4">
+      <AnalysisTabs active={active} onSelect={select} />
+      <div ref={panelsRef} className="scroll-mt-sticky-tabs">
+        {ANALYSIS_SECTIONS.map((s) => (
+          <div
+            key={s.id}
+            role="tabpanel"
+            id={analysisPanelId(s.id)}
+            aria-labelledby={analysisTabId(s.id)}
+            hidden={s.id !== active}
+            tabIndex={0}
+            className="rounded-card focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500"
+          >
+            {s.id === active && (
+              <SectionErrorBoundary resetKey={search} wrap={keepSection(s.id)}>
+                {PANELS[s.id]}
+              </SectionErrorBoundary>
+            )}
+          </div>
+        ))}
+      </div>
+      <StepNav
+        search={search}
+        prev={{ to: ROUTES.input, label: MESSAGES.frame.prevInput }}
+        next={{ to: ROUTES.summary, label: MESSAGES.frame.nextSummary }}
+      />
+    </div>
   )
 }

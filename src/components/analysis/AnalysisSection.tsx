@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
 import { ANALYSIS_SECTIONS, type AnalysisSectionId } from '../../constants/routes'
 import { useRevealOnce } from '../../hooks/useRevealOnce'
-import SectionHeader from '../common/SectionHeader'
+import PageHeader from '../common/PageHeader'
 
 type Props = { id: AnalysisSectionId; children: ReactNode }
 
-/** STEP 02 섹션 공통 틀: #id 앵커 + "01 제목" 머리. 화면에 처음 들어올 때 한 번만 떠오르며 등장 */
+/** STEP 02 탭 내용 공통 틀: 제목(h2)·설명 + 내용. 탭을 열 때 한 번만 떠오르며 등장 */
 export default function AnalysisSection({ id, children }: Props) {
   const [ref, reveal] = useRevealOnce<HTMLElement>()
   const meta = ANALYSIS_SECTIONS.find((s) => s.id === id)
@@ -14,19 +14,12 @@ export default function AnalysisSection({ id, children }: Props) {
   return (
     <section
       ref={ref}
-      id={id}
       aria-labelledby={titleId}
-      tabIndex={-1}
       data-reveal={reveal}
-      className="scroll-mt-sticky focus:outline-none"
+      className="flex flex-col gap-stack-3"
     >
-      <SectionHeader
-        id={titleId}
-        number={meta.number}
-        title={meta.label}
-        description={meta.description}
-      />
-      <div className="mt-6">{children}</div>
+      <PageHeader id={titleId} title={meta.label} description={meta.description} />
+      {children}
     </section>
   )
 }
