@@ -47,6 +47,7 @@ npm run dev              # http://localhost:5173
 npm run lint
 npm run format           # Prettier 자동 정리 (커밋 전)
 npm run build            # 타입 검사 + 빌드
+npm run test             # 핵심 함수 단위 테스트 (Vitest, src/**/*.test.ts)
 ```
 - 백엔드 없이 화면을 개발할 때는 `.env`에 `VITE_USE_MOCK=true` → `src/api/mocks/index.ts`에 명세서 예시 응답 등록
 - **BE 단계 연결**: 목업 모드에서도 `VITE_REAL_API_PATHS`(쉼표 목록, 예: `/geocode,/support-links`)에 적은 경로만 실제 BE로 보낸다 (`src/api/client.ts`). BE가 꺼져 있으면 실행 환경에서만 값을 바꾸고 `.env`는 수정·출력하지 않는다
