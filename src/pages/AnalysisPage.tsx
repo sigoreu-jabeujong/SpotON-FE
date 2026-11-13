@@ -16,7 +16,7 @@ const keepSection = (id: AnalysisSectionId) => (fallback: ReactNode) => (
 /** #섹션으로 들어온 뒤 위쪽 내용이 자리 잡을 때까지 목표 섹션을 따라가는 시간 */
 const SETTLE_MS = 4000
 
-/** STEP 02 입지 정보 분석 — 섹션 3개를 세로로 (#history, #nearby, #activity) */
+/** STEP 02 입지 정보 분석 — 섹션 3개를 세로로, 섹션마다 카드 한 장 (#history, #nearby, #activity) */
 export default function AnalysisPage() {
   const { hash, search } = useLocation()
 
@@ -43,16 +43,23 @@ export default function AnalysisPage() {
   }, [hash])
 
   return (
-    <Card className="flex flex-col gap-16">
-      <SectionErrorBoundary resetKey={search} wrap={keepSection('history')}>
-        <HistorySection />
-      </SectionErrorBoundary>
-      <SectionErrorBoundary resetKey={search} wrap={keepSection('nearby')}>
-        <NearbySection />
-      </SectionErrorBoundary>
-      <SectionErrorBoundary resetKey={search} wrap={keepSection('activity')}>
-        <ActivitySection />
-      </SectionErrorBoundary>
-    </Card>
+    // 섹션마다 흰 카드 한 장 — 순서·내용은 그대로, 배경과의 대비로 덩어리만 또렷하게 (카드 사이 24px)
+    <div className="flex flex-col gap-6">
+      <Card>
+        <SectionErrorBoundary resetKey={search} wrap={keepSection('history')}>
+          <HistorySection />
+        </SectionErrorBoundary>
+      </Card>
+      <Card>
+        <SectionErrorBoundary resetKey={search} wrap={keepSection('nearby')}>
+          <NearbySection />
+        </SectionErrorBoundary>
+      </Card>
+      <Card>
+        <SectionErrorBoundary resetKey={search} wrap={keepSection('activity')}>
+          <ActivitySection />
+        </SectionErrorBoundary>
+      </Card>
+    </div>
   )
 }

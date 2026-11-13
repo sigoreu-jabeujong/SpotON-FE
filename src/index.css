@@ -17,8 +17,8 @@
   --color-blue-600: #2e6ce8;
   --color-blue-700: #0d50d7;
 
-  /* 화면 배경 (확정, Background Color 2·3-7) */
-  --color-bg: #fbfdff;
+  /* 화면 배경 — 흰 카드와 구분되도록 아주 옅은 청회색 (Figma #FBFDFF보다 한 단계 진하게) */
+  --color-bg: #f4f6fa;
 
   /* Neutral gray (추정) */
   --color-gray-0: #ffffff;
@@ -76,10 +76,14 @@
   --text-micro: 0.8125rem; /* 보조: 아주 작은 라벨 13px */
   --text-micro--line-height: 1.55;
 
-  /* 모서리·그림자 (추정) */
-  --radius-card: 1rem;
-  --radius-control: 0.625rem;
-  --shadow-card: 0 4px 24px rgb(13 80 215 / 0.06), 0 1px 3px rgb(26 26 26 / 0.04);
+  /*
+   * 카드 — 모서리 20px(큰 카드)·12px(안쪽 상자·입력), 부드러운 그림자 1종, 안쪽 여백 24px(p-6), 카드 사이 24px(gap-6)
+   * 그림자에 아주 옅은 1px 테두리를 함께 넣어 배경 위에서 덩어리가 또렷하게 보이게
+   */
+  --radius-card: 1.25rem;
+  --radius-control: 0.75rem;
+  --shadow-card:
+    0 0 0 1px rgb(16 24 40 / 0.04), 0 1px 2px rgb(16 24 40 / 0.04), 0 8px 24px rgb(13 80 215 / 0.06);
 
   /* 레이아웃 */
   --spacing-sidebar: 17.5rem; /* 280px */
@@ -283,6 +287,9 @@ body {
   --text-micro: 0.75rem;
   --text-micro--line-height: 1.4;
   --color-gray-600: #666666;
+  --radius-card: 1rem;
+  --radius-control: 0.625rem;
+  --shadow-card: 0 4px 24px rgb(13 80 215 / 0.06), 0 1px 3px rgb(26 26 26 / 0.04);
 }
 
 /* 동작 줄이기 설정: 남은 애니메이션·전환도 사실상 즉시 끝나게 (스피너·반짝임·떠 있기 포함) */
