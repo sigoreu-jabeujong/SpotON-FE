@@ -13,7 +13,7 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const VARIANT: Record<Variant, string> = {
-  primary: 'bg-blue-500 text-white hover:bg-blue-700',
+  primary: 'bg-blue-600 text-white hover:bg-blue-700',
   secondary: 'bg-blue-100 text-blue-700 hover:bg-blue-500/15',
 }
 

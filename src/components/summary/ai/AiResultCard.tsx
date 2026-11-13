@@ -37,7 +37,7 @@ export default function AiResultCard({
     >
       <header className={`flex items-center gap-3 ${rise}`} style={stagger(0)}>
         <RobotArt className="size-16" />
-        <span className="rounded-full bg-blue-500 px-3 py-1 text-caption font-bold text-white">
+        <span className="rounded-full bg-blue-600 px-3 py-1 text-caption font-bold text-white">
           {result.label}
         </span>
       </header>
@@ -138,7 +138,7 @@ function Part({
       style={order !== undefined ? stagger(order) : undefined}
     >
       <h4 className="mb-2 flex items-center gap-1.5 text-body font-bold text-gray-900">
-        <span className="flex size-5 items-center justify-center rounded-full bg-blue-500 text-micro font-bold text-white">
+        <span className="flex size-5 items-center justify-center rounded-full bg-blue-600 text-micro font-bold text-white">
           {number}
         </span>
         <Icon className="size-4 text-blue-500" aria-hidden="true" />

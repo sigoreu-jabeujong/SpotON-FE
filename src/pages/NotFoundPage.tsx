@@ -20,7 +20,7 @@ export default function NotFoundPage() {
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
           to={ROUTES.landing}
-          className="inline-flex h-12 items-center gap-2 rounded-full bg-blue-500 px-6 text-body font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          className="inline-flex h-12 items-center gap-2 rounded-full bg-blue-600 px-6 text-body font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
         >
           <Home className="size-5" aria-hidden="true" />
           {T.home}

@@ -190,7 +190,7 @@ export default function DiagnosisForm({
           'group mt-9 flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait',
           'transition-[color,background-color,transform] duration-(--duration-fast) ease-(--ease-out-soft)',
           ready
-            ? 'bg-blue-500 text-white hover:bg-blue-700 motion-safe:enabled:hover:-translate-y-px motion-safe:enabled:active:translate-y-0 motion-safe:enabled:active:scale-[0.98]'
+            ? 'bg-blue-600 text-white hover:bg-blue-700 motion-safe:enabled:hover:-translate-y-px motion-safe:enabled:active:translate-y-0 motion-safe:enabled:active:scale-[0.98]'
             : 'bg-blue-100 text-gray-600',
         )}
       >
@@ -215,7 +215,7 @@ function StepDot({ n }: { n: number }) {
   return (
     <span
       aria-hidden="true"
-      className="flex size-5 items-center justify-center rounded-full bg-blue-500 text-micro font-bold text-white"
+      className="flex size-5 items-center justify-center rounded-full bg-blue-600 text-micro font-bold text-white"
     >
       {n}
     </span>
