@@ -262,6 +262,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/*
+ * 브라우저가 그리는 부분도 디자인 토큰 색으로 — 글자 선택·입력 커서·스크롤바
+ * (선택 배경은 옅은 파랑 + 글자는 진한 색 그대로라 대비가 유지된다)
+ */
+::selection {
+  background-color: color-mix(in oklab, var(--color-blue-500) 22%, transparent);
+  color: var(--color-gray-900);
+}
+html {
+  caret-color: var(--color-blue-600);
+  scrollbar-color: color-mix(in oklab, var(--color-gray-600) 40%, transparent) transparent;
+}
+
 /* 사이드바 메뉴로 섹션 이동 시 부드럽게 스크롤 (움직임 줄이기 설정 존중) */
 @media (prefers-reduced-motion: no-preference) {
   html {
