@@ -540,6 +540,7 @@ export const MESSAGES = {
     summaryLabel: (title: string) => `${title} 요약`,
     knowMore: '알아두세요',
     stepNav: '다음 단계로 이동',
+    nextSummary: '종합 진단 결과 보기',
   },
   /** 찾을 수 없는 페이지 */
   notFound: {

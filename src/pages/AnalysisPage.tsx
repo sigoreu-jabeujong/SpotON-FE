@@ -6,11 +6,14 @@ import AnalysisTabs from '../components/analysis/AnalysisTabs'
 import HistorySection from '../components/analysis/HistorySection'
 import NearbySection from '../components/analysis/NearbySection'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
+import StepNav from '../components/common/StepNav'
+import { MESSAGES } from '../constants/messages'
 import {
   analysisPanelId,
   ANALYSIS_SECTIONS,
   analysisTabFromHash,
   analysisTabId,
+  ROUTES,
   type AnalysisSectionId,
 } from '../constants/routes'
 
@@ -73,6 +76,7 @@ export default function AnalysisPage() {
           </div>
         ))}
       </div>
+      <StepNav to={ROUTES.summary} search={search} label={MESSAGES.frame.nextSummary} />
     </div>
   )
 }
