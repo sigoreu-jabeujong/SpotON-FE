@@ -62,7 +62,7 @@ export default function ConditionBar() {
         <Link
           to={{ pathname: ROUTES.input, search }}
           title={T.editHint}
-          className="group inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-blue-100 px-4 text-caption font-semibold text-blue-700 motion-colors hover:bg-blue-500/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          className="group inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-blue-100 px-4 text-caption font-semibold text-blue-700 motion-colors hover:bg-blue-500/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
         >
           <SlidersHorizontal className="size-4" aria-hidden="true" />
           {T.edit}

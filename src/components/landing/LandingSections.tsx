@@ -118,7 +118,7 @@ export default function LandingSections() {
           </div>
           <Link
             to={ROUTES.input}
-            className="group inline-flex h-13 shrink-0 interactive-lift items-center gap-2 rounded-full bg-blue-600 px-7 text-subtitle font-semibold text-white shadow-card hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            className="group inline-flex h-12 shrink-0 interactive-lift items-center gap-2 rounded-full bg-blue-600 px-7 text-subtitle font-semibold text-white shadow-card hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
           >
             {MESSAGES.landing.start}
             <ArrowRight className="size-5 arrow-nudge" aria-hidden="true" />

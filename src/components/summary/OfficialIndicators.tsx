@@ -131,7 +131,7 @@ function OfficialRiskCard({
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1.5 text-caption font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                className="inline-flex h-10 items-center gap-1 rounded-full bg-blue-600 px-4 text-caption font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
               >
                 {T.officialRiskLink}
                 <span className="sr-only">{T.officialRiskNewWindow}</span>
@@ -143,7 +143,7 @@ function OfficialRiskCard({
                 type="button"
                 onClick={() => void copy()}
                 title={T.officialRiskCopyHint}
-                className="inline-flex items-center gap-1 rounded-full border border-blue-500 px-3 py-1.5 text-caption font-semibold text-blue-700 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                className="inline-flex h-10 items-center gap-1 rounded-full border border-blue-500 px-4 text-caption font-semibold text-blue-700 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
               >
                 <Copy className="size-3.5" aria-hidden="true" />
                 {T.officialRiskCopy}

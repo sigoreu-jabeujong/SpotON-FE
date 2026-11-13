@@ -49,7 +49,7 @@ export default function AsOfPicker({ value, onChange, range, status }: Props) {
           aria-pressed={value === null}
           onClick={() => onChange(null)}
           className={cn(
-            'rounded-full border px-3 py-1 text-caption font-semibold motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+            'inline-flex h-10 items-center rounded-full border px-4 text-caption font-semibold motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
             value === null
               ? 'border-blue-500 bg-blue-100 text-blue-700'
               : 'border-gray-300 text-gray-900 hover:bg-gray-100',
@@ -115,7 +115,7 @@ export default function AsOfPicker({ value, onChange, range, status }: Props) {
               disabled={disabled || !ok}
               aria-pressed={!!target && value === target}
               onClick={() => target && onChange(target)}
-              className="rounded-full px-2.5 py-0.5 text-micro font-semibold text-blue-700 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:text-gray-300 aria-pressed:bg-blue-100"
+              className="inline-flex h-8 items-center rounded-full px-3 text-micro font-semibold text-blue-700 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:text-gray-300 aria-pressed:bg-blue-100"
             >
               {q.label}
             </button>
@@ -141,7 +141,7 @@ export default function AsOfPicker({ value, onChange, range, status }: Props) {
 
 function selectClass(active: boolean) {
   return cn(
-    'h-8 rounded-full border bg-gray-0 px-3 text-caption font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-600',
+    'h-10 rounded-full border bg-gray-0 px-3 text-caption font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-600',
     active ? 'border-blue-500 text-blue-700' : 'border-gray-300 text-gray-900',
   )
 }

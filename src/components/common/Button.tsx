@@ -17,9 +17,10 @@ const VARIANT: Record<Variant, string> = {
   secondary: 'bg-blue-100 text-blue-700 hover:bg-blue-500/15',
 }
 
+/** 버튼 높이는 2단계만 — 40px(md, 카드 안·보조) / 48px(lg, 화면의 주요 행동) */
 const SIZE: Record<Size, string> = {
   md: 'h-10 px-4 text-body',
-  lg: 'h-13 px-6 text-subtitle',
+  lg: 'h-12 px-6 text-subtitle',
 }
 
 /** 기본(파란)·보조(연한 파란) 버튼. disabled면 회색으로 비활성 */
