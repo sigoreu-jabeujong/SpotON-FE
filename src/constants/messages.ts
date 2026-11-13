@@ -509,6 +509,14 @@ export const MESSAGES = {
     asOf: '기준일',
     period: '기간',
     sample: '표본',
+    /** 출처 한 줄(SourceLine) — 기준일·공간 단위·표본은 늘 보이고, 출처 이름·수집일은 펼쳐서 */
+    sourceMore: '출처 자세히',
+  },
+  /** 화면 틀 공통 (요약 숫자·접는 안내·단계 이동) */
+  frame: {
+    summaryLabel: (title: string) => `${title} 요약`,
+    knowMore: '알아두세요',
+    stepNav: '다음 단계로 이동',
   },
   /** 찾을 수 없는 페이지 */
   notFound: {
