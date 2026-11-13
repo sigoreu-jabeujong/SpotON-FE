@@ -9,12 +9,13 @@ import { isMonthInRange, shiftMonth } from '../../../utils/date'
 import { formatCount, formatDataBaseline, formatYearMonthKo } from '../../../utils/format'
 import EmptyState from '../../common/EmptyState'
 import ErrorState from '../../common/ErrorState'
-import LoadingState from '../../common/LoadingState'
+import LoadingSkeleton from '../../common/Skeleton'
 import MetaLine from '../../common/MetaLine'
 import StatCard from '../../common/StatCard'
 import SubTitle from '../../common/SubTitle'
 import { franchiseEmptyMessage } from '../../../utils/storeDisplay'
 import SnapshotTable from './SnapshotTable'
+import { focusConditionFilter } from '../../../utils/focusConditionFilter'
 
 const T = MESSAGES.snapshot
 
@@ -36,11 +37,15 @@ export default function SnapshotBlock() {
       {!query.asOf ? (
         <SnapshotGuide query={query} onPick={(asOf) => updateQuery({ asOf })} />
       ) : snapshot.isPending ? (
-        <LoadingState />
+        // 결과(요약 카드 4개 + 점포 표)와 비슷한 높이로 자리를 잡아 화면이 덜 들썩이게
+        <LoadingSkeleton variant="cardsTable" />
       ) : snapshot.isError ? (
         asOfRangeMessage(snapshot.error) ? (
           // 범위 밖 시점은 다시 시도해도 같으므로 기간 안내만
-          <ErrorState message={asOfRangeMessage(snapshot.error) ?? undefined} />
+          <ErrorState
+            message={asOfRangeMessage(snapshot.error) ?? undefined}
+            onEditConditions={focusConditionFilter}
+          />
         ) : (
           <ErrorState error={snapshot.error} onRetry={() => void snapshot.refetch()} />
         )
@@ -79,7 +84,11 @@ function SnapshotResult({
         <StatCard icon={CircleHelp} label={T.cards.other} value={count(data.other)} />
       </div>
       {!data.stores?.length ? (
-        <EmptyState message={emptyMessage} />
+        <EmptyState
+          message={emptyMessage}
+          description={T.emptyHint}
+          onEditConditions={focusConditionFilter}
+        />
       ) : (
         <SnapshotTable stores={data.stores} periodLabel={periodLabel} />
       )}

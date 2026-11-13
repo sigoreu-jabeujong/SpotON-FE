@@ -21,6 +21,7 @@ import ConditionFilterBar from './ConditionFilterBar'
 import NearbyTable from './nearby/NearbyTable'
 import PastViewBanner from './nearby/PastViewBanner'
 import SnapshotBlock from './nearby/SnapshotBlock'
+import { focusConditionFilter } from '../../utils/focusConditionFilter'
 
 const T = MESSAGES.nearby
 
@@ -68,6 +69,7 @@ export default function NearbySection() {
               message={asOfRangeMessage(nearby.error) ?? undefined}
               // 범위 밖 시점은 다시 시도해도 같으므로 기간 안내만 (다시 시도 버튼 없음)
               onRetry={asOfRangeMessage(nearby.error) ? undefined : () => void nearby.refetch()}
+              onEditConditions={asOfRangeMessage(nearby.error) ? focusConditionFilter : undefined}
             />
           ) : (
             data && (
@@ -123,6 +125,8 @@ export default function NearbySection() {
                 message={
                   franchiseEmptyMessage(query.franchise) ?? data.message ?? MESSAGES.common.empty
                 }
+                description={T.emptyHint}
+                onEditConditions={focusConditionFilter}
               />
             ) : (
               <NearbyTable

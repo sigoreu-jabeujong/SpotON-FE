@@ -95,7 +95,7 @@ function LinkGroup({
         </span>
       </SubTitle>
       {links.length === 0 ? (
-        <EmptyState message={T.linksEmpty} />
+        <EmptyState message={T.linksEmpty} description={null} />
       ) : (
         <ul className="flex flex-col gap-2">
           {links.map((l) => (

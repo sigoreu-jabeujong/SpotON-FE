@@ -89,6 +89,11 @@
   --spacing-sidebar: 17.5rem; /* 280px */
   /* 위에 붙는 진단 조건 바 높이만큼 앵커 이동 위치를 내린다 (scroll-mt-sticky) */
   --spacing-sticky: 5.5rem;
+  /*
+   * 진단 조건 바의 실제 높이 (칩이 두 줄이 되면 커진다) — ConditionBar가 --condition-bar-h로 알려 준다.
+   * 표 머리글이 이 아래에 붙는다 (top-condition-bar). 값이 없으면 한 줄 높이 57px
+   */
+  --spacing-condition-bar: var(--condition-bar-h, 3.5625rem);
 
   /*
    * 모션 (움직임·반응) — 아래 시간·곡선만 쓴다. transform·opacity만 움직이고,

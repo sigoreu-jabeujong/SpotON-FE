@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { Link, useRouteError } from 'react-router'
 import { MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
+import StatePanel from '../components/common/StatePanel'
 
 const T = MESSAGES.appError
 
@@ -16,34 +17,37 @@ export default function RouteErrorPage() {
 
   return (
     <main className="min-h-screen bg-bg">
-      <div
-        role="alert"
-        className="mx-auto flex max-w-[1200px] flex-col items-center px-10 py-24 text-center"
-      >
-        <span className="flex size-20 items-center justify-center rounded-full bg-blue-100 text-blue-500">
-          <CircleAlert className="size-9" aria-hidden="true" />
-        </span>
-        <h1 className="mt-6 text-section font-bold text-gray-900">{T.title}</h1>
-        <p className="mt-2 text-body text-gray-600">{T.description}</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="inline-flex h-12 items-center gap-2 rounded-full bg-blue-600 px-6 text-body font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-          >
-            <RotateCw className="size-5" aria-hidden="true" />
-            {T.reload}
-          </button>
-          {/* 화면 상태가 깨졌을 수 있어 페이지를 새로 불러오며 이동한다 (reloadDocument) */}
-          <Link
-            to={ROUTES.landing}
-            reloadDocument
-            className="inline-flex h-12 items-center gap-2 rounded-full bg-gray-0 px-6 text-body font-semibold text-blue-700 ring-1 ring-blue-500/40 ring-inset hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-          >
-            <Home className="size-5" aria-hidden="true" />
-            {T.home}
-          </Link>
-        </div>
+      <div className="mx-auto max-w-[1200px]">
+        <StatePanel
+          role="alert"
+          size="page"
+          titleAs="h1"
+          icon={CircleAlert}
+          tone="error"
+          title={T.title}
+          description={T.description}
+          actions={
+            <>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-blue-600 px-6 text-body font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              >
+                <RotateCw className="size-5" aria-hidden="true" />
+                {T.reload}
+              </button>
+              {/* 화면 상태가 깨졌을 수 있어 페이지를 새로 불러오며 이동한다 (reloadDocument) */}
+              <Link
+                to={ROUTES.landing}
+                reloadDocument
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-gray-0 px-6 text-body font-semibold text-blue-700 ring-1 ring-blue-500/40 ring-inset hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              >
+                <Home className="size-5" aria-hidden="true" />
+                {T.home}
+              </Link>
+            </>
+          }
+        />
       </div>
     </main>
   )
