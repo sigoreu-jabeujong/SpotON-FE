@@ -4,12 +4,11 @@ import { MESSAGES } from '../../constants/messages'
 const T = MESSAGES.input
 const FEATURE_ICONS: LucideIcon[] = [ChartNoAxesColumn, MapIcon, ClipboardList]
 
-/** 입력 화면 왼쪽 소개: DATA-BASED INSIGHT, 제목, 설명, 특징 3개 */
+/** 입력 화면 왼쪽 소개: 제목, 설명, 특징 3개 */
 export default function InputIntro() {
   return (
     <div className="max-w-[420px]">
-      <p className="text-micro font-semibold tracking-wider text-blue-700">{T.eyebrow}</p>
-      <h1 className="mt-3 text-[2.25rem] leading-tight font-bold text-gray-900">
+      <h1 className="text-[2.25rem] leading-tight font-bold text-gray-900">
         {T.introTitleLine1}
         <br />
         {T.introTitleLine2}

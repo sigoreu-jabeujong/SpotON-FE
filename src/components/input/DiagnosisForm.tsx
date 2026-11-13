@@ -69,10 +69,7 @@ export default function DiagnosisForm({
       aria-labelledby="diagnosis-form-title"
       className="w-full max-w-[530px] rounded-card bg-gray-0 p-8 shadow-card"
     >
-      <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-micro font-semibold text-blue-700">
-        {T.step}
-      </span>
-      <h2 id="diagnosis-form-title" className="mt-4 text-section font-bold text-gray-900">
+      <h2 id="diagnosis-form-title" className="text-section font-bold text-gray-900">
         {T.cardTitle}
       </h2>
       <p className="mt-1 text-caption text-gray-600">{T.cardDescription}</p>
