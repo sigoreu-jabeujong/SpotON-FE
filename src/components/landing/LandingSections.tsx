@@ -120,8 +120,8 @@ export default function LandingSections() {
             to={ROUTES.input}
             className="group inline-flex h-12 shrink-0 interactive-lift items-center gap-2 rounded-full bg-blue-600 px-7 text-subtitle font-semibold text-white shadow-card hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
           >
+            {/* 화살표는 화면의 주요 버튼(첫 화면 '진단 시작하기') 하나에만 */}
             {MESSAGES.landing.start}
-            <ArrowRight className="size-5 arrow-nudge" aria-hidden="true" />
           </Link>
         </section>
       </Reveal>

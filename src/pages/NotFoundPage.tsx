@@ -1,4 +1,4 @@
-import { ArrowRight, Home, MapPinOff } from 'lucide-react'
+import { Home, MapPinOff } from 'lucide-react'
 import { Link } from 'react-router'
 import { MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
@@ -30,7 +30,6 @@ export default function NotFoundPage() {
           className="inline-flex h-12 items-center gap-2 rounded-full bg-gray-0 px-6 text-body font-semibold text-blue-700 ring-1 ring-blue-500/40 ring-inset hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
         >
           {T.start}
-          <ArrowRight className="size-5" aria-hidden="true" />
         </Link>
       </div>
     </div>
