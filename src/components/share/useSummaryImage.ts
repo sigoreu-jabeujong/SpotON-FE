@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './SummaryImageCard'
 
-type Status = 'idle' | 'making' | 'done' | 'failed'
+export type SummaryImageStatus = 'idle' | 'making' | 'done' | 'failed'
+type Status = SummaryImageStatus
 
 /**
  * 요약 카드 DOM을 html2canvas로 PNG(1080×1350)로 만들어 내려받는다.

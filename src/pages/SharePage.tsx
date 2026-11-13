@@ -1,4 +1,5 @@
 import { FileDown, Handshake, Headset, ImageDown, type LucideIcon } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
 import Card from '../components/common/Card'
 import RediagnoseBanner from '../components/share/RediagnoseBanner'
@@ -8,6 +9,8 @@ import { useSummaryImage } from '../components/share/useSummaryImage'
 import { MESSAGES } from '../constants/messages'
 import { scrollBehavior } from '../constants/motion'
 import { ROUTES } from '../constants/routes'
+import { useToast } from '../hooks/useToast'
+import { imageSaveToast } from '../utils/toast'
 import { useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
 import { useReportData } from '../hooks/useReportData'
 
@@ -21,6 +24,15 @@ export default function SharePage() {
   const report = useReportData()
   const { cardRef, status: imageStatus, save: saveImage } = useSummaryImage(T.imageFileName)
   const imageReady = !report.loading && !!report.risk.data && !!report.activity.data
+  const toast = useToast()
+  // 저장 결과(완료·실패)가 바뀌는 순간에만 화면 아래 알림 — 저장 동작·결과물은 그대로
+  const lastImageStatus = useRef(imageStatus)
+  useEffect(() => {
+    if (lastImageStatus.current === imageStatus) return
+    lastImageStatus.current = imageStatus
+    const next = imageSaveToast(imageStatus, imageReady)
+    if (next) toast(next)
+  }, [imageStatus, imageReady, toast])
 
   const scrollTo = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
@@ -55,7 +67,8 @@ export default function SharePage() {
         />
       </div>
 
-      <p aria-live="polite" className="-mt-6 text-center text-caption font-semibold">
+      {/* 화면 글자는 그대로 두고 화면 읽기 알림은 아래 토스트 하나로 (두 번 읽지 않게) */}
+      <p className="-mt-6 text-center text-caption font-semibold">
         {imageStatus === 'done' && <span className="text-blue-700">{T.imageDone}</span>}
         {imageStatus === 'failed' && (
           <span className="text-danger">{imageReady ? T.imageFailed : T.imageNeedsData}</span>
