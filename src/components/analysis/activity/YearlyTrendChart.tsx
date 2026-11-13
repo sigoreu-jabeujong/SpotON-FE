@@ -76,7 +76,12 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
               animationDuration={MOTION_MS.fast}
               isAnimationActive={!prefersReducedMotion()}
             />
-            <Legend iconType="circle" wrapperStyle={{ fontSize: 13 }} />
+            {/* 범례 글자는 진한 회색 (막대 색 글자는 흰 바탕 대비 4.5:1 미만) — 색은 동그라미로만 */}
+            <Legend
+              iconType="circle"
+              wrapperStyle={{ fontSize: 13 }}
+              formatter={(value) => <span style={{ color: '#1a1a1a' }}>{value}</span>}
+            />
             <Bar
               dataKey="opened"
               name={T.trendOpened}
