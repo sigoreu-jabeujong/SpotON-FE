@@ -1,6 +1,6 @@
 import { TriangleAlert } from 'lucide-react'
 import { useAsOfRangeMessage } from '../hooks/useAsOfRangeMessage'
-import { toCommonQueryParams } from '../api/params'
+import { toCommonQueryParams, toInterpretHistory } from '../api/params'
 import PastViewNote from '../components/analysis/nearby/PastViewNote'
 import Card from '../components/common/Card'
 import ErrorState from '../components/common/ErrorState'
@@ -91,7 +91,7 @@ export default function SummaryPage() {
         <Reveal>
           <SectionErrorBoundary resetKey={search}>
             {/* 본문은 조회 조건(params)만 — 서버가 같은 조건으로 다시 계산한다 */}
-            <AiInterpretation key={search} params={params} />
+            <AiInterpretation key={search} params={params} history={toInterpretHistory(query)} />
           </SectionErrorBoundary>
         </Reveal>
       )}

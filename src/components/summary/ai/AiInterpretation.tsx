@@ -1,11 +1,16 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { Bot, LoaderCircle, Sparkles } from 'lucide-react'
 import { useEffect, useRef } from 'react'
+import { toRiskInterpretRequest } from '../../../api/params'
 import { queryKeys } from '../../../api/queryKeys'
 import { MESSAGES } from '../../../constants/messages'
 import { useRiskInterpret } from '../../../hooks/useRisk'
 import type { CommonQueryParams } from '../../../types/api'
-import type { RiskInterpretation, RiskInterpretRequest } from '../../../types/risk'
+import type {
+  RiskInterpretation,
+  RiskInterpretHistory,
+  RiskInterpretRequest,
+} from '../../../types/risk'
 import Button from '../../common/Button'
 import SubTitle from '../../common/SubTitle'
 import RobotArt from '../../common/RobotArt'
@@ -18,15 +23,18 @@ const T = MESSAGES.ai
 type Props = {
   /** 화면이 Risk GET에 쓴 원래 조회 조건 — AI 본문에 그대로 넣는다 (Risk 응답·화면 수치는 보내지 않음) */
   params: CommonQueryParams
+  /** 선택 이력 문맥 (BE #98) — URL의 bk·floor. 건물 키가 없으면 undefined */
+  history?: RiskInterpretHistory
 }
 
 /**
  * STEP 03 AI 해석 (F-08) — "AI 해석 보기"를 눌러야만 POST /risk/interpret를 부른다 (자동 호출 금지).
- * 서버가 같은 조건으로 Risk를 다시 계산해 문장을 조립하므로, 본문은 조회 조건만(query-only) 보낸다.
+ * 서버가 같은 조건으로 Risk를 다시 계산해 문장을 조립하므로, query에는 조회 조건만 보낸다.
+ * 이력 문맥은 별도 history 키(건물 키·층)로만 보낸다 (BE #98, 없으면 생략).
  * 지표 카드와 독립이라 실패해도 위쪽 지표는 그대로 남는다. 다시 시도는 사용자 버튼으로만.
  * 조건(필터·시점)이 바뀌면 부모가 key를 바꿔 이 컴포넌트를 새로 만든다 → 이전 결과·진행 중 요청 결과가 보이지 않는다.
  */
-export default function AiInterpretation({ params }: Props) {
+export default function AiInterpretation({ params, history }: Props) {
   const interpret = useRiskInterpret()
   const queryClient = useQueryClient()
   // 키보드: "AI 해석 보기"·"다시 시도"를 누르면 그 버튼이 사라지므로 포커스를 결과 영역으로 옮긴다 (본문 처음으로 튀지 않게)
@@ -38,7 +46,8 @@ export default function AiInterpretation({ params }: Props) {
   const request = () => {
     // Risk GET과 같은 조건 그대로 (lat·lng·category·radius·sub_category·as_of(있을 때만)·area·franchise·include_unknown_area·include_unknown_franchise).
     // Risk GET에 include를 쓰지 않으므로 여기서도 넣지 않는다. 건물 키·층·주소는 보내지 않는다.
-    const body: RiskInterpretRequest = { query: { ...params } }
+    // 이력 문맥(BE #98)은 query 밖 history 키로만 — 건물 키가 없으면 생략
+    const body: RiskInterpretRequest = toRiskInterpretRequest(params, history)
     interpret.mutate(body, {
       onSuccess: (res) => {
         // 검증을 통과한 해석만 같은 조건 키로 저장 → 진단서(PDF)에서 다시 요청하지 않고 쓴다
