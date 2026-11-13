@@ -8,7 +8,11 @@ export const DATA_STATUS = {
   no_data: { label: '자료 없음', tone: 'muted' },
   pending: { label: '판단 보류', tone: 'warning' },
   unknown: { label: '정보 없음', tone: 'muted' },
-  location_unverified: { label: '상세 위치 미확인', tone: 'warning' },
+  /**
+   * 정보성 상태(미확인·정보 없음)는 차분한 회색 — 층이 없으면 이력 거의 모든 행에 붙어 주황이면 표 전체가 경고처럼 보임.
+   * 주황(warning)은 판단 보류처럼 주의가 필요한 상태에만. 아이콘·글자는 그대로라 색 없이도 구분된다
+   */
+  location_unverified: { label: '상세 위치 미확인', tone: 'muted' },
   /** official_risk 링크 안내 전용 — BE 보완안, 확인 대기 */
   link_only: { label: '공식 사이트에서 확인', tone: 'info' },
 } as const

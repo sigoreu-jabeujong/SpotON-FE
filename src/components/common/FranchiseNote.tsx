@@ -9,7 +9,7 @@ export default function FranchiseNote({ rows }: Props) {
   const year = franchiseEstimateYear(rows)
   if (year === undefined) return null
   return (
-    <p className="mt-2 flex items-start gap-1.5 text-caption text-gray-600">
+    <p className="mt-2 flex max-w-4xl items-start gap-1.5 text-caption leading-relaxed text-gray-600">
       <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       {MESSAGES.store.franchise.note(year)}
     </p>

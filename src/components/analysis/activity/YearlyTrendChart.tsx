@@ -46,8 +46,14 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
     <div className="flex flex-col gap-2">
       <div role="img" aria-label={T.trendChartLabel} className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={trend} margin={{ top: 8, right: 16, bottom: 0, left: -8 }} barGap={4}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e6e6e6" />
+          {/* 연도가 많으면(실제 데이터 24~60개) 개업·폐업 막대 사이를 좁혀 막대를 조금이라도 넓게 */}
+          <BarChart
+            data={trend}
+            margin={{ top: 8, right: 16, bottom: 0, left: -8 }}
+            barGap={trend.length > 20 ? 1 : 4}
+          >
+            {/* 가로 격자는 옅게 — 막대가 먼저 보이게 */}
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
             {/* 숫자 축: 실제 연도 간격대로 그린다 (없는 연도는 0으로 채우지 않고 빈 자리로 둔다 — 1971→2002가 붙어 보이지 않게) */}
             <XAxis
               dataKey="year"
@@ -117,7 +123,7 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
         />
       </button>
       <div id={tableId} className={showTable ? '' : 'sr-only'}>
-        <table className="w-full overflow-hidden rounded-control text-center text-caption ring-1 ring-gray-300">
+        <table className="w-full overflow-hidden rounded-control text-center text-caption tabular-nums ring-1 ring-gray-300">
           <caption className="sr-only">{T.trendCaption}</caption>
           <thead className="bg-blue-100">
             <tr>

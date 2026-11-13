@@ -62,7 +62,7 @@ export default function IndicatorCard({
 
       <div className="mt-3 flex min-h-12 items-center">
         {value ? (
-          <p className="text-title leading-tight font-bold text-gray-900">{value}</p>
+          <p className="text-title leading-tight font-bold text-gray-900 tabular-nums">{value}</p>
         ) : (
           <p className="flex items-start gap-2 text-body font-semibold text-gray-600">
             <StatusIcon status={empty.status} className="mt-0.5 size-5 shrink-0" />

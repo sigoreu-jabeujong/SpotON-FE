@@ -29,7 +29,11 @@ export default function SnapshotTable({ stores, periodLabel }: Props) {
   return (
     <div>
       <div className="overflow-hidden rounded-control border border-gray-300">
-        <table id={TABLE_ID} className="w-full text-center text-caption">
+        <table
+          id={TABLE_ID}
+          // 숫자 열은 고정폭 숫자, 점포명(행 머리 th)은 보통 숫자 — 상호 속 숫자가 벌어지지 않게
+          className="w-full text-center text-caption tabular-nums [&_tbody_th]:normal-nums"
+        >
           <caption className="sr-only">{T.caption(periodLabel)}</caption>
           <thead className="bg-blue-100 text-gray-900">
             <tr>
