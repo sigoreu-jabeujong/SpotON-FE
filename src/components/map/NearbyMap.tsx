@@ -136,7 +136,17 @@ export default function NearbyMap({
       zIndex: 31,
       map,
     })
+    // SDK가 넣는 카카오 로고 링크에는 이름이 없어 화면 읽기 프로그램용 이름을 붙인다 (SDK 동작은 그대로)
+    const container = containerRef.current
+    const labelLinks = () =>
+      container.querySelectorAll('a:not([aria-label])').forEach((a) => {
+        if (!a.textContent?.trim()) a.setAttribute('aria-label', T.kakaoLogo)
+      })
+    labelLinks()
+    const observer = new MutationObserver(labelLinks)
+    observer.observe(container, { childList: true, subtree: true })
     return () => {
+      observer.disconnect()
       clustererRef.current?.clear()
       clustererRef.current?.setMap(null)
       clustererRef.current = null
@@ -240,7 +250,13 @@ export default function NearbyMap({
     const proj = mapRef.current.getProjection()
     const p = proj.pointFromCoords(pos)
     mapRef.current.panTo(proj.coordsFromPoint(new maps.Point(p.x, p.y - INFO_PAN_OFFSET_PX)))
+    // 키보드: Esc로 정보창 닫기 (표에서 고른 뒤에도 바로 닫을 수 있게)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+    }
+    window.addEventListener('keydown', onKey)
     return () => {
+      window.removeEventListener('keydown', onKey)
       highlight.setMap(null)
       info.setMap(null)
       highlightRef.current = null
@@ -264,8 +280,12 @@ export default function NearbyMap({
             ref={containerRef}
             role="region"
             aria-label={T.mapRegion}
+            aria-describedby="nearby-map-hint"
             className="h-full w-full"
           />
+          <p id="nearby-map-hint" className="sr-only">
+            {T.mapKeyboardHint}
+          </p>
           {sdk.status === 'loading' && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
               <LoadingState message={T.mapLoading} />
