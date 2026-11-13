@@ -26,7 +26,7 @@ export default function PastViewBanner() {
       <button
         type="button"
         onClick={() => updateQuery({ asOf: null })}
-        className="flex h-9 items-center gap-1.5 rounded-full bg-gray-0 px-4 text-caption font-semibold text-orange-700 ring-1 ring-orange-500/40 hover:bg-orange-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+        className="flex h-10 items-center gap-1.5 rounded-full bg-gray-0 px-4 text-caption font-semibold text-orange-700 ring-1 ring-orange-500/40 hover:bg-orange-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
       >
         <RotateCcw className="size-4" aria-hidden="true" />
         {MESSAGES.filter.asOfBackToCurrent}

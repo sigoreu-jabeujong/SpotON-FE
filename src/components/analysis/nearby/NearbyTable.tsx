@@ -42,17 +42,17 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
   return (
     <div>
       {nearestFirst && <p className="mb-2 text-right text-micro text-gray-600">{T.sortNearest}</p>}
-      <div className="overflow-hidden rounded-control border border-gray-300">
+      <div className="overflow-hidden rounded-card border border-gray-300 bg-gray-0">
         <table
           id={TABLE_ID}
           // 숫자 열은 고정폭 숫자, 점포명(행 머리 th)은 보통 숫자 — 상호 속 숫자가 벌어지지 않게
           className="w-full text-center text-caption tabular-nums [&_tbody_th]:normal-nums"
         >
           <caption className="sr-only">{T.caption}</caption>
-          <thead className="bg-blue-100 text-gray-900">
+          <thead className="border-b border-gray-300 bg-blue-100/70 text-gray-900">
             <tr>
               {Object.values(T.columns).map((label) => (
-                <th key={label} scope="col" className="px-3 py-3 font-semibold whitespace-nowrap">
+                <th key={label} scope="col" className="px-3 py-3.5 font-bold whitespace-nowrap">
                   {label}
                 </th>
               ))}
@@ -70,12 +70,12 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                   key={id}
                   onClick={() => onSelect(id)}
                   className={cn(
-                    'cursor-pointer border-t border-gray-300 motion-colors',
-                    selected ? 'bg-blue-100' : 'even:bg-gray-100/60 hover:bg-blue-100/50',
+                    'cursor-pointer border-t border-gray-300/60 motion-colors first:border-t-0',
+                    selected ? 'bg-blue-100' : 'hover:bg-blue-100/50',
                   )}
                 >
-                  <td className="px-3 py-3 text-gray-600">{i + 1}</td>
-                  <th scope="row" className="px-3 py-3 font-semibold text-gray-900">
+                  <td className="px-3 py-4 text-gray-600">{i + 1}</td>
+                  <th scope="row" className="px-3 py-4 font-semibold text-gray-900">
                     {/* 키보드: Tab으로 이동해 Enter → 지도에서 보기 */}
                     <button
                       type="button"
@@ -93,21 +93,21 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                       </span>
                     </button>
                   </th>
-                  <td className="px-3 py-3">{SUB_CATEGORY_LABEL[m.sub_category]}</td>
-                  <td className="px-3 py-3">{formatCount(m.distance_m)}</td>
-                  <td className="px-3 py-3 whitespace-nowrap">
+                  <td className="px-3 py-4">{SUB_CATEGORY_LABEL[m.sub_category]}</td>
+                  <td className="px-3 py-4">{formatCount(m.distance_m)}</td>
+                  <td className="px-3 py-4 whitespace-nowrap">
                     {m.area_m2 === null ? <StatusLabel status="unknown" /> : formatArea(m.area_m2)}
                   </td>
-                  <td className="px-3 py-3 whitespace-nowrap">{formatDate(m.open_date)}</td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-4 whitespace-nowrap">{formatDate(m.open_date)}</td>
+                  <td className="px-3 py-4">
                     <StorePeriodCell period={period} />
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-4">
                     <Badge tone={STATUS_TONE[m.current_status]}>
                       {CURRENT_STATUS_LABEL[m.current_status]}
                     </Badge>
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-4">
                     <StoreFranchiseCell store={m} />
                   </td>
                 </tr>

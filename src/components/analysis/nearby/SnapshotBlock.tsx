@@ -124,7 +124,7 @@ function SnapshotGuide({
               type="button"
               disabled={!ok}
               onClick={() => target && onPick(target)}
-              className="rounded-full border border-blue-500 bg-gray-0 px-4 py-1.5 text-caption font-semibold text-blue-700 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-300"
+              className="inline-flex h-10 items-center rounded-full border border-blue-500 bg-gray-0 px-4 text-caption font-semibold text-blue-700 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-300"
             >
               {q.label}
               {target && ok && (

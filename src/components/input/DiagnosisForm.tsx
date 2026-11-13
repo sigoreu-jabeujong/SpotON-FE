@@ -67,7 +67,7 @@ export default function DiagnosisForm({
       onSubmit={handleSubmit}
       noValidate
       aria-labelledby="diagnosis-form-title"
-      className="w-full max-w-[530px] rounded-card bg-gray-0 p-9 shadow-card"
+      className="w-full max-w-[530px] rounded-card bg-gray-0 p-8 shadow-card"
     >
       <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-micro font-semibold text-blue-700">
         {T.step}

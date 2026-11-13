@@ -84,11 +84,12 @@ function FilterForm({
       className="rounded-control border border-gray-300 bg-gray-0"
     >
       <div className="flex flex-wrap">
-        <Group legend={T.radius}>
+        <Group legend={T.radius} segmented>
           {RADIUS_OPTIONS.map((r) => (
             <Choice
               key={r}
               type="radio"
+              segmented
               name="radius"
               checked={draft.radius === r}
               onChange={() => setDraft((d) => ({ ...d, radius: r as RadiusMeters }))}
@@ -114,11 +115,12 @@ function FilterForm({
           </Group>
         )}
 
-        <Group legend={T.area}>
+        <Group legend={T.area} segmented>
           {FACILITY_SIZE_OPTIONS.map((a) => (
             <Choice
               key={a.id}
               type="radio"
+              segmented
               name="area"
               checked={draft.area === a.id}
               onChange={() => setDraft((d) => ({ ...d, area: a.id as FacilitySize }))}
@@ -132,6 +134,7 @@ function FilterForm({
         {/* 프랜차이즈·개인 매장을 고르면 기준을 바로 보여준다 (개인 매장은 지금 자료로 거의 0곳) */}
         <Group
           legend={T.franchise}
+          segmented
           hint={
             draft.franchise === 'all'
               ? undefined
@@ -142,6 +145,7 @@ function FilterForm({
             <Choice
               key={f.id}
               type="radio"
+              segmented
               name="franchise"
               checked={draft.franchise === f.id}
               onChange={() => setDraft((d) => ({ ...d, franchise: f.id as FranchiseFilter }))}
@@ -185,7 +189,7 @@ function FilterForm({
             aria-disabled={!changed}
             title={changed ? undefined : T.unchanged}
             className={cn(
-              'flex h-9 items-center gap-1.5 rounded-full px-5 text-caption font-semibold motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+              'flex h-10 items-center gap-1.5 rounded-full px-5 text-caption font-semibold motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
               changed
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
                 : 'cursor-default bg-gray-100 text-gray-600',
@@ -200,26 +204,47 @@ function FilterForm({
   )
 }
 
-function Group({ legend, hint, children }: { legend: string; hint?: string; children: ReactNode }) {
+function Group({
+  legend,
+  hint,
+  segmented,
+  children,
+}: {
+  legend: string
+  hint?: string
+  /** 하나만 고르는 선택지 — 회색 틀 안의 세그먼트 모양 */
+  segmented?: boolean
+  children: ReactNode
+}) {
   return (
     <fieldset className="min-w-0 flex-auto border-b border-gray-300 px-4 py-3 not-last:border-r">
       <legend className="float-left mb-2 w-full text-micro font-semibold text-gray-600">
         {legend}
         {hint && <span className="ml-1 font-normal">· {hint}</span>}
       </legend>
-      <div className="clear-left flex flex-wrap gap-1.5">{children}</div>
+      <div
+        className={cn(
+          'clear-left flex flex-wrap',
+          segmented ? 'w-fit gap-1 rounded-control bg-gray-100 p-1' : 'gap-1.5',
+        )}
+      >
+        {children}
+      </div>
     </fieldset>
   )
 }
 
 function Choice({
   type,
+  segmented,
   name,
   checked,
   onChange,
   children,
 }: {
   type: 'radio' | 'checkbox'
+  /** 세그먼트 안 선택지 (높이 32 + 틀 여백 = 40px). 아니면 40px 알약 칩 */
+  segmented?: boolean
   name: string
   checked: boolean
   onChange: () => void
@@ -228,10 +253,20 @@ function Choice({
   return (
     <label
       className={cn(
-        'cursor-pointer rounded-full border px-3 py-1 text-caption font-semibold motion-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-500',
-        checked
-          ? 'border-blue-500 bg-blue-100 text-blue-700'
-          : 'border-gray-300 text-gray-900 hover:bg-gray-100',
+        'inline-flex cursor-pointer items-center gap-1 text-caption font-semibold motion-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-500',
+        segmented
+          ? cn(
+              'h-8 rounded-lg px-3.5',
+              checked
+                ? 'bg-gray-0 text-blue-700 shadow-[0_1px_3px_rgb(16_24_40/0.12)] ring-1 ring-blue-500/40'
+                : 'text-gray-900 hover:bg-gray-0/70',
+            )
+          : cn(
+              'h-10 rounded-full border px-4',
+              checked
+                ? 'border-blue-500 bg-blue-100 text-blue-700'
+                : 'border-gray-300 text-gray-900 hover:bg-gray-100',
+            ),
       )}
     >
       <input type={type} name={name} checked={checked} onChange={onChange} className="sr-only" />

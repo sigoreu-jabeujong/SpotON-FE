@@ -21,7 +21,8 @@ export default function InfoBox({ title, showTitle, description, items, classNam
     <aside
       aria-label={showTitle ? undefined : title}
       className={cn(
-        'flex gap-3 rounded-control bg-gray-100 px-4 py-3 text-caption text-gray-600',
+        // 배경은 아주 옅게(파랑 4%), 테두리 없이 아이콘 + 짧은 줄 — 결과 화면 어디서나 같은 모양
+        'flex gap-2.5 rounded-control bg-blue-100/60 px-4 py-3 text-caption text-gray-600',
         className,
       )}
     >
@@ -31,7 +32,7 @@ export default function InfoBox({ title, showTitle, description, items, classNam
         {showTitle && <p className="font-semibold text-gray-900">{title}</p>}
         {description && <p className={cn(showTitle && 'mt-0.5')}>{description}</p>}
         {items && items.length > 0 && (
-          <ul className="list-disc space-y-0.5 pl-4 marker:text-gray-300">
+          <ul className="list-disc space-y-1 pl-4 marker:text-blue-500/50">
             {items.map((item) => (
               <li key={item}>{item}</li>
             ))}

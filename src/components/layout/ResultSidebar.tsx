@@ -60,22 +60,34 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
             const isLast = index === RESULT_STEPS.length - 1
             return (
               <li key={step.step} className="relative flex gap-3 pb-7 last:pb-0">
+                {/* 진행선 — 끝낸 단계 다음 구간은 파랑, 아직 안 간 구간은 회색 */}
                 {!isLast && (
                   <span
                     aria-hidden="true"
-                    className="absolute top-9 bottom-1 left-[15px] w-px bg-gray-300"
+                    className={cn(
+                      'absolute top-10 bottom-1 left-[15px] w-0.5 rounded-full',
+                      done ? 'bg-blue-500' : 'bg-gray-300',
+                    )}
                   />
                 )}
                 <span
                   aria-hidden="true"
                   className={cn(
                     'relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full motion-colors',
-                    done || current ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600',
+                    done && 'bg-blue-600 text-white',
+                    // 지금 단계는 바깥 고리로 한 번 더 강조
+                    current && 'bg-blue-600 text-white ring-4 ring-blue-100',
+                    !done && !current && 'border-2 border-gray-300 bg-gray-0 text-gray-600',
                   )}
                 >
                   <Icon className="size-4" strokeWidth={done ? 3 : 2} />
                 </span>
-                <div className="min-w-0 flex-1">
+                <div
+                  className={cn(
+                    'min-w-0 flex-1',
+                    current && '-my-1.5 -mr-3 -ml-2 rounded-control bg-blue-100 py-1.5 pr-3 pl-2',
+                  )}
+                >
                   <Link
                     to={{ pathname: step.path, search }}
                     aria-current={current ? 'step' : undefined}

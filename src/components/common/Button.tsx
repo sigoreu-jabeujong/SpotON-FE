@@ -14,12 +14,14 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const VARIANT: Record<Variant, string> = {
   primary: 'bg-blue-600 text-white hover:bg-blue-700',
-  secondary: 'bg-blue-100 text-blue-700 hover:bg-blue-500/15',
+  // 흰 바탕 + 파란 테두리 — 옅은 화면 배경 위에서도 버튼으로 보이게
+  secondary: 'bg-gray-0 text-blue-700 ring-1 ring-blue-500/40 ring-inset hover:bg-blue-100',
 }
 
+/** 버튼 높이는 2단계만 — 40px(md, 카드 안·보조) / 48px(lg, 화면의 주요 행동) */
 const SIZE: Record<Size, string> = {
   md: 'h-10 px-4 text-body',
-  lg: 'h-13 px-6 text-subtitle',
+  lg: 'h-12 px-6 text-subtitle',
 }
 
 /** 기본(파란)·보조(연한 파란) 버튼. disabled면 회색으로 비활성 */

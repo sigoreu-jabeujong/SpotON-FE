@@ -123,29 +123,29 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
         />
       </button>
       <div id={tableId} className={showTable ? '' : 'sr-only'}>
-        <table className="w-full overflow-hidden rounded-control text-center text-caption tabular-nums ring-1 ring-gray-300">
+        <table className="w-full overflow-hidden rounded-card bg-gray-0 text-center text-caption tabular-nums ring-1 ring-gray-300">
           <caption className="sr-only">{T.trendCaption}</caption>
-          <thead className="bg-blue-100">
+          <thead className="bg-blue-100/70 text-gray-900">
             <tr>
-              <th scope="col" className="px-3 py-2 font-semibold">
+              <th scope="col" className="px-3 py-3 font-bold">
                 {T.trendYearHeader}
               </th>
-              <th scope="col" className="px-3 py-2 font-semibold">
+              <th scope="col" className="px-3 py-3 font-bold">
                 {T.trendOpened}
               </th>
-              <th scope="col" className="px-3 py-2 font-semibold">
+              <th scope="col" className="px-3 py-3 font-bold">
                 {T.trendClosed}
               </th>
             </tr>
           </thead>
           <tbody>
             {trend.map((row) => (
-              <tr key={row.year} className="border-t border-gray-300">
-                <th scope="row" className="px-3 py-2 font-semibold">
+              <tr key={row.year} className="border-t border-gray-300/60">
+                <th scope="row" className="px-3 py-3 font-semibold">
                   {T.trendYear(row.year)}
                 </th>
-                <td className="px-3 py-2">{T.trendUnit(row.opened)}</td>
-                <td className="px-3 py-2">{T.trendUnit(row.closed)}</td>
+                <td className="px-3 py-3">{T.trendUnit(row.opened)}</td>
+                <td className="px-3 py-3">{T.trendUnit(row.closed)}</td>
               </tr>
             ))}
           </tbody>
