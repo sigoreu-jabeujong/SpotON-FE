@@ -10,7 +10,7 @@ export function SkeletonBlock({ className }: { className?: string }) {
   )
 }
 
-type Variant = 'table' | 'map' | 'cards' | 'chart' | 'summary' | 'links'
+type Variant = 'table' | 'map' | 'cards' | 'chart' | 'summary' | 'links' | 'cardsTable'
 
 /**
  * 불러오는 동안 실제 내용과 비슷한 모양·높이로 자리를 잡아 화면이 덜 출렁이게 한다.
@@ -29,12 +29,20 @@ export default function LoadingSkeleton({
       {variant === 'table' && <TableSkeleton />}
       {variant === 'map' && <SkeletonBlock className="h-[420px] rounded-card" />}
       {variant === 'cards' && <CardsSkeleton count={4} />}
+      {/* 시점 조회: 요약 카드 4개 + 점포 표 (알림은 한 번만) */}
+      {variant === 'cardsTable' && (
+        <div className="flex flex-col gap-4">
+          <CardsSkeleton count={4} />
+          <TableSkeleton />
+        </div>
+      )}
       {variant === 'chart' && <SkeletonBlock className="h-64 rounded-control" />}
+      {/* 종합 진단: 상권 판정(120) · 공식 영역(387) · 참고 영역(635) — 실제 화면(1440, 목업)에서 잰 높이 */}
       {variant === 'summary' && (
         <div className="flex flex-col gap-10">
-          <SkeletonBlock className="h-[84px] rounded-control" />
-          <SkeletonBlock className="h-[400px] rounded-card" />
-          <SkeletonBlock className="h-[400px] rounded-card" />
+          <SkeletonBlock className="h-[120px] rounded-card" />
+          <SkeletonBlock className="h-[387px] rounded-card" />
+          <SkeletonBlock className="h-[635px] rounded-card" />
         </div>
       )}
       {variant === 'links' && (
@@ -53,12 +61,13 @@ export default function LoadingSkeleton({
   )
 }
 
+/** 표: 머리글 48px + 처음 보이는 5행(실제 행은 두 줄 칸이 있어 약 78px) — 실제 표와 같은 둥근 틀 */
 function TableSkeleton() {
   return (
-    <div className="overflow-hidden rounded-control border border-gray-300">
-      <SkeletonBlock className="h-11" />
+    <div className="overflow-hidden rounded-card border border-gray-300">
+      <SkeletonBlock className="h-12" />
       {[0, 1, 2, 3, 4].map((i) => (
-        <div key={i} className="flex items-center gap-4 border-t border-gray-300 px-3 py-3.5">
+        <div key={i} className="flex h-[78px] items-center gap-4 border-t border-gray-300/60 px-3">
           <SkeletonBlock className="h-4 w-6 rounded" />
           <SkeletonBlock className="h-4 flex-1 rounded" />
           <SkeletonBlock className="h-4 w-24 rounded" />
@@ -74,9 +83,10 @@ function CardsSkeleton({ count }: { count: number }) {
   return (
     <div className="grid grid-cols-4 gap-3">
       {Array.from({ length: count }, (_, i) => (
+        // 실제 점포 현황 카드 높이(135px)에 맞춤
         <div
           key={i}
-          className="flex items-start gap-4 rounded-control border border-gray-300 bg-gray-0 p-5"
+          className="flex h-[135px] items-start gap-4 rounded-control border border-gray-300 bg-gray-0 p-5"
         >
           <SkeletonBlock className="size-11 shrink-0 rounded-full" />
           <div className="flex flex-1 flex-col gap-2">
