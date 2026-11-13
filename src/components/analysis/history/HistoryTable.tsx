@@ -39,17 +39,17 @@ export default function HistoryTable({ stores }: Props) {
   return (
     <div>
       <p className="mb-2 text-right text-micro text-gray-600">{T.sortLabel}</p>
-      <div className="overflow-hidden rounded-control border border-gray-300">
+      <div className="overflow-hidden rounded-card border border-gray-300 bg-gray-0">
         <table
           id={TABLE_ID}
           // 숫자 열은 고정폭 숫자, 점포명(행 머리 th)은 보통 숫자 — 상호 속 숫자가 벌어지지 않게
           className="w-full text-center text-caption tabular-nums [&_tbody_th]:normal-nums"
         >
           <caption className="sr-only">{T.caption}</caption>
-          <thead className="bg-blue-100 text-gray-900">
+          <thead className="border-b border-gray-300 bg-blue-100/70 text-gray-900">
             <tr>
               {Object.values(T.columns).map((label) => (
-                <th key={label} scope="col" className="px-3 py-3 font-semibold whitespace-nowrap">
+                <th key={label} scope="col" className="px-3 py-3.5 font-bold whitespace-nowrap">
                   {label}
                 </th>
               ))}
@@ -65,23 +65,23 @@ export default function HistoryTable({ stores }: Props) {
                 <tr
                   // 관리번호가 같아도 원천이 다르면 다른 점포 — source+license_no로 구분
                   key={storeKey(s.source, s.license_no)}
-                  className="border-t border-gray-300 motion-colors even:bg-gray-100/60 hover:bg-blue-100/40"
+                  className="border-t border-gray-300/60 motion-colors first:border-t-0 hover:bg-blue-100/50"
                 >
-                  <td className="px-3 py-3 text-gray-600">{i + 1}</td>
+                  <td className="px-3 py-4 text-gray-600">{i + 1}</td>
                   <th
                     scope="row"
                     className={cn(
-                      'px-3 py-3',
+                      'px-3 py-4',
                       name.missing ? missingClass : 'font-semibold text-gray-900',
                     )}
                   >
                     {name.text}
                   </th>
-                  <td className="px-3 py-3">{SUB_CATEGORY_LABEL[s.sub_category]}</td>
-                  <td className={cn('px-3 py-3 whitespace-nowrap', open.missing && missingClass)}>
+                  <td className="px-3 py-4">{SUB_CATEGORY_LABEL[s.sub_category]}</td>
+                  <td className={cn('px-3 py-4 whitespace-nowrap', open.missing && missingClass)}>
                     {open.text}
                   </td>
-                  <td className={cn('px-3 py-3 whitespace-nowrap', close?.missing && missingClass)}>
+                  <td className={cn('px-3 py-4 whitespace-nowrap', close?.missing && missingClass)}>
                     {close ? (
                       close.text
                     ) : (
@@ -91,7 +91,7 @@ export default function HistoryTable({ stores }: Props) {
                       </>
                     )}
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-4">
                     {period.missing ? (
                       <>
                         <span className={cn('whitespace-nowrap', missingClass)}>{period.text}</span>
@@ -106,15 +106,15 @@ export default function HistoryTable({ stores }: Props) {
                       <span className="font-semibold whitespace-nowrap">{period.text}</span>
                     )}
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-4">
                     <Badge tone={STATUS_TONE[s.store_status]}>
                       {STORE_STATUS_LABEL[s.store_status]}
                     </Badge>
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-4">
                     <LocationCell match={s.location_match} />
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-4">
                     <StoreFranchiseCell store={s} />
                   </td>
                 </tr>
