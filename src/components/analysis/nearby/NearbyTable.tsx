@@ -10,6 +10,7 @@ import { storeName, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
 import Badge, { type BadgeTone } from '../../common/Badge'
 import FranchiseNote from '../../common/FranchiseNote'
+import SubCategoryNote from '../../common/SubCategoryNote'
 import ShowMoreButton from '../../common/ShowMoreButton'
 import StatusLabel from '../../common/StatusLabel'
 import StoreFranchiseCell from '../../common/StoreFranchiseCell'
@@ -118,6 +119,7 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
         </table>
       </div>
       <FranchiseNote rows={markers} />
+      <SubCategoryNote />
       <p className="sr-only" aria-live="polite">
         {MESSAGES.list.shownCount(shown, total)}
       </p>

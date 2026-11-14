@@ -8,6 +8,7 @@ import IndicatorTypeLabel from '../../common/IndicatorTypeLabel'
 import MetaLine from '../../common/MetaLine'
 import StatCard from '../../common/StatCard'
 import StatusLabel from '../../common/StatusLabel'
+import SubCategoryNote from '../../common/SubCategoryNote'
 import { indicatorReasonText } from '../../summary/indicatorFormat'
 
 const T = MESSAGES.activity
@@ -82,6 +83,8 @@ export default function StoreStatusCards({ activity, risk }: Props) {
           </ul>
         </StatCard>
       </div>
+      {/* 세부 업종별 평균 기간 카드 바로 아래 — 음식점일 때만 */}
+      <SubCategoryNote />
       {competitor && (
         <MetaLine
           source={competitor.source}
