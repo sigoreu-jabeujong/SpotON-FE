@@ -12,6 +12,7 @@ import {
   formatYearMonthKo,
 } from '../../utils/format'
 import { formatIndicatorValue } from '../summary/indicatorFormat'
+import { hasIndicator } from '../summary/officialPresence'
 
 /**
  * 요약 이미지(1080×1350 PNG)용 카드 — html2canvas로 그린다.
@@ -73,11 +74,16 @@ const SummaryImageCard = forwardRef<HTMLDivElement, { data: Data }>(function Sum
       value: indicatorText(metric('closure_rate_12m')),
       note: T.image.referenceClosureNote,
     },
-    {
-      label: T.image.officialClosure,
-      value: indicatorText(metric('official_closure_rate')),
-      note: T.image.officialClosureNote,
-    },
+    // 공식 폐업률은 응답에 있을 때만 (BE #142 이후 빠질 수 있음 — 없으면 칸을 빼고 0·정보 없음으로 채우지 않음)
+    ...(risk && !hasIndicator(risk.data.indicators, 'official_closure_rate')
+      ? []
+      : [
+          {
+            label: T.image.officialClosure,
+            value: indicatorText(metric('official_closure_rate')),
+            note: T.image.officialClosureNote,
+          },
+        ]),
   ]
 
   return (

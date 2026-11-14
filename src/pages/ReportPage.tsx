@@ -55,10 +55,10 @@ import {
 } from '../components/analysis/activity/optionalData'
 import SkipLink, { MAIN_ID } from '../components/common/SkipLink'
 import { checklistItems, reportChecklistLine } from '../components/summary/ai/checklist'
+import { presentOfficialIndicators } from '../components/summary/officialPresence'
 
 const T = MESSAGES.report
 const HISTORY_ROWS = 8
-const OFFICIAL_IDS = ['official_closure_rate', 'official_risk', 'market_change'] as const
 const REFERENCE_IDS = [
   'closure_rate_12m',
   'survival_rate_1y',
@@ -467,6 +467,7 @@ function IndicatorsBlock({ indicators, data }: { indicators: RiskIndicator[]; da
   const S = MESSAGES.summary
   const pick = (ids: readonly string[]) =>
     ids.map((id) => indicators.find((i) => i.id === id)).filter((i): i is RiskIndicator => !!i)
+  const official = presentOfficialIndicators(indicators)
   return (
     <Block title={T.indicatorsTitle}>
       <p className="mb-1">
@@ -487,8 +488,9 @@ function IndicatorsBlock({ indicators, data }: { indicators: RiskIndicator[]; da
               )}
         </p>
       )}
-      <div className="grid grid-cols-2 gap-3">
-        <IndicatorTable type="official" rows={pick(OFFICIAL_IDS)} />
+      {/* 공식 지표가 응답에 하나도 없으면(BE #142) 공식 표를 빼고 참고지표 표만 */}
+      <div className={cn('grid gap-3', official.length > 0 ? 'grid-cols-2' : 'grid-cols-1')}>
+        {official.length > 0 && <IndicatorTable type="official" rows={official} />}
         <IndicatorTable type="reference" rows={pick(REFERENCE_IDS)} />
       </div>
     </Block>
