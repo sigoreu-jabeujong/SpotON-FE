@@ -54,6 +54,7 @@ import {
   type OptionalDataState,
 } from '../components/analysis/activity/optionalData'
 import SkipLink, { MAIN_ID } from '../components/common/SkipLink'
+import { checklistItems, reportChecklistLine } from '../components/summary/ai/checklist'
 
 const T = MESSAGES.report
 const HISTORY_ROWS = 8
@@ -590,6 +591,17 @@ function AiBlock({ data }: { data: Data }) {
               ))}
             {!ai.body && <p>{T.aiNotRequested}</p>}
           </div>
+          {/* 계약 전 확인사항 — 서버 값 그대로 "□ 항목 (이유)", 비어 있으면 생략 */}
+          {checklistItems(ai).length > 0 && (
+            <div className="mt-2 break-inside-avoid">
+              <p className="font-bold">{A.checklistTitle}</p>
+              <ul>
+                {checklistItems(ai).map((c) => (
+                  <li key={c.item}>{reportChecklistLine(c)}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <p className="mt-0.5 text-[9.5px] text-gray-600">{A.notice}</p>
         </div>
       )}
