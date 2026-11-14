@@ -9,7 +9,15 @@ import type {
   RiskInterpretation,
   RiskInterpretRequest,
 } from '../../types/risk'
-import { DEMO_META, fail, isMockResult, ok, radiusSpace, unknownFlags } from './common'
+import {
+  beV142Scenario,
+  DEMO_META,
+  fail,
+  isMockResult,
+  ok,
+  radiusSpace,
+  unknownFlags,
+} from './common'
 import type { MockHandler } from './index'
 import { storeHistoryMock } from './stores'
 import type { StoreHistory } from '../../types/stores'
@@ -214,9 +222,9 @@ export const riskMock: MockHandler = (query) => {
       filters: { franchise: query.get('franchise') ?? 'all' },
     },
     market,
+    // BE #142 이후 응답(목업 주소에 "v142")에는 두 공식 지표가 없다
     indicators: [
-      officialClosure,
-      officialRisk,
+      ...(beV142Scenario() ? [] : [officialClosure, officialRisk]),
       {
         id: 'market_change',
         type: 'official',
@@ -291,8 +299,16 @@ export const riskMock: MockHandler = (query) => {
     // missing: 공식 폐업률에 필요한 검증 경계(확인 중일 때)와 선택 항목만
     flags: {
       insufficient_sample: small,
-      missing: unverified ? ['official_closure_rate', 'living_pop'] : ['living_pop'],
+      missing:
+        unverified && !beV142Scenario() ? ['official_closure_rate', 'living_pop'] : ['living_pop'],
     },
+  }
+  // BE #142 이후 응답: 선택 지표(market_change·day_night_ratio)는 include로 요청했을 때만 붙는다 (실제 BE와 같게)
+  if (beV142Scenario()) {
+    const include = (query.get('include') ?? '').split(',')
+    data.indicators = data.indicators.filter(
+      (i) => (i.id !== 'market_change' && i.id !== 'day_night_ratio') || include.includes(i.id),
+    )
   }
   return ok(data, {
     ...DEMO_META,
@@ -347,15 +363,18 @@ function buildInterpretation(risk: Risk): RiskInterpretation {
           indicator_ids: ['official_closure_rate'],
         },
       ]
-    : [
-        {
-          text:
-            risk.market.status === 'unverified'
-              ? '공식 상권 적용 기준을 확인 중이라 서울시 공식 폐업률은 아직 보여드리지 않습니다. 가까운 상권 수치로 대신하지 않았습니다.'
-              : '상권 밖 주소라 서울시 공식 폐업률은 자료가 없습니다. 가까운 상권 수치로 대신하지 않았습니다.',
-          indicator_ids: ['official_closure_rate'],
-        },
-      ]
+    : // BE #142 이후(지표 자체가 없음)에는 공식 폐업률 문장을 만들지 않는다
+      !official
+      ? []
+      : [
+          {
+            text:
+              risk.market.status === 'unverified'
+                ? '공식 상권 적용 기준을 확인 중이라 서울시 공식 폐업률은 아직 보여드리지 않습니다. 가까운 상권 수치로 대신하지 않았습니다.'
+                : '상권 밖 주소라 서울시 공식 폐업률은 자료가 없습니다. 가까운 상권 수치로 대신하지 않았습니다.',
+            indicator_ids: ['official_closure_rate'],
+          },
+        ]
   if (n !== null)
     official_values.push({
       text: `반경 ${r}m 안에 같은 업종 ${n}곳이 영업 중입니다.`,

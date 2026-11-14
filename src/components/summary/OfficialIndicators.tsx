@@ -21,7 +21,10 @@ const T = MESSAGES.summary
 
 type Props = { indicators: RiskIndicator[]; market: MarketJudgement; query: RiskQuery }
 
-/** 서울시 공식 지표 영역 — 공식 폐업률 / 공식 창업위험도(링크 안내) / 상권변화지표 */
+/**
+ * 서울시 공식 지표 영역 — 공식 폐업률 / 공식 창업위험도(링크 안내) / 상권변화지표.
+ * 응답에 없는 지표는 카드를 그리지 않고(BE #142), 남는 카드가 없으면 영역 자체를 숨긴다 (빈 상자 금지)
+ */
 export default function OfficialIndicators({ indicators, market, query }: Props) {
   const closure = indicators.find((i): i is MetricIndicator => i.id === 'official_closure_rate')
   const risk = indicators.find((i): i is OfficialRiskIndicator => i.id === 'official_risk')
@@ -32,6 +35,8 @@ export default function OfficialIndicators({ indicators, market, query }: Props)
     risk && <OfficialRiskCard key="risk" ind={risk} market={market} query={query} />,
     change && <MarketChangeCard key="change" ind={change} />,
   ].filter(Boolean)
+
+  if (cards.length === 0) return null
 
   return (
     <IndicatorArea type="official" title={T.officialTitle} description={T.officialDescription}>
