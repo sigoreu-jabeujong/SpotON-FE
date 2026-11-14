@@ -1,4 +1,7 @@
+import { Clock } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { MESSAGES } from '../../constants/messages'
+import { SLOW_NOTICE_MS, slowNoticeSlot } from '../../utils/slowNotice'
 import { cn } from '../../utils/cn'
 
 /** 회색 자리 표시 + 은은한 반짝임 (반짝임은 transform만 움직이고, 동작 줄이기면 멈춘다) */
@@ -23,6 +26,7 @@ export default function LoadingSkeleton({
   variant: Variant
   message?: string
 }) {
+  const slow = useSlowNotice()
   return (
     <div role="status" aria-live="polite" aria-busy="true">
       <span className="sr-only">{message}</span>
@@ -57,11 +61,35 @@ export default function LoadingSkeleton({
           ))}
         </div>
       )}
+      {slow && (
+        <p className="mt-3 flex items-center gap-1.5 text-caption text-gray-600">
+          <Clock className="size-4 shrink-0" aria-hidden="true" />
+          {MESSAGES.common.slowLoading}
+        </p>
+      )}
     </div>
   )
 }
 
 /** 표: 머리글 48px + 처음 보이는 5행(실제 행은 두 줄 칸이 있어 약 78px) — 실제 표와 같은 둥근 틀 */
+/**
+ * 로딩이 5초를 넘으면 true — 한 화면에 하나만 (먼저 넘긴 로딩 영역이 안내 자리를 차지, utils/slowNotice)
+ */
+function useSlowNotice(): boolean {
+  const [slow, setSlow] = useState(false)
+  useEffect(() => {
+    const id = Symbol('slow-notice')
+    const timer = window.setTimeout(() => {
+      if (slowNoticeSlot.claim(id)) setSlow(true)
+    }, SLOW_NOTICE_MS)
+    return () => {
+      window.clearTimeout(timer)
+      slowNoticeSlot.release(id)
+    }
+  }, [])
+  return slow
+}
+
 function TableSkeleton() {
   return (
     <div className="overflow-hidden rounded-card border border-gray-300">
