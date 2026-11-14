@@ -50,7 +50,7 @@ export default function SiteFooter() {
               href={PROJECT_LINKS.repository}
               target="_blank"
               rel="noopener noreferrer"
-              className="group mt-3 inline-flex items-center gap-1 rounded font-semibold text-blue-700 motion-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              className="group mt-3 inline-flex items-center gap-1 rounded font-semibold text-blue-700 motion-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 max-md:min-h-11"
             >
               {T.repository}
               <span className="sr-only">{T.newWindow}</span>
