@@ -399,6 +399,16 @@ function buildInterpretation(risk: Risk): RiskInterpretation {
   return {
     label: 'AI 해석',
     method: 'server_sentences_model_ordering',
+    body: [
+      `${risk.query.as_of} 기준 반경 ${r}m의 선택 업종 인허가 기록은 ${n ?? 0}건입니다. 이 내용은 화면 확인을 위한 시연용 자료입니다.`,
+      ...[closure, survival1y, metric('survival_rate_3y')]
+        .filter(isFact)
+        .map(
+          (row) =>
+            `${INDICATOR_NAME[row.id]}은 ${pct(row.value)}%입니다. 관측 기간과 분모가 서로 다르므로 같은 집단의 변화로 해석하지 않습니다.`,
+        ),
+      '실제 주변 업종·시설 규모와 보행 동선을 확인하고 임대료·고정비·예상 고객층을 별도로 검토해 주세요. 공공데이터 기반 참고 정보이며 창업 성공이나 실패를 예측한 결과가 아닙니다.',
+    ].join('\n\n'),
     official_values,
     favorable,
     unfavorable,

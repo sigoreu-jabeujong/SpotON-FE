@@ -46,7 +46,7 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
   }
 
   return (
-    <aside className="sticky top-0 flex h-screen w-sidebar shrink-0 flex-col border-r border-gray-300 bg-gray-0">
+    <aside className="sticky top-0 hidden h-screen w-sidebar shrink-0 flex-col border-r border-gray-300 bg-gray-0 lg:flex">
       <div className="border-b border-gray-300 px-7 py-6">
         <Logo />
       </div>

@@ -33,7 +33,7 @@ export default function ReferenceIndicators({ indicators }: { indicators: RiskIn
     <IndicatorArea type="reference" title={T.referenceTitle} description={T.referenceDescription}>
       <ul className="grid grid-cols-6 gap-3">
         {cards.map((ind, i) => (
-          <li key={ind.id} className={indicatorGridSpan(i, cards.length)}>
+          <li key={ind.id} className={`${indicatorGridSpan(i, cards.length)} max-sm:col-span-full`}>
             <ReferenceCard ind={ind} />
           </li>
         ))}

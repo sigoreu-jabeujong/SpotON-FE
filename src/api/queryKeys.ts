@@ -1,7 +1,7 @@
 import type { CommonQueryParams } from '../types/api'
 import type { ActivityInclude } from '../types/market'
 import type { DataRangeParams } from '../types/meta'
-import type { RiskInclude } from '../types/risk'
+import type { RiskInclude, RiskInterpretHistory } from '../types/risk'
 import type { StoreHistoryParams } from '../types/stores'
 import type { SupportLinksParams } from '../types/support'
 
@@ -15,6 +15,7 @@ export const queryKeys = {
     ['market', 'activity', p, include] as const,
   risk: (p: CommonQueryParams | null, include: RiskInclude[]) => ['risk', p, include] as const,
   /** 받아 둔 AI 해석 (요청하지 않고 저장만 — 진단서·요약 이미지에서 다시 쓴다) */
-  riskInterpretation: (p: CommonQueryParams | null) => ['risk', 'interpret', p] as const,
+  riskInterpretation: (p: CommonQueryParams | null, history?: RiskInterpretHistory, address = '') =>
+    ['risk', 'interpret', 'narrative-v1', p, history ?? null, address] as const,
   supportLinks: (p: SupportLinksParams | null) => ['support-links', p] as const,
 }

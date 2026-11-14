@@ -1,6 +1,6 @@
-import { Navigate, Outlet, useLocation } from 'react-router'
+import { Link, Navigate, Outlet, useLocation } from 'react-router'
 import { MESSAGES } from '../../constants/messages'
-import { ANALYSIS_SECTIONS, ROUTES } from '../../constants/routes'
+import { ANALYSIS_SECTIONS, RESULT_STEPS, ROUTES } from '../../constants/routes'
 import { useActiveSection } from '../../hooks/useActiveSection'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { usePageTitle } from '../../hooks/usePageTitle'
@@ -46,10 +46,29 @@ export default function ResultLayout() {
       <SkipLink target="result-main" />
       <ResultSidebar activeSection={activeSection} />
       <div className="flex min-w-0 flex-1 flex-col">
+        <nav
+          aria-label={MESSAGES.layout.stepsNav}
+          className="flex flex-wrap gap-2 border-b border-gray-300 bg-gray-0 p-4 lg:hidden"
+        >
+          {RESULT_STEPS.map((step) => (
+            <Link
+              key={step.step}
+              to={{ pathname: step.path, search }}
+              aria-current={pathname === step.path ? 'step' : undefined}
+              className="rounded-control px-2 py-2 text-caption text-gray-700 aria-[current=step]:bg-blue-100 aria-[current=step]:font-bold aria-[current=step]:text-blue-700"
+            >
+              {step.step}. {step.label}
+            </Link>
+          ))}
+        </nav>
         <ResultHeader title={meta.title} description={meta.description} />
         {/* 진단 조건 요약 — 스크롤해도 위에 붙어 있어 긴 STEP 02에서도 지금 조건을 알 수 있다 */}
         <ConditionBar />
-        <main id="result-main" tabIndex={-1} className="flex-1 px-10 pt-6 pb-12 focus:outline-none">
+        <main
+          id="result-main"
+          tabIndex={-1}
+          className="flex-1 px-4 pt-6 pb-12 focus:outline-none sm:px-10"
+        >
           <div className="max-w-[1080px]">
             <Outlet />
           </div>

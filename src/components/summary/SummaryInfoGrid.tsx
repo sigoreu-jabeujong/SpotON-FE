@@ -24,7 +24,7 @@ export default function SummaryInfoGrid({ meta }: { meta: ApiMeta | null | undef
   return (
     <section
       aria-label={T.infoTitle}
-      className="grid grid-cols-4 divide-x divide-gray-300 rounded-control border border-gray-300 bg-gray-0"
+      className="grid grid-cols-1 divide-gray-300 rounded-control border border-gray-300 bg-gray-0 sm:grid-cols-2 lg:grid-cols-4 lg:divide-x"
     >
       {cells.map(({ icon: Icon, title, text }) => (
         <div key={title} className="px-5 py-4">

@@ -19,6 +19,9 @@ export const INTERPRET_TIMEOUT_MS = DEFAULT_TIMEOUT_MS
  * F-08 AI 해석 (POST /api/risk/interpret). 사용자가 "AI 해석 보기"를 눌렀을 때만 호출.
  * 본문은 원래 조회 조건만 (query-only) — 자동 재호출하지 않고, 다시 시도는 사용자 버튼으로만
  */
-export function postRiskInterpret(body: RiskInterpretRequest) {
-  return apiPost<RiskInterpretation>('/risk/interpret', body, { timeoutMs: INTERPRET_TIMEOUT_MS })
+export function postRiskInterpret(body: RiskInterpretRequest, signal?: AbortSignal) {
+  return apiPost<RiskInterpretation>('/risk/interpret', body, {
+    timeoutMs: INTERPRET_TIMEOUT_MS,
+    signal,
+  })
 }

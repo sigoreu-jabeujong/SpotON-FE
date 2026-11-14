@@ -3,7 +3,12 @@ import type { ApiResult } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { getRisk, postRiskInterpret } from '../api/risk'
 import type { CommonQueryParams } from '../types/api'
-import type { RiskInclude, RiskInterpretation } from '../types/risk'
+import type {
+  RiskInclude,
+  RiskInterpretation,
+  RiskInterpretHistory,
+  RiskInterpretRequest,
+} from '../types/risk'
 
 /** F-07 공식 지표 + 참고지표 */
 export function useRisk(params: CommonQueryParams | null, include: RiskInclude[] = []) {
@@ -19,16 +24,23 @@ export function useRisk(params: CommonQueryParams | null, include: RiskInclude[]
  * 실패해도 useRisk의 지표는 그대로 남는다.
  */
 export function useRiskInterpret() {
-  return useMutation({ mutationFn: postRiskInterpret })
+  return useMutation({
+    mutationFn: ({ body, signal }: { body: RiskInterpretRequest; signal?: AbortSignal }) =>
+      postRiskInterpret(body, signal),
+  })
 }
 
 /**
  * 이미 받아 둔 AI 해석 (종합 진단 화면에서 "AI 해석 보기"로 받은 결과).
  * 새로 요청하지 않는다 — 받은 적이 없으면 data가 undefined다.
  */
-export function useCachedInterpretation(params: CommonQueryParams | null) {
+export function useCachedInterpretation(
+  params: CommonQueryParams | null,
+  history?: RiskInterpretHistory,
+  address = '',
+) {
   return useQuery<ApiResult<RiskInterpretation>>({
-    queryKey: queryKeys.riskInterpretation(params),
+    queryKey: queryKeys.riskInterpretation(params, history, address),
     queryFn: skipToken,
     staleTime: Infinity,
   })

@@ -54,9 +54,9 @@ export default function ConditionBar() {
     <section
       ref={barRef}
       aria-label={T.label}
-      className="sticky top-0 z-20 border-b border-gray-300 bg-bg/95 px-10 py-2.5 backdrop-blur"
+      className="sticky top-0 z-20 border-b border-gray-300 bg-bg/95 px-4 py-2.5 backdrop-blur sm:px-10"
     >
-      <div className="flex max-w-[1080px] items-center justify-between gap-4">
+      <div className="flex max-w-[1080px] flex-wrap items-center justify-between gap-4">
         <ul className="flex min-w-0 flex-wrap items-center gap-1.5">
           <Chip icon={MapPin} strong>
             {query.address}

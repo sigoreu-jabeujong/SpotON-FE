@@ -581,45 +581,19 @@ function AiBlock({ data }: { data: Data }) {
       ) : (
         <div className="rounded border border-blue-500 px-2 py-1">
           <Badge tone="blue">{ai.label}</Badge>
-          <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1">
-            <AiList
-              title={A.sections.official}
-              items={(ai.official_values ?? []).map((v) => v.text)}
-            />
-            <AiList
-              title={A.sections.missing}
-              items={(ai.missing_data ?? []).map(
-                (v) => `${v.text} — ${indicatorReasonText(v.reason) ?? ''}`,
-              )}
-            />
-            <AiList title={A.sections.favorable} items={(ai.favorable ?? []).map((v) => v.text)} />
-            <AiList
-              title={A.sections.unfavorable}
-              items={(ai.unfavorable ?? []).map((v) => v.text)}
-            />
+          <div className="mt-2 space-y-2 leading-relaxed">
+            {ai.body
+              ?.split(/\n\s*\n/)
+              .filter((p) => p.trim())
+              .map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+            {!ai.body && <p>{T.aiNotRequested}</p>}
           </div>
-          <AiList
-            title={A.sections.checklist}
-            items={(ai.checklist ?? []).map((c) => `□ ${c.item} (${c.why})`)}
-            plain
-          />
           <p className="mt-0.5 text-[9.5px] text-gray-600">{A.notice}</p>
         </div>
       )}
     </Block>
-  )
-}
-
-function AiList({ title, items, plain }: { title: string; items: string[]; plain?: boolean }) {
-  return (
-    <div className="break-inside-avoid">
-      <p className="font-bold">{title}</p>
-      <ul className={plain ? '' : 'list-inside list-disc'}>
-        {items.map((t) => (
-          <li key={t}>{t}</li>
-        ))}
-      </ul>
-    </div>
   )
 }
 

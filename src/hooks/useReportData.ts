@@ -1,4 +1,9 @@
-import { ACTIVITY_INCLUDE, toCommonQueryParams, toStoreHistoryParams } from '../api/params'
+import {
+  ACTIVITY_INCLUDE,
+  toCommonQueryParams,
+  toStoreHistoryParams,
+  toInterpretHistory,
+} from '../api/params'
 import { getCoordinates, useDiagnosisQuery } from './useDiagnosisQuery'
 import { useMarketActivity } from './useMarketActivity'
 import { useCachedInterpretation, useRisk } from './useRisk'
@@ -18,7 +23,7 @@ export function useReportData() {
   const snapshot = useStoreSnapshot(params) // 기준 시점(asOf)이 있을 때만 요청됨
   const activity = useMarketActivity(params, ACTIVITY_INCLUDE)
   const risk = useRisk(params)
-  const ai = useCachedInterpretation(params)
+  const ai = useCachedInterpretation(params, toInterpretHistory(query), query.address)
 
   const queries = [history, nearby, snapshot, activity, risk]
   return {
