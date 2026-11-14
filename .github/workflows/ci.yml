@@ -39,6 +39,10 @@ jobs:
         if: steps.check.outputs.ready == 'true'
         run: npm run lint --if-present
 
+      - name: Unit test
+        if: steps.check.outputs.ready == 'true'
+        run: npm run test --if-present
+
       - name: Type check & Build
         if: steps.check.outputs.ready == 'true'
         run: npm run build
