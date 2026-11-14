@@ -54,7 +54,8 @@ export default function ConditionBar() {
     <section
       ref={barRef}
       aria-label={T.label}
-      className="sticky top-0 z-20 border-b border-gray-300 bg-bg/95 px-4 py-2.5 backdrop-blur sm:px-10"
+      // 휴대폰(768px 미만)에서는 위에 고정하지 않는다 — 칩이 여러 줄이 되면 화면을 크게 가려서 (데스크톱은 고정 그대로)
+      className="sticky top-0 z-20 border-b border-gray-300 bg-bg/95 px-4 py-2.5 backdrop-blur max-md:static sm:px-10"
     >
       <div className="flex max-w-[1080px] flex-wrap items-center justify-between gap-4">
         <ul className="flex min-w-0 flex-wrap items-center gap-1.5">
