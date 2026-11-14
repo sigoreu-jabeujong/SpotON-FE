@@ -303,6 +303,13 @@ export const riskMock: MockHandler = (query) => {
         unverified && !beV142Scenario() ? ['official_closure_rate', 'living_pop'] : ['living_pop'],
     },
   }
+  // BE #142 이후 응답: 선택 지표(market_change·day_night_ratio)는 include로 요청했을 때만 붙는다 (실제 BE와 같게)
+  if (beV142Scenario()) {
+    const include = (query.get('include') ?? '').split(',')
+    data.indicators = data.indicators.filter(
+      (i) => (i.id !== 'market_change' && i.id !== 'day_night_ratio') || include.includes(i.id),
+    )
+  }
   return ok(data, {
     ...DEMO_META,
     source: ['R1', 'R2', 'R5', 'R6'],
