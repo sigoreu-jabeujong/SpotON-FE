@@ -1,7 +1,15 @@
 /** GET /api/market/activity 목업 — 시연용 가상 값 */
 import type { ActivityInclude, MarketActivity } from '../../types/market'
 import type { ApiSubCategory } from '../../types/stores'
-import { DEMO_META, fail, isMockResult, ok, radiusSpace, unknownFlags } from './common'
+import {
+  DEMO_META,
+  fail,
+  isMockResult,
+  ok,
+  radiusSpace,
+  TREND_MIN_YEAR,
+  unknownFlags,
+} from './common'
 import type { MockHandler } from './index'
 import { storeStats } from './nearby'
 
@@ -83,7 +91,10 @@ export const marketActivityMock: MockHandler = (query) => {
       opened: stats.opened12m,
       closed: stats.closed12m,
     },
-    yearly_trend: stats.yearly.filter((y) => y.opened > 0 || y.closed > 0),
+    // 사건이 있는 연도만, 2010년부터 (BE #142 — 빈 연도·2010년 이전을 채우지 않음)
+    yearly_trend: stats.yearly.filter(
+      (y) => y.year >= TREND_MIN_YEAR && (y.opened > 0 || y.closed > 0),
+    ),
     by_sub_category: bySubCategory(stats),
     sales: salesAvailable
       ? {

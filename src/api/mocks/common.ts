@@ -102,3 +102,16 @@ export function radiusSpace(query: URLSearchParams): { radius: number; space: Ap
 }
 
 export const isRestaurant = (query: URLSearchParams) => query.get('category') === 'restaurant'
+
+/**
+ * 목업 전용: 화면 주소의 bk·address에 "v142"가 있으면 BE #142(2026-11-15) 이후 응답 —
+ * /risk에서 official_closure_rate·official_risk가 빠진다 (공식 영역 숨김 확인용)
+ */
+export function beV142Scenario(): boolean {
+  if (typeof window === 'undefined') return false
+  const q = new URLSearchParams(window.location.search)
+  return /v142/i.test(`${q.get('bk') ?? ''} ${q.get('address') ?? ''}`)
+}
+
+/** BE #142: 연도별 개폐업 추이는 2010년부터만 반환한다 (그 이전 연도는 만들지 않음) */
+export const TREND_MIN_YEAR = 2010
