@@ -80,38 +80,51 @@ npm run preview -- --port 5180           # (선택) 배포 결과물을 로컬�
 - 카카오 개발자 콘솔 JavaScript SDK 도메인에 `https://spot-on-fe.vercel.app` **등록 완료** (지도 표시 확인됨)
 
 **BE 배포 후 할 일**
-- [ ] Vercel 환경변수 `VITE_USE_MOCK=false`, `VITE_API_BASE_URL=<BE 주소>`로 바꾸고 Redeploy (Render BE는 6장)
+- [x] Vercel Production 환경변수 `VITE_USE_MOCK=false`, `VITE_API_BASE_URL=<BE 주소>`로 바꾸고 Redeploy (Render BE는 6장)
 - [ ] BE `CORS_ORIGINS`에 `https://spot-on-fe.vercel.app` 추가 (BE 담당)
 - [ ] 배포 주소에서 4장 확인 항목(주소 검색 → STEP 02~04, 새로고침, "시연 데이터" 표시 없음) 다시 확인
 
 ## 6. Render BE 연결
 
-BE 검증 서버가 Render 무료 플랜에 올라가 있다 (BE `docs/fe-render-validation-api-request.md`, 확인일 2026-11-13).
+BE가 Render 무료 플랜에 올라가 있고, Vercel 운영 주소가 이 BE에 연결돼 있다 (확인일 2026-11-14).
 
-- BE 주소: **https://spoton-be-check.onrender.com** (API 문서 `/docs`)
+- BE 주소: **https://spoton-be-free.onrender.com** (API 문서 `/docs`) — 예전 검증 주소는 더 이상 쓰지 않는다
 - API 형식은 그대로다 (`{data, meta, error}`, 경로 `/api/...`)
 
-**Vercel 환경변수 바꾸는 순서** (Settings → Environment Variables, 값은 이 문서에 키를 쓰지 않는다)
+**Vercel 현재 설정** (Settings → Environment Variables, 키 값은 이 문서에 쓰지 않는다)
 
+| 환경 | `VITE_USE_MOCK` | `VITE_API_BASE_URL` | 결과 |
+|---|---|---|---|
+| **Production** (https://spot-on-fe.vercel.app, develop) | `false` | `https://spoton-be-free.onrender.com` (Config) | 실제 BE 연결 |
+| **Preview** (PR 미리보기) | 미설정 → 목업 | 미설정 | BE에 연결하지 않는다 — BE CORS가 운영 도메인만 허용하고, 미리보기 주소는 PR마다 달라 넣을 수 없다 |
+
+**설정을 바꿀 때 순서**
 1. `VITE_USE_MOCK` = `false`
-2. `VITE_API_BASE_URL` = `https://spoton-be-check.onrender.com` — **끝에 `/api`를 붙이지 않는다** (FE가 `/api`를 붙인다)
+2. `VITE_API_BASE_URL` = `https://spoton-be-free.onrender.com` — **끝에 `/api`를 붙이지 않는다** (FE가 `/api`를 붙인다)
 3. `VITE_KAKAO_JS_KEY`는 그대로
 4. **Redeploy** — `VITE_` 값은 빌드할 때 들어가므로 다시 배포해야 반영된다
 5. 배포 주소에서 주소 검색 → STEP 02~04 → 새로고침을 확인하고, "시연 데이터" 배지가 없는지 본다
 
-**BE에 요청할 것 (BE 담당)**
-- BE `CORS_ORIGINS`에 `https://spot-on-fe.vercel.app`을 추가하고 BE 재배포 — 지금은 `http://localhost:5173` 하나만 열려 있어 그 밖의 주소(5180 포함)에서는 브라우저가 막는다
-- PR 미리보기 주소(`spot-on-fe-git-…vercel.app`)는 주소가 PR마다 달라 CORS에 넣지 않는다 → 실제 BE 확인은 develop 배포 주소에서
+**CORS (BE 담당)**
+- BE `CORS_ORIGINS`에 운영 도메인 `https://spot-on-fe.vercel.app`(과 로컬 확인용 주소)이 들어 있어야 한다. 도메인이 바뀌면 BE에 추가를 요청하고 BE를 재배포한다
+- 실제 BE 확인은 운영 주소(develop 배포)나 로컬에서 한다
 
 **알아둘 것**
-- **AI 해석은 검증 서버에서 꺼져 있다** (LLM 키 없음) → "AI 해석 보기"를 누르면 503 `AI_UNAVAILABLE` 안내가 나오는 것이 정상이다. 지표 카드는 그대로 보인다
+- **AI 해석은 꺼져 있을 수 있다** (LLM 키 없음) → "AI 해석 보기"를 누르면 503 `AI_UNAVAILABLE` 안내가 나오는 것이 정상이다. 지표 카드는 그대로 보인다
 - 공식 창업위험도는 링크 안내(`link_only`), 상권변화지표 등은 "확인 중"(pending) 그대로다 — 배포로 수치가 생긴 것이 아니다
 
-**무료 서버 잠자기 (콜드 스타트)**
-- Render 무료 서버는 한동안 요청이 없으면 잠들고, 깨어나는 첫 요청이 30초~1분 걸린다
-- FE 대응: 랜딩·입력 화면이 열리면 `GET /api/health`를 탭당 한 번 조용히 보내 미리 깨운다(실제 서버 모드에서만, `src/api/health.ts`). 첫 주소 검색은 60초까지 기다리고, 3초가 넘으면 버튼에 "서버 준비 중…"이 보인다. 그래도 시간이 넘으면 "서버를 준비하는 중이에요. 잠시 후 다시 시도해 주세요." 안내
-- 나머지 API는 기본 15초 그대로 (결과 화면에 올 즈음에는 서버가 이미 깨어 있다)
+**무료 BE의 특성과 FE 대응**
+- **15분 동안 요청이 없으면 잠든다** → 깨어나는 첫 요청이 30초~1분 걸린다
+- **DB 연결이 1개(풀 1)** → 결과 화면이 처음 열릴 때 부르는 요청 5개(history·data-range·nearby·activity·risk)가 줄을 서서 하나씩 처리된다. 첫 접속에 요청 하나가 8~11초까지 걸린 적이 있다 (2026-11-14 측정)
+- FE 대응
+  - 미리 깨우기: 랜딩·입력 화면이 열리면 `GET /api/health`를 탭당 한 번 조용히 보낸다 (실제 서버 모드에서만, `src/api/health.ts`)
+  - 첫 주소 검색은 60초까지 기다리고, 3초가 넘으면 버튼에 "서버 준비 중…"
+  - 나머지 요청 제한은 **45초** (`DEFAULT_TIMEOUT_MS`, `src/api/client.ts`), AI 해석도 45초
+  - 조회가 시간 초과·연결 실패면 **1번 자동 재시도** (`src/api/retry.ts`) — 재시도 중에도 로딩 화면 그대로. 서버 오류 응답(4xx·5xx)과 AI 해석·주소 검색은 자동 재시도 없음
+  - 로딩이 5초를 넘으면 "처음 불러올 때는 시간이 조금 걸려요" 안내 (한 화면에 하나)
+  - 그래도 시간이 넘으면 "서버를 준비하는 중이에요. 잠시 후 다시 시도해 주세요." + [다시 시도]
 
 **시연 전 체크**
-- [ ] **시연 5분 전에 배포 사이트를 한 번 열어 서버를 깨운다** (랜딩만 열어도 미리 깨우기가 나간다). 시연 주소로 주소 검색을 한 번 해 두면 더 확실하다
-- [ ] "AI 해석 보기"는 503 안내가 나오는 것이 정상이라고 미리 말해 둔다 (검증 서버 설정)
+- [ ] **시연 5분 전에 운영 사이트를 열어 서버를 깨운다** (랜딩만 열어도 미리 깨우기가 나간다). 시연 주소로 결과 화면까지 한 번 열어 두면 DB 연결도 미리 데워져 더 빠르다
+- [ ] 시연 중 15분 넘게 비우지 않기 (다시 잠든다)
+- [ ] "AI 해석 보기"는 503 안내가 나오는 것이 정상이라고 미리 말해 둔다 (LLM 키가 없을 때)
