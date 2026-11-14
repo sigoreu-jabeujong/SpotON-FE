@@ -86,6 +86,9 @@ async function request<T>(
   }
 
   const controller = new AbortController()
+  const cancel = () => controller.abort()
+  init?.signal?.addEventListener('abort', cancel, { once: true })
+  if (init?.signal?.aborted) controller.abort()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
     const res = await fetch(`${BASE_URL}${API_PREFIX}${path}`, {
@@ -104,6 +107,7 @@ async function request<T>(
     }
     throw new ApiRequestError('NETWORK_ERROR', '서버에 연결할 수 없어요', null)
   } finally {
+    init?.signal?.removeEventListener('abort', cancel)
     clearTimeout(timer)
   }
 }
@@ -130,6 +134,14 @@ export function apiGet<T>(path: string, params?: QueryParams, options?: { timeou
 }
 
 /** @param options.timeoutMs 기본 45초 */
-export function apiPost<T>(path: string, body: unknown, options?: { timeoutMs?: number }) {
-  return request<T>(path, { method: 'POST', body: JSON.stringify(body) }, options?.timeoutMs)
+export function apiPost<T>(
+  path: string,
+  body: unknown,
+  options?: { timeoutMs?: number; signal?: AbortSignal },
+) {
+  return request<T>(
+    path,
+    { method: 'POST', body: JSON.stringify(body), signal: options?.signal },
+    options?.timeoutMs,
+  )
 }

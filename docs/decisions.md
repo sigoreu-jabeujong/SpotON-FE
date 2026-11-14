@@ -1,12 +1,13 @@
 # 결정 사항과 미결 사항
 
-> 마지막 갱신: 2026-11-12
+> 마지막 갱신: 2026-11-14
 > 새 결정은 날짜와 함께 위에 추가하고, 관련 문서([api-contract.md](api-contract.md), [screens.md](screens.md), [display-rules.md](display-rules.md))를 따라 고친다.
 
 ## 1. 결정됨
 
 | 날짜 | 결정 | 메모 |
 |---|---|---|
+| 2026-11-14 | **AI 본문은 연결 문단으로, 부족한 자료는 제목 옆 정보 팝오버로** (사용자 요청) | BE #130과 FE를 함께 수정하며 이번 화면은 모바일도 대응한다. 실제 계산 기반 문단 후보를 AI가 선택하고 body/paragraphs/used_indicator_ids/evidence를 반환한다. 화면·진단서의 번호형 구역/근거 칩을 제거하고 기존 배열은 내부 근거로 유지한다. 서울 %p는 BE 계산, 주소·건물·층호까지 캐시 구분, 조건 변경 시 요청 취소. [상세 계약](ai-narrative.md) |
 | 2026-11-13 | **모션 원칙 정리** — 결과 화면(STEP 02~04)은 섹션 등장 효과 없이 처음부터 보인다, 누를 수 없는 요소는 떠오르기 금지, STEP 04 누를 수 있는 카드도 떠오르기 대신 테두리·그림자·색만. **예외: 랜딩 소개 카드 호버(떠오르기)만 유지** (사용자 결정, PR #43) | 랜딩 첫 화면 등장·랜딩 소개 섹션 등장은 유지. AI 해석 결과처럼 사용자가 누른 뒤 나오는 내용의 등장은 유지. 기존 원칙(transform·opacity만, 새 라이브러리 금지, 카운트업 금지, 동작 줄이기면 끄기, 5초 넘는 자동 반복 금지)은 그대로 (지시문 42 "AI 티" 점검) |
 | 2026-11-13 | **AI 요청 `history` 선택 필드 허용 — BE #98** (`{ query, history?: { building_key, floor_unit } }`) | 값은 URL `bk`·`floor` 그대로, 건물 키가 없으면 생략, 층이 없으면 `null`(빈 문자열 금지). `query`에는 여전히 주소·건물 키·층·화면 수치를 넣지 않음. 근거 칩 "건물 이력"·"같은 자리 이력"은 #96과 같이 이동하지 않는 글자 칩 (2026-11-12 query-only 결정을 이 범위로 넓힘) |
 | 2026-11-13 | **미리보기 배포는 Vercel** (https://spot-on-fe.vercel.app, Production Branch = develop) — 새로고침 404 방지 `vercel.json`, `og:image`·`twitter:image`는 이 주소 기준 절대 주소 | 지금은 BE 배포 전이라 Vercel 환경변수 `VITE_USE_MOCK=true`. BE 배포 후 false + BE 주소로 바꾸고 다시 배포, BE `CORS_ORIGINS`에 이 주소 추가 (docs/deploy.md 5장). 최종 제출(공공 GitLab)·정식 도메인이 정해지면 og 주소만 바꾸면 됨 |

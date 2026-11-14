@@ -81,7 +81,13 @@ export default function SummaryPage() {
       {risk.data && params && (
         <SectionErrorBoundary resetKey={search}>
           {/* 본문은 조회 조건(params)만 — 서버가 같은 조건으로 다시 계산한다 */}
-          <AiInterpretation key={search} params={params} history={toInterpretHistory(query)} />
+          <AiInterpretation
+            key={search}
+            params={params}
+            history={toInterpretHistory(query)}
+            address={query.address}
+            meta={risk.data.meta}
+          />
         </SectionErrorBoundary>
       )}
 

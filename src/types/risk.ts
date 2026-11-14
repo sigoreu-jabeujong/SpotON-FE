@@ -163,7 +163,8 @@ export type RiskInterpretRequest = {
  * - recent_open_close: 최근 구간 개업·폐업 기록
  * - avg_operating_months: 기준일에 영업 중인 기록의 개업 후 경과 개월 평균 (점포 수명·생존 기간 아님)
  */
-export type ActivityEvidenceId = 'recent_open_close' | 'avg_operating_months'
+export type ActivityEvidenceId =
+  'recent_open_close' | 'avg_operating_months' | 'yearly_trend' | 'nearby_profile'
 /** BE #98 이력 문맥 근거: 건물 전체 건수 / 같은 자리 영업·폐업과 기간 범위 (최신 자료 기준·지원 업종 전체) */
 export type HistoryEvidenceId = 'building_history' | 'same_spot_history'
 export type EvidenceId = IndicatorId | ActivityEvidenceId | HistoryEvidenceId
@@ -173,6 +174,17 @@ export type InterpretSourcedItem = InterpretItem & { sources: string[] }
 
 /** POST /api/risk/interpret 응답 data (화면 표시 순서) */
 export type RiskInterpretation = {
+  /** 검증된 연결 본문. 구버전 BE와 점진 배포할 때는 없을 수 있다. */
+  body?: string
+  paragraphs?: InterpretItem[]
+  used_indicator_ids?: EvidenceId[]
+  evidence?: {
+    as_of?: string
+    data_updated_at?: string
+    collected_at?: string | null
+    indicators?: { id: string; status: string; value: number | null; source: string[] }[]
+    [key: string]: unknown
+  }
   /** 항상 "AI 해석" */
   label: string
   /** 해석 방식 — 서버가 검증된 문장을 만들고 모델은 순서·체크리스트만 고른다 (server_sentences_model_ordering) */

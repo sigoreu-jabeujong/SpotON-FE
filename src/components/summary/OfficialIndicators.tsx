@@ -37,7 +37,7 @@ export default function OfficialIndicators({ indicators, market, query }: Props)
     <IndicatorArea type="official" title={T.officialTitle} description={T.officialDescription}>
       <ul className="grid grid-cols-6 gap-3">
         {cards.map((card, i) => (
-          <li key={i} className={indicatorGridSpan(i, cards.length)}>
+          <li key={i} className={`${indicatorGridSpan(i, cards.length)} max-sm:col-span-full`}>
             {card}
           </li>
         ))}

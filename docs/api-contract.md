@@ -408,6 +408,8 @@ FE 처리 (지도·표 공통)
 
 ### 2-8. `POST /api/risk/interpret` — AI 해석 (F-08)
 
+2026-11-14 사용자 개편 요청의 현재 표시 계약은 [AI 문단/팝오버](ai-narrative.md)를 따른다. 응답에 `body: string`, `paragraphs: {text,indicator_ids}[]`, `used_indicator_ids: string[]`, `evidence`(시점·필터·수치·분자/분모·출처·기간·활동/이력 집계)를 추가했다. 아래의 기존 official_values/favorable/unfavorable/missing_data/checklist는 내부 근거·호환용으로 유지하며 본문 구역으로 나열하지 않는다. `yearly_trend`·`nearby_profile` 근거 ID를 추가했다. body가 없거나 verification.passed가 true가 아니면 해석 실패로 처리한다. 실제 적용 T와 원천 기준일은 evidence/meta에서 읽으며 주소는 URL 조건에서 표시한다.
+
 > 2026-11-12 BE 실제 계약 반영 (BE `docs/fe-risk-interpret-api-request.md`, `docs/fe-system-audit-request.md` 1번)
 
 사용자가 **"AI 해석 보기"를 눌렀을 때만** 호출한다. 자동 재호출하지 않고, 다시 시도는 사용자 버튼으로만.
