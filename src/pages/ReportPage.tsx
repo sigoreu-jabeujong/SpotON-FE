@@ -150,7 +150,11 @@ export default function ReportPage() {
             <ActivityBlock data={data} />
             <IndicatorsBlock indicators={data.risk.data?.data.indicators ?? []} data={data} />
             <AiBlock data={data} />
-            <FooterBlock metas={metas} isDemo={isDemo} />
+            <FooterBlock
+              metas={metas}
+              isDemo={isDemo}
+              restaurant={data.query.category === 'restaurant'}
+            />
           </>
         )}
       </main>
@@ -622,9 +626,12 @@ function AiList({ title, items, plain }: { title: string; items: string[]; plain
 function FooterBlock({
   metas,
   isDemo,
+  restaurant,
 }: {
   metas: (ApiMeta | null | undefined)[]
   isDemo: boolean
+  /** 음식점이면 세부 업종 기준 안내 한 줄 (카페는 세부 업종이 없어 생략) */
+  restaurant: boolean
 }) {
   const ids = [...new Set(metas.flatMap((m) => parseSourceIds(m?.source)))].sort(
     (a, b) => Number(a.slice(1)) - Number(b.slice(1)),
@@ -637,6 +644,7 @@ function FooterBlock({
         {baseline && <li>{baseline}</li>}
         <li>{MESSAGES.disclaimer}</li>
         <li>{MESSAGES.history.notices[1]}</li>
+        {restaurant && <li>{MESSAGES.store.subCategoryBasis}</li>}
         <li>{MESSAGES.layout.ageNotice}</li>
         {isDemo && <li>{T.demoNotice}</li>}
       </ul>
