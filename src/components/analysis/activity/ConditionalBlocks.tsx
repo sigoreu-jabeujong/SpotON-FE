@@ -23,7 +23,7 @@ export default function ConditionalBlocks({ activity, meta }: Props) {
   const sales = optionalDataState(activity, meta, 'sales')
   const living = optionalDataState(activity, meta, 'living_pop')
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
       <Block title={T.salesTitle} icon={Wallet} notice={T.salesNotice}>
         {sales.kind === 'data' && activity.sales ? (
           <SalesBody sales={activity.sales} />

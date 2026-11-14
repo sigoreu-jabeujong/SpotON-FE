@@ -39,7 +39,7 @@ export default function SharePage() {
 
   return (
     <Card className="flex flex-col gap-10">
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-4 max-md:grid-cols-2 max-sm:gap-3">
         <ActionCard
           icon={FileDown}
           title={T.cards.pdf.title}
