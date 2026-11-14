@@ -133,6 +133,8 @@ npm run build         # 타입 검사 + 빌드
 npm run test          # 핵심 함수 자동 테스트 (Vitest)
 ```
 
+PR·develop push 때 GitHub Actions(`Frontend CI`)가 린트 → 단위 테스트 → 타입 검사·빌드를 차례로 실행한다.
+
 ## 폴더 구조
 
 ```text
