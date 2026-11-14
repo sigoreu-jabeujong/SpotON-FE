@@ -35,13 +35,13 @@ export default function LandingPage() {
         <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-0">
           <LandingMap />
 
-          <header className="relative mx-auto w-full max-w-[1200px] px-10 pt-10">
+          <header className="relative mx-auto w-full max-w-[1200px] px-10 pt-10 max-md:px-4 max-md:pt-6">
             <Logo />
           </header>
 
-          <div className="relative mx-auto flex w-full max-w-[1200px] flex-1 flex-col px-10 pt-16">
+          <div className="relative mx-auto flex w-full max-w-[1200px] flex-1 flex-col px-10 pt-16 max-md:flex-none max-md:px-4 max-md:pt-8">
             <div className={rise} style={delay(0)}>
-              <h1 className="text-[2.5rem] leading-tight font-bold text-gray-900">
+              <h1 className="text-[2.5rem] leading-tight font-bold text-gray-900 max-sm:text-[2rem]">
                 {T.titleLine1}
                 <br />
                 {T.titleLine2}
@@ -67,10 +67,10 @@ export default function LandingPage() {
           </div>
 
           {/* 아래에 소개가 더 있다는 작은 힌트 (이용 대상·면책 문구는 하단 SiteFooter로 옮김) */}
-          <div className="relative mx-auto w-full max-w-[1200px] px-10 pt-10 pb-8">
+          <div className="relative mx-auto w-full max-w-[1200px] px-10 pt-10 pb-8 max-md:order-2 max-md:px-4 max-md:pt-2">
             <a
               href="#landing-features-title"
-              className="group inline-flex items-center gap-1 rounded text-caption text-gray-600 motion-colors hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              className="group inline-flex items-center gap-1 rounded text-caption text-gray-600 motion-colors hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 max-md:min-h-11"
             >
               {MESSAGES.landingIntro.scrollHint}
               <ChevronDown className="size-4" aria-hidden="true" />
@@ -92,7 +92,7 @@ function LandingMap() {
     return (
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute top-[16%] right-[3%] w-[52%] max-w-[820px] ${rise}`}
+        className={`pointer-events-none absolute top-[16%] right-[3%] w-[52%] max-w-[820px] max-md:relative max-md:top-auto max-md:right-auto max-md:order-1 max-md:mx-auto max-md:mt-8 max-md:w-[86%] ${rise}`}
         style={delay(3)}
       >
         {IMAGES.landingGradient && (

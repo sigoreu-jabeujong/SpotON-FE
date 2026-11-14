@@ -13,14 +13,15 @@ const T = MESSAGES.siteFooter
 export default function SiteFooter() {
   return (
     <footer className="border-t border-gray-300 bg-gray-0">
-      <div className="mx-auto grid w-full max-w-[1200px] grid-cols-12 gap-10 px-10 py-12 text-caption text-gray-600">
-        <div className="col-span-4 flex flex-col gap-3">
+      {/* 휴대폰: 세 칸을 한 단으로 (데스크톱 12칸 배치는 그대로) */}
+      <div className="mx-auto grid w-full max-w-[1200px] grid-cols-12 gap-10 px-10 py-12 text-caption text-gray-600 max-md:grid-cols-1 max-md:gap-8 max-md:px-4 max-md:py-10">
+        <div className="col-span-4 flex flex-col gap-3 max-md:col-span-full">
           <Logo />
           <p className="text-gray-900">{MESSAGES.landing.slogan}</p>
           <p>{T.team}</p>
         </div>
 
-        <section aria-labelledby="footer-usage" className="col-span-4">
+        <section aria-labelledby="footer-usage" className="col-span-4 max-md:col-span-full">
           <h2 id="footer-usage" className="text-body font-bold text-gray-900">
             {T.usageTitle}
           </h2>
@@ -31,7 +32,10 @@ export default function SiteFooter() {
           </ul>
         </section>
 
-        <section aria-labelledby="footer-data" className="col-span-4 flex flex-col gap-6">
+        <section
+          aria-labelledby="footer-data"
+          className="col-span-4 flex flex-col gap-6 max-md:col-span-full"
+        >
           <div>
             <h2 id="footer-data" className="text-body font-bold text-gray-900">
               {T.dataTitle}
@@ -46,7 +50,7 @@ export default function SiteFooter() {
               href={PROJECT_LINKS.repository}
               target="_blank"
               rel="noopener noreferrer"
-              className="group mt-3 inline-flex items-center gap-1 rounded font-semibold text-blue-700 motion-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              className="group mt-3 inline-flex items-center gap-1 rounded font-semibold text-blue-700 motion-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 max-md:min-h-11"
             >
               {T.repository}
               <span className="sr-only">{T.newWindow}</span>

@@ -52,13 +52,14 @@ export default function InputPage() {
       {/* 첫 화면은 그대로, 하단 안내는 공통 SiteFooter로 */}
       <div className="relative flex min-h-screen flex-col overflow-hidden bg-bg">
         <InputBackground />
-        <header className="relative mx-auto w-full max-w-[1200px] px-10 pt-10">
+        <header className="relative mx-auto w-full max-w-[1200px] px-10 pt-10 max-md:px-4 max-md:pt-6">
           <Logo />
         </header>
         <main
           id={MAIN_ID}
           tabIndex={-1}
-          className="relative mx-auto flex w-full max-w-[1200px] flex-1 items-center justify-between gap-12 px-10 py-12 focus:outline-none"
+          // 휴대폰(768px 미만): 소개와 입력 카드를 한 단으로 (데스크톱 두 단 배치는 그대로)
+          className="relative mx-auto flex w-full max-w-[1200px] flex-1 items-center justify-between gap-12 px-10 py-12 focus:outline-none max-md:flex-col max-md:items-stretch max-md:gap-8 max-md:px-4 max-md:py-8"
         >
           <InputIntro />
           <DiagnosisForm

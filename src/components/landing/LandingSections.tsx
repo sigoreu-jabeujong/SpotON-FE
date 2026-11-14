@@ -33,7 +33,7 @@ export default function LandingSections() {
   return (
     <div className="bg-bg">
       <Section id="landing-features" title={T.featuresTitle}>
-        <ul className="grid grid-cols-4 gap-4">
+        <ul className="grid grid-cols-4 gap-4 max-md:grid-cols-2 max-sm:grid-cols-1">
           {T.features.map((f, i) => {
             const Icon = FEATURE_ICONS[i]
             return (
@@ -55,7 +55,7 @@ export default function LandingSections() {
       </Section>
 
       <Section id="landing-steps" title={T.stepsTitle}>
-        <ol className="grid grid-cols-3 gap-4">
+        <ol className="grid grid-cols-3 gap-4 max-md:grid-cols-1">
           {T.steps.map((s, i) => {
             const Icon = STEP_ICONS[i]
             return (
@@ -77,7 +77,7 @@ export default function LandingSections() {
                 {i < T.steps.length - 1 && (
                   // 단계 사이 화살표 — 카드에 마우스를 올리면 오른쪽으로 살짝 (arrow-nudge)
                   <ArrowRight
-                    className="absolute top-1/2 -right-[14px] z-10 size-5 -translate-y-1/2 arrow-nudge rounded-full bg-bg text-gray-600"
+                    className="absolute top-1/2 -right-[14px] z-10 size-5 -translate-y-1/2 arrow-nudge rounded-full bg-bg text-gray-600 max-md:hidden"
                     aria-hidden="true"
                   />
                 )}
@@ -105,10 +105,10 @@ export default function LandingSections() {
         </p>
       </Section>
 
-      <Reveal className="mx-auto w-full max-w-[1200px] px-10 pt-6 pb-24">
+      <Reveal className="mx-auto w-full max-w-[1200px] px-10 pt-6 pb-24 max-md:px-4">
         <section
           aria-labelledby="landing-cta-title"
-          className="flex items-center justify-between gap-8 rounded-card bg-blue-100 px-10 py-10"
+          className="flex items-center justify-between gap-8 rounded-card bg-blue-100 px-10 py-10 max-md:flex-col max-md:items-start max-md:gap-5 max-md:px-6 max-md:py-8"
         >
           <div>
             <h2 id="landing-cta-title" className="text-section font-bold text-gray-900">
@@ -141,7 +141,7 @@ function Section({
   children: ReactNode
 }) {
   return (
-    <Reveal className="mx-auto w-full max-w-[1200px] px-10 py-14">
+    <Reveal className="mx-auto w-full max-w-[1200px] px-10 py-14 max-md:px-4 max-md:py-10">
       <section aria-labelledby={`${id}-title`}>
         <h2 id={`${id}-title`} className="scroll-mt-8 text-section font-bold text-gray-900">
           {title}

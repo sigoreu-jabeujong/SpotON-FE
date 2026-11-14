@@ -107,7 +107,7 @@ export default function ReportPage() {
         <div className="mx-auto flex max-w-[210mm] flex-wrap items-center justify-between gap-3 px-4 py-3">
           <Link
             to={{ pathname: ROUTES.share, search: toDiagnosisSearch(query) }}
-            className="flex items-center gap-1 text-caption font-semibold text-gray-900 hover:text-blue-700"
+            className="flex items-center gap-1 text-caption font-semibold text-gray-900 hover:text-blue-700 max-md:min-h-11"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
             {T.back}

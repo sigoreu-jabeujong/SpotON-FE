@@ -109,7 +109,7 @@ function TableSkeleton() {
 
 function CardsSkeleton({ count }: { count: number }) {
   return (
-    <div className="grid grid-cols-4 gap-3">
+    <div className="grid grid-cols-4 gap-3 max-md:grid-cols-2 max-sm:grid-cols-1">
       {Array.from({ length: count }, (_, i) => (
         // 실제 점포 현황 카드 높이(135px)에 맞춤
         <div

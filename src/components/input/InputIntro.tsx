@@ -8,7 +8,7 @@ const FEATURE_ICONS: LucideIcon[] = [ChartNoAxesColumn, MapIcon, ClipboardList]
 export default function InputIntro() {
   return (
     <div className="max-w-[420px]">
-      <h1 className="text-[2.25rem] leading-tight font-bold text-gray-900">
+      <h1 className="text-[2.25rem] leading-tight font-bold text-gray-900 max-sm:text-[1.75rem]">
         {T.introTitleLine1}
         <br />
         {T.introTitleLine2}

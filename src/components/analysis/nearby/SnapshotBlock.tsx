@@ -77,7 +77,7 @@ function SnapshotResult({
       <p className="rounded-control bg-blue-100 px-5 py-4 text-subtitle font-bold text-blue-700">
         {data.summary_text}
       </p>
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-3 max-md:grid-cols-2 max-sm:grid-cols-1">
         <StatCard icon={Store} label={T.cards.total} value={count(data.total_at_as_of)} />
         <StatCard icon={CircleCheck} label={T.cards.stillOpen} value={count(data.still_open)} />
         <StatCard icon={CircleX} label={T.cards.closedSince} value={count(data.closed_since)} />
