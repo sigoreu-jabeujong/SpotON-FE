@@ -1,8 +1,16 @@
+import { useId } from 'react'
 import type { RiskInterpretation } from '../../../types/risk'
 import { MESSAGES } from '../../../constants/messages'
+import AiChecklist from './AiChecklist'
+import { checklistItems } from './checklist'
 
-/** Verified server prose as plain text, with no evidence chips or numbered sections. */
+/**
+ * Verified server prose as plain text, with no evidence chips or numbered sections.
+ * 본문 아래에 서버가 보낸 "계약 전 확인사항"(item + why)을 그대로 — 비어 있으면 블록을 숨긴다
+ */
 export default function AiResultCard({ result }: { result: RiskInterpretation }) {
+  const checklist = checklistItems(result)
+  const checklistTitleId = useId()
   return (
     <article
       aria-label={result.label}
@@ -16,6 +24,14 @@ export default function AiResultCard({ result }: { result: RiskInterpretation })
             <p key={index}>{paragraph}</p>
           ))}
       </div>
+      {checklist.length > 0 && (
+        <section aria-labelledby={checklistTitleId} className="mt-7">
+          <h3 id={checklistTitleId} className="mb-3 text-subtitle font-bold text-gray-900">
+            {MESSAGES.ai.checklistTitle}
+          </h3>
+          <AiChecklist items={checklist} />
+        </section>
+      )}
       <p className="mt-6 border-t border-gray-300 pt-4 text-caption leading-relaxed text-gray-600">
         {MESSAGES.ai.notice}
       </p>

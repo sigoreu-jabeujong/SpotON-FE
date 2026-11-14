@@ -638,6 +638,8 @@ export const MESSAGES = {
     otherEvidence: '기타 근거',
     sources: '출처',
     goToIndicator: (name: string) => `${name} 카드로 이동`,
+    /** AI 본문(문단) 아래 체크리스트 소제목 — 화면·진단서 공통 */
+    checklistTitle: '계약 전 확인사항',
     checklistHint: '확인한 항목을 체크해 보세요. 체크 상태는 저장되지 않아요.',
     checklistDone: (done: number, total: number) => `${total}개 중 ${done}개 확인`,
     model: '모델',
