@@ -81,7 +81,7 @@ export default function DiagnosisForm({
       onSubmit={handleSubmit}
       noValidate
       aria-labelledby="diagnosis-form-title"
-      className="w-full max-w-[530px] rounded-card bg-gray-0 p-8 shadow-card"
+      className="w-full max-w-[530px] rounded-card bg-gray-0 p-8 shadow-card max-md:max-w-none max-sm:p-5"
     >
       <h2 id="diagnosis-form-title" className="text-section font-bold text-gray-900">
         {T.cardTitle}
