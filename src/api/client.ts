@@ -23,10 +23,15 @@ const REAL_API_PATHS: ReadonlySet<string> = new Set(
 if (import.meta.env.DEV && REAL_API_PATHS.size > 0) {
   console.info(`[api] 실제 서버: ${[...REAL_API_PATHS].join(', ')}`)
 }
-const TIMEOUT_MS = 15000
+/**
+ * 기본 요청 제한 시간 — 무료 BE(Render)는 DB 연결이 1개라 결과 화면의 요청 5개가 줄을 서서
+ * 첫 접속에 하나당 8~11초까지 걸린다(2026-11-14 운영 측정). 15초면 아슬아슬해 45초로 둔다.
+ * 목업 모드는 네트워크를 쓰지 않아 상관없다. 바꿀 때는 이 한 곳만 고친다
+ */
+export const DEFAULT_TIMEOUT_MS = 45000
 /**
  * 잠든 무료 서버(Render)가 깨어나는 데 30초~1분 걸린다 — 미리 깨우기(health)와 첫 주소 검색만 이 시간을 쓴다.
- * 나머지 API는 기본 15초 그대로 (결과 화면에 들어올 즈음엔 서버가 이미 깨어 있다)
+ * 나머지 API는 기본 45초 (DEFAULT_TIMEOUT_MS)
  */
 export const COLD_START_TIMEOUT_MS = 60000
 
@@ -71,7 +76,7 @@ function toQueryString(params?: QueryParams): string {
 async function request<T>(
   path: string,
   init?: RequestInit,
-  timeoutMs: number = TIMEOUT_MS,
+  timeoutMs: number = DEFAULT_TIMEOUT_MS,
 ): Promise<ApiResult<T>> {
   // 조건에 import.meta.env를 직접 써야 빌드 때 false로 바뀌어 이 블록이 제거된다
   if (import.meta.env.VITE_USE_MOCK === 'true' && !REAL_API_PATHS.has(path.split('?')[0])) {
@@ -119,12 +124,12 @@ function unwrap<T>(body: ApiResponse<T>, status: number): ApiResult<T> {
   return { data: body.data, meta: body.meta ?? null }
 }
 
-/** @param options.timeoutMs 기본 15초. 잠든 무료 서버를 깨우는 첫 요청(health·첫 주소 검색)만 늘린다 */
+/** @param options.timeoutMs 기본 45초. 잠든 무료 서버를 깨우는 첫 요청(health·첫 주소 검색)만 60초 */
 export function apiGet<T>(path: string, params?: QueryParams, options?: { timeoutMs?: number }) {
   return request<T>(`${path}${toQueryString(params)}`, undefined, options?.timeoutMs)
 }
 
-/** @param options.timeoutMs 기본 15초. AI 해석처럼 오래 걸리는 요청만 늘린다 */
+/** @param options.timeoutMs 기본 45초 */
 export function apiPost<T>(path: string, body: unknown, options?: { timeoutMs?: number }) {
   return request<T>(path, { method: 'POST', body: JSON.stringify(body) }, options?.timeoutMs)
 }
