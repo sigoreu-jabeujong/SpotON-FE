@@ -1,4 +1,4 @@
-import { Info, Search } from 'lucide-react'
+import { Info, RefreshCw, Search } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { toDataRangeParams } from '../../api/params'
 import {
@@ -16,6 +16,7 @@ import { useDataRange } from '../../hooks/useDataRange'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import type { DiagnosisQuery } from '../../types/diagnosis'
 import { cn } from '../../utils/cn'
+import InfoPopover from '../common/InfoPopover'
 import AsOfPicker from './AsOfPicker'
 import { BRAND_API_ENABLED } from '../../api/analysisProfile'
 import {
@@ -23,7 +24,7 @@ import {
   BRAND_UNKNOWN_OPTIONS,
   BRAND_EVIDENCE_OPTIONS,
 } from '../../constants/diagnosis'
-import { brandSelection } from '../../utils/brands'
+import { brandScopeHint, brandSelection } from '../../utils/brands'
 
 const T = MESSAGES.filter
 
@@ -83,6 +84,7 @@ function FilterForm({
   // 적용된 업종·세부 업종 기준 (주변 조회와 같은 조건)
   const dataRange = useDataRange(toDataRangeParams(query))
   const changed = !sameDraft(draft, applied)
+  const scopeHint = brandScopeHint(draft)
   const isRestaurant = query.category === 'restaurant'
 
   const toggleSub = (id: SubCategory) =>
@@ -178,7 +180,26 @@ function FilterForm({
 
         {BRAND_API_ENABLED && (
           <>
-            <Group legend={MESSAGES.brand.scope} hint={MESSAGES.brand.membershipLimit} segmented>
+            <Group
+              legend={MESSAGES.brand.scope}
+              legendExtra={<BrandFilterInfo />}
+              segmented
+              // 브랜드·체인 + 미확인 포함이면 미확인도 함께 나온다는 안내 (BE·필터 의미는 그대로)
+              below={
+                scopeHint && (
+                  <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-micro text-gray-900">
+                    <span>{MESSAGES.brand[scopeHint]}</span>
+                    <button
+                      type="button"
+                      onClick={() => onApply({ ...draft, brandUnknown: 'exclude' })}
+                      className="inline-flex min-h-8 items-center rounded-full border border-blue-500 px-3 font-semibold text-blue-700 motion-colors hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 max-md:min-h-11"
+                    >
+                      {MESSAGES.brand.chainExcludeUnknownAction}
+                    </button>
+                  </p>
+                )
+              }
+            >
               {BRAND_SCOPE_OPTIONS.map((option) => (
                 <Choice
                   key={option.id}
@@ -197,15 +218,7 @@ function FilterForm({
                 </Choice>
               ))}
             </Group>
-            <Group
-              legend={MESSAGES.brand.unknown}
-              hint={
-                draft.brandUnknown === 'exclude'
-                  ? MESSAGES.brand.unknownExcluded
-                  : MESSAGES.brand.unknownIncluded
-              }
-              segmented
-            >
+            <Group legend={MESSAGES.brand.unknown} segmented>
               {BRAND_UNKNOWN_OPTIONS.map((option) => (
                 <Choice
                   key={option.id}
@@ -219,7 +232,7 @@ function FilterForm({
                 </Choice>
               ))}
             </Group>
-            <Group legend={MESSAGES.brand.evidence} hint={MESSAGES.brand.confirmedLimit} segmented>
+            <Group legend={MESSAGES.brand.evidence} segmented>
               {BRAND_EVIDENCE_OPTIONS.map((option) => (
                 <Choice
                   key={option.id}
@@ -262,10 +275,19 @@ function FilterForm({
             {BRAND_API_ENABLED ? '' : T.includeUnknownHint}
           </span>
         </label>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
           <p className="flex items-center gap-1 text-micro text-gray-600">
-            <Info className="size-3.5" aria-hidden="true" />
+            <Info className="size-3.5 shrink-0" aria-hidden="true" />
             {T.scopeNotice}
+          </p>
+          {/* 바뀐 조건이 아직 적용되지 않았음을 글자로도 알림 (색만으로 구분하지 않기). 알림 영역은 늘 두고 내용만 바꾼다 */}
+          <p aria-live="polite" className="text-caption font-semibold text-blue-700 empty:-ml-3">
+            {changed && (
+              <span className="flex items-center gap-1 transition-opacity duration-(--duration-base) starting:opacity-0">
+                <RefreshCw className="size-3.5 shrink-0" aria-hidden="true" />
+                {T.pendingApply}
+              </span>
+            )}
           </p>
           <button
             type="submit"
@@ -287,14 +309,57 @@ function FilterForm({
   )
 }
 
+/** 브랜드 세 그룹의 긴 설명을 한곳에 — 예전 legend 옆 설명 문구 그대로, 위치만 옮김 */
+function BrandFilterInfo() {
+  const B = MESSAGES.brand
+  const unknownLabel = (id: 'include' | 'exclude') =>
+    BRAND_UNKNOWN_OPTIONS.find((o) => o.id === id)?.label
+  const sections: { title: string; lines: string[] }[] = [
+    { title: B.scope, lines: [B.membershipLimit] },
+    {
+      title: B.unknown,
+      lines: [
+        `${unknownLabel('include')} · ${B.unknownIncluded}`,
+        `${unknownLabel('exclude')} · ${B.unknownExcluded}`,
+      ],
+    },
+    { title: B.evidence, lines: [B.confirmedLimit] },
+  ]
+  return (
+    <InfoPopover
+      triggerLabel={B.filterInfoTrigger}
+      title={B.filterInfoTitle}
+      closeLabel={B.filterInfoClose}
+      className="ml-1"
+    >
+      {sections.map((s) => (
+        <span key={s.title} className="block">
+          <strong className="mb-1 block font-bold">{s.title}</strong>
+          {s.lines.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+        </span>
+      ))}
+    </InfoPopover>
+  )
+}
+
 function Group({
   legend,
+  legendExtra,
   hint,
   segmented,
+  below,
   children,
 }: {
   legend: string
+  /** legend 글자 옆에 붙는 요소 (예: ⓘ 설명 버튼) */
+  legendExtra?: ReactNode
   hint?: string
+  /** 선택지 아래 한 줄 안내 */
+  below?: ReactNode
   /** 하나만 고르는 선택지 — 회색 틀 안의 세그먼트 모양 */
   segmented?: boolean
   children: ReactNode
@@ -303,6 +368,7 @@ function Group({
     <fieldset className="min-w-0 flex-auto border-b border-gray-300 px-4 py-3 not-last:border-r">
       <legend className="float-left mb-2 w-full text-micro font-semibold text-gray-600">
         {legend}
+        {legendExtra}
         {hint && <span className="ml-1 font-normal">· {hint}</span>}
       </legend>
       <div
@@ -313,6 +379,7 @@ function Group({
       >
         {children}
       </div>
+      {below}
     </fieldset>
   )
 }

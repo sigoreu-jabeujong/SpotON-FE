@@ -49,4 +49,13 @@ export function brandEmptyMessage(query: BrandSelection): string | null {
     : MESSAGES.brand.emptyExcluded
 }
 
+/**
+ * 조회 조건 초안에 붙일 안내 문구 키 (MESSAGES.brand의 키) — 없으면 null.
+ * 브랜드·체인 + 미확인 포함(기본값)이면 미확인 점포도 함께 나와 결과가 거의 그대로라 알려 준다.
+ */
+export function brandScopeHint(draft: BrandSelection): 'chainIncludesUnknown' | null {
+  const q = brandSelection(draft)
+  return q.brandScope === 'chain' && q.brandUnknown === 'include' ? 'chainIncludesUnknown' : null
+}
+
 export const brandMode = BRAND_API_ENABLED
