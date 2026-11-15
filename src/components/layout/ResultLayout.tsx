@@ -10,6 +10,9 @@ import ResultFooter from './ResultFooter'
 import ResultHeader from './ResultHeader'
 import SkipLink from '../common/SkipLink'
 import ResultSidebar from './ResultSidebar'
+import BrandStatusNotice, { BrandResultBoundary } from '../common/BrandStatusNotice'
+import { BRAND_API_ENABLED } from '../../api/analysisProfile'
+import InfoBox from '../common/InfoBox'
 
 const SECTION_IDS = ANALYSIS_SECTIONS.map((s) => s.id)
 
@@ -32,12 +35,26 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
  */
 export default function ResultLayout() {
   const { pathname } = useLocation()
-  const { isReady, search } = useDiagnosisQuery()
-  const baseline = useResultBaseline()
+  const { isReady, search, query } = useDiagnosisQuery()
+  const baseline = useResultBaseline(
+    BRAND_API_ENABLED || query.brandUrlNotice !== 'unsupported_brand',
+  )
   const activeSection = useActiveSection(SECTION_IDS, pathname === ROUTES.analysis)
   usePageTitle(titleOf(pathname))
 
   if (!isReady) return <Navigate to={{ pathname: ROUTES.input, search }} replace />
+  if (!BRAND_API_ENABLED && query.brandUrlNotice === 'unsupported_brand')
+    return (
+      <main className="p-6">
+        <InfoBox title={MESSAGES.brand.title} description={MESSAGES.brand.unsupportedUrl} />
+        <Link
+          className="mt-3 inline-flex min-h-11 items-center underline"
+          to={{ pathname: ROUTES.input, search }}
+        >
+          {MESSAGES.brand.resetConditions}
+        </Link>
+      </main>
+    )
 
   const meta = PAGE_META[pathname] ?? MESSAGES.resultPages.analysis
 
@@ -70,7 +87,10 @@ export default function ResultLayout() {
           className="flex-1 px-4 pt-6 pb-12 focus:outline-none sm:px-10"
         >
           <div className="max-w-[1080px]">
-            <Outlet />
+            <BrandStatusNotice />
+            <BrandResultBoundary>
+              <Outlet />
+            </BrandResultBoundary>
           </div>
         </main>
         <ResultFooter baseline={baseline} />

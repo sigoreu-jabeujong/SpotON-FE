@@ -25,6 +25,8 @@ export const coordKey = (m: Pick<NearbyMarker, 'lat' | 'lng'>) => `${m.lat},${m.
 export function groupMarkers(markers: readonly NearbyMarker[]): MarkerGroup[] {
   const byKey = new Map<string, MarkerGroup>()
   for (const m of markers) {
+    // Nullable coordinates stay in the list/count; no invented point is drawn.
+    if (m.lat === null || m.lng === null) continue
     const key = coordKey(m)
     const g = byKey.get(key)
     if (g) {

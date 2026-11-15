@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  readonly VITE_ANALYSIS_API_VERSION?: 'v1' | 'v2'
   readonly VITE_API_BASE_URL?: string
   readonly VITE_USE_MOCK?: string
   /** 목업 모드에서 실제 서버로 부를 API 경로 (쉼표 목록, 예: "/geocode,/stores/history") */

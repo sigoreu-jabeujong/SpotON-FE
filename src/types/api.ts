@@ -1,4 +1,5 @@
 import type { Category, FranchiseFilter, RadiusMeters, SubCategory } from '../constants/diagnosis'
+import type { BrandClassification, BrandFilters } from './brands'
 
 /**
  * API 공통 응답 형식 { data, meta, error }
@@ -54,6 +55,19 @@ export type ApiDataVersion = {
  * 응답 공통 메타 정보. 서버가 빈 객체 {}를 줄 수도 있어 모든 필드를 선택·null 허용으로 둔다.
  */
 export type ApiMeta = {
+  brand_classification?: BrandClassification | null
+  brand_filters?: BrandFilters | null
+  brand_counts?: {
+    estimated: number
+    conflict: number
+    stale_or_drift: number
+    unknown: number
+  } | null
+  brand_counts_scope?: string
+  prompt_version?: string
+  prompt_sha256?: string
+  context_hash?: string
+  data_version_hash?: string
   /** 출처 번호 배열 (R1~R19) */
   source?: string[] | null
   /** 기준일 YYYY-MM-DD (기준 시점 월의 말일) */
@@ -125,7 +139,7 @@ export type ApiResponse<T> = {
 export type ApiArea = 'all' | 'lt33' | '33to66' | '66to99' | 'gte99'
 
 /** /stores/nearby·/stores/snapshot·/market/activity·/risk 공통 조회 파라미터 */
-export type CommonQueryParams = {
+export type V1QueryParams = {
   lat: number
   lng: number
   category: Category
@@ -142,4 +156,31 @@ export type CommonQueryParams = {
    */
   include_unknown_area?: boolean
   include_unknown_franchise?: boolean
+  brand_scope?: never
+  brand_unknown?: never
+  brand_evidence?: never
+  brand_time_basis?: never
+  operation_type?: never
 }
+
+export type V2QueryParams = Omit<
+  V1QueryParams,
+  | 'franchise'
+  | 'include_unknown_franchise'
+  | 'brand_scope'
+  | 'brand_unknown'
+  | 'brand_evidence'
+  | 'brand_time_basis'
+  | 'operation_type'
+> & {
+  brand_scope: BrandFilters['brand_scope']
+  brand_unknown: BrandFilters['brand_unknown']
+  brand_evidence: BrandFilters['brand_evidence']
+  brand_time_basis: 'observed_record'
+  operation_type: 'any'
+  franchise?: never
+  include_unknown_franchise?: never
+  include_unknown?: never
+}
+
+export type CommonQueryParams = V1QueryParams | V2QueryParams

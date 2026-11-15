@@ -6,6 +6,7 @@ import {
   FRANCHISE_OPTIONS,
 } from '../../../constants/diagnosis'
 import { MESSAGES } from '../../../constants/messages'
+import { brandConditionSummary } from '../../../utils/brands'
 
 export default function AiConditions({
   address,
@@ -35,11 +36,24 @@ export default function AiConditions({
       FACILITY_SIZE_OPTIONS.find((v) => v.id === (params.area ?? 'all'))?.range ?? T.unknown,
     ],
     [
-      T.franchise,
-      FRANCHISE_OPTIONS.find((v) => v.id === (params.franchise ?? 'all'))?.label ?? T.unknown,
+      params.brand_scope ? MESSAGES.brand.title : T.franchise,
+      params.brand_scope
+        ? brandConditionSummary({
+            brandScope: params.brand_scope,
+            brandUnknown: params.brand_unknown,
+            brandEvidence: params.brand_evidence,
+          })
+        : (FRANCHISE_OPTIONS.find((v) => v.id === (params.franchise ?? 'all'))?.label ?? T.unknown),
     ],
     [T.unknownArea, params.include_unknown_area !== false ? T.included : T.excluded],
-    [T.unknownFranchise, params.include_unknown_franchise !== false ? T.included : T.excluded],
+    ...(params.brand_scope
+      ? []
+      : [
+          [
+            T.unknownFranchise,
+            params.include_unknown_franchise !== false ? T.included : T.excluded,
+          ],
+        ]),
     [T.dataUpdatedAt, dataUpdatedAt || T.unknown],
   ]
   return (

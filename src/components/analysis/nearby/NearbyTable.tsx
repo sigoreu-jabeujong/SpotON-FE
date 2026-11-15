@@ -36,7 +36,13 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
   const { visible, shown, total, hasMore, showMore } = useShowMore(markers)
   // API 순서가 가까운 순인지 확인만 한다 (값을 바꾸거나 다시 정렬하지 않음)
   const nearestFirst = useMemo(
-    () => markers.every((m, i) => i === 0 || markers[i - 1].distance_m <= m.distance_m),
+    () =>
+      markers.every(
+        (m, i) =>
+          m.distance_m !== null &&
+          (i === 0 ||
+            (markers[i - 1].distance_m !== null && markers[i - 1].distance_m! <= m.distance_m)),
+      ),
     [markers],
   )
 
@@ -71,7 +77,9 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
               return (
                 <tr
                   key={id}
-                  onClick={() => onSelect(id)}
+                  onClick={() => {
+                    if (m.lat !== null && m.lng !== null) onSelect(id)
+                  }}
                   className={cn(
                     'cursor-pointer border-t border-gray-300/60 motion-colors first:border-t-0',
                     selected ? 'bg-blue-100' : 'hover:bg-blue-100/50',
@@ -81,6 +89,7 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                   <th scope="row" className="px-3 py-4 font-semibold text-gray-900">
                     {/* 키보드: Tab으로 이동해 Enter → 지도에서 보기 */}
                     <button
+                      disabled={m.lat === null || m.lng === null}
                       type="button"
                       aria-pressed={selected}
                       aria-label={`${name.text} ${T.showOnMap}`}
@@ -97,11 +106,15 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                     </button>
                   </th>
                   <td className="px-3 py-4">{SUB_CATEGORY_LABEL[m.sub_category]}</td>
-                  <td className="px-3 py-4">{formatCount(m.distance_m)}</td>
+                  <td className="px-3 py-4">
+                    {formatCount(m.distance_m) ?? MESSAGES.store.missingValue}
+                  </td>
                   <td className="px-3 py-4 whitespace-nowrap">
                     {m.area_m2 === null ? <StatusLabel status="unknown" /> : formatArea(m.area_m2)}
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap">{formatDate(m.open_date)}</td>
+                  <td className="px-3 py-4 whitespace-nowrap">
+                    {formatDate(m.open_date) ?? MESSAGES.store.missingValue}
+                  </td>
                   <td className="px-3 py-4">
                     <StorePeriodCell period={period} />
                   </td>

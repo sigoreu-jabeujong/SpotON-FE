@@ -2,7 +2,11 @@ import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
 import type { ApiResult } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { getRisk, postRiskInterpret } from '../api/risk'
-import type { CommonQueryParams } from '../types/api'
+import type { CommonQueryParams, ApiMeta } from '../types/api'
+import { BRAND_API_ENABLED } from '../api/analysisProfile'
+import { interpretationMatches } from '../api/interpretationContext'
+import { ApiRequestError } from '../api/client'
+import { MESSAGES } from '../constants/messages'
 import type {
   RiskInclude,
   RiskInterpretation,
@@ -15,6 +19,7 @@ export function useRisk(params: CommonQueryParams | null, include: RiskInclude[]
   return useQuery({
     queryKey: queryKeys.risk(params, include),
     queryFn: params ? () => getRisk(params, include) : skipToken,
+    ...(BRAND_API_ENABLED ? { staleTime: 0 } : {}),
   })
 }
 
@@ -25,8 +30,20 @@ export function useRisk(params: CommonQueryParams | null, include: RiskInclude[]
  */
 export function useRiskInterpret() {
   return useMutation({
-    mutationFn: ({ body, signal }: { body: RiskInterpretRequest; signal?: AbortSignal }) =>
-      postRiskInterpret(body, signal),
+    mutationFn: async ({
+      body,
+      signal,
+      baseline,
+    }: {
+      body: RiskInterpretRequest
+      signal?: AbortSignal
+      baseline?: ApiMeta | null
+    }) => {
+      const res = await postRiskInterpret(body, signal)
+      if (BRAND_API_ENABLED && !interpretationMatches(res, body.query, baseline))
+        throw new ApiRequestError('AI_CONTEXT_CHANGED', MESSAGES.brand.changed, null)
+      return res
+    },
   })
 }
 
@@ -38,9 +55,10 @@ export function useCachedInterpretation(
   params: CommonQueryParams | null,
   history?: RiskInterpretHistory,
   address = '',
+  baseline?: ApiMeta | null,
 ) {
   return useQuery<ApiResult<RiskInterpretation>>({
-    queryKey: queryKeys.riskInterpretation(params, history, address),
+    queryKey: queryKeys.riskInterpretation(params, history, address, baseline),
     queryFn: skipToken,
     staleTime: Infinity,
   })

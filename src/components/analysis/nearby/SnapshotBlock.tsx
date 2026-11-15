@@ -53,7 +53,7 @@ export default function SnapshotBlock() {
         <SnapshotResult
           data={snapshot.data}
           periodLabel={periodLabel ?? ''}
-          emptyMessage={franchiseEmptyMessage(query.franchise) ?? T.emptyStores}
+          emptyMessage={franchiseEmptyMessage(query.franchise, query) ?? T.emptyStores}
         />
       )}
     </div>

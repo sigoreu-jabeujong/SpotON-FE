@@ -17,12 +17,27 @@ import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import type { DiagnosisQuery } from '../../types/diagnosis'
 import { cn } from '../../utils/cn'
 import AsOfPicker from './AsOfPicker'
+import { BRAND_API_ENABLED } from '../../api/analysisProfile'
+import {
+  BRAND_SCOPE_OPTIONS,
+  BRAND_UNKNOWN_OPTIONS,
+  BRAND_EVIDENCE_OPTIONS,
+} from '../../constants/diagnosis'
+import { brandSelection } from '../../utils/brands'
 
 const T = MESSAGES.filter
 
 type Draft = Pick<
   DiagnosisQuery,
-  'radius' | 'subCategories' | 'area' | 'franchise' | 'includeUnknown' | 'asOf'
+  | 'radius'
+  | 'subCategories'
+  | 'area'
+  | 'franchise'
+  | 'includeUnknown'
+  | 'asOf'
+  | 'brandScope'
+  | 'brandUnknown'
+  | 'brandEvidence'
 >
 
 const sameDraft = (a: Draft, b: Draft) =>
@@ -31,6 +46,9 @@ const sameDraft = (a: Draft, b: Draft) =>
   a.franchise === b.franchise &&
   a.includeUnknown === b.includeUnknown &&
   a.asOf === b.asOf &&
+  a.brandScope === b.brandScope &&
+  a.brandUnknown === b.brandUnknown &&
+  a.brandEvidence === b.brandEvidence &&
   [...a.subCategories].sort().join(',') === [...b.subCategories].sort().join(',')
 
 /**
@@ -52,6 +70,7 @@ function FilterForm({
   onApply: (patch: Partial<DiagnosisQuery>) => void
 }) {
   const applied: Draft = {
+    ...brandSelection(query),
     radius: query.radius,
     subCategories: query.subCategories,
     area: query.area,
@@ -132,28 +151,90 @@ function FilterForm({
         </Group>
 
         {/* 프랜차이즈·개인 매장을 고르면 기준을 바로 보여준다 (개인 매장은 지금 자료로 거의 0곳) */}
-        <Group
-          legend={T.franchise}
-          segmented
-          hint={
-            draft.franchise === 'all'
-              ? undefined
-              : MESSAGES.store.franchise.optionHint[draft.franchise]
-          }
-        >
-          {FRANCHISE_OPTIONS.map((f) => (
-            <Choice
-              key={f.id}
-              type="radio"
+        {!BRAND_API_ENABLED && (
+          <Group
+            legend={T.franchise}
+            segmented
+            hint={
+              draft.franchise === 'all'
+                ? undefined
+                : MESSAGES.store.franchise.optionHint[draft.franchise]
+            }
+          >
+            {FRANCHISE_OPTIONS.map((f) => (
+              <Choice
+                key={f.id}
+                type="radio"
+                segmented
+                name="franchise"
+                checked={draft.franchise === f.id}
+                onChange={() => setDraft((d) => ({ ...d, franchise: f.id as FranchiseFilter }))}
+              >
+                {f.label}
+              </Choice>
+            ))}
+          </Group>
+        )}
+
+        {BRAND_API_ENABLED && (
+          <>
+            <Group legend={MESSAGES.brand.scope} hint={MESSAGES.brand.membershipLimit} segmented>
+              {BRAND_SCOPE_OPTIONS.map((option) => (
+                <Choice
+                  key={option.id}
+                  type="radio"
+                  segmented
+                  name="brand-scope"
+                  checked={draft.brandScope === option.id}
+                  onChange={() =>
+                    setDraft((d) => ({
+                      ...d,
+                      brandScope: option.id,
+                    }))
+                  }
+                >
+                  {option.label}
+                </Choice>
+              ))}
+            </Group>
+            <Group
+              legend={MESSAGES.brand.unknown}
+              hint={
+                draft.brandUnknown === 'exclude'
+                  ? MESSAGES.brand.unknownExcluded
+                  : MESSAGES.brand.unknownIncluded
+              }
               segmented
-              name="franchise"
-              checked={draft.franchise === f.id}
-              onChange={() => setDraft((d) => ({ ...d, franchise: f.id as FranchiseFilter }))}
             >
-              {f.label}
-            </Choice>
-          ))}
-        </Group>
+              {BRAND_UNKNOWN_OPTIONS.map((option) => (
+                <Choice
+                  key={option.id}
+                  type="radio"
+                  segmented
+                  name="brand-unknown"
+                  checked={draft.brandUnknown === option.id}
+                  onChange={() => setDraft((d) => ({ ...d, brandUnknown: option.id }))}
+                >
+                  {option.label}
+                </Choice>
+              ))}
+            </Group>
+            <Group legend={MESSAGES.brand.evidence} hint={MESSAGES.brand.confirmedLimit} segmented>
+              {BRAND_EVIDENCE_OPTIONS.map((option) => (
+                <Choice
+                  key={option.id}
+                  type="radio"
+                  segmented
+                  name="brand-evidence"
+                  checked={draft.brandEvidence === option.id}
+                  onChange={() => setDraft((d) => ({ ...d, brandEvidence: option.id }))}
+                >
+                  {option.label}
+                </Choice>
+              ))}
+            </Group>
+          </>
+        )}
 
         <Group legend={T.asOf}>
           <AsOfPicker
@@ -174,9 +255,11 @@ function FilterForm({
             aria-describedby="include-unknown-hint"
             className="size-4 accent-blue-500"
           />
-          <span className="font-semibold">{T.includeUnknown}</span>
+          <span className="font-semibold">
+            {BRAND_API_ENABLED ? MESSAGES.brand.areaUnknown : T.includeUnknown}
+          </span>
           <span id="include-unknown-hint" className="text-gray-600">
-            {T.includeUnknownHint}
+            {BRAND_API_ENABLED ? '' : T.includeUnknownHint}
           </span>
         </label>
         <div className="flex items-center gap-3">
@@ -189,7 +272,7 @@ function FilterForm({
             aria-disabled={!changed}
             title={changed ? undefined : T.unchanged}
             className={cn(
-              'flex h-10 items-center gap-1.5 rounded-full px-5 text-caption font-semibold motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+              'flex h-10 shrink-0 items-center gap-1.5 rounded-full px-5 text-caption font-semibold whitespace-nowrap motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
               changed
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
                 : 'cursor-default bg-gray-100 text-gray-600',
@@ -254,6 +337,7 @@ function Choice({
     <label
       className={cn(
         'inline-flex cursor-pointer items-center gap-1 text-caption font-semibold motion-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-500',
+        name.startsWith('brand-') && 'min-h-11',
         segmented
           ? cn(
               'h-8 rounded-lg px-3.5',

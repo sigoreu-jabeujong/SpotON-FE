@@ -1,4 +1,5 @@
 import type { ApiMeta, ApiResponse } from '../types/api'
+import { API_MESSAGES } from '../constants/apiMessages'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 /** API 경로 접두사 (BE 작업계획서와 공통 기준) */
@@ -80,6 +81,8 @@ async function request<T>(
 ): Promise<ApiResult<T>> {
   // 조건에 import.meta.env를 직접 써야 빌드 때 false로 바뀌어 이 블록이 제거된다
   if (import.meta.env.VITE_USE_MOCK === 'true' && !REAL_API_PATHS.has(path.split('?')[0])) {
+    if (path.startsWith('/v2/'))
+      throw new ApiRequestError('MOCK_UNAVAILABLE', API_MESSAGES.brandMock, null)
     const { getMockResponse } = await import('./mocks')
     const mock = await getMockResponse<T>(path, init)
     if (mock) return unwrap(mock.body, mock.status)

@@ -2,6 +2,9 @@ import type { FranchiseFilter } from '../../constants/diagnosis'
 import { MESSAGES } from '../../constants/messages'
 import type { ApiMeta } from '../../types/api'
 import InfoBox from './InfoBox'
+import { BRAND_API_ENABLED } from '../../api/analysisProfile'
+import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
+import { brandFilterNotice } from '../../utils/brands'
 
 type Props = { franchise: FranchiseFilter; meta: ApiMeta | null | undefined; className?: string }
 
@@ -12,6 +15,16 @@ type Props = { franchise: FranchiseFilter; meta: ApiMeta | null | undefined; cla
  * - 개인 매장: 분류 자료가 거의 없어 0곳으로 보일 수 있음 (점포 부재 아님)
  */
 export default function FranchiseFilterNotice({ franchise, meta, className }: Props) {
+  const { query } = useDiagnosisQuery()
+  if (BRAND_API_ENABLED)
+    return (
+      <InfoBox
+        showTitle
+        title={MESSAGES.brand.title}
+        description={brandFilterNotice(query, meta)}
+        className={className}
+      />
+    )
   if (franchise === 'all') return null
   const F = MESSAGES.store.franchise
   const A = MESSAGES.activity

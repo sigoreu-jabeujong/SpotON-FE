@@ -8,6 +8,8 @@ import { getCoordinates, useDiagnosisQuery } from './useDiagnosisQuery'
 import { useMarketActivity } from './useMarketActivity'
 import { useCachedInterpretation, useRisk } from './useRisk'
 import { useNearbyStores, useStoreHistory, useStoreSnapshot } from './useStores'
+import { BRAND_API_ENABLED } from '../api/analysisProfile'
+import { interpretationMatches } from '../api/interpretationContext'
 
 /**
  * 진단서(PDF)·요약 이미지에 담을 데이터 — 결과 화면과 같은 쿼리 키를 써서 이미 불러온 캐시를 그대로 쓰고,
@@ -15,15 +17,21 @@ import { useNearbyStores, useStoreHistory, useStoreSnapshot } from './useStores'
  */
 export function useReportData() {
   const { query } = useDiagnosisQuery()
+  const unsupported = !BRAND_API_ENABLED && query.brandUrlNotice === 'unsupported_brand'
   const coords = getCoordinates(query)
-  const params = coords ? toCommonQueryParams(query, coords) : null
+  const params = coords && !unsupported ? toCommonQueryParams(query, coords) : null
 
-  const history = useStoreHistory(toStoreHistoryParams(query))
+  const history = useStoreHistory(unsupported ? null : toStoreHistoryParams(query))
   const nearby = useNearbyStores(params)
   const snapshot = useStoreSnapshot(params) // 기준 시점(asOf)이 있을 때만 요청됨
   const activity = useMarketActivity(params, ACTIVITY_INCLUDE)
   const risk = useRisk(params)
-  const ai = useCachedInterpretation(params, toInterpretHistory(query), query.address)
+  const ai = useCachedInterpretation(
+    params,
+    toInterpretHistory(query),
+    query.address,
+    risk.data?.meta,
+  )
 
   const queries = [history, nearby, snapshot, activity, risk]
   return {
@@ -33,9 +41,17 @@ export function useReportData() {
     snapshot,
     activity,
     risk,
-    ai: ai.data?.data ?? null,
+    ai:
+      ai.data &&
+      (!BRAND_API_ENABLED ||
+        (params &&
+          !risk.isFetching &&
+          !risk.isError &&
+          interpretationMatches(ai.data, params, risk.data?.meta)))
+        ? ai.data.data
+        : null,
     /** 요청 중인 것이 있으면 true (요청하지 않는 쿼리는 제외) */
-    loading: queries.some((q) => q.isLoading),
+    loading: queries.some((q) => q.isLoading || (BRAND_API_ENABLED && q.isFetching)),
     failed: queries.filter((q) => q.isError),
     retry: () => queries.forEach((q) => q.isError && void q.refetch()),
   }

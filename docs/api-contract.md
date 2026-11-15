@@ -1,5 +1,7 @@
 # API 계약 요약 (FE 관점)
 
+2026-11-15: 아래 기존 계약은 v1이다. 명시적 v2 프로필의 분석/AI는 `/api/v2`를 사용하고 legacy 가맹 필드를 전송하지 않는다. 브랜드 판정·nullable 행·metadata/AI baseline·기존 URL 변환은 [v2 계약·실제 검증](brand-chain-v2.md)과 BE의 fe-chain-v2-api-request.md/fe-chain-ai-api-request.md를 따른다. geocode/data-range/support/health는 기존 경로를 유지한다.
+
 > 마지막 갱신: 2026-11-12
 > 기준: 06 API 명세서 v1.1(PDF, 2026-11-09) + BE 작업계획서(`SpotON-BE/docs/be-work-plan.md`). 둘이 다르면 BE 작업계획서를 따른다 → [차이 표](#명세서pdf-v11-vs-be-작업계획서-차이)
 > 응답 예시 숫자는 모두 시연용 가상 값이다.

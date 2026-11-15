@@ -15,6 +15,8 @@ import SummaryInfoGrid from '../components/summary/SummaryInfoGrid'
 import { MESSAGES } from '../constants/messages'
 import { getCoordinates, useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
 import { useRisk } from '../hooks/useRisk'
+import { BRAND_API_ENABLED } from '../api/analysisProfile'
+import { queryKeys } from '../api/queryKeys'
 
 const T = MESSAGES.summary
 
@@ -78,11 +80,27 @@ export default function SummaryPage() {
       )}
 
       {/* AI 해석 — 지표를 불러온 뒤에만. 조건(search)이 바뀌면 key로 새로 만들어 이전 결과를 지운다 */}
-      {risk.data && params && (
+      {BRAND_API_ENABLED && (risk.isFetching || risk.isError) && (
+        <p role="status" className="text-caption text-gray-600">
+          {MESSAGES.brand.waitingRisk}
+        </p>
+      )}
+      {risk.data && params && (!BRAND_API_ENABLED || (!risk.isFetching && !risk.isError)) && (
         <SectionErrorBoundary resetKey={search}>
           {/* 본문은 조회 조건(params)만 — 서버가 같은 조건으로 다시 계산한다 */}
           <AiInterpretation
-            key={search}
+            key={
+              BRAND_API_ENABLED
+                ? JSON.stringify(
+                    queryKeys.riskInterpretation(
+                      params,
+                      toInterpretHistory(query),
+                      query.address,
+                      risk.data.meta,
+                    ),
+                  )
+                : search
+            }
             params={params}
             history={toInterpretHistory(query)}
             address={query.address}

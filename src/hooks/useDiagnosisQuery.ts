@@ -16,6 +16,14 @@ import {
   type SubCategory,
 } from '../constants/diagnosis'
 import type { DiagnosisQuery } from '../types/diagnosis'
+import { ANALYSIS_API_VERSION } from '../api/analysisProfile'
+import type { AnalysisApiVersion } from '../config/analysisVersion'
+import {
+  BRAND_SCOPE_OPTIONS,
+  BRAND_UNKNOWN_OPTIONS,
+  BRAND_EVIDENCE_OPTIONS,
+} from '../constants/diagnosis'
+import { brandSelection } from '../utils/brands'
 
 const SUB_IDS: readonly string[] = RESTAURANT_SUB_CATEGORIES.map((s) => s.id)
 
@@ -39,12 +47,38 @@ function parseCoord(raw: string | null, [min, max]: readonly [number, number]): 
 const textOrNull = (v: string | null) => (v && v.trim() !== '' ? v.trim() : null)
 
 /** URL 쿼리 → 진단 조건 (잘못된 값은 기본값으로 대체) */
-export function parseDiagnosisQuery(params: URLSearchParams): DiagnosisQuery {
+export function parseDiagnosisQuery(
+  params: URLSearchParams,
+  version: AnalysisApiVersion = ANALYSIS_API_VERSION,
+): DiagnosisQuery {
   const category = params.get('category')
   const radius = Number(params.get('radius'))
   const franchise = params.get('franchise')
   const asOf = params.get('asOf')
   const area = params.get('area')
+  const brandKeys = ['brandScope', 'brandUnknown', 'brandEvidence'] as const
+  const hasBrand =
+    brandKeys.some((key) => params.has(key)) ||
+    params.has('analysisVersion') ||
+    params.has('areaUnknown')
+  const validBrand = brandKeys.every(
+    (key, i) =>
+      !params.has(key) ||
+      (params.getAll(key).length === 1 &&
+        [BRAND_SCOPE_OPTIONS, BRAND_UNKNOWN_OPTIONS, BRAND_EVIDENCE_OPTIONS][i].some(
+          (v) => v.id === params.get(key),
+        )),
+  )
+  const native = hasBrand
+  const single = (key: string) => (params.getAll(key).length === 1 ? params.get(key) : null)
+  const scope = BRAND_SCOPE_OPTIONS.find((v) => v.id === single('brandScope'))?.id ?? 'all'
+  const unknown =
+    BRAND_UNKNOWN_OPTIONS.find((v) => v.id === single('brandUnknown'))?.id ?? 'include'
+  const evidence =
+    BRAND_EVIDENCE_OPTIONS.find((v) => v.id === single('brandEvidence'))?.id ?? 'include_estimates'
+  const validMarker = !params.has('analysisVersion') || single('analysisVersion') === 'v2'
+  const validArea =
+    !params.has('areaUnknown') || ['true', 'false'].includes(single('areaUnknown') ?? '')
   return {
     address: params.get('address') ?? '',
     category: isCategory(category) ? category : null,
@@ -55,7 +89,39 @@ export function parseDiagnosisQuery(params: URLSearchParams): DiagnosisQuery {
     area: isFacility(area) ? area : DEFAULT_AREA,
     franchise: isFranchise(franchise) ? franchise : 'all',
     // 기본값(true)일 때는 URL에 남기지 않으므로 'false'일 때만 false
-    includeUnknown: params.get('includeUnknown') === 'false' ? false : DEFAULT_INCLUDE_UNKNOWN,
+    includeUnknown:
+      (version === 'v2' && native ? single('areaUnknown') : params.get('includeUnknown')) ===
+      'false'
+        ? false
+        : DEFAULT_INCLUDE_UNKNOWN,
+    ...(version === 'v2'
+      ? {
+          brandScope: native
+            ? scope
+            : franchise === 'franchise'
+              ? 'chain'
+              : franchise === 'independent'
+                ? 'non_chain'
+                : 'all',
+          brandUnknown: native
+            ? unknown
+            : franchise === 'franchise' || franchise === 'independent'
+              ? 'exclude'
+              : 'include',
+          brandEvidence: evidence,
+          ...(!validBrand || !validMarker || !validArea
+            ? { brandUrlNotice: 'invalid_brand' as const }
+            : native && (params.has('franchise') || params.has('includeUnknown'))
+              ? { brandUrlNotice: 'mixed_legacy' as const }
+              : !native && franchise === 'independent'
+                ? { brandUrlNotice: 'legacy_independent' as const }
+                : !native && params.get('includeUnknown') === 'false'
+                  ? { brandUrlNotice: 'legacy_area' as const }
+                  : {}),
+        }
+      : hasBrand
+        ? { brandUrlNotice: 'unsupported_brand' as const }
+        : {}),
     lat: parseCoord(params.get('lat'), LAT_RANGE),
     lng: parseCoord(params.get('lng'), LNG_RANGE),
     buildingKey: textOrNull(params.get('bk')),
@@ -65,7 +131,10 @@ export function parseDiagnosisQuery(params: URLSearchParams): DiagnosisQuery {
 }
 
 /** 진단 조건 → URL 쿼리 문자열 (기본값은 생략해 주소를 짧게 유지) */
-export function toDiagnosisSearch(q: DiagnosisQuery): string {
+export function toDiagnosisSearch(
+  q: DiagnosisQuery,
+  version: AnalysisApiVersion = ANALYSIS_API_VERSION,
+): string {
   const p = new URLSearchParams()
   if (q.address) p.set('address', q.address)
   if (q.category) p.set('category', q.category)
@@ -79,9 +148,18 @@ export function toDiagnosisSearch(q: DiagnosisQuery): string {
   if (q.radius !== DEFAULT_RADIUS) p.set('radius', String(q.radius))
   if (q.asOf) p.set('asOf', q.asOf)
   if (q.area !== DEFAULT_AREA) p.set('area', q.area)
-  if (q.franchise !== 'all') p.set('franchise', q.franchise)
-  if (q.includeUnknown !== DEFAULT_INCLUDE_UNKNOWN)
-    p.set('includeUnknown', String(q.includeUnknown))
+  if (version === 'v2') {
+    const brand = brandSelection(q)
+    p.set('analysisVersion', 'v2')
+    p.set('brandScope', brand.brandScope)
+    p.set('brandUnknown', brand.brandUnknown)
+    p.set('brandEvidence', brand.brandEvidence)
+    if (!q.includeUnknown) p.set('areaUnknown', 'false')
+  } else {
+    if (q.franchise !== 'all') p.set('franchise', q.franchise)
+    if (q.includeUnknown !== DEFAULT_INCLUDE_UNKNOWN)
+      p.set('includeUnknown', String(q.includeUnknown))
+  }
   const s = p.toString()
   return s ? `?${s}` : ''
 }
