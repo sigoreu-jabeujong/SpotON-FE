@@ -1,116 +1,177 @@
-# SpotON-FE
+<div align="center">
 
-브랜드·체인 v2 조회와 AI의 로컬 연결은 [v2 연동·검증 안내](docs/brand-chain-v2.md)를 따른다. 기본 빌드는 운영 호환 v1이고, 로컬 테스트 프로세스에서 VITE_ANALYSIS_API_VERSION=v2·VITE_API_BASE_URL=http://localhost:8001·VITE_USE_MOCK=false를 명시한다. 기존.env와 운영 설정은 변경하지 않는다.
+# Spot:ON · Frontend
 
-**Spot:ON(스팟온) 프론트엔드** — 계약하려는 주소 하나를 입력하면, 그 자리를 거쳐 간 점포의 이력과 주변 동일 업종의 생존 기록을 근거와 함께 보여주는 공공데이터 기반 창업 입지 진단 웹서비스
+**Is your spot on? — 내 자리, 딱 맞는 자리일까요?**
 
-> **Is your spot on? — 내 자리, 딱 맞는 자리일까요?**
+계약하려는 주소 하나로 그 자리를 거쳐 간 점포의 이력과 주변 같은 업종의 생존 기록을 근거와 함께 보여주는<br>
+**공공데이터 기반 창업 입지 진단 웹서비스**
 
-- 대상: 서울특별시에서 **카페·음식점**(한식·중식·일식·양식) 창업을 준비하는 **만 18세 이상 예비창업자**
-- 팀: 시고르자브종 (청년 공공AX 서포터즈)
-- 백엔드 저장소: [SpotON-BE](https://github.com/sigoreu-jabeujong/SpotON-BE)
+[🌐 서비스 바로가기](https://spot-on-fe.vercel.app) · [⚙️ 백엔드 저장소](https://github.com/sigoreu-jabeujong/SpotON-BE) · [📚 문서 모음](docs/README.md)
 
-## 주요 기능
+![React](https://img.shields.io/badge/React_19-20232A?logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_v4-06B6D4?logo=tailwindcss&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)
+
+</div>
+
+---
+
+## 목차
+
+1. [프로젝트 소개](#1-프로젝트-소개)
+2. [주요 기능](#2-주요-기능)
+3. [화면 구성](#3-화면-구성)
+4. [시스템 구성](#4-시스템-구성)
+5. [기술 스택](#5-기술-스택)
+6. [시작하기](#6-시작하기)
+7. [폴더 구조](#7-폴더-구조)
+8. [문서](#8-문서)
+9. [협업 규칙](#9-협업-규칙)
+10. [사용한 공공데이터](#10-사용한-공공데이터)
+11. [팀 소개](#11-팀-소개)
+12. [유의사항](#12-유의사항)
+
+---
+
+## 1. 프로젝트 소개
+
+| 항목 | 내용 |
+|---|---|
+| 서비스 | **Spot:ON(스팟온)** — 창업 입지(자리) 진단 공공서비스 |
+| 대상 | 서울특별시에서 **카페·음식점**(한식·중식·일식·양식) 창업을 준비하는 **만 18세 이상 예비창업자** |
+| 문제 | 계약 전에 "이 자리에 어떤 가게가 있었고, 주변 가게는 얼마나 버텼는지" 확인할 방법이 마땅치 않음 |
+| 해결 | 인허가·상권 공공데이터로 **과거 점포 이력 · 주변 동일 업종 현황 · 참고지표 · AI 해석**을 한 화면 흐름으로 제공 |
+| 원칙 | 자체 점수·등급 없이 **근거(출처·기준일·공간 단위)와 함께** 사실을 보여줌 |
+| 소속 | 2026 청년 공공AX 서포터즈 · 팀 **시고르자브종** |
+
+## 2. 주요 기능
 
 | ID | 기능 | 설명 |
 |---|---|---|
-| F-01 | 주소·업종 입력 | 도로명·지번 주소 검색과 좌표 변환, 카페/음식점 선택, 서울 밖·누락 시 진행 차단 |
-| F-02 | 과거 점포 이력 | 같은 건물을 거쳐 간 점포의 개업·폐업일, 영업 기간, 업종, 프랜차이즈(추정) 여부를 최근 개업 순으로 (값이 없으면 "정보 없음"과 사유) |
-| F-03 | 주변 동일 업종 지도 | 정한 시점·반경 안의 같은 업종 점포를 지도에 표시 (영업 중/폐업 구분) |
-| F-04 | 세부 필터 | 반경(300/500/1,000m), 음식점 세부 업종 / 선택: 시설 규모·프랜차이즈 |
-| F-05 | 시점 조회 | 과거 특정 연·월에 있던 점포가 지금도 영업 중인지 확인 |
-| F-06 | 점포 변동·상권지표 | 최근 12개월 개업·폐업 수와 연도별 추이 / 조건부: 상권별 추정매출·격자 생활인구 (집계 기준 확인 중이면 "자료 확인 중") |
-| F-07 | 위험도·정량지표 | 서울시 공식 지표와 Spot:ON 참고지표(참고 폐업률·개업 1·3주년 생존율·동종업체 수)를 나눠 표시, 표본이 부족하면 "판단 보류". 상권 적용 기준 확인 중이면 상권 안·밖으로 확정하지 않음 |
-| F-08 | AI 해석·체크리스트 | 서버가 같은 조회 조건으로 계산한 지표만으로 주변 상권 흐름을 네 문단으로 설명하고 계약 전 확인사항 정리, 확인한·빠진 자료는 제목 옆 ⓘ ("AI 해석 보기" 클릭 시, 화면은 조회 조건만 보냄) |
-| F-09 | 결과 저장·공유 | PDF 진단서 우선, 요약 이미지는 그다음 (선택 기능) |
-| F-10 | 공공 상담·지원 연결 | 공공 창업상담·소상공인 지원기관 링크(구 관할 지역센터 연락처 포함), 다른 주소 다시 진단 |
+| F-01 | 주소·업종 입력 | 주소 검색·후보 선택, 카페/음식점 선택, 서울 밖 주소 차단 |
+| F-02 | 과거 점포 이력 | 같은 건물을 거쳐 간 점포의 개업·폐업일, 영업 기간, 브랜드·체인(추정) |
+| F-03 | 주변 동일 업종 지도 | 반경 안 같은 업종 점포를 카카오 지도에 영업 중/폐업으로 표시 |
+| F-04 | 세부 필터 | 반경 300/500/1,000m, 음식점 세부 업종, 시설 규모, 브랜드·체인 조건 |
+| F-05 | 시점 조회 | 1·3·5년 전 등 과거 시점에 있던 점포가 지금도 영업 중인지 확인 |
+| F-06 | 점포 변동·상권지표 | 최근 12개월 개업·폐업 수, 연도별 추이 차트 |
+| F-07 | 정량지표 | 서울시 공식 지표와 Spot:ON 참고지표(폐업률·1·3주년 생존율·동종업체 수)를 영역을 나눠 표시 |
+| F-08 | AI 해석·체크리스트 | 버튼을 누를 때만 서버가 검증한 4문단 해석과 계약 전 확인사항 제공 |
+| F-09 | 결과 저장·공유 | PDF 진단서, 1080×1350 요약 이미지 저장 |
+| F-10 | 공공 상담 연결 | 창업상담·소상공인 지원기관 링크, 다른 주소 재진단 |
 
-### 화면
+## 3. 화면 구성
 
-화면 7종의 기능을 디자인의 4단계(사이드바 STEP 01~04)로 묶었어요. 캡처는 아래 [화면 구성](#화면-구성)에 있어요.
+랜딩 → **STEP 01** 입력 → **STEP 02** 분석 → **STEP 03** 종합 진단 → **STEP 04** 저장·상담 순서로 진행해요.
+화면 예시는 실제 공공데이터(기준일 2026.11.08)로 찍은 데스크톱 1440×900 화면이에요. 시연 순서는 [시연 대본](docs/demo.md)에 있어요.
 
-| 경로 | 단계 | 화면 | 기능 |
-|---|---|---|---|
-| `/` | — | ① 랜딩 | 서비스 소개(차별점·이용 3단계·데이터 출처), 진단 시작, 공통 푸터 |
-| `/diagnose` | STEP 01 | ② 주소·업종 입력 | 주소 검색(후보 선택), 카페/음식점 선택 (F-01) |
-| `/result/analysis#history` | STEP 02 | ③ 과거 점포 이력 | 같은 건물 점포의 개·폐업 이력, 위치 일치 여부 (F-02) |
-| `/result/analysis#nearby` | STEP 02 | ④ 주변 점포 분석 | 조회 조건 필터, 카카오 지도, 점포 표, 시점 조회 (F-03~F-05) |
-| `/result/analysis#activity` | STEP 02 | ⑤ 상권 활동 분석 | 점포 현황 카드, 연도별 개·폐업 차트, 추정매출·생활인구 (F-06) |
-| `/result/summary` | STEP 03 | ⑥ 종합 진단 결과 | 상권 판정, 서울시 공식 지표 / Spot:ON 참고지표, AI 해석·체크리스트 (F-07·F-08) |
-| `/result/share` | STEP 04 | ⑦ 결과 저장 및 상담 | PDF 진단서, 요약 이미지, 상담·지원 링크, 새 주소 재진단 (F-09·F-10) |
-| `/result/report` | — | 인쇄용 진단서 | `window.print()`로 PDF 저장 (A4 2장 이내) |
+| | |
+|:---:|:---:|
+| ![랜딩](docs/images/landing.webp) | ![주소·업종 입력](docs/images/input.webp) |
+| **랜딩** — 서비스 소개와 진단 시작 | **STEP 01 주소·업종 입력** |
+| ![입지 정보 분석](docs/images/analysis.webp) | ![종합 진단 결과](docs/images/summary.webp) |
+| **STEP 02 입지 정보 분석** — 이력·지도·필터·상권 활동 | **STEP 03 종합 진단 결과** — 공식/참고 지표 분리 |
+| ![AI 해석](docs/images/ai.webp) | ![결과 저장 및 상담](docs/images/share.webp) |
+| **AI 해석** — 4문단 본문 + 계약 전 확인사항 | **STEP 04 결과 저장 및 상담** |
 
-예전 경로(`/result/history`·`nearby`·`activity`·`risk`)는 새 경로로 자동 이동해요. 결과 화면은 URL에 `address`·`category`·`lat`·`lng`·`bk`가 있어야 열리고, 없으면 입력 화면으로 돌아가요.
+<details>
+<summary><b>화면 경로 한눈에 보기</b></summary>
 
-결과 화면(STEP 02~04) 위에는 진단 조건 요약 바가 고정돼 있어 [조건 바꾸기]로 바로 돌아갈 수 있어요. 로딩 중에는 영역 모양 스켈레톤을, 한 영역이 깨지면 그 영역만 오류 안내를 보여주고 나머지는 그대로 보여요.
+| 경로 | 단계 | 화면 |
+|---|---|---|
+| `/` | — | 랜딩 |
+| `/diagnose` | STEP 01 | 주소·업종 입력 |
+| `/result/analysis` | STEP 02 | 과거 점포 이력(`#history`) · 주변 점포 분석(`#nearby`) · 상권 활동(`#activity`) |
+| `/result/summary` | STEP 03 | 종합 진단 결과 + AI 해석 |
+| `/result/share` | STEP 04 | PDF 진단서·요약 이미지 저장, 상담 연결 |
 
-## 화면 구성
+진단 조건(주소·업종·반경·시점·필터)은 URL 쿼리에 담겨 있어 새로고침·링크 공유를 해도 그대로 유지돼요.
 
-> 화면 예시는 **실제 공공데이터**(데이터 기준일 2026.11.08, Render 무료 BE 연결)로 찍은 화면이에요. 주소는 공개 주소(서울 마포구 양화로 45, 카페), 데스크톱 1440×900 기준이에요. STEP 03의 서울시 공식 폐업률·창업위험도 카드는 BE #142가 배포되면 화면에서 빠져요. 시연 순서는 [docs/demo.md](docs/demo.md)에 있어요.
+</details>
 
-| 화면 | 설명 |
-|---|---|
-| ![랜딩](docs/images/landing.webp) | **랜딩** — 첫 화면 제목·슬로건과 진단 시작 버튼, 진단할 수 있는 지역·업종 안내 (아래로 소개·이용 대상·출처) |
-| ![주소·업종 입력](docs/images/input.webp) | **STEP 01 주소·업종 입력** — 주소 검색(후보가 여러 개면 목록에서 선택)과 카페/음식점 선택 |
-| ![입지 정보 분석](docs/images/analysis.webp) | **STEP 02 입지 정보 분석** — 반경 안 같은 업종 점포를 카카오 지도에 영업 중/폐업으로 구분해 표시, 아래에서 조건·시점을 바꿔 조회 |
-| ![종합 진단 결과](docs/images/summary.webp) | **STEP 03 종합 진단 결과** — 상권 판정, 서울시 공식 지표와 Spot:ON 참고지표를 영역을 나눠 표시 (점수·등급 없음) |
-| ![AI 해석](docs/images/ai.webp) | **AI 해석** — "AI 해석 보기"를 누를 때만 생성. 서버가 검증한 네 문단 본문 + 계약 전 확인사항, 확인한·빠진 자료는 제목 옆 ⓘ |
-| ![결과 저장 및 상담](docs/images/share.webp) | **STEP 04 결과 저장 및 상담** — PDF 진단서·요약 이미지 저장, 공공 상담·지원 링크, 다른 주소 재진단 |
+## 4. 시스템 구성
 
-## 기술 스택
+```mermaid
+flowchart LR
+    U["👤 사용자<br/>(브라우저)"] --> FE["SpotON-FE<br/>React · Vercel"]
+    FE -- "REST /api, /api/v2" --> BE["SpotON-BE<br/>FastAPI · Render"]
+    FE -- "지도 SDK" --> K["카카오맵"]
+    BE --> DB[("PostgreSQL<br/>+ PostGIS")]
+    BE --> AI["Gemini<br/>(AI 해석)"]
+    BE --> P["공공데이터<br/>인허가·상권"]
+```
+
+| 구분 | 주소 | 비고 |
+|---|---|---|
+| 프론트엔드 | https://spot-on-fe.vercel.app | `develop`에 머지되면 자동 배포 |
+| 백엔드 | https://spoton-be-free.onrender.com | 무료 서버라 쉬고 있으면 첫 접속에 약 30초 걸려요 |
+
+- 모든 응답은 `{ data, meta, error }` 형식이고, `meta`에 출처·기준일·공간 단위가 담겨요 → [API 계약](docs/api-contract.md)
+- **프론트에서는 지표를 계산하지 않아요.** 서버가 준 값을 형식만 바꿔 보여줘요 → [화면 표시 원칙](docs/display-rules.md)
+
+## 5. 기술 스택
 
 | 구분 | 사용 |
 |---|---|
-| 프레임워크 | React 19 + TypeScript 5.9, Vite |
+| 프레임워크 | React 19, TypeScript, Vite |
 | 스타일 | Tailwind CSS v4 (디자인 토큰: `src/index.css`의 `@theme`) |
-| 라우팅 | React Router (화면별로 나눠 불러오기) |
-| 서버 데이터 | TanStack Query |
-| 지도 | 카카오맵 JavaScript SDK (직접 로드, 필요한 부분만 타입 선언) |
-| 차트 | recharts (상권 활동 섹션에서만 불러옴) |
-| 요약 이미지 | html2canvas (저장 버튼을 누를 때만 불러옴) |
-| 아이콘·글꼴 | lucide-react, Pretendard (npm 패키지, 외부 CDN 없음) |
-| 검사 도구 | ESLint, Prettier, TypeScript 타입 검사 |
-| 패키지 매니저 | npm (`package-lock.json` 커밋) |
+| 라우팅 · 서버 데이터 | React Router (화면별 지연 로딩) · TanStack Query |
+| 지도 · 차트 | 카카오맵 JavaScript SDK · recharts |
+| 저장 | 브라우저 인쇄(PDF) · html2canvas(요약 이미지) |
+| 아이콘 · 글꼴 | lucide-react · Pretendard |
+| 품질 | ESLint, Prettier, Vitest(단위 테스트 159개), GitHub Actions CI |
+| 배포 | Vercel |
 
-## 시작하기
+## 6. 시작하기
 
-Node.js 20 이상이 필요해요.
+> Node.js 20 이상, npm이 필요해요.
 
 ```bash
-# 1. 패키지 설치
+# 1. 저장소 받기
+git clone https://github.com/sigoreu-jabeujong/SpotON-FE.git
+cd SpotON-FE
+
+# 2. 패키지 설치
 npm install
 
-# 2. 환경변수 파일 만들기 (.env는 커밋하지 않아요)
+# 3. 환경변수 파일 만들기 (.env는 커밋하지 않아요)
 cp .env.example .env
-#    백엔드 없이 화면만 볼 때는 .env에 VITE_USE_MOCK=true
-#    지도를 보려면 .env에 VITE_KAKAO_JS_KEY=카카오맵 JavaScript 키
 
-# 3. 개발 서버 실행 → http://localhost:5173
+# 4. 개발 서버 실행 → http://localhost:5173
 npm run dev
 ```
 
-`.env`를 바꾼 뒤에는 개발 서버를 다시 켜야 반영돼요.
+> 백엔드 없이 화면만 보려면 `.env`에 `VITE_USE_MOCK=true`를 넣으세요. 예시 응답으로 모든 화면이 동작해요.
+> `.env`를 바꾼 뒤에는 개발 서버를 다시 켜야 반영돼요.
 
-배포용 빌드(`npm run build`)와 배포 후 할 일은 [docs/deploy.md](docs/deploy.md)에 있어요.
+### 환경변수
 
-5173 포트를 이미 다른 프로그램이 쓰고 있다면 다른 포트로 실행하세요.
+| 이름 | 설명 | 예시 |
+|---|---|---|
+| `VITE_API_BASE_URL` | 백엔드 서버 주소 (`/api`는 코드가 붙여요) | `http://localhost:8000` |
+| `VITE_USE_MOCK` | `true`면 백엔드 없이 목업 응답 사용 | `true` / `false` |
+| `VITE_REAL_API_PATHS` | 목업 모드에서도 실제 백엔드로 보낼 경로 (쉼표 구분) | `/geocode` |
+| `VITE_KAKAO_JS_KEY` | 카카오맵 JavaScript 키. 콘솔에 허용 도메인 등록 필수, 없으면 지도 자리에 안내만 표시 | — |
+| `VITE_ANALYSIS_API_VERSION` | 분석 API 버전. 기본 `v1`, 운영 배포는 `v2` → [브랜드·체인 v2](docs/brand-chain-v2.md) | `v1` |
 
-```bash
-npx vite --port 5180
-```
+> ⚠️ `VITE_`로 시작하는 값은 브라우저에 그대로 보여요. 카카오맵 JavaScript 키(공개용) 외의 비밀값은 절대 넣지 마세요.
 
-### 환경변수 (`.env`)
+### 명령어
 
-| 이름 | 설명 |
+| 명령어 | 설명 |
 |---|---|
-| `VITE_API_BASE_URL` | 백엔드 서버 주소만 적어요 (예: `http://localhost:8000`). `/api`는 코드가 붙여요 |
-| `VITE_USE_MOCK` | `true`면 백엔드 없이 `src/api/mocks/`의 예시 응답으로 화면을 개발할 수 있어요 |
-| `VITE_REAL_API_PATHS` | 목업 모드에서도 **실제 백엔드로 보낼 경로만** 쉼표로 적어요 (예: `/geocode,/support-links`). BE API가 하나씩 완성될 때 단계적으로 연결해요 ([docs/api-contract.md](docs/api-contract.md) "BE 단계 연결") |
-| `VITE_KAKAO_JS_KEY` | 카카오맵 JavaScript 키 (주변 점포 지도). 브라우저 공개용 키라서 카카오 개발자 콘솔에 **허용 도메인(개발 `localhost`, 배포 도메인)을 꼭 등록**해요. 없으면 지도 자리에 안내만 나오고 표는 그대로 보여요 |
+| `npm run dev` | 개발 서버 실행 |
+| `npm run build` | 타입 검사 + 배포용 빌드 |
+| `npm run test` | 단위 테스트 (Vitest) |
+| `npm run lint` | 코드 검사 (ESLint) |
+| `npm run format` / `format:check` | 코드 자동 정리 / 정리 상태 확인 (Prettier) |
 
-> ⚠️ `VITE_`로 시작하는 값은 브라우저에 그대로 보여요. 카카오맵 JavaScript 키를 뺀 나머지 API 키·비밀값은 절대 넣지 말고 백엔드에서 처리해요.
+PR과 `develop` push마다 GitHub Actions가 **설치 → 린트 → 단위 테스트 → 빌드**를 실행해요. 배포 방법은 [배포 안내](docs/deploy.md)에 있어요.
 
-### 목업 모드로 확인할 때 쓸 수 있는 입력 (시연용 가상 값)
+<details>
+<summary><b>목업 모드에서 상황별로 확인하는 입력값</b></summary>
 
 | 입력 | 결과 |
 |---|---|
@@ -118,89 +179,120 @@ npx vite --port 5180
 | 주소에 서울 외 지역명 (예: `경기도`) | 서울 외 주소 (422) |
 | 주소에 `여러` | 주소 후보 목록 |
 | 반경 300m | 표본 부족(판단 보류), AI 해석 검증 실패 |
-| 반경 1,000m | AI 해석 실패(503) |
+| 반경 1,000m | AI 해석 실패 (503) |
 | 기준 시점 2025년 이전 / 2021년 이전 | 추정매출 / 생활인구 "자료 없음" |
-| 위도 `37.51` / `37.5` / 그 밖 | 상권 안 / 상권 밖 / 상권 확인 중(실제 BE 기본값) |
-| 건물 키(`bk`)에 `missing` / `empty` / `error` | 이력 결측 경계 / 0건 / 오류 |
-| `bk`나 주소에 `dup` | 같은 관리번호·다른 원천 점포, 상호·기간 없는 점포 (지도·표 선택 확인) |
+| 위도 `37.51` / `37.5` / 그 밖 | 상권 안 / 상권 밖 / 상권 확인 중 |
+| 건물 키(`bk`)에 `missing` / `empty` / `error` | 이력 결측 / 0건 / 오류 |
+| `bk`나 주소에 `dup` | 같은 관리번호·다른 원천 점포 |
 | `bk`나 주소에 `pending` | 추정매출·생활인구 "자료 확인 중" |
 
-### 자주 쓰는 명령어
+</details>
 
-```bash
-npm run lint          # 코드 검사 (ESLint)
-npm run format        # 코드 자동 정리 (Prettier)
-npm run format:check  # 정리 상태 확인
-npm run build         # 타입 검사 + 빌드
-npm run test          # 핵심 함수 자동 테스트 (Vitest)
-```
-
-PR·develop push 때 GitHub Actions(`Frontend CI`)가 린트 → 단위 테스트 → 타입 검사·빌드를 차례로 실행한다.
-
-## 폴더 구조
+## 7. 폴더 구조
 
 ```text
 SpotON-FE/
-├── docs/              # 팀 정리 문서 (API 계약, 화면 요구사항, 표시 원칙, 결정 사항)
-├── public/
-└── src/
-    ├── pages/         # 화면 단위 컴포넌트 (라우트 1개 = 파일 1개)
-    ├── components/    # UI 컴포넌트 (common/, layout/, input/, analysis/, map/, summary/, share/)
-    ├── api/           # 백엔드 호출 함수 (client.ts, mocks/)
-    ├── types/         # API 응답 등 공통 타입
-    ├── hooks/         # 커스텀 훅 (useDiagnosisQuery: 진단 조건을 URL에 유지)
-    ├── constants/     # 진단 조건, 상태 라벨, 화면 문구, 경로
-    ├── utils/         # 순수 함수 (날짜·숫자 형식 변환 등 — 지표 계산은 하지 않음)
-    └── router.tsx     # 화면 경로 정의
+├── .github/workflows/     # CI (린트 → 테스트 → 빌드)
+├── docs/                  # 팀 문서 (API 계약, 화면 요구사항, 표시 원칙, 결정 사항 등)
+│   └── images/            # README 화면 캡처
+├── public/                # 파비콘, OG 이미지 등 정적 파일
+├── scripts/               # Vercel 배포 환경별 빌드 스크립트
+├── src/
+│   ├── pages/             # 화면 단위 컴포넌트 (라우트 1개 = 파일 1개)
+│   ├── components/
+│   │   ├── landing/       # 랜딩 소개 섹션
+│   │   ├── input/         # STEP 01 주소 검색·업종 선택
+│   │   ├── analysis/      # STEP 02 이력·주변 점포·상권 활동·필터
+│   │   ├── map/           # 카카오 지도, 마커 묶음
+│   │   ├── summary/       # STEP 03 지표 카드, AI 해석
+│   │   ├── share/         # STEP 04 PDF 진단서, 요약 이미지
+│   │   ├── layout/        # 헤더·사이드바·진단 조건 바·푸터
+│   │   └── common/        # 공통 UI (배지, 안내 상자, 오류 경계 등)
+│   ├── api/               # 백엔드 호출 함수 (client.ts 공통 래퍼)
+│   │   └── mocks/         # 목업 응답
+│   ├── hooks/             # 커스텀 훅 (useDiagnosisQuery: 진단 조건을 URL에 유지)
+│   ├── types/             # API 응답 등 공통 타입
+│   ├── constants/         # 진단 조건, 상태 라벨, 화면 문구, 경로
+│   ├── utils/             # 순수 함수 (날짜·숫자 형식, 점포 식별 — 지표 계산은 하지 않음)
+│   ├── config/            # 분석 API 버전 설정
+│   ├── test/              # 테스트 공용 데이터
+│   ├── router.tsx         # 화면 경로 정의
+│   └── main.tsx           # 앱 시작점
+├── CLAUDE.md              # 개발 규칙
+├── vercel.json            # Vercel 설정 (새로고침 대응)
+└── package.json
 ```
 
-개발 규칙과 문서 안내는 [CLAUDE.md](CLAUDE.md)와 [docs/README.md](docs/README.md)를 참고하세요.
+## 8. 문서
 
-## 브랜치·커밋 규칙
-
-- 브랜치: `main`(최종) ← `develop`(통합) ← `feat/기능명`, `fix/버그명`, `docs/문서명`, `chore/작업명`
-- `main`, `develop`에 직접 커밋·push 하지 않아요. 기능 하나 = 브랜치 하나 = PR 하나 (`develop` 대상)
-- 커밋 메시지: `타입: 내용` (예: `feat: 입지 진단 결과 화면 추가`)
-  - 타입: `feat`, `fix`, `refactor`, `perf`, `docs`, `style`, `chore`
-- PR 전에 `npm run lint`, `npm run format:check`, `npm run build`를 모두 통과해요
-- FE PR은 merge commit으로 머지해요 (커밋 기록 보존)
-
-## 사용한 공공데이터와 출처
-
-화면에 표시되는 출처 번호(R번호)와 같아요. 전체 표는 [docs/display-rules.md](docs/display-rules.md#7-출처-번호-표)에 있어요.
-
-| 번호 | 데이터 | 제공 | 링크 | 이용 조건 |
-|---|---|---|---|---|
-| R5 | 일반음식점 인허가 | 행정안전부 (공공데이터포털) | [15154916](https://www.data.go.kr/data/15154916/openapi.do) | 이용허락범위 제한 없음 |
-| R6 | 휴게음식점 인허가 | 행정안전부 (공공데이터포털) | [15154921](https://www.data.go.kr/data/15154921/openapi.do) | 이용허락범위 제한 없음 |
-| R1 | 서울시 상권분석서비스 (창업위험도 등) | 서울신용보증재단 | [상권별 현황](https://golmok.seoul.go.kr/stateDistrict.do) | 출처 표시, 공표값 인용 |
-| R11 | 서울시 창업위험도 지표 정의 | 서울신용보증재단 | [산정 방식](https://golmok.seoul.go.kr/images/seoul_info.pdf) | 출처 표시 |
-| R2 | 점포-상권 | 서울 열린데이터광장 | [OA-15577](https://data.seoul.go.kr/dataList/OA-15577/F/1/datasetView.do) | 공공누리 1유형 |
-| R15 | 영역-상권 (상권 경계) | 서울 열린데이터광장 | [OA-15560](https://data.seoul.go.kr/dataList/OA-15560/S/1/datasetView.do) | 확인 중 |
-| R3 | 추정매출-상권 (조건부) | 서울 열린데이터광장 | [OA-15572](https://data.seoul.go.kr/dataList/OA-15572/S/1/datasetView.do) | 확인 중 |
-| R4 | 생활인구 250m 격자 (조건부) | 서울 열린데이터광장 | [OA-22784](https://data.seoul.go.kr/dataList/OA-22784/S/1/datasetView.do) | 확인 중 |
-| R16 | 상권변화지표 (조건부) | 서울 열린데이터광장 | [OA-15576](https://data.seoul.go.kr/dataList/OA-15576/S/1/datasetView.do) | 확인 중 |
-| R9 | 가맹정보 (프랜차이즈 추정) | 공정거래위원회 | [15143693](https://www.data.go.kr/data/15143693/openapi.do) · [15143710](https://www.data.go.kr/data/15143710/openapi.do) | 확인 중 |
-| R19 | 주소·좌표 API | 행정안전부 | [15057017](https://www.data.go.kr/data/15057017/openapi.do) · [15056663](https://www.data.go.kr/data/15056663/openapi.do) | — |
-| R8 | 카카오 로컬·지도 | 카카오 | [로컬](https://developers.kakao.com/docs/latest/ko/local/dev-guide) · [지도](https://apis.map.kakao.com) | 카카오 운영정책·약관 |
-| R17 | 상담·지원기관 링크 | 서울시 자영업지원센터 외 3곳 | [docs 출처 표](docs/display-rules.md#7-출처-번호-표) | 링크 연결만 |
-| R18 | AI 해석 | Google Gemini API | [AI Studio](https://aistudio.google.com) | Gemini API 약관 |
-
-## 팀 시고르자브종
-
-| 이름 | 역할 |
+| 문서 | 내용 |
 |---|---|
-| 권민수 | 팀장·PM (기획·총괄) |
-| 윤희은 | UI/UX 디자인 |
-| 류민지 | 프론트엔드 |
-| 최호림 | 백엔드 (서버·DB·API) |
-| 김승은 | 백엔드 (AI·데이터) |
+| [문서 안내](docs/README.md) | 문서 목록과 기준 우선순위 |
+| [API 계약](docs/api-contract.md) | FE 관점 API 요청·응답 요약 |
+| [화면 요구사항](docs/screens.md) | 화면별 기능과 상태 처리 |
+| [화면 표시 원칙](docs/display-rules.md) | 출처·기준일·상태 라벨, 공식/참고 영역 분리 |
+| [AI 해석](docs/ai-narrative.md) | AI 문단 계약과 화면 구성 |
+| [브랜드·체인 v2](docs/brand-chain-v2.md) · [운영 전환](docs/production-chain-v2.md) | 브랜드 조건 조회 연동과 운영 활성화 기록 |
+| [결정 사항](docs/decisions.md) | 팀 결정·미결 사항 기록 |
+| [접근성](docs/accessibility.md) | 접근성 점검 결과 |
+| [배포](docs/deploy.md) | Vercel 배포와 환경변수 |
+| [시연 대본](docs/demo.md) | 발표용 시연 순서 |
+| [개발 규칙](CLAUDE.md) | 코딩·Git 규칙, 절대 하지 말 것 |
 
-## 유의사항
+## 9. 협업 규칙
 
-- Spot:ON의 결과는 공공데이터를 바탕으로 한 **참고용 정보**예요. 창업의 **성공·실패를 판정하지 않으며**, 사업주의 역량은 반영하지 않아요.
+| 항목 | 규칙 |
+|---|---|
+| 브랜치 | `main`(최종) ← `develop`(통합) ← `feat/`, `fix/`, `docs/`, `chore/` |
+| 작업 단위 | 기능 하나 = 브랜치 하나 = PR 하나 (`develop` 대상), `main`·`develop` 직접 push 금지 |
+| 커밋 | `타입: 내용` — `feat` `fix` `refactor` `perf` `docs` `style` `chore` |
+| PR 전 확인 | `lint` · `format:check` · `build` · `test` 모두 통과 |
+| 머지 | merge commit (커밋 기록 보존) |
+
+## 10. 사용한 공공데이터
+
+화면에 표시되는 출처 번호(R번호)와 같아요. 전체 표는 [화면 표시 원칙 7장](docs/display-rules.md#7-출처-번호-표)에 있어요.
+
+| 번호 | 데이터 | 제공 |
+|---|---|---|
+| R5 · R6 | [일반음식점](https://www.data.go.kr/data/15154916/openapi.do) · [휴게음식점](https://www.data.go.kr/data/15154921/openapi.do) 인허가 | 행정안전부 |
+| R1 · R11 | [서울시 상권분석서비스](https://golmok.seoul.go.kr/stateDistrict.do) · [창업위험도 산정 방식](https://golmok.seoul.go.kr/images/seoul_info.pdf) | 서울신용보증재단 |
+| R2 · R15 | [점포-상권](https://data.seoul.go.kr/dataList/OA-15577/F/1/datasetView.do) · [영역-상권](https://data.seoul.go.kr/dataList/OA-15560/S/1/datasetView.do) | 서울 열린데이터광장 |
+| R3 · R4 · R16 | [추정매출-상권](https://data.seoul.go.kr/dataList/OA-15572/S/1/datasetView.do) · [생활인구 250m 격자](https://data.seoul.go.kr/dataList/OA-22784/S/1/datasetView.do) · [상권변화지표](https://data.seoul.go.kr/dataList/OA-15576/S/1/datasetView.do) (조건부) | 서울 열린데이터광장 |
+| R9 | [가맹정보](https://www.data.go.kr/data/15143693/openapi.do) (브랜드·체인 추정) | 공정거래위원회 |
+| R19 | [주소](https://www.data.go.kr/data/15057017/openapi.do) · [좌표](https://www.data.go.kr/data/15056663/openapi.do) API | 행정안전부 |
+| R8 | [카카오 로컬](https://developers.kakao.com/docs/latest/ko/local/dev-guide) · [지도](https://apis.map.kakao.com) | 카카오 |
+| R17 | 창업상담·소상공인 지원기관 링크 | 서울시 자영업지원센터 외 |
+| R18 | AI 해석 문장 구성 | Google Gemini API |
+
+## 11. 팀 소개
+
+| 이름 | 역할 | 담당 |
+|---|---|---|
+| 권민수 | 팀장 · PM | 기획 총괄, 일정 관리 |
+| 윤희은 | UI/UX | 화면 디자인 |
+| **류민지** | **Frontend** | **웹 화면 전체 개발·배포** |
+| 최호림 | Backend | 서버·DB·API, 배포 |
+| 김승은 | Backend | AI 해석·데이터 |
+
+### 프론트엔드 담당 작업 (류민지)
+
+| 분야 | 한 일 |
+|---|---|
+| 화면 개발 | 랜딩·입력·분석·종합 진단·저장 등 **화면 7종**을 디자인 4단계(STEP 01~04)로 구현 |
+| API 연동 | 공통 응답 타입·`fetch` 래퍼, API별 목업 스위치(`VITE_REAL_API_PATHS`)로 BE와 단계적 연결 |
+| 데이터 표시 | 점포 식별(`source + license_no`), "정보 없음"과 사유 표시, 공식/참고 지표 분리, 출처·기준일 라벨 |
+| 지도 | 카카오 지도 연동, 같은 좌표 묶음, 300개 초과 시 클러스터 |
+| 저장·공유 | PDF 진단서(인쇄용 화면), 1080×1350 요약 이미지 |
+| 안정성 | 영역별 오류 경계, 로딩 스켈레톤, 무료 서버 대비(미리 깨우기·45초 제한·1회 재시도) |
+| 품질 | Vitest 단위 테스트 도입, CI에 테스트 추가, 접근성 점검(본문 바로가기·대비·키보드) |
+| 디자인 | "앱스럽게" 4차례 다듬기, 모션·인터랙션, 휴대폰 최소 대응(가로 넘침 없음) |
+| 배포 | Vercel 배포(새로고침 대응, 배포 빌드에서 목업 제외), README·시연 대본 작성 |
+
+## 12. 유의사항
+
+- Spot:ON의 결과는 공공데이터 기반 **참고 정보**예요. 창업의 **성공·실패를 판정하지 않으며**, 사업주의 역량은 반영하지 않아요.
 - **폐업은 행정상 신고 기록 기준**이라 실제 영업 종료 시점과 다를 수 있어요.
-- 추정매출(상권 단위)과 생활인구(250m 격자 단위)는 추정치이며, 특정 점포의 실제 매출·고객 수가 아니에요.
-- **만 18세 이상 예비창업자**를 대상으로 해요.
-- AI 해석은 서버가 계산한 지표만을 바탕으로 만든 참고 문장이며, 전문적인 조언을 대신하지 않아요.
-- 시연용 가상 데이터를 쓴 화면에는 "시연 데이터"라고 표시해요.
+- 브랜드·체인은 이름·주소 근거에 따른 **추정**이며, 실제 가맹계약·과거 소속을 확인한 값이 아니에요.
+- AI 해석은 서버가 계산·검증한 지표만으로 만든 참고 문장이며, 전문적인 조언을 대신하지 않아요.
+- 회원가입 없이 이용하며 개인정보를 저장하지 않아요.
