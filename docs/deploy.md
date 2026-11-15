@@ -1,5 +1,7 @@
 # 배포 안내 (SpotON-FE)
 
+2026-11-15 사용자 후속 승인으로 [운영 v2 전환](production-chain-v2.md)을 진행한다. 운영 BE0012/publication·조회/AI 검증 후 Vercel 전용 buildCommand가 production=v2, preview/development=v1로 빌드한다. 일반 npm run build/로컬 기본값은v1이다. 아래 로컬 검증·공개 전환 승인 대기는 PR60 병합 시점의 이력이며 이번 전환 기준은 위 문서를 우선한다.
+
 브랜드 v2는 로컬 검증 단계다. VITE_ANALYSIS_API_VERSION이 없거나 비면v1이며 운영 Render0011에 호환된다. v2 공개 전환은 BE0012·publication·권한/배포가 준비된 뒤 별도 승인한다. develop 병합은 아래 설정처럼 공개 자동 배포이므로 #59 PR은 사용자 확인 전 병합하지 않는다.
 
 > 지금 미리보기 배포는 **Vercel** (5장). 1~4장은 어디에 올리든 공통으로 필요한 것이다.
