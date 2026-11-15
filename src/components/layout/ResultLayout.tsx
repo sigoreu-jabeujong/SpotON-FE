@@ -87,7 +87,10 @@ export default function ResultLayout() {
           className="flex-1 px-4 pt-6 pb-12 focus:outline-none sm:px-10"
         >
           <div className="max-w-[1080px]">
-            <BrandStatusNotice />
+            {/* STEP 02·03은 필터 기준 안내를 이 상자에 합쳐 한 번만 보여 준다 */}
+            <BrandStatusNotice
+              withFilterNotice={pathname === ROUTES.analysis || pathname === ROUTES.summary}
+            />
             <BrandResultBoundary>
               <Outlet />
             </BrandResultBoundary>
