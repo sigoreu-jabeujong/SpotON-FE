@@ -34,10 +34,13 @@ export default function AiFailure({ error, verifyFailed, onRetry }: Props) {
           <p className="text-body font-semibold text-gray-900">{T.unavailable}</p>
           {invalid && <p className="mt-0.5 text-caption text-gray-600">{T.invalidRequest}</p>}
           {verifyFailed && <p className="mt-0.5 text-caption text-gray-600">{T.verifyFailed}</p>}
+          {codeOf(error) === 'AI_CONTEXT_CHANGED' && (
+            <p className="mt-0.5 text-caption text-gray-600">{MESSAGES.brand.changed}</p>
+          )}
         </div>
       </div>
       <Button variant="secondary" onClick={onRetry} iconRight={<RotateCw className="size-4" />}>
-        {T.retry}
+        {codeOf(error) === 'AI_CONTEXT_CHANGED' ? MESSAGES.brand.reload : T.retry}
       </Button>
     </div>
   )

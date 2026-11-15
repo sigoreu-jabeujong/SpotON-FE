@@ -1,5 +1,7 @@
 # 배포 안내 (SpotON-FE)
 
+브랜드 v2는 로컬 검증 단계다. VITE_ANALYSIS_API_VERSION이 없거나 비면v1이며 운영 Render0011에 호환된다. v2 공개 전환은 BE0012·publication·권한/배포가 준비된 뒤 별도 승인한다. develop 병합은 아래 설정처럼 공개 자동 배포이므로 #59 PR은 사용자 확인 전 병합하지 않는다.
+
 > 지금 미리보기 배포는 **Vercel** (5장). 1~4장은 어디에 올리든 공통으로 필요한 것이다.
 > 호스팅 설정 파일은 실제로 쓰는 Vercel용 `vercel.json`만 둔다.
 

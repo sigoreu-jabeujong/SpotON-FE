@@ -1,3 +1,6 @@
+import type { StoreBrand } from '../types/brands'
+import type { BrandSelection } from './brands'
+import { brandMode, brandEmptyMessage } from './brands'
 /**
  * 점포 목록 결측 표시 규칙 — 이력 표·주변 점포 표·시점 조회 표·지도 정보창/마커·출력용 진단서가 함께 쓴다.
  * ⚠️ 날짜·기간을 만들거나 계산하지 않는다. 서버 값이 없으면 "정보 없음"·사유 문구만 돌려준다.
@@ -82,7 +85,8 @@ export function storePeriodLine(s: { operating_months: number | null } & WithRea
 }
 
 type WithFranchise = {
-  franchise: FranchiseStatus
+  franchise?: FranchiseStatus
+  brand?: StoreBrand
   franchise_basis?: FranchiseBasis | null
   franchise_reference_year?: number | null
 }
@@ -95,12 +99,46 @@ type WithFranchise = {
  * 근거 필드가 없는 예전 응답의 franchise는 기존처럼 "프랜차이즈(추정)".
  */
 export function storeFranchise(s: WithFranchise): {
-  kind: 'estimate' | 'external' | 'unknown'
+  kind: 'estimate' | 'external' | 'unknown' | 'conflict'
   label: string
   help: string | null
 } {
   const F = T.franchise
-  if (s.franchise === 'unknown') return { kind: 'unknown', label: F.unknown, help: null }
+  const brand = s.brand
+  if (brand) {
+    const B = MESSAGES.brand
+    if (brand.status === 'conflict')
+      return { kind: 'conflict', label: B.conflict, help: B.membershipLimit }
+    if (brand.status === 'unknown')
+      return {
+        kind: 'unknown',
+        label: B.unknownLabel,
+        help:
+          brand.reason === 'stale_input'
+            ? B.stale
+            : brand.reason === 'source_drift'
+              ? B.drift
+              : null,
+      }
+    const basis =
+      brand.basis === 'semas_address_corroborated'
+        ? B.semasBasis
+        : brand.basis === 'catalog_exact_name_estimate'
+          ? B.catalogBasis
+          : brand.basis === 'approved_alias_name_estimate'
+            ? B.aliasBasis
+            : null
+    const month = brand.reference_month?.replace(/^(\d{4})(\d{2})$/, '$1-$2')
+    return {
+      kind: 'estimate',
+      label: B.estimate,
+      help: [brand.name, basis, brand.reference_year ? `${brand.reference_year}년` : null, month]
+        .filter(Boolean)
+        .join(' · '),
+    }
+  }
+  if (!s.franchise || s.franchise === 'unknown')
+    return { kind: 'unknown', label: F.unknown, help: null }
   if (s.franchise_basis === 'external_classification')
     return {
       kind: 'external',
@@ -121,16 +159,22 @@ export function storeFranchise(s: WithFranchise): {
 /** 목록에 목록명 일치 추정 행이 있으면 그 기준년도 (표 아래 안내용), 없으면 undefined */
 export function franchiseEstimateYear(rows: readonly WithFranchise[]): number | null | undefined {
   const row = rows.find(
-    (r) => r.franchise === 'franchise' && r.franchise_basis === 'catalog_exact_name',
+    (r) =>
+      r.brand?.status === 'estimated' ||
+      (r.franchise === 'franchise' && r.franchise_basis === 'catalog_exact_name'),
   )
-  return row ? (row.franchise_reference_year ?? null) : undefined
+  return row ? (row.brand?.reference_year ?? row.franchise_reference_year ?? null) : undefined
 }
 
 /**
  * 가맹 필터로 0건일 때 — "점포가 없다"가 아니라 분류 자료가 없어 0건임을 알린다 (BE 가맹 추정 요청서 3장).
  * 전체 조건이면 null (서버 message 사용)
  */
-export function franchiseEmptyMessage(franchise: FranchiseFilter): string | null {
+export function franchiseEmptyMessage(
+  franchise: FranchiseFilter,
+  query?: BrandSelection,
+): string | null {
+  if (brandMode && query) return brandEmptyMessage(query)
   if (franchise === 'franchise') return MESSAGES.store.franchise.emptyFranchise
   if (franchise === 'independent') return MESSAGES.store.franchise.emptyIndependent
   return null

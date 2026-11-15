@@ -59,3 +59,20 @@ export const FRANCHISE_OPTIONS = [
   { id: 'independent', label: '개인 매장' },
 ] as const
 export type FranchiseFilter = (typeof FRANCHISE_OPTIONS)[number]['id']
+
+export const BRAND_SCOPE_OPTIONS = [
+  { id: 'all', label: '전체' },
+  { id: 'chain', label: '브랜드·체인' },
+  { id: 'non_chain', label: '비체인 조건' },
+] as const
+export const BRAND_UNKNOWN_OPTIONS = [
+  { id: 'include', label: '미확인 포함' },
+  { id: 'exclude', label: '미확인 제외' },
+] as const
+export const BRAND_EVIDENCE_OPTIONS = [
+  { id: 'include_estimates', label: '추정 근거 포함' },
+  { id: 'confirmed_only', label: '확인 근거만' },
+] as const
+export type BrandScope = (typeof BRAND_SCOPE_OPTIONS)[number]['id']
+export type BrandUnknown = (typeof BRAND_UNKNOWN_OPTIONS)[number]['id']
+export type BrandEvidence = (typeof BRAND_EVIDENCE_OPTIONS)[number]['id']

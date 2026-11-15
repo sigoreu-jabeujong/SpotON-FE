@@ -8,8 +8,8 @@ import { useStoreHistory } from './useStores'
  * 지금은 /stores/history 응답 meta 기준 (같은 쿼리 키라 이력 섹션과 캐시를 공유해 요청이 늘지 않는다).
  * 다른 API가 생기면 이 훅 안에서만 기준 API를 바꾸면 된다.
  */
-export function useResultBaseline(): string | null {
+export function useResultBaseline(enabled = true): string | null {
   const { query } = useDiagnosisQuery()
-  const history = useStoreHistory(toStoreHistoryParams(query))
+  const history = useStoreHistory(enabled ? toStoreHistoryParams(query) : null)
   return formatDataBaseline(history.data?.meta)
 }

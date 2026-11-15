@@ -1,4 +1,7 @@
-import type { CommonQueryParams } from '../types/api'
+import type { CommonQueryParams, V1QueryParams, V2QueryParams } from '../types/api'
+import { ANALYSIS_API_VERSION } from './analysisProfile'
+import type { AnalysisApiVersion } from '../config/analysisVersion'
+import { brandSelection } from '../utils/brands'
 import type { ActivityInclude } from '../types/market'
 import type { DiagnosisQuery } from '../types/diagnosis'
 import type { DataRangeParams } from '../types/meta'
@@ -16,9 +19,14 @@ export type Coordinates = { lat: number; lng: number }
 export function toCommonQueryParams(
   query: DiagnosisQuery,
   coords: Coordinates,
+  version: AnalysisApiVersion = ANALYSIS_API_VERSION,
 ): CommonQueryParams | null {
+  return version === 'v2' ? toV2QueryParams(query, coords) : toV1QueryParams(query, coords)
+}
+
+export function toV1QueryParams(query: DiagnosisQuery, coords: Coordinates): V1QueryParams | null {
   if (!query.category) return null
-  const params: CommonQueryParams = {
+  const params: V1QueryParams = {
     lat: coords.lat,
     lng: coords.lng,
     category: query.category,
@@ -35,6 +43,28 @@ export function toCommonQueryParams(
   }
   if (query.asOf) params.as_of = query.asOf
   return params
+}
+
+export function toV2QueryParams(query: DiagnosisQuery, coords: Coordinates): V2QueryParams | null {
+  if (!query.category) return null
+  const brand = brandSelection(query)
+  return {
+    lat: coords.lat,
+    lng: coords.lng,
+    category: query.category,
+    radius: query.radius,
+    area: query.area,
+    include_unknown_area: query.includeUnknown,
+    ...(query.category === 'restaurant' && query.subCategories.length
+      ? { sub_category: [...query.subCategories] }
+      : {}),
+    ...(query.asOf ? { as_of: query.asOf } : {}),
+    brand_scope: brand.brandScope,
+    brand_unknown: brand.brandUnknown,
+    brand_evidence: brand.brandEvidence,
+    brand_time_basis: 'observed_record',
+    operation_type: 'any',
+  }
 }
 
 /**

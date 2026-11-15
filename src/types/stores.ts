@@ -1,3 +1,4 @@
+import type { StoreBrand } from './brands'
 import type { Category, SubCategory } from '../constants/diagnosis'
 
 /** 점포 영업 상태: 영업 중 / 폐업 / 기타(휴업 등) */
@@ -66,11 +67,12 @@ export type HistoryStore = {
   operating_period_status: OperatingPeriodStatus
   operating_period_reason: OperatingPeriodReason | null
   store_status: StoreStatus
-  franchise: FranchiseStatus
-  franchise_basis: FranchiseBasis | null
-  franchise_reference_year: number | null
+  franchise?: FranchiseStatus
+  brand?: StoreBrand
+  franchise_basis?: FranchiseBasis | null
+  franchise_reference_year?: number | null
   floor_unit: string | null
-  location_match: LocationMatch
+  location_match: LocationMatch | null
 }
 
 export type StoreHistory = {
@@ -94,12 +96,12 @@ export type NearbyMarker = {
   /** 상호. 없으면 null */
   name: string | null
   sub_category: ApiSubCategory
-  lat: number
-  lng: number
+  lat: number | null
+  lng: number | null
   /** 서버가 계산한 실제 거리(m). 표시용 반올림 값으로 다시 거르거나 정렬하지 않는다 */
-  distance_m: number
+  distance_m: number | null
   /** 시점 판단을 통과한 유효 개업일 (성공 마커에서는 null 아님) */
-  open_date: string
+  open_date: string | null
   close_date: string | null
   /** 최신 데이터 기준 전체 영업 기간(개월). 0은 실제 0개월, null은 미산정 — 과거 시점까지로 자르지 않음 */
   operating_months: number | null
@@ -107,9 +109,10 @@ export type NearbyMarker = {
   operating_period_reason: OperatingPeriodReason | null
   /** 최신 데이터 기준 상태 (선택한 과거 시점의 상태가 아님) */
   current_status: StoreStatus
-  franchise: FranchiseStatus
-  franchise_basis: FranchiseBasis | null
-  franchise_reference_year: number | null
+  franchise?: FranchiseStatus
+  brand?: StoreBrand
+  franchise_basis?: FranchiseBasis | null
+  franchise_reference_year?: number | null
   /** 신고 면적 ㎡. 정보 없음(원본 0 포함)이면 null */
   area_m2: number | null
 }
@@ -137,18 +140,19 @@ export type SnapshotStore = {
   license_no: string
   name: string | null
   sub_category: ApiSubCategory
-  lat: number
-  lng: number
-  open_date: string
+  lat: number | null
+  lng: number | null
+  open_date: string | null
   close_date: string | null
   operating_months: number | null
   operating_period_status: OperatingPeriodStatus
   operating_period_reason: OperatingPeriodReason | null
   current_status: StoreStatus
   /** 신규 — 시점 조회 행에도 가맹 분류·근거 (거리·면적은 없음) */
-  franchise: FranchiseStatus
-  franchise_basis: FranchiseBasis | null
-  franchise_reference_year: number | null
+  franchise?: FranchiseStatus
+  brand?: StoreBrand
+  franchise_basis?: FranchiseBasis | null
+  franchise_reference_year?: number | null
 }
 
 export type StoreSnapshot = {

@@ -3,6 +3,8 @@ import { Bot, LoaderCircle, Sparkles } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { toRiskInterpretRequest } from '../../../api/params'
 import { queryKeys } from '../../../api/queryKeys'
+import { ApiRequestError } from '../../../api/client'
+import { hasRiskBaseline } from '../../../api/interpretationContext'
 import { MESSAGES } from '../../../constants/messages'
 import { useRiskInterpret } from '../../../hooks/useRisk'
 import type { ApiMeta, CommonQueryParams } from '../../../types/api'
@@ -38,6 +40,7 @@ type Props = {
  * 조건(필터·시점)이 바뀌면 부모가 key를 바꿔 이 컴포넌트를 새로 만든다 → 이전 결과·진행 중 요청 결과가 보이지 않는다.
  */
 export default function AiInterpretation({ params, history, address, meta }: Props) {
+  const baselineReady = hasRiskBaseline(params, meta)
   const interpret = useRiskInterpret()
   const queryClient = useQueryClient()
   const activeRequest = useRef<AbortController | null>(null)
@@ -49,7 +52,14 @@ export default function AiInterpretation({ params, history, address, meta }: Pro
   }, [interpret.isPending])
 
   const request = () => {
-    if (interpret.isPending) return
+    if (interpret.isPending || !baselineReady) return
+    if (
+      interpret.error instanceof ApiRequestError &&
+      interpret.error.code === 'AI_CONTEXT_CHANGED'
+    ) {
+      window.location.reload()
+      return
+    }
     // Risk GET과 같은 조건 그대로 (lat·lng·category·radius·sub_category·as_of(있을 때만)·area·franchise·include_unknown_area·include_unknown_franchise).
     // Risk GET에 include를 쓰지 않으므로 여기서도 넣지 않는다. 건물 키·층·주소는 보내지 않는다.
     // 이력 문맥(BE #98)은 query 밖 history 키로만 — 건물 키가 없으면 생략
@@ -57,12 +67,15 @@ export default function AiInterpretation({ params, history, address, meta }: Pro
     const controller = new AbortController()
     activeRequest.current = controller
     interpret.mutate(
-      { body, signal: controller.signal },
+      { body, signal: controller.signal, baseline: meta },
       {
         onSuccess: (res) => {
           // 검증을 통과한 해석만 같은 조건 키로 저장 → 진단서(PDF)에서 다시 요청하지 않고 쓴다
           if (res.data.verification.passed === true && res.data.body?.trim())
-            queryClient.setQueryData(queryKeys.riskInterpretation(params, history, address), res)
+            queryClient.setQueryData(
+              queryKeys.riskInterpretation(params, history, address, meta),
+              res,
+            )
         },
         // 실패해도 지표는 그대로, 자동 재호출 없음 (422는 입력 형식 오류 — AiFailure가 안내)
       },
@@ -99,11 +112,20 @@ export default function AiInterpretation({ params, history, address, meta }: Pro
           </div>
           <div className="flex items-center gap-3">
             <span className="text-micro text-gray-600">{T.startNotice}</span>
-            <Button onClick={request} iconRight={<Sparkles className="size-4" />}>
+            <Button
+              disabled={!baselineReady}
+              onClick={request}
+              iconRight={<Sparkles className="size-4" />}
+            >
               {T.start}
             </Button>
           </div>
         </div>
+      )}
+      {!baselineReady && (
+        <p role="status" className="text-caption text-gray-600">
+          {MESSAGES.brand.waitingRisk}
+        </p>
       )}
 
       {!interpret.isIdle && (

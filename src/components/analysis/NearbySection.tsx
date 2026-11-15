@@ -123,7 +123,9 @@ export default function NearbySection() {
             (data.count === 0 || !data.markers?.length ? (
               <EmptyState
                 message={
-                  franchiseEmptyMessage(query.franchise) ?? data.message ?? MESSAGES.common.empty
+                  franchiseEmptyMessage(query.franchise, query) ??
+                  data.message ??
+                  MESSAGES.common.empty
                 }
                 description={T.emptyHint}
                 onEditConditions={focusConditionFilter}

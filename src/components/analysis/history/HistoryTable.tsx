@@ -137,7 +137,8 @@ export default function HistoryTable({ stores }: Props) {
 }
 
 /** 위치 일치 — 미확인은 상태 라벨로 누락 없이 표시 */
-function LocationCell({ match }: { match: LocationMatch }) {
+function LocationCell({ match }: { match: LocationMatch | null }) {
+  if (match === null) return <StatusLabel status="unknown" />
   if (match === 'unverified') return <StatusLabel status="location_unverified" />
   return <Badge tone={match === 'same_spot' ? 'blue' : 'gray'}>{LOCATION_MATCH_LABEL[match]}</Badge>
 }

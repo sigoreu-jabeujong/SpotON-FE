@@ -1,10 +1,12 @@
 import type { CommonQueryParams } from '../types/api'
 import type { Risk, RiskInclude, RiskInterpretation, RiskInterpretRequest } from '../types/risk'
 import { apiGet, apiPost, DEFAULT_TIMEOUT_MS } from './client'
+import { analysisPath, validateAnalysisParams } from './analysisProfile'
 
 /** F-07 공식 지표 + 참고지표 (GET /api/risk) */
 export function getRisk(params: CommonQueryParams, include: RiskInclude[] = []) {
-  return apiGet<Risk>('/risk', { ...params, include })
+  validateAnalysisParams(params)
+  return apiGet<Risk>(analysisPath('/risk'), { ...params, include })
 }
 
 /**
@@ -20,7 +22,8 @@ export const INTERPRET_TIMEOUT_MS = DEFAULT_TIMEOUT_MS
  * 본문은 원래 조회 조건만 (query-only) — 자동 재호출하지 않고, 다시 시도는 사용자 버튼으로만
  */
 export function postRiskInterpret(body: RiskInterpretRequest, signal?: AbortSignal) {
-  return apiPost<RiskInterpretation>('/risk/interpret', body, {
+  validateAnalysisParams(body.query)
+  return apiPost<RiskInterpretation>(analysisPath('/risk/interpret'), body, {
     timeoutMs: INTERPRET_TIMEOUT_MS,
     signal,
   })

@@ -1,5 +1,7 @@
 # SpotON-FE
 
+브랜드·체인 v2 조회와 AI의 로컬 연결은 [v2 연동·검증 안내](docs/brand-chain-v2.md)를 따른다. 기본 빌드는 운영 호환 v1이고, 로컬 테스트 프로세스에서 VITE_ANALYSIS_API_VERSION=v2·VITE_API_BASE_URL=http://localhost:8001·VITE_USE_MOCK=false를 명시한다. 기존.env와 운영 설정은 변경하지 않는다.
+
 **Spot:ON(스팟온) 프론트엔드** — 계약하려는 주소 하나를 입력하면, 그 자리를 거쳐 간 점포의 이력과 주변 동일 업종의 생존 기록을 근거와 함께 보여주는 공공데이터 기반 창업 입지 진단 웹서비스
 
 > **Is your spot on? — 내 자리, 딱 맞는 자리일까요?**

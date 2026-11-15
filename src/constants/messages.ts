@@ -1,8 +1,67 @@
+import { BRAND_API_ENABLED } from '../api/analysisProfile'
+import { API_MESSAGES } from './apiMessages'
 /** 화면에 보이는 안내·오류·면책 문구 (한곳에서 관리) */
 const BRAND = 'Spot:ON'
 const withBrand = (name: string) => `${name} | ${BRAND}`
 
 export const MESSAGES = {
+  api: API_MESSAGES,
+  brand: {
+    title: '브랜드·체인 기준',
+    scope: '브랜드 소속',
+    unknown: '소속 미확인',
+    evidence: '판정 근거',
+    estimate: '브랜드·체인(추정)',
+    unknownLabel: '미확인',
+    conflict: '근거 충돌',
+    membershipLimit:
+      '가맹·직영·소규모 체인을 포함한 브랜드 소속 추정이에요. 실제 운영 형태·과거 소속은 확인되지 않았어요.',
+    unknownIncluded:
+      '미확인 점포도 포함한 결과이며, 모두 체인이나 개인 매장으로 확정한 목록이 아니에요.',
+    unknownExcluded: '소속을 확인할 근거가 없는 기록은 결과에서 제외해요.',
+    confirmedUnknown:
+      '확인 근거만·미확인 포함 조건에서는 추정 기록도 필터상 미확인으로 포함돼요. 행의 추정 표시는 그대로 유지해요.',
+    legacyArea:
+      '예전 정보 없음 제외는 면적에만 옮겼어요. 브랜드 소속 미확인은 현재 포함돼요. 두 조건을 따로 선택할 수 있어요.',
+    excludeUnknownAction: '소속 미확인도 제외하기',
+    mixedLegacy:
+      '새 브랜드 조건을 우선하고 예전 가맹·정보 없음 조건은 적용하지 않았어요. 조회 조건을 확인해 주세요.',
+    nonChainLimit:
+      '확인된 비체인 근거가 없으면 미확인을 제외한 결과는 0건이에요. 개인 매장이 없다는 뜻은 아니에요.',
+    confirmedLimit:
+      '확인 근거만은 추정을 확인된 소속으로 취급하지 않아요. 미확인을 제외하면 현재 확인 자료가 없어 0건일 수 있어요.',
+    pending: '브랜드 자료가 아직 준비되지 않았어요. 빈 결과를 체인이 없다는 뜻으로 읽지 마세요.',
+    drift:
+      '원천 기록이 바뀌어 주소 대조 근거를 다시 확인하고 있어요. 재검증 전에는 미확인으로 표시해요.',
+    emptyConfirmed:
+      '이 조건에 쓸 확인 근거가 없어 0건이에요. 실제 점포나 비체인이 없다는 뜻은 아니에요.',
+    emptyExcluded: '미확인 기록을 제외한 조회 결과가 0건이에요. 실제 체인이 없다는 뜻은 아니에요.',
+    legacyIndependent:
+      '예전 개인 매장 조건을 확인된 비체인 조건으로 바꿨어요. 현재 확인 근거가 없어 0건일 수 있어요.',
+    includeUnknownAction: '미확인도 포함해서 보기',
+    invalidUrl: '지원하지 않는 브랜드 조건을 기본값으로 바꿨어요. 조회 조건을 확인해 주세요.',
+    unsupportedUrl:
+      '이 화면에서는 새 브랜드·체인 조건을 지원하지 않아요. 조건을 다시 선택해 주세요.',
+    resetConditions: '조건 다시 선택하기',
+    statusFailed:
+      '브랜드 자료 연결 상태를 확인하지 못했어요. 각 조회 결과의 안내를 함께 확인해 주세요.',
+    statusLoading: '브랜드 자료 상태를 확인하고 있어요.',
+    generationMismatch:
+      '함께 조회한 자료의 공개 상태가 달라 결과를 잠시 숨겼어요. 같은 자료로 다시 조회해 주세요.',
+    reload: '같은 조건으로 다시 조회',
+    observation:
+      '현재 관측한 부분 자료이며 인허가 기록 단위예요. 실제 지점 수나 과거 소속을 확정하지 않아요.',
+    areaUnknown: '면적 정보 없음 포함',
+    areaExcluded: '면적 정보 없음 제외',
+    changed:
+      '자료가 갱신되었거나 조회 결과와 달라 해석을 표시하지 않았어요. 지표를 새로 확인한 뒤 다시 요청해 주세요.',
+    waitingRisk: '지표를 확인한 뒤 AI 해석을 요청할 수 있어요.',
+    note: '브랜드·체인 소속은 이름 또는 별도 점포·주소 근거에 따른 추정이에요. 실제 가맹계약·직영 형태·과거 소속은 확인되지 않았어요.',
+    stale: '입력 자료가 바뀌어 소속 재확인이 필요해요.',
+    semasBasis: '점포·주소 대조 근거',
+    catalogBasis: '브랜드명 대조 근거',
+    aliasBasis: '검수된 별칭 근거',
+  },
   /** 브라우저 탭 제목 (document.title) */
   titles: {
     landing: `${BRAND} — 내 자리, 딱 맞는 자리일까요?`,
@@ -142,7 +201,9 @@ export const MESSAGES = {
         independent: '기존 분류 자료가 있는 점포만 · 0곳으로 보일 수 있어요',
       },
       note: (year: number | null) =>
-        `프랜차이즈(추정)은 ${year ? `${year}년 ` : ''}공정위 브랜드 목록과 상호가 같은 점포예요. 실제 가맹계약·직영 여부·개업 당시 소속을 확인한 값은 아니에요.`,
+        BRAND_API_ENABLED
+          ? '브랜드·체인은 이름 또는 별도 점포·주소 근거에 따른 추정이에요. 실제 계약·운영 형태·과거 소속은 미확인이에요.'
+          : `프랜차이즈(추정)은 ${year ? `${year}년 ` : ''}공정위 브랜드 목록과 상호가 같은 점포예요. 실제 가맹계약·직영 여부·개업 당시 소속을 확인한 값은 아니에요.`,
     },
     /** 상호·개업일·기간이 없을 때 (0이나 빈칸으로 표시하지 않음) */
     missingValue: '정보 없음',
@@ -177,13 +238,15 @@ export const MESSAGES = {
       period: '영업 기간',
       status: '상태',
       location: '위치',
-      franchise: '프랜차이즈',
+      franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
     },
     noCloseDate: '폐업일 없음',
     notices: [
       '공공데이터 기반 정보로 실제 현황과 다를 수 있어요.',
       '폐업일은 행정상 신고 기록 기준이에요.',
-      '프랜차이즈(추정)은 공정위 브랜드 목록과 상호가 같은지로 고른 값이에요. 실제 계약이나 과거 소속은 아니에요.',
+      BRAND_API_ENABLED
+        ? '브랜드·체인 소속은 추정이며 실제 계약·운영 형태·과거 소속은 미확인이에요.'
+        : '프랜차이즈(추정)은 공정위 브랜드 목록과 상호가 같은지로 고른 값이에요. 실제 계약이나 과거 소속은 아니에요.',
     ],
     noticeTitle: '이력 확인 시 참고하세요',
     spaceBuilding: '건물 단위',
@@ -259,7 +322,7 @@ export const MESSAGES = {
       openDate: '개업일',
       period: '영업 기간',
       status: '최신 데이터 기준 상태',
-      franchise: '프랜차이즈',
+      franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
     },
     showOnMap: '지도에서 보기',
     mapRegion: '주변 점포 지도',
@@ -277,7 +340,7 @@ export const MESSAGES = {
       openDate: '개업일',
       period: '영업 기간',
       status: '최신 데이터 기준 상태',
-      franchise: '프랜차이즈',
+      franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
     },
   },
   /** STEP 02 ② 안의 시점 조회 (F-05) */
@@ -302,7 +365,7 @@ export const MESSAGES = {
       closeDate: '폐업일',
       period: '영업 기간',
       status: '최신 데이터 기준 상태',
-      franchise: '프랜차이즈',
+      franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
     },
     noCloseDate: '폐업일 없음',
     emptyStores: '그 시점에 조건에 맞는 점포가 없어요',
@@ -484,7 +547,7 @@ export const MESSAGES = {
     radius: '반경',
     asOf: '기준 시점',
     asOfCurrent: '현재',
-    franchise: '프랜차이즈',
+    franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
     historyTitle: '1. 과거 점포 이력',
     historyMore: (shown: number, total: number) => `최근 개업 순 ${total}건 중 ${shown}건`,
     nearbyTitle: '2. 주변 점포·시점 조회',
@@ -595,11 +658,17 @@ export const MESSAGES = {
       requestLimits: '이 요청에서 확인이 부족한 부분',
       rules: [
         '인허가 기록과 좌표 확보 자료를 기반으로 한 참고 정보이며, 지위승계 및 과거 영업 상태 재구성에 한계가 있어요.',
-        '공식 폐업률의 상권 적용 기준이 확인되지 않으면 해당 지표를 제공하지 않아요.',
-        '공식 창업위험도 수치는 자체 계산하지 않으며 서울시 공식 서비스에서 확인해 주세요.',
+        ...(BRAND_API_ENABLED
+          ? []
+          : [
+              '공식 폐업률의 상권 적용 기준이 확인되지 않으면 해당 지표를 제공하지 않아요.',
+              '공식 창업위험도 수치는 자체 계산하지 않으며 서울시 공식 서비스에서 확인해 주세요.',
+            ]),
         '상세 주소만으로 동일한 점포 자리의 과거 이력을 특정할 수 없을 수 있어요.',
         '건물 이력은 최신 자료 기준이며 요청한 과거 시점과 다를 수 있어요. 다른 업종의 기록을 직접적인 경쟁 지표로 쓰지 않아요.',
-        '프랜차이즈 추정은 공정위 브랜드 목록과 점포명 일치 여부를 참고하며 실제 계약이나 과거 소속을 증명하지 않아요. 정보 없음을 개인 매장으로 바꾸지 않아요.',
+        BRAND_API_ENABLED
+          ? '가맹·직영·소규모 체인을 포함한 소속 추정이며 실제 계약·운영 형태·과거 소속은 미확인이에요. 미확인을 개인 매장으로 바꾸지 않아요.'
+          : '프랜차이즈 추정은 공정위 브랜드 목록과 점포명 일치 여부를 참고하며 실제 계약이나 과거 소속을 증명하지 않아요. 정보 없음을 개인 매장으로 바꾸지 않아요.',
         '수집 완료일이 확인되지 않으면 검증일을 수집일로 대신 표시하지 않아요.',
         '매출과 생활인구 등 미확보 자료는 제외하며 수요·수익성·미래 결과를 추정하지 않아요.',
       ],

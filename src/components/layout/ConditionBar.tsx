@@ -12,6 +12,8 @@ import { ROUTES } from '../../constants/routes'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { formatYearMonthKo } from '../../utils/format'
 import { cn } from '../../utils/cn'
+import { BRAND_API_ENABLED } from '../../api/analysisProfile'
+import { brandConditionSummary } from '../../utils/brands'
 
 const T = MESSAGES.conditionBar
 
@@ -74,8 +76,14 @@ export default function ConditionBar() {
             <Chip>{T.asOfCurrent}</Chip>
           )}
           {area && <Chip>{T.area(area)}</Chip>}
-          {franchise && <Chip>{T.franchise(franchise)}</Chip>}
-          {!query.includeUnknown && <Chip>{T.excludeUnknown}</Chip>}
+          {BRAND_API_ENABLED ? (
+            <Chip>{brandConditionSummary(query)}</Chip>
+          ) : (
+            franchise && <Chip>{T.franchise(franchise)}</Chip>
+          )}
+          {!query.includeUnknown && (
+            <Chip>{BRAND_API_ENABLED ? MESSAGES.brand.areaExcluded : T.excludeUnknown}</Chip>
+          )}
         </ul>
         <Link
           to={{ pathname: ROUTES.input, search }}

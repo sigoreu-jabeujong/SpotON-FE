@@ -1,5 +1,7 @@
+import { BRAND_API_ENABLED } from '../../api/analysisProfile'
+import { brandConditionSummary } from '../../utils/brands'
 import { forwardRef, type CSSProperties } from 'react'
-import { CATEGORIES, FRANCHISE_OPTIONS } from '../../constants/diagnosis'
+import { CATEGORIES, FRANCHISE_OPTIONS, FACILITY_SIZE_OPTIONS } from '../../constants/diagnosis'
 import { DATA_STATUS } from '../../constants/labels'
 import { MESSAGES } from '../../constants/messages'
 import { parseSourceIds, SOURCES } from '../../constants/sources'
@@ -120,9 +122,19 @@ const SummaryImageCard = forwardRef<HTMLDivElement, { data: Data }>(function Sum
             query.radius,
             formatYearMonthKo(query.asOf) ?? T.image.asOfCurrent,
           )}
-          {query.franchise !== 'all' &&
-            ` · ${FRANCHISE_OPTIONS.find((f) => f.id === query.franchise)?.label ?? ''}`}
+          {BRAND_API_ENABLED
+            ? ` · ${brandConditionSummary(query)}`
+            : query.franchise !== 'all' &&
+              ` · ${FRANCHISE_OPTIONS.find((f) => f.id === query.franchise)?.label ?? ''}`}
         </div>
+        {BRAND_API_ENABLED && (
+          <div style={{ fontSize: 22, color: C.gray600, marginTop: 8 }}>
+            {MESSAGES.conditionBar.area(
+              FACILITY_SIZE_OPTIONS.find((value) => value.id === query.area)?.range ?? '',
+            )}{' '}
+            · {query.includeUnknown ? MESSAGES.brand.areaUnknown : MESSAGES.brand.areaExcluded}
+          </div>
+        )}
         {history && (
           <div style={{ fontSize: 28, marginTop: 20, ...pill(C.blueLight, C.blueDark) }}>
             {MESSAGES.history.summary(history.total)}

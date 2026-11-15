@@ -1,3 +1,7 @@
+import { BRAND_API_ENABLED } from '../api/analysisProfile'
+import { BrandResultBoundary } from '../components/common/BrandStatusNotice'
+import InfoBox from '../components/common/InfoBox'
+import { brandConditionSummary, brandFilterNotice } from '../utils/brands'
 import { ArrowLeft, Printer } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { Link, Navigate } from 'react-router'
@@ -11,7 +15,12 @@ import {
   formatSeoulAvg,
   indicatorReasonText,
 } from '../components/summary/indicatorFormat'
-import { CATEGORIES, FRANCHISE_OPTIONS, RESTAURANT_SUB_CATEGORIES } from '../constants/diagnosis'
+import {
+  CATEGORIES,
+  FRANCHISE_OPTIONS,
+  RESTAURANT_SUB_CATEGORIES,
+  FACILITY_SIZE_OPTIONS,
+} from '../constants/diagnosis'
 import {
   INDICATOR_NAME,
   INDICATOR_TYPE,
@@ -79,6 +88,18 @@ export default function ReportPage() {
 
   if (!isDiagnosisReady(query))
     return <Navigate to={{ pathname: ROUTES.input, search: toDiagnosisSearch(query) }} replace />
+  if (!BRAND_API_ENABLED && query.brandUrlNotice === 'unsupported_brand')
+    return (
+      <main className="p-6">
+        <InfoBox title={MESSAGES.brand.title} description={MESSAGES.brand.unsupportedUrl} />
+        <Link
+          className="inline-flex min-h-11 items-center underline"
+          to={{ pathname: ROUTES.input, search: toDiagnosisSearch(query) }}
+        >
+          {MESSAGES.brand.resetConditions}
+        </Link>
+      </main>
+    )
 
   const print = () => {
     setPrintFailed(false)
@@ -98,68 +119,70 @@ export default function ReportPage() {
   const isDemo = metas.some((m) => m?.is_demo)
 
   return (
-    <div className="min-h-full bg-gray-100 print:bg-gray-0">
-      <div className="print:hidden">
-        <SkipLink />
-      </div>
-      {/* 화면 전용 도구 막대 (인쇄 시 숨김) */}
-      <div className="sticky top-0 z-10 border-b border-gray-300 bg-gray-0 print:hidden">
-        <div className="mx-auto flex max-w-[210mm] flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link
-            to={{ pathname: ROUTES.share, search: toDiagnosisSearch(query) }}
-            className="flex items-center gap-1 text-caption font-semibold text-gray-900 hover:text-blue-700 max-md:min-h-11"
-          >
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            {T.back}
-          </Link>
-          <p className="text-micro text-gray-600">{T.toolbarHint}</p>
-          <button
-            type="button"
-            onClick={print}
-            disabled={data.loading}
-            className="flex h-10 items-center gap-1.5 rounded-full bg-blue-600 px-5 text-caption font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait disabled:bg-gray-300"
-          >
-            <Printer className="size-4" aria-hidden="true" />
-            {T.print}
-          </button>
+    <BrandResultBoundary>
+      <div className="min-h-full bg-gray-100 print:bg-gray-0">
+        <div className="print:hidden">
+          <SkipLink />
         </div>
-        {printFailed && (
-          <p role="alert" className="pb-3 text-center text-caption text-danger">
-            {T.printFailed}
-          </p>
-        )}
-      </div>
+        {/* 화면 전용 도구 막대 (인쇄 시 숨김) */}
+        <div className="sticky top-0 z-10 border-b border-gray-300 bg-gray-0 print:hidden">
+          <div className="mx-auto flex max-w-[210mm] flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <Link
+              to={{ pathname: ROUTES.share, search: toDiagnosisSearch(query) }}
+              className="flex items-center gap-1 text-caption font-semibold text-gray-900 hover:text-blue-700 max-md:min-h-11"
+            >
+              <ArrowLeft className="size-4" aria-hidden="true" />
+              {T.back}
+            </Link>
+            <p className="text-micro text-gray-600">{T.toolbarHint}</p>
+            <button
+              type="button"
+              onClick={print}
+              disabled={data.loading}
+              className="flex h-10 items-center gap-1.5 rounded-full bg-blue-600 px-5 text-caption font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait disabled:bg-gray-300"
+            >
+              <Printer className="size-4" aria-hidden="true" />
+              {T.print}
+            </button>
+          </div>
+          {printFailed && (
+            <p role="alert" className="pb-3 text-center text-caption text-danger">
+              {T.printFailed}
+            </p>
+          )}
+        </div>
 
-      {/* 진단서 전체: 한국어는 단어 단위로 줄바꿈 (A4 폭의 좁은 표 칸에서 "폐/업률"처럼 끊기지 않게) */}
-      <main
-        id={MAIN_ID}
-        tabIndex={-1}
-        className="report mx-auto my-6 max-w-[210mm] bg-gray-0 px-[12mm] py-[10mm] text-[11px] leading-snug break-keep text-gray-900 shadow-card focus:outline-none print:my-0 print:max-w-none print:p-0 print:shadow-none"
-      >
-        {data.loading ? (
-          <LoadingState message={T.loading} />
-        ) : (
-          <>
-            {data.failed.length > 0 && (
-              <div className="print:hidden">
-                <ErrorState message={T.partialError} onRetry={data.retry} />
-              </div>
-            )}
-            <ReportHeader isDemo={isDemo} data={data} />
-            <HistoryBlock data={data} />
-            <NearbyBlock data={data} />
-            <ActivityBlock data={data} />
-            <IndicatorsBlock indicators={data.risk.data?.data.indicators ?? []} data={data} />
-            <AiBlock data={data} />
-            <FooterBlock
-              metas={metas}
-              isDemo={isDemo}
-              restaurant={data.query.category === 'restaurant'}
-            />
-          </>
-        )}
-      </main>
-    </div>
+        {/* 진단서 전체: 한국어는 단어 단위로 줄바꿈 (A4 폭의 좁은 표 칸에서 "폐/업률"처럼 끊기지 않게) */}
+        <main
+          id={MAIN_ID}
+          tabIndex={-1}
+          className="report mx-auto my-6 max-w-[210mm] bg-gray-0 px-[12mm] py-[10mm] text-[11px] leading-snug break-keep text-gray-900 shadow-card focus:outline-none print:my-0 print:max-w-none print:p-0 print:shadow-none"
+        >
+          {data.loading ? (
+            <LoadingState message={T.loading} />
+          ) : (
+            <>
+              {data.failed.length > 0 && (
+                <div className="print:hidden">
+                  <ErrorState message={T.partialError} onRetry={data.retry} />
+                </div>
+              )}
+              <ReportHeader isDemo={isDemo} data={data} />
+              <HistoryBlock data={data} />
+              <NearbyBlock data={data} />
+              <ActivityBlock data={data} />
+              <IndicatorsBlock indicators={data.risk.data?.data.indicators ?? []} data={data} />
+              <AiBlock data={data} />
+              <FooterBlock
+                metas={metas}
+                isDemo={isDemo}
+                restaurant={data.query.category === 'restaurant'}
+              />
+            </>
+          )}
+        </main>
+      </div>
+    </BrandResultBoundary>
   )
 }
 
@@ -186,12 +209,23 @@ function ReportHeader({ isDemo, data }: { isDemo: boolean; data: Data }) {
     [T.radius, `${query.radius.toLocaleString('ko-KR')}m`],
     [T.asOf, formatYearMonthKo(query.asOf) ?? T.asOfCurrent],
     // 가맹 필터를 골랐을 때만 (기본 "전체"는 표시하지 않아 기존 진단서와 같음)
-    ...(query.franchise !== 'all'
-      ? ([[T.franchise, FRANCHISE_OPTIONS.find((f) => f.id === query.franchise)?.label ?? '']] as [
-          string,
-          string,
-        ][])
-      : []),
+    ...(BRAND_API_ENABLED
+      ? ([
+          [MESSAGES.brand.title, brandConditionSummary(query)],
+          [
+            MESSAGES.filter.area,
+            FACILITY_SIZE_OPTIONS.find((value) => value.id === query.area)?.range ?? '',
+          ],
+          [
+            MESSAGES.ai.context.unknownArea,
+            query.includeUnknown ? MESSAGES.ai.context.included : MESSAGES.ai.context.excluded,
+          ],
+        ] as [string, string][])
+      : query.franchise !== 'all'
+        ? ([
+            [T.franchise, FRANCHISE_OPTIONS.find((f) => f.id === query.franchise)?.label ?? ''],
+          ] as [string, string][])
+        : []),
   ]
   return (
     <header className="break-inside-avoid">
@@ -263,7 +297,11 @@ function HistoryBlock({ data }: { data: Data }) {
                     {period.reason && <span className="block text-gray-600">{period.reason}</span>}
                   </Td>
                   <Td>{STORE_STATUS_LABEL[s.store_status]}</Td>
-                  <Td>{LOCATION_MATCH_LABEL[s.location_match]}</Td>
+                  <Td>
+                    {s.location_match
+                      ? LOCATION_MATCH_LABEL[s.location_match]
+                      : MESSAGES.store.missingValue}
+                  </Td>
                   <Td>{storeFranchise(s).label}</Td>
                 </tr>
               )
@@ -479,13 +517,15 @@ function IndicatorsBlock({ indicators, data }: { indicators: RiskIndicator[]; da
             : S.outside}
       </p>
       {/* 화면 종합 진단과 같은 가맹 필터 기준 안내 (FranchiseFilterNotice와 같은 문구) */}
-      {data.query.franchise !== 'all' && (
+      {(BRAND_API_ENABLED || data.query.franchise !== 'all') && (
         <p className="mb-1 text-gray-600">
-          {data.query.franchise === 'independent'
-            ? MESSAGES.store.franchise.filterIndependent
-            : MESSAGES.store.franchise.filterFranchise(
-                data.risk.data?.meta?.franchise_classification?.reference_year ?? null,
-              )}
+          {BRAND_API_ENABLED
+            ? brandFilterNotice(data.query, data.risk.data?.meta)
+            : data.query.franchise === 'independent'
+              ? MESSAGES.store.franchise.filterIndependent
+              : MESSAGES.store.franchise.filterFranchise(
+                  data.risk.data?.meta?.franchise_classification?.reference_year ?? null,
+                )}
         </p>
       )}
       {/* 공식 지표가 응답에 하나도 없으면(BE #142) 공식 표를 빼고 참고지표 표만 */}

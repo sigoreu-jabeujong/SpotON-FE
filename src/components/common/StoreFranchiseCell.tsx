@@ -10,10 +10,12 @@ type Props = { store: Parameters<typeof storeFranchise>[0] }
  */
 export default function StoreFranchiseCell({ store }: Props) {
   const f = storeFranchise(store)
-  if (f.kind === 'unknown') return <StatusLabel status="unknown" />
+  if (f.kind === 'unknown' && !store.brand) return <StatusLabel status="unknown" />
   return (
     <>
-      <Badge tone={store.franchise === 'franchise' ? 'blue' : 'gray'}>{f.label}</Badge>
+      <Badge tone={f.kind === 'estimate' || store.franchise === 'franchise' ? 'blue' : 'gray'}>
+        {f.label}
+      </Badge>
       {f.help && <span className="mt-0.5 block text-micro break-keep text-gray-600">{f.help}</span>}
     </>
   )

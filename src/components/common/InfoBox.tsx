@@ -1,4 +1,5 @@
 import { Info } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { cn } from '../../utils/cn'
 
 type Props = {
@@ -10,13 +11,21 @@ type Props = {
   /** 여러 줄 안내 (예: 이력 표 아래 유의사항) */
   items?: readonly string[]
   className?: string
+  children?: ReactNode
 }
 
 /**
  * 회색 안내 상자 — 아이콘 + (제목) + 사유/여러 줄 안내.
  * "비교할 수 없어요·자료 없음" 같은 안내를 결과 화면 어디서나 같은 모양으로 보여준다.
  */
-export default function InfoBox({ title, showTitle, description, items, className }: Props) {
+export default function InfoBox({
+  title,
+  showTitle,
+  description,
+  items,
+  className,
+  children,
+}: Props) {
   return (
     <aside
       aria-label={showTitle ? undefined : title}
@@ -38,6 +47,7 @@ export default function InfoBox({ title, showTitle, description, items, classNam
             ))}
           </ul>
         )}
+        {children}
       </div>
     </aside>
   )

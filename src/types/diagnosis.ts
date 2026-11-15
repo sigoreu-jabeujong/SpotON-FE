@@ -1,5 +1,8 @@
 import type {
   Category,
+  BrandScope,
+  BrandUnknown,
+  BrandEvidence,
   FacilitySize,
   FranchiseFilter,
   RadiusMeters,
@@ -18,6 +21,11 @@ export type DiagnosisQuery = {
   /** 시설 규모 (단일 선택, 기본 all) */
   area: FacilitySize
   franchise: FranchiseFilter
+  brandScope?: BrandScope
+  brandUnknown?: BrandUnknown
+  brandEvidence?: BrandEvidence
+  brandUrlNotice?:
+    'legacy_independent' | 'legacy_area' | 'mixed_legacy' | 'invalid_brand' | 'unsupported_brand'
   /** 면적·프랜차이즈 "정보 없음" 점포 포함 여부 (기본 true) */
   includeUnknown: boolean
   /* ── /geocode 결과 (입력 화면에서 채움, URL: lat·lng·bk·floor·gu) ── */
