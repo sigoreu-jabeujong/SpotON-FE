@@ -23,7 +23,7 @@ import {
   BRAND_UNKNOWN_OPTIONS,
   BRAND_EVIDENCE_OPTIONS,
 } from '../../constants/diagnosis'
-import { brandSelection } from '../../utils/brands'
+import { brandScopeHint, brandSelection } from '../../utils/brands'
 
 const T = MESSAGES.filter
 
@@ -83,6 +83,7 @@ function FilterForm({
   // 적용된 업종·세부 업종 기준 (주변 조회와 같은 조건)
   const dataRange = useDataRange(toDataRangeParams(query))
   const changed = !sameDraft(draft, applied)
+  const scopeHint = brandScopeHint(draft)
   const isRestaurant = query.category === 'restaurant'
 
   const toggleSub = (id: SubCategory) =>
@@ -178,7 +179,26 @@ function FilterForm({
 
         {BRAND_API_ENABLED && (
           <>
-            <Group legend={MESSAGES.brand.scope} hint={MESSAGES.brand.membershipLimit} segmented>
+            <Group
+              legend={MESSAGES.brand.scope}
+              hint={MESSAGES.brand.membershipLimit}
+              segmented
+              // 브랜드·체인 + 미확인 포함이면 미확인도 함께 나온다는 안내 (BE·필터 의미는 그대로)
+              below={
+                scopeHint && (
+                  <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-micro text-gray-900">
+                    <span>{MESSAGES.brand[scopeHint]}</span>
+                    <button
+                      type="button"
+                      onClick={() => onApply({ ...draft, brandUnknown: 'exclude' })}
+                      className="inline-flex min-h-8 items-center rounded-full border border-blue-500 px-3 font-semibold text-blue-700 motion-colors hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 max-md:min-h-11"
+                    >
+                      {MESSAGES.brand.chainExcludeUnknownAction}
+                    </button>
+                  </p>
+                )
+              }
+            >
               {BRAND_SCOPE_OPTIONS.map((option) => (
                 <Choice
                   key={option.id}
@@ -300,10 +320,13 @@ function Group({
   legend,
   hint,
   segmented,
+  below,
   children,
 }: {
   legend: string
   hint?: string
+  /** 선택지 아래 한 줄 안내 */
+  below?: ReactNode
   /** 하나만 고르는 선택지 — 회색 틀 안의 세그먼트 모양 */
   segmented?: boolean
   children: ReactNode
@@ -322,6 +345,7 @@ function Group({
       >
         {children}
       </div>
+      {below}
     </fieldset>
   )
 }

@@ -39,6 +39,10 @@ export const MESSAGES = {
     legacyIndependent:
       '예전 개인 매장 조건을 확인된 비체인 조건으로 바꿨어요. 현재 확인 근거가 없어 0건일 수 있어요.',
     includeUnknownAction: '미확인도 포함해서 보기',
+    /** 조회 조건에서 브랜드·체인 + 미확인 포함을 골랐을 때 (브랜드 소속 아래 한 줄) */
+    chainIncludesUnknown:
+      '미확인 점포도 함께 보여요. 브랜드·체인(추정)만 보려면 미확인을 제외하세요',
+    chainExcludeUnknownAction: '미확인 제외하고 보기',
     invalidUrl: '지원하지 않는 브랜드 조건을 기본값으로 바꿨어요. 조회 조건을 확인해 주세요.',
     unsupportedUrl:
       '이 화면에서는 새 브랜드·체인 조건을 지원하지 않아요. 조건을 다시 선택해 주세요.',
