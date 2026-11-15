@@ -1,5 +1,7 @@
 # CLAUDE.md — SpotON-FE
 
+2026-11-15 운영 v2 전환 완료. BE PR154의 성능 보완/0012·publication·조회 권한 검증 뒤 FE PR62를 공개 활성화했다. Production=v2, Preview/development=v1, 일반 로컬 기본v1이다. 공개 필터·실제 AI·보고서·모바일390/360·키보드·오류/취소를 확인했다. [운영 실행·검수·복구 기록](https://github.com/sigoreu-jabeujong/SpotON-BE/blob/develop/docs/designs/production-chain-v2-rollout.md)을 따른다. 아래 과거 진행/승인 대기 문구는 이 전환에 관해 완료된 이력이다.
+
 2026-11-15 PR60 병합 뒤 사용자 후속 승인으로 [운영 v2 전환](docs/production-chain-v2.md)을 진행한다. 운영 BE0012/publication/조회권한/실제 AI 검증 후 production만v2로 활성화한다. Vercel 전용 빌드가 production=v2/preview·development=v1을 고정하고 일반 로컬 기본v1을 유지한다. 이번 승인으로 앞선 develop 병합/공개 v2 별도 승인 대기는 충족됐으며 검증·실제 Claude 검수·PR CI 후 병합한다.
 
 2026-11-15 #59 사용자 승인으로 [브랜드·체인 v2 연동](docs/brand-chain-v2.md)을 구현한다. VITE_ANALYSIS_API_VERSION은 기본v1/명시v2이며 로컬5180↔BE8001을 검증한다. v2는 독립 브랜드·미확인·근거와 면적 조건,무브랜드 이력,추정/미확인/충돌 표시,같은 자료의 AI/진단서 캐시를 따른다. legacy 가맹 규칙은 v1에만 적용한다. 원래.env·기존5173·운영 BE/Render를 유지한다. develop 병합은 공개 Vercel 자동 배포이므로 사용자 확인 전 병합하지 않는다.

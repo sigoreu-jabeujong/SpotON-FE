@@ -1,5 +1,7 @@
 # 배포 안내 (SpotON-FE)
 
+2026-11-15 운영 v2 전환 완료. BE PR154의 성능 보완/0012·publication·조회 권한 검증 뒤 FE PR62를 공개 활성화했다. Production=v2, Preview/development=v1, 일반 로컬 기본v1이다. 공개 필터·실제 AI·보고서·모바일390/360·키보드·오류/취소를 확인했다. [운영 실행·검수·복구 기록](https://github.com/sigoreu-jabeujong/SpotON-BE/blob/develop/docs/designs/production-chain-v2-rollout.md)을 따른다. 아래 과거 진행/승인 대기 문구는 이 전환에 관해 완료된 이력이다.
+
 2026-11-15 사용자 후속 승인으로 [운영 v2 전환](production-chain-v2.md)을 진행한다. 운영 BE0012/publication·조회/AI 검증 후 Vercel 전용 buildCommand가 production=v2, preview/development=v1로 빌드한다. 일반 npm run build/로컬 기본값은v1이다. 아래 로컬 검증·공개 전환 승인 대기는 PR60 병합 시점의 이력이며 이번 전환 기준은 위 문서를 우선한다.
 
 브랜드 v2는 로컬 검증 단계다. VITE_ANALYSIS_API_VERSION이 없거나 비면v1이며 운영 Render0011에 호환된다. v2 공개 전환은 BE0012·publication·권한/배포가 준비된 뒤 별도 승인한다. develop 병합은 아래 설정처럼 공개 자동 배포이므로 #59 PR은 사용자 확인 전 병합하지 않는다.
