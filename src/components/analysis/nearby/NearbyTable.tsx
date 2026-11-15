@@ -93,14 +93,23 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                       type="button"
                       aria-pressed={selected}
                       aria-label={`${name.text} ${T.showOnMap}`}
+                      // 휴대폰에서는 한 줄 말줄임 — 잘린 전체 이름은 title로
+                      title={name.text}
                       onClick={(e) => {
                         e.stopPropagation()
                         onSelect(id)
                       }}
-                      className="inline-flex items-center gap-1 rounded hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                      className="inline-flex items-center gap-1 rounded hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 max-md:max-w-32"
                     >
-                      {selected && <MapPin className="size-3.5 text-blue-500" aria-hidden="true" />}
-                      <span className={cn(name.missing && 'font-normal text-gray-600')}>
+                      {selected && (
+                        <MapPin className="size-3.5 shrink-0 text-blue-500" aria-hidden="true" />
+                      )}
+                      <span
+                        className={cn(
+                          'max-md:truncate',
+                          name.missing && 'font-normal text-gray-600',
+                        )}
+                      >
                         {name.text}
                       </span>
                     </button>

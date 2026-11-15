@@ -60,12 +60,16 @@ export default function SnapshotTable({ stores, periodLabel }: Props) {
                   <td className="px-3 py-4 text-gray-600">{i + 1}</td>
                   <th
                     scope="row"
+                    // 휴대폰에서는 한 줄 말줄임 — 잘린 전체 이름은 title로
+                    title={name.text}
                     className={cn(
                       'px-3 py-4',
                       name.missing ? missingClass : 'font-semibold text-gray-900',
                     )}
                   >
-                    {name.text}
+                    <span className="max-md:mx-auto max-md:block max-md:max-w-32 max-md:truncate">
+                      {name.text}
+                    </span>
                   </th>
                   <td className="px-3 py-4">{SUB_CATEGORY_LABEL[s.sub_category]}</td>
                   <td className={cn('px-3 py-4 whitespace-nowrap', open.missing && missingClass)}>
