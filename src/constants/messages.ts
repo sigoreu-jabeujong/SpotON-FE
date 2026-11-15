@@ -39,6 +39,14 @@ export const MESSAGES = {
     legacyIndependent:
       '예전 개인 매장 조건을 확인된 비체인 조건으로 바꿨어요. 현재 확인 근거가 없어 0건일 수 있어요.',
     includeUnknownAction: '미확인도 포함해서 보기',
+    /** 조회 조건에서 브랜드·체인 + 미확인 포함을 골랐을 때 (브랜드 소속 아래 한 줄) */
+    chainIncludesUnknown:
+      '미확인 점포도 함께 보여요. 브랜드·체인(추정)만 보려면 미확인을 제외하세요',
+    chainExcludeUnknownAction: '미확인 제외하고 보기',
+    /** 조회 조건 브랜드 설명 팝오버 (세 그룹 옆에 붙어 있던 긴 설명을 모아 둠) */
+    filterInfoTrigger: '브랜드·체인 조건 설명 보기',
+    filterInfoTitle: '브랜드·체인 조건 설명',
+    filterInfoClose: '설명 닫기',
     invalidUrl: '지원하지 않는 브랜드 조건을 기본값으로 바꿨어요. 조회 조건을 확인해 주세요.',
     unsupportedUrl:
       '이 화면에서는 새 브랜드·체인 조건을 지원하지 않아요. 조건을 다시 선택해 주세요.',
@@ -266,6 +274,8 @@ export const MESSAGES = {
     submit: '조회',
     scopeNotice: '이 조건은 지도·시점 조회·상권 활동·종합 진단에 함께 적용돼요',
     unchanged: '바뀐 조건이 없어요',
+    /** 조건을 바꾸고 아직 조회를 누르지 않았을 때 (조회 버튼 바로 왼쪽) */
+    pendingApply: '조건이 바뀌었어요 · 조회를 눌러 적용해 주세요',
     asOf: '기준 시점',
     asOfCurrent: '현재',
     asOfYear: '연도',
