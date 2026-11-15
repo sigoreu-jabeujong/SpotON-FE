@@ -72,14 +72,14 @@ export default function HistoryTable({ stores }: Props) {
                   <td className="px-3 py-4 text-gray-600">{i + 1}</td>
                   <th
                     scope="row"
-                    // 휴대폰에서는 한 줄 말줄임 — 잘린 전체 이름은 title로
+                    // 휴대폰에서는 한 줄 말줄임(line-clamp: nowrap이면 휴대폰 화면 폭이 넓어져서) — 잘린 전체 이름은 title로
                     title={name.text}
                     className={cn(
                       'px-3 py-4',
                       name.missing ? missingClass : 'font-semibold text-gray-900',
                     )}
                   >
-                    <span className="max-md:mx-auto max-md:block max-md:max-w-32 max-md:truncate">
+                    <span className="max-md:mx-auto max-md:line-clamp-1 max-md:max-w-32 max-md:break-all">
                       {name.text}
                     </span>
                   </th>

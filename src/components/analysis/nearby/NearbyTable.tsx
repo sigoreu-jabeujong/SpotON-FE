@@ -93,7 +93,7 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                       type="button"
                       aria-pressed={selected}
                       aria-label={`${name.text} ${T.showOnMap}`}
-                      // 휴대폰에서는 한 줄 말줄임 — 잘린 전체 이름은 title로
+                      // 휴대폰에서는 한 줄 말줄임(line-clamp: nowrap이면 휴대폰 화면 폭이 넓어져서) — 잘린 전체 이름은 title로
                       title={name.text}
                       onClick={(e) => {
                         e.stopPropagation()
@@ -106,7 +106,7 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                       )}
                       <span
                         className={cn(
-                          'max-md:truncate',
+                          'max-md:line-clamp-1 max-md:break-all',
                           name.missing && 'font-normal text-gray-600',
                         )}
                       >
