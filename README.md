@@ -1,8 +1,6 @@
 <div align="center">
 
-# Spot:ON · Frontend
-
-**Is your spot on? — 내 자리, 딱 맞는 자리일까요?**
+<img src="docs/images/banner.webp" alt="Spot:ON Frontend — Is your spot on? 내 자리, 딱 맞는 자리일까요? 창업 전, 그 자리의 과거를 확인하세요" width="100%">
 
 계약하려는 주소 하나로 그 자리를 거쳐 간 점포의 이력과 주변 같은 업종의 생존 기록을 근거와 함께 보여주는<br>
 **공공데이터 기반 창업 입지 진단 웹서비스**
