@@ -16,6 +16,7 @@ import { useDataRange } from '../../hooks/useDataRange'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import type { DiagnosisQuery } from '../../types/diagnosis'
 import { cn } from '../../utils/cn'
+import InfoPopover from '../common/InfoPopover'
 import AsOfPicker from './AsOfPicker'
 import { BRAND_API_ENABLED } from '../../api/analysisProfile'
 import {
@@ -181,7 +182,7 @@ function FilterForm({
           <>
             <Group
               legend={MESSAGES.brand.scope}
-              hint={MESSAGES.brand.membershipLimit}
+              legendExtra={<BrandFilterInfo />}
               segmented
               // 브랜드·체인 + 미확인 포함이면 미확인도 함께 나온다는 안내 (BE·필터 의미는 그대로)
               below={
@@ -217,15 +218,7 @@ function FilterForm({
                 </Choice>
               ))}
             </Group>
-            <Group
-              legend={MESSAGES.brand.unknown}
-              hint={
-                draft.brandUnknown === 'exclude'
-                  ? MESSAGES.brand.unknownExcluded
-                  : MESSAGES.brand.unknownIncluded
-              }
-              segmented
-            >
+            <Group legend={MESSAGES.brand.unknown} segmented>
               {BRAND_UNKNOWN_OPTIONS.map((option) => (
                 <Choice
                   key={option.id}
@@ -239,7 +232,7 @@ function FilterForm({
                 </Choice>
               ))}
             </Group>
-            <Group legend={MESSAGES.brand.evidence} hint={MESSAGES.brand.confirmedLimit} segmented>
+            <Group legend={MESSAGES.brand.evidence} segmented>
               {BRAND_EVIDENCE_OPTIONS.map((option) => (
                 <Choice
                   key={option.id}
@@ -316,14 +309,54 @@ function FilterForm({
   )
 }
 
+/** 브랜드 세 그룹의 긴 설명을 한곳에 — 예전 legend 옆 설명 문구 그대로, 위치만 옮김 */
+function BrandFilterInfo() {
+  const B = MESSAGES.brand
+  const unknownLabel = (id: 'include' | 'exclude') =>
+    BRAND_UNKNOWN_OPTIONS.find((o) => o.id === id)?.label
+  const sections: { title: string; lines: string[] }[] = [
+    { title: B.scope, lines: [B.membershipLimit] },
+    {
+      title: B.unknown,
+      lines: [
+        `${unknownLabel('include')} · ${B.unknownIncluded}`,
+        `${unknownLabel('exclude')} · ${B.unknownExcluded}`,
+      ],
+    },
+    { title: B.evidence, lines: [B.confirmedLimit] },
+  ]
+  return (
+    <InfoPopover
+      triggerLabel={B.filterInfoTrigger}
+      title={B.filterInfoTitle}
+      closeLabel={B.filterInfoClose}
+      className="ml-1"
+    >
+      {sections.map((s) => (
+        <span key={s.title} className="block">
+          <strong className="mb-1 block font-bold">{s.title}</strong>
+          {s.lines.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+        </span>
+      ))}
+    </InfoPopover>
+  )
+}
+
 function Group({
   legend,
+  legendExtra,
   hint,
   segmented,
   below,
   children,
 }: {
   legend: string
+  /** legend 글자 옆에 붙는 요소 (예: ⓘ 설명 버튼) */
+  legendExtra?: ReactNode
   hint?: string
   /** 선택지 아래 한 줄 안내 */
   below?: ReactNode
@@ -335,6 +368,7 @@ function Group({
     <fieldset className="min-w-0 flex-auto border-b border-gray-300 px-4 py-3 not-last:border-r">
       <legend className="float-left mb-2 w-full text-micro font-semibold text-gray-600">
         {legend}
+        {legendExtra}
         {hint && <span className="ml-1 font-normal">· {hint}</span>}
       </legend>
       <div
