@@ -59,14 +59,14 @@ npm run preview -- --port 5180           # (선택) 배포 결과물을 로컬�
 - [ ] **카카오 개발자 콘솔** → 앱 → 플랫폼 → Web에 배포 도메인(예: `https://spoton.예시.kr`) 추가 — 안 하면 지도 자리에 "지도를 불러오지 못했어요"만 보인다
 - [x] **og:image 절대 주소**: `index.html`의 `og:image`·`twitter:image` = `https://spot-on-fe.vercel.app/og-image.png` (배포 주소가 바뀌면 이 두 줄도 바꾸고 다시 빌드 — 상대 경로면 일부 메신저 공유 미리보기에 그림이 안 나옴)
 - [ ] **BE `CORS_ORIGINS`에 FE 도메인 추가** (BE 담당 — 쉼표 목록, 예: `https://spoton.예시.kr`). 빠지면 모든 API가 "서버에 연결할 수 없어요"로 보인다
-- [ ] **`src/constants/links.ts` 저장소 주소**를 최종 제출 저장소(공공 GitLab) 주소로 바꾸기 (푸터·랜딩의 소스 코드 링크)
+- [x] **`src/constants/links.ts` 저장소 주소**: 최종 제출이 GitHub로 바뀌어(2026-11-15) 현재 GitHub 주소를 그대로 쓴다
 - [ ] 배포 주소에서 확인: 주소 검색 → STEP 02~04, 결과 화면에서 새로고침, PDF 인쇄·요약 이미지 저장, 화면에 "시연 데이터" 표시가 없는지
 - [ ] BE를 잠깐 멈췄을 때 "서버에 연결할 수 없어요" 안내가 나오는지 (배포 BE 주소가 틀려도 같은 안내)
 
 ## 5. Vercel (미리보기 배포)
 
 - 배포 주소: **https://spot-on-fe.vercel.app**
-- Production Branch = **`develop`** — develop에 PR을 머지하면 자동으로 다시 빌드·배포된다. PR마다 미리보기 주소도 달린다
+- Production Branch = **`main`** (2026-11-15 `develop`에서 변경) — 작업은 develop에 머지하고, 공개 사이트에 반영할 때 develop → main PR을 머지하면 자동으로 다시 빌드·배포된다. develop·PR에는 미리보기 주소가 달린다 (Preview는 v1·BE 미연결)
 - 빌드: Vercel이 `npm install` → `npm run build` → `dist/`를 올린다 (Vite 기본 설정 인식)
 - **새로고침 404 방지 `vercel.json`**: 실제 파일이 없는 모든 경로를 `/index.html`로 돌려준다 (`/assets/…`·`/og-image.png`·`/favicon.png` 같은 실제 파일은 Vercel이 먼저 그대로 내보낸다)
 

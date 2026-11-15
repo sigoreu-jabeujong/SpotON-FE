@@ -105,7 +105,7 @@ flowchart LR
 
 | 구분 | 주소 | 비고 |
 |---|---|---|
-| 프론트엔드 | https://spot-on-fe.vercel.app | `develop`에 머지되면 자동 배포 |
+| 프론트엔드 | https://spot-on-fe.vercel.app | `main`에 머지되면 자동 배포 |
 | 백엔드 | https://spoton-be-free.onrender.com | 무료 서버라 쉬고 있으면 첫 접속에 약 30초 걸려요 |
 
 - 모든 응답은 `{ data, meta, error }` 형식이고, `meta`에 출처·기준일·공간 단위가 담겨요 → [API 계약](docs/api-contract.md)
