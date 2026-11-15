@@ -266,6 +266,8 @@ export const MESSAGES = {
     submit: '조회',
     scopeNotice: '이 조건은 지도·시점 조회·상권 활동·종합 진단에 함께 적용돼요',
     unchanged: '바뀐 조건이 없어요',
+    /** 조건을 바꾸고 아직 조회를 누르지 않았을 때 (조회 버튼 바로 왼쪽) */
+    pendingApply: '조건이 바뀌었어요 · 조회를 눌러 적용해 주세요',
     asOf: '기준 시점',
     asOfCurrent: '현재',
     asOfYear: '연도',

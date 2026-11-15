@@ -1,4 +1,4 @@
-import { Info, Search } from 'lucide-react'
+import { Info, RefreshCw, Search } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { toDataRangeParams } from '../../api/params'
 import {
@@ -262,10 +262,19 @@ function FilterForm({
             {BRAND_API_ENABLED ? '' : T.includeUnknownHint}
           </span>
         </label>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
           <p className="flex items-center gap-1 text-micro text-gray-600">
-            <Info className="size-3.5" aria-hidden="true" />
+            <Info className="size-3.5 shrink-0" aria-hidden="true" />
             {T.scopeNotice}
+          </p>
+          {/* 바뀐 조건이 아직 적용되지 않았음을 글자로도 알림 (색만으로 구분하지 않기). 알림 영역은 늘 두고 내용만 바꾼다 */}
+          <p aria-live="polite" className="text-caption font-semibold text-blue-700 empty:-ml-3">
+            {changed && (
+              <span className="flex items-center gap-1 transition-opacity duration-(--duration-base) starting:opacity-0">
+                <RefreshCw className="size-3.5 shrink-0" aria-hidden="true" />
+                {T.pendingApply}
+              </span>
+            )}
           </p>
           <button
             type="submit"
