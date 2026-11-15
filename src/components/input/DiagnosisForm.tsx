@@ -7,8 +7,9 @@ import {
   MapPin,
   Search,
   Utensils,
+  X,
 } from 'lucide-react'
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { CATEGORIES, type Category } from '../../constants/diagnosis'
 import { MESSAGES } from '../../constants/messages'
 import { cn } from '../../utils/cn'
@@ -47,6 +48,7 @@ export default function DiagnosisForm({
   children,
 }: Props) {
   const [address, setAddress] = useState(initialAddress)
+  const addressInput = useRef<HTMLInputElement>(null)
   const [category, setCategory] = useState<Category | null>(initialCategory)
   const [missing, setMissing] = useState<Required>({ address: false, category: false })
   // 주소 검색이 오래 걸리면(잠든 서버가 깨어나는 중) 버튼 문구를 "서버 준비 중…"으로 바꾼다
@@ -109,6 +111,7 @@ export default function DiagnosisForm({
         >
           <MapPin className="size-5 shrink-0 text-gray-900" aria-hidden="true" />
           <input
+            ref={addressInput}
             id="address"
             name="address"
             type="text"
@@ -124,6 +127,21 @@ export default function DiagnosisForm({
             aria-describedby={addressDescribedBy}
             className="h-full min-w-0 flex-1 bg-transparent text-body text-gray-900 outline-none placeholder:text-gray-600"
           />
+          {/* 예전 주소 뒤에 새 주소가 붙지 않게 — 값이 있을 때만 지우기 (자동으로 지우지는 않음) */}
+          {address && (
+            <button
+              type="button"
+              aria-label={T.addressClear}
+              onClick={() => {
+                setAddress('')
+                onChange?.() // 후보 목록·검색 오류도 비운다
+                addressInput.current?.focus()
+              }}
+              className="relative flex size-8 shrink-0 items-center justify-center rounded-full text-gray-600 before:absolute before:-inset-1.5 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-blue-500"
+            >
+              <X className="size-4" aria-hidden="true" />
+            </button>
+          )}
           <button
             type="submit"
             disabled={loading}

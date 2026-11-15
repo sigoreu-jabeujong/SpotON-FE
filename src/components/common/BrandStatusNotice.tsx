@@ -2,11 +2,12 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { BRAND_API_ENABLED } from '../../api/analysisProfile'
 import { MESSAGES } from '../../constants/messages'
-import { useBrandsStatus } from '../../hooks/useBrandsStatus'
+import { useBrandStatusNormal, useBrandsStatus } from '../../hooks/useBrandsStatus'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import type { ApiResult } from '../../api/client'
 import type { ApiMeta } from '../../types/api'
 import InfoBox from './InfoBox'
+import { brandFilterNotice } from '../../utils/brands'
 
 function stamp(meta?: ApiMeta | null) {
   const c = meta?.brand_classification
@@ -74,8 +75,14 @@ export function BrandResultBoundary({ children }: { children: ReactNode }) {
   return children
 }
 
-export default function BrandStatusNotice() {
+export default function BrandStatusNotice({
+  withFilterNotice = false,
+}: {
+  /** 필터 기준 안내(FranchiseFilterNotice)가 있는 화면(STEP 02·03) — 정상 상태면 이 상자에 이어서 보여 준다 */
+  withFilterNotice?: boolean
+}) {
   const status = useBrandsStatus()
+  const normal = useBrandStatusNormal()
   const { query, updateQuery } = useDiagnosisQuery()
   if (!BRAND_API_ENABLED) return null
   const c = status.data?.data
@@ -127,7 +134,9 @@ export default function BrandStatusNotice() {
                   ? T.drift
                   : T.observation
         }
-      />
+      >
+        {withFilterNotice && normal && <p className="mt-1">{brandFilterNotice(query)}</p>}
+      </InfoBox>
     </div>
   )
 }

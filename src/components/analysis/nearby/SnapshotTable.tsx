@@ -28,8 +28,8 @@ export default function SnapshotTable({ stores, periodLabel }: Props) {
   const { visible, shown, total, hasMore, showMore } = useShowMore(stores)
   return (
     <div>
-      {/* 휴대폰: 표를 가로로 밀어 볼 수 있게 (이때 머리글 고정은 끈다). 데스크톱은 그대로 */}
-      <div className="overflow-clip rounded-card border border-gray-300 bg-gray-0 max-md:overflow-x-auto">
+      {/* 휴대폰: 표를 가로로 밀어 볼 수 있게 (이때 머리글 고정은 끈다). relative는 칸 속 sr-only 글자가 상자 밖 화면 폭을 넓히지 않게. 데스크톱은 그대로 */}
+      <div className="overflow-clip rounded-card border border-gray-300 bg-gray-0 max-md:relative max-md:overflow-x-auto">
         <table
           id={TABLE_ID}
           // 숫자 열은 고정폭 숫자, 점포명(행 머리 th)은 보통 숫자 — 상호 속 숫자가 벌어지지 않게
@@ -60,12 +60,16 @@ export default function SnapshotTable({ stores, periodLabel }: Props) {
                   <td className="px-3 py-4 text-gray-600">{i + 1}</td>
                   <th
                     scope="row"
+                    // 휴대폰에서는 한 줄 말줄임 — 잘린 전체 이름은 title로
+                    title={name.text}
                     className={cn(
-                      'px-3 py-4',
+                      'px-3 py-4 max-md:min-w-28',
                       name.missing ? missingClass : 'font-semibold text-gray-900',
                     )}
                   >
-                    {name.text}
+                    <span className="max-md:mx-auto max-md:line-clamp-1 max-md:max-w-32 max-md:break-all">
+                      {name.text}
+                    </span>
                   </th>
                   <td className="px-3 py-4">{SUB_CATEGORY_LABEL[s.sub_category]}</td>
                   <td className={cn('px-3 py-4 whitespace-nowrap', open.missing && missingClass)}>

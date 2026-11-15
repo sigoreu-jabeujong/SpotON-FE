@@ -158,6 +158,8 @@ export const MESSAGES = {
     cardDescription: '주소와 업종을 입력하면 과거 점포 이력부터 주변 상권까지 분석할 수 있어요.',
     addressLabel: '진단 위치 입력',
     addressPlaceholder: '도로명 주소 또는 지번 주소를 입력하세요',
+    /** 주소 입력칸 오른쪽 ✕ 버튼 (값이 있을 때만) */
+    addressClear: '주소 지우기',
     addressExample: '예) 서울특별시 마포구 양화로 45 2층',
     /** 층·호수를 함께 쓰면 geocode가 floor_unit으로 읽어 이력의 "같은 자리" 판정에 쓴다 */
     addressFloorHint: '층·호수까지 입력하면 같은 자리였는지 더 정확히 확인해요',

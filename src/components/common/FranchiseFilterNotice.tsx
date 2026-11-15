@@ -5,6 +5,7 @@ import InfoBox from './InfoBox'
 import { BRAND_API_ENABLED } from '../../api/analysisProfile'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { brandFilterNotice } from '../../utils/brands'
+import { useBrandStatusNormal } from '../../hooks/useBrandsStatus'
 
 type Props = { franchise: FranchiseFilter; meta: ApiMeta | null | undefined; className?: string }
 
@@ -16,6 +17,9 @@ type Props = { franchise: FranchiseFilter; meta: ApiMeta | null | undefined; cla
  */
 export default function FranchiseFilterNotice({ franchise, meta, className }: Props) {
   const { query } = useDiagnosisQuery()
+  const brandNormal = useBrandStatusNormal()
+  // 브랜드 자료가 정상이면 같은 문구가 결과 화면 위쪽 '브랜드·체인 기준' 상자에 합쳐져 있다 (BrandStatusNotice)
+  if (BRAND_API_ENABLED && brandNormal) return null
   if (BRAND_API_ENABLED)
     return (
       <InfoBox
