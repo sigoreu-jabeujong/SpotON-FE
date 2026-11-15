@@ -1,0 +1,6 @@
+dist
+node_modules
+package-lock.json
+# 문서·템플릿은 작성자 형식 유지 (자동 정리로 인한 불필요한 충돌 방지)
+*.md
+.github

@@ -1,0 +1,186 @@
+import type { Category, FranchiseFilter, RadiusMeters, SubCategory } from '../constants/diagnosis'
+import type { BrandClassification, BrandFilters } from './brands'
+
+/**
+ * API 공통 응답 형식 { data, meta, error }
+ * 기준: docs/api-contract.md (06 API 명세서 v1.1 + BE 작업계획서)
+ * ⚠️ 형식을 바꾸면 SpotON-BE와 반드시 함께 맞춘다 (명세서 선행 수정 원칙)
+ */
+
+/** 공간 단위: point / radius_{n}m / market / grid / seoul */
+export type ApiSpace = 'point' | 'market' | 'grid' | 'seoul' | `radius_${number}m`
+
+/** 상태 + 사유 코드 (선택 항목 상태, 가맹 분류 상태 등) */
+export type ApiStatusReason = { status: string; reason?: string | null }
+
+/** 기간 시작·종료 YYYY-MM-DD */
+export type ApiPeriod = { start: string; end: string }
+
+/** /support-links 관할 연락처 근거 (구 지정 시에만) */
+export type ApiDistrictContactSource = {
+  url: string
+  /** 공고일 */
+  published_on: string | null
+  /** BE가 연락처를 확인한 날 */
+  checked_on: string | null
+  page?: number | null
+  table?: string | null
+}
+
+/**
+ * 가맹 분류 방법의 상태 (history·nearby·snapshot·activity·risk meta).
+ * 미적용 DB: pending / brand_mapping_blocked, 적용 DB: estimate / reference_catalog_name_match.
+ * 지표의 fact·pending이나 상권 unverified와 다른 축이다. coverage=partial은 정확도·제공률이 아니다.
+ */
+export type ApiFranchiseClassification = ApiStatusReason & {
+  reference_year?: number | null
+  source?: string[] | null
+  coverage?: string | null
+  historical_contract_verified?: boolean | null
+  industry_mapping_verified?: boolean | null
+}
+
+/** 데이터 버전 (화면 표시 안 함, 캐시·디버깅용) */
+export type ApiDataVersion = {
+  stores_batch_ids?: string[] | null
+  /** 공식 지표에 쓴 기준 분기 (예: "20262"). 미사용 시 null */
+  trdar_quarter?: string | null
+  map_version?: string | null
+  rule_version?: string | null
+  /** 가맹 목록 적용 기록 (UUID·hash — 화면에 표시하거나 조회 조건·AI 본문으로 다시 보내지 않음) */
+  brand_mapping?: Record<string, string | number | null> | null
+}
+
+/**
+ * 응답 공통 메타 정보. 서버가 빈 객체 {}를 줄 수도 있어 모든 필드를 선택·null 허용으로 둔다.
+ */
+export type ApiMeta = {
+  brand_classification?: BrandClassification | null
+  brand_filters?: BrandFilters | null
+  brand_counts?: {
+    estimated: number
+    conflict: number
+    stale_or_drift: number
+    unknown: number
+  } | null
+  brand_counts_scope?: string
+  prompt_version?: string
+  prompt_sha256?: string
+  context_hash?: string
+  data_version_hash?: string
+  /** 출처 번호 배열 (R1~R19) */
+  source?: string[] | null
+  /** 기준일 YYYY-MM-DD (기준 시점 월의 말일) */
+  as_of?: string | null
+  /** v1.2 이름 확인 대기 — 회의 자료의 effective_as_of. BE 확정 전까지 as_of를 우선 사용 */
+  effective_as_of?: string | null
+  space?: ApiSpace | null
+  /** 표본·분모. 해당 없으면 null */
+  denominator?: number | null
+  /** 원천 데이터 갱신 시점 최댓값 (화면 "데이터 기준일") */
+  data_updated_at?: string | null
+  /** 수집 배치 완료일 (화면 "(수집 YYYY.MM.DD)") */
+  collected_at?: string | null
+  /** collected_at이 null인 이유 코드 (예: source_completion_time_not_recorded) */
+  collection_reason?: string | null
+  /** 좌표 미확보 수의 집계 범위 (nearby·snapshot: seoul_nonspatial_cohort = 서울 전체 같은 조건) */
+  excluded_no_coord_scope?: string | null
+  /**
+   * 영업 기간 기준
+   * - nearby·snapshot: latest_data = 최신 데이터 기준 전체 기간
+   * - market/activity: elapsed_months_of_active_at_as_of = 기준 시점 T까지 경과 개월
+   */
+  operating_period_basis?: string | null
+
+  /* ── 아래는 특정 API에서만 오는 선택 필드 (다른 API에 필수로 강제하지 않음) ── */
+
+  /** market/activity: 폐업 기록을 포함한 활동 집계 대상 수 (현재 영업 점포 수 아님 — 화면에 쓰지 않음) */
+  cohort_size?: number | null
+  /** market/activity: 연도별 비교 기준 (same_month_day_ytd = 매년 1월 1일~같은 월일) */
+  yearly_comparison_basis?: string | null
+  /** market/activity: 연도별 비교 기간 { "2026": { start, end } } */
+  yearly_periods?: Record<string, ApiPeriod> | null
+  /** market/activity: 가맹 분류 상태 (지금 BE는 pending / brand_mapping_blocked) */
+  franchise_classification?: ApiFranchiseClassification | null
+  /** risk: 계산 한계 코드 (예: franchise_name_match_not_contract_or_history) */
+  limitations?: string[] | null
+  /** market/activity: 요청한 선택 항목(sales·living_pop)의 상태 — 요청한 항목만 있음 */
+  optional_data?: Partial<Record<'sales' | 'living_pop', ApiStatusReason>> | null
+  /** market/activity: 좌표 미확보 수 (서울 전체 범위, T 이전 개업 기록 — 점포 수와 합치지 않음) */
+  excluded_no_coord?: number | null
+  /** support-links: 링크 목록 버전 (support-links-v2) */
+  link_catalog_version?: string | null
+  /** support-links: 순서 안내 — applied = 구 관할 연락처를 맨 앞에 둠 (업종 추천 아님) */
+  prioritization?: (ApiStatusReason & { category_applied?: boolean | null }) | null
+  /** support-links: 관할 연락처 근거 공고 (구 지정 시에만) */
+  district_contact_source?: ApiDistrictContactSource | null
+  /** 시연용 가상 데이터·수기 인용값이면 true */
+  is_demo?: boolean | null
+  data_version?: ApiDataVersion | null
+}
+
+export type ApiError = {
+  code: string
+  message: string
+  /** 상황별 추가 정보 (예: AS_OF_OUT_OF_RANGE의 min_month·max_month). 없을 수 있다 */
+  detail?: Record<string, unknown> | null
+}
+
+export type ApiResponse<T> = {
+  data: T | null
+  /** 오류 응답에서는 null 또는 {} 일 수 있다 */
+  meta: ApiMeta | null
+  error: ApiError | null
+}
+
+/* ───────── 공통 조회 파라미터 (docs/api-contract.md 1-2) ───────── */
+
+/** 시설 규모(신고 면적 ㎡) 구간. all = 전체 */
+export type ApiArea = 'all' | 'lt33' | '33to66' | '66to99' | 'gte99'
+
+/** /stores/nearby·/stores/snapshot·/market/activity·/risk 공통 조회 파라미터 */
+export type V1QueryParams = {
+  lat: number
+  lng: number
+  category: Category
+  radius?: RadiusMeters
+  /** 음식점 세부 업종(쉼표 구분). 생략 = 전체, 카페는 항상 생략 */
+  sub_category?: SubCategory[]
+  /** YYYY-MM. 생략 = 현재 월 */
+  as_of?: string
+  area?: ApiArea
+  franchise?: FranchiseFilter
+  /**
+   * 정보 없음 포함 — 면적·가맹을 따로 보낸다 (legacy include_unknown과 섞으면 422라 쓰지 않음).
+   * 프랜차이즈·개인 매장만 볼 때는 include_unknown_franchise=false (BE 가맹 추정 요청서 3장)
+   */
+  include_unknown_area?: boolean
+  include_unknown_franchise?: boolean
+  brand_scope?: never
+  brand_unknown?: never
+  brand_evidence?: never
+  brand_time_basis?: never
+  operation_type?: never
+}
+
+export type V2QueryParams = Omit<
+  V1QueryParams,
+  | 'franchise'
+  | 'include_unknown_franchise'
+  | 'brand_scope'
+  | 'brand_unknown'
+  | 'brand_evidence'
+  | 'brand_time_basis'
+  | 'operation_type'
+> & {
+  brand_scope: BrandFilters['brand_scope']
+  brand_unknown: BrandFilters['brand_unknown']
+  brand_evidence: BrandFilters['brand_evidence']
+  brand_time_basis: 'observed_record'
+  operation_type: 'any'
+  franchise?: never
+  include_unknown_franchise?: never
+  include_unknown?: never
+}
+
+export type CommonQueryParams = V1QueryParams | V2QueryParams

@@ -1,0 +1,5 @@
+# 줄바꿈을 LF로 통일 (Windows·Mac 혼용 시 불필요한 변경·충돌 방지)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary

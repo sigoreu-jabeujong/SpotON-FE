@@ -1,0 +1,372 @@
+@import 'tailwindcss';
+
+/*
+ * Spot:ON 디자인 토큰 (Figma Spot:ON_Draft_1, 99 색상표 기준)
+ * hex가 적힌 값은 확정, 이미지에서 눈으로 읽은 값은 "(추정)" 표시 — Figma 값 확인 후 교체
+ */
+@theme {
+  /* 글꼴: Pretendard (npm 패키지 pretendard, OFL-1.1) */
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Noto Sans KR',
+    'Malgun Gothic', sans-serif;
+
+  /* Main Blue (확정) */
+  --color-blue-100: #f0f3fa;
+  --color-blue-500: #3376fd;
+  /* 흰 글자를 올리는 파란 바탕 전용 — blue-500(#3376fd)은 흰 글자와 대비 4.08:1이라 4.5:1을 넘는 가장 가까운 색 (4.74:1) */
+  --color-blue-600: #2e6ce8;
+  --color-blue-700: #0d50d7;
+
+  /* 화면 배경 — 흰 카드와 구분되도록 아주 옅은 청회색 (Figma #FBFDFF보다 한 단계 진하게) */
+  --color-bg: #f4f6fa;
+
+  /* Neutral gray (추정) */
+  --color-gray-0: #ffffff;
+  --color-gray-100: #f7f7f7;
+  --color-gray-300: #e6e6e6;
+  /* 보조 글씨(출처·안내)용 — 흰 배경 대비 약 6.9:1, 페이지 배경 위 6.4:1 (너무 연하지 않게) */
+  --color-gray-600: #545b66;
+  --color-gray-900: #1a1a1a;
+
+  /* Extra color — 배지·카드 배경용 (모두 추정) */
+  --color-orange-100: #faf0e6;
+  --color-orange-500: #e07800;
+  --color-orange-700: #a65a00;
+  --color-green-100: #e8f7f0;
+  --color-green-500: #00a36c;
+  --color-green-700: #007a4f;
+  --color-purple-100: #f3edfd;
+  --color-purple-500: #9650fa;
+  --color-purple-700: #6e28e6;
+  --color-pink-100: #fce8f4;
+  --color-pink-500: #dc3cb4;
+  --color-pink-700: #b4148c;
+
+  /* 오류 문구 (2-2 입력 오류 "*필수 입력 항목입니다.", 추정) */
+  --color-danger: #d32f2f; /* 흰 배경 대비 약 5:1 (작은 오류 글자 접근성) */
+
+  /*
+   * 상태 라벨 색 (labels.ts의 tone과 연결). 참고지표의 등급 색으로 쓰지 않는다.
+   * 색만으로 구분하지 않고 항상 글자·아이콘을 함께 쓴다.
+   */
+  --color-status-neutral-bg: var(--color-gray-100);
+  --color-status-neutral-fg: var(--color-gray-900);
+  --color-status-info-bg: var(--color-blue-100);
+  --color-status-info-fg: var(--color-blue-700);
+  --color-status-muted-bg: var(--color-gray-100);
+  --color-status-muted-fg: var(--color-gray-600);
+  --color-status-warning-bg: var(--color-orange-100);
+  --color-status-warning-fg: var(--color-orange-700);
+
+  /*
+   * 글자 체계 4단계 — 제목(title 28 · section 22) / 소제목(subtitle 18) / 본문(body 16) / 보조(caption·micro 13)
+   * 진단서(.report)는 지면이 좁아 예전 값을 그대로 쓴다 (파일 아래 .report)
+   */
+  --text-title: 1.75rem; /* 제목: 화면 큰 제목 28px */
+  --text-title--line-height: 1.35;
+  --text-section: 1.375rem; /* 제목: 섹션 제목 22px */
+  --text-section--line-height: 1.4;
+  --text-subtitle: 1.125rem; /* 소제목 18px */
+  --text-subtitle--line-height: 1.5;
+  --text-body: 1rem; /* 본문 16px */
+  --text-body--line-height: 1.6;
+  --text-caption: 0.8125rem; /* 보조: 설명·메타 13px */
+  --text-caption--line-height: 1.55;
+  /* 가장 작은 글씨(출처·주의·메타 줄)도 13px·줄 간격 1.5 이상 (가독성, 대비 4.5:1은 색 토큰으로 유지) */
+  --text-micro: 0.8125rem; /* 보조: 아주 작은 라벨 13px */
+  --text-micro--line-height: 1.55;
+
+  /*
+   * 카드 — 모서리 20px(큰 카드)·12px(안쪽 상자·입력), 부드러운 그림자 1종, 안쪽 여백 24px(p-6), 카드 사이 24px(gap-6)
+   * 그림자에 아주 옅은 1px 테두리를 함께 넣어 배경 위에서 덩어리가 또렷하게 보이게
+   */
+  --radius-card: 1.25rem;
+  --radius-control: 0.75rem;
+  --shadow-card:
+    0 0 0 1px rgb(16 24 40 / 0.04), 0 1px 2px rgb(16 24 40 / 0.04), 0 8px 24px rgb(13 80 215 / 0.06);
+
+  /* 레이아웃 */
+  --spacing-sidebar: 17.5rem; /* 280px */
+  /* 위에 붙는 진단 조건 바 높이만큼 앵커 이동 위치를 내린다 (scroll-mt-sticky) */
+  --spacing-sticky: 5.5rem;
+  /*
+   * 진단 조건 바의 실제 높이 (칩이 두 줄이 되면 커진다) — ConditionBar가 --condition-bar-h로 알려 준다.
+   * 표 머리글이 이 아래에 붙는다 (top-condition-bar). 값이 없으면 한 줄 높이 57px
+   */
+  --spacing-condition-bar: var(--condition-bar-h, 3.5625rem);
+
+  /*
+   * 모션 (움직임·반응) — 아래 시간·곡선만 쓴다. transform·opacity만 움직이고,
+   * 동작 줄이기 설정이면 모두 끈다 (파일 아래 prefers-reduced-motion 참고).
+   * JS에서 쓰는 같은 값: src/constants/motion.ts
+   */
+  --ease-out-soft: cubic-bezier(
+    0.22,
+    1,
+    0.36,
+    1
+  ); /* 들어오는 움직임 (빠르게 시작 → 부드럽게 멈춤) */
+  --ease-in-out-soft: cubic-bezier(0.45, 0, 0.55, 1); /* 오가는 움직임 (떠 있는 효과) */
+  --shadow-card-hover: 0 10px 28px rgb(13 80 215 / 0.12), 0 2px 6px rgb(26 26 26 / 0.06);
+
+  --animate-rise-in: rise-in var(--duration-slow) var(--ease-out-soft) both;
+  --animate-expand-in: expand-in var(--duration-base) var(--ease-out-soft) both;
+  /* 한 번만 왕복하고 원래 자리(translateY 0)에서 멈춤 — 5초 넘게 자동으로 움직이지 않게 (웹 접근성) */
+  --animate-float: float-y var(--duration-float) var(--ease-in-out-soft) 1 both;
+  --animate-shimmer: shimmer var(--duration-shimmer) ease-in-out infinite;
+
+  /* 아래에서 살짝 떠오르며 등장 */
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  /* 위에서 살짝 펼쳐지듯 등장 (주소 후보 목록) */
+  @keyframes expand-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scaleY(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  /* 아주 느리게 위아래로 한 번 떠올랐다 내려오기 (진폭 작게, 끝은 원래 자리) */
+  @keyframes float-y {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+  /* 스켈레톤 은은한 반짝임 */
+  @keyframes shimmer {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+}
+
+/*
+ * 차트(recharts)·카카오 지도처럼 클래스를 못 쓰고 JS로 색을 넘기는 곳의 색 — 기본 토큰을 가리키고,
+ * JS에서 utils/tokenColor로 읽는다 (static: 클래스에서 안 써도 항상 내보냄)
+ */
+@theme static {
+  --color-chart-opened: var(--color-blue-500); /* 개업 막대 */
+  --color-chart-closed: var(--color-pink-500); /* 폐업 막대 (상태 구분용, 등급 색 아님) */
+  --color-chart-grid: var(--color-gray-300); /* 가로 격자 (점선) */
+  --color-chart-axis: var(--color-gray-600); /* 축 글자 */
+  --color-chart-line: var(--color-gray-300); /* 축 선·도움말 테두리 */
+  --color-chart-text: var(--color-gray-900); /* 범례 글자 */
+  --color-map-radius: var(--color-blue-500); /* 진단 위치 반경 원 */
+}
+
+/* 모션 시간 토큰 — 유틸리티가 없는 값이라 static으로 항상 내보낸다 */
+@theme static {
+  --duration-fast: 150ms; /* 색·눌림 같은 즉각 반응 */
+  --duration-base: 250ms; /* 떠오름·펼침 */
+  --duration-slow: 400ms; /* 화면·섹션 등장 */
+  --duration-stagger: 80ms; /* 순서대로 등장할 때 항목 사이 간격 */
+  --duration-float: 4s; /* 랜딩 지도 떠 있기 한 번 왕복 (1회만, 5초 이내) */
+  --duration-shimmer: 1.6s; /* 스켈레톤 반짝임 한 번 */
+}
+
+/* 색·테두리·그림자만 부드럽게 바뀌는 반응 (선택 상태 전환, 표 행 hover 등) */
+@utility motion-colors {
+  transition-property: color, background-color, border-color, box-shadow, opacity;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-out-soft);
+}
+
+/* 클릭할 수 있는 카드: hover 시 그림자가 커지고 살짝 떠오름, 누르면 살짝 눌림. 정보 카드에는 쓰지 않는다 */
+@utility interactive-lift {
+  transition-property: transform, box-shadow, background-color, border-color, color;
+  transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-out-soft);
+  &:hover:not(:disabled, [aria-disabled='true']) {
+    box-shadow: var(--shadow-card-hover);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    &:hover:not(:disabled, [aria-disabled='true']) {
+      transform: translateY(-2px);
+    }
+    &:active:not(:disabled, [aria-disabled='true']) {
+      transform: translateY(0) scale(0.98);
+      transition-duration: var(--duration-fast);
+    }
+  }
+}
+
+/*
+ * 누를 수 없는 소개 카드(랜딩): hover 시 살짝(3px) 떠오르고 그림자가 커진다.
+ * interactive-lift와 달리 눌림·포인터 커서가 없다 (클릭 동작이 없으니까). 동작 줄이기면 그림자·색만
+ */
+@utility hover-card {
+  transition-property: transform, box-shadow, border-color, outline-color;
+  transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-out-soft);
+  &:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+}
+
+/* 카드 안 아이콘: 부모(.group)에 마우스를 올리면 한 번만 살짝 커졌다 돌아온다 (반복 없음, 동작 줄이기면 없음) */
+@utility icon-pop {
+  @media (prefers-reduced-motion: no-preference) {
+    :where(.group):hover & {
+      animation: icon-pop var(--duration-base) var(--ease-out-soft) 1;
+    }
+  }
+}
+
+@keyframes icon-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+/* 화살표 아이콘: 부모(.group)에 마우스를 올리거나 키보드 초점이 오면 오른쪽으로 살짝 이동 */
+@utility arrow-nudge {
+  transition: transform var(--duration-base) var(--ease-out-soft);
+  @media (prefers-reduced-motion: no-preference) {
+    :where(.group):hover &,
+    :where(.group):focus-visible & {
+      transform: translateX(3px);
+    }
+  }
+}
+
+/* 화면에 처음 들어올 때 한 번만 떠오르며 등장 (useRevealOnce 훅이 data-reveal 값을 바꾼다) */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal='hidden'] {
+    opacity: 0;
+  }
+  [data-reveal='shown'] {
+    animation: var(--animate-rise-in);
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-gray-900);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * 브라우저가 그리는 부분도 디자인 토큰 색으로 — 글자 선택·입력 커서·스크롤바
+ * (선택 배경은 옅은 파랑 + 글자는 진한 색 그대로라 대비가 유지된다)
+ */
+::selection {
+  background-color: color-mix(in oklab, var(--color-blue-500) 22%, transparent);
+  color: var(--color-gray-900);
+}
+html {
+  caret-color: var(--color-blue-600);
+  scrollbar-color: color-mix(in oklab, var(--color-gray-600) 40%, transparent) transparent;
+}
+
+/* 사이드바 메뉴로 섹션 이동 시 부드럽게 스크롤 (움직임 줄이기 설정 존중) */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/*
+ * 인쇄용 진단서(A4)는 예전 글자·색 값을 그대로 쓴다 — 화면 다듬기(토큰 변경)가 PDF 모양을 바꾸지 않게
+ * (Badge·상태 라벨 등 공통 컴포넌트를 써도 진단서 안에서는 이 값)
+ */
+.report {
+  --text-title: 1.75rem;
+  --text-title--line-height: 1.35;
+  --text-section: 1.375rem;
+  --text-section--line-height: 1.4;
+  --text-subtitle: 1.0625rem;
+  --text-subtitle--line-height: 1.5;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.6;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.5;
+  --text-micro: 0.75rem;
+  --text-micro--line-height: 1.4;
+  --color-gray-600: #666666;
+  --radius-card: 1rem;
+  --radius-control: 0.625rem;
+  --shadow-card: 0 4px 24px rgb(13 80 215 / 0.06), 0 1px 3px rgb(26 26 26 / 0.04);
+}
+
+/* 동작 줄이기 설정: 남은 애니메이션·전환도 사실상 즉시 끝나게 (스피너·반짝임·떠 있기 포함) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+ * 인쇄(PDF 저장) — 진단서 화면(/result/report)
+ * 버튼·도구 막대는 print:hidden, 표·블록은 페이지 중간에서 잘리지 않게, 색이 없어도 상태 라벨 글자로 구분
+ */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .report section,
+  .report table,
+  .report tr {
+    break-inside: avoid;
+  }
+
+  /* 인쇄물에는 움직임 없이 최종 상태만 */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  [data-reveal] {
+    opacity: 1 !important;
+  }
+}

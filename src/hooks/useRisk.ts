@@ -1,0 +1,65 @@
+import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
+import type { ApiResult } from '../api/client'
+import { queryKeys } from '../api/queryKeys'
+import { getRisk, postRiskInterpret } from '../api/risk'
+import type { CommonQueryParams, ApiMeta } from '../types/api'
+import { BRAND_API_ENABLED } from '../api/analysisProfile'
+import { interpretationMatches } from '../api/interpretationContext'
+import { ApiRequestError } from '../api/client'
+import { MESSAGES } from '../constants/messages'
+import type {
+  RiskInclude,
+  RiskInterpretation,
+  RiskInterpretHistory,
+  RiskInterpretRequest,
+} from '../types/risk'
+
+/** F-07 공식 지표 + 참고지표 */
+export function useRisk(params: CommonQueryParams | null, include: RiskInclude[] = []) {
+  return useQuery({
+    queryKey: queryKeys.risk(params, include),
+    queryFn: params ? () => getRisk(params, include) : skipToken,
+    ...(BRAND_API_ENABLED ? { staleTime: 0 } : {}),
+  })
+}
+
+/**
+ * F-08 AI 해석. 화면 진입 시 자동 요청하지 않고,
+ * 사용자가 "AI 해석 보기"를 눌렀을 때 mutate(요청 본문)로 실행한다.
+ * 실패해도 useRisk의 지표는 그대로 남는다.
+ */
+export function useRiskInterpret() {
+  return useMutation({
+    mutationFn: async ({
+      body,
+      signal,
+      baseline,
+    }: {
+      body: RiskInterpretRequest
+      signal?: AbortSignal
+      baseline?: ApiMeta | null
+    }) => {
+      const res = await postRiskInterpret(body, signal)
+      if (BRAND_API_ENABLED && !interpretationMatches(res, body.query, baseline))
+        throw new ApiRequestError('AI_CONTEXT_CHANGED', MESSAGES.brand.changed, null)
+      return res
+    },
+  })
+}
+
+/**
+ * 이미 받아 둔 AI 해석 (종합 진단 화면에서 "AI 해석 보기"로 받은 결과).
+ * 새로 요청하지 않는다 — 받은 적이 없으면 data가 undefined다.
+ */
+export function useCachedInterpretation(
+  params: CommonQueryParams | null,
+  history?: RiskInterpretHistory,
+  address = '',
+  baseline?: ApiMeta | null,
+) {
+  return useQuery<ApiResult<RiskInterpretation>>({
+    queryKey: queryKeys.riskInterpretation(params, history, address, baseline),
+    queryFn: skipToken,
+    staleTime: Infinity,
+  })
+}

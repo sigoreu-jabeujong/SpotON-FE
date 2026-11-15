@@ -1,0 +1,110 @@
+import { CURRENT_STATUS_LABEL, SUB_CATEGORY_LABEL } from '../../../constants/labels'
+import { MESSAGES } from '../../../constants/messages'
+import { useShowMore } from '../../../hooks/useShowMore'
+import type { SnapshotStore, StoreStatus } from '../../../types/stores'
+import { cn } from '../../../utils/cn'
+import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../../../utils/storeDisplay'
+import { storeKey } from '../../../utils/storeKey'
+import Badge, { type BadgeTone } from '../../common/Badge'
+import FranchiseNote from '../../common/FranchiseNote'
+import ShowMoreButton from '../../common/ShowMoreButton'
+import StoreFranchiseCell from '../../common/StoreFranchiseCell'
+import StorePeriodCell from '../../common/StorePeriodCell'
+
+const T = MESSAGES.snapshot
+const TABLE_ID = 'snapshot-table'
+/** 값이 없을 때(정보 없음·확인 필요) — 흐린 글씨로 실제 값과 구분 */
+const missingClass = 'text-gray-600'
+const STATUS_TONE: Record<StoreStatus, BadgeTone> = {
+  open: 'blue',
+  closed: 'pink',
+  other: 'orange',
+}
+
+type Props = { stores: SnapshotStore[]; periodLabel: string }
+
+/** 시점 조회 점포 목록 — API 순서 그대로, 처음 5개 + 더보기 */
+export default function SnapshotTable({ stores, periodLabel }: Props) {
+  const { visible, shown, total, hasMore, showMore } = useShowMore(stores)
+  return (
+    <div>
+      {/* 휴대폰: 표를 가로로 밀어 볼 수 있게 (이때 머리글 고정은 끈다). 데스크톱은 그대로 */}
+      <div className="overflow-clip rounded-card border border-gray-300 bg-gray-0 max-md:overflow-x-auto">
+        <table
+          id={TABLE_ID}
+          // 숫자 열은 고정폭 숫자, 점포명(행 머리 th)은 보통 숫자 — 상호 속 숫자가 벌어지지 않게
+          className="w-full text-center text-caption tabular-nums max-md:min-w-[720px] [&_tbody_th]:normal-nums"
+        >
+          <caption className="sr-only">{T.caption(periodLabel)}</caption>
+          {/* 머리글은 표가 길어도 진단 조건 바 바로 아래에 붙어 있다 (overflow-clip이라 sticky가 화면 기준으로 동작) */}
+          <thead className="text-gray-900 [&_th]:sticky [&_th]:top-condition-bar [&_th]:z-[1] [&_th]:bg-blue-100 [&_th]:shadow-[inset_0_-1px_0_var(--color-gray-300)] max-md:[&_th]:static">
+            <tr>
+              {Object.values(T.columns).map((label) => (
+                <th key={label} scope="col" className="px-3 py-3.5 font-bold whitespace-nowrap">
+                  {label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((s, i) => {
+              const name = storeName(s)
+              const open = storeOpenDate(s)
+              const close = storeCloseDate(s, s.current_status)
+              return (
+                <tr
+                  // 관리번호가 같아도 원천이 다르면 다른 점포 — source+license_no로 구분
+                  key={storeKey(s.source, s.license_no)}
+                  className="border-t border-gray-300/60 motion-colors first:border-t-0 hover:bg-blue-100/50"
+                >
+                  <td className="px-3 py-4 text-gray-600">{i + 1}</td>
+                  <th
+                    scope="row"
+                    className={cn(
+                      'px-3 py-4',
+                      name.missing ? missingClass : 'font-semibold text-gray-900',
+                    )}
+                  >
+                    {name.text}
+                  </th>
+                  <td className="px-3 py-4">{SUB_CATEGORY_LABEL[s.sub_category]}</td>
+                  <td className={cn('px-3 py-4 whitespace-nowrap', open.missing && missingClass)}>
+                    {open.text}
+                  </td>
+                  <td className={cn('px-3 py-4 whitespace-nowrap', close?.missing && missingClass)}>
+                    {close ? (
+                      close.text
+                    ) : (
+                      <>
+                        <span aria-hidden="true">—</span>
+                        <span className="sr-only">{T.noCloseDate}</span>
+                      </>
+                    )}
+                  </td>
+                  <td className="px-3 py-4">
+                    <StorePeriodCell period={storePeriod(s)} />
+                  </td>
+                  <td className="px-3 py-4">
+                    <Badge tone={STATUS_TONE[s.current_status]}>
+                      {CURRENT_STATUS_LABEL[s.current_status]}
+                    </Badge>
+                  </td>
+                  <td className="px-3 py-4">
+                    <StoreFranchiseCell store={s} />
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+      <FranchiseNote rows={stores} />
+      <p className="sr-only" aria-live="polite">
+        {MESSAGES.list.shownCount(shown, total)}
+      </p>
+      {hasMore && (
+        <ShowMoreButton shown={shown} total={total} onClick={showMore} controls={TABLE_ID} />
+      )}
+    </div>
+  )
+}

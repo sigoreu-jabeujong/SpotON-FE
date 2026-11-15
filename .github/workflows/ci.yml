@@ -2,9 +2,9 @@ name: Frontend CI
 
 on:
   pull_request:
-    branches: [main, dev]
+    branches: [main, develop]
   push:
-    branches: [main, dev]
+    branches: [main, develop]
 
 permissions:
   contents: read
@@ -38,6 +38,10 @@ jobs:
       - name: Lint
         if: steps.check.outputs.ready == 'true'
         run: npm run lint --if-present
+
+      - name: Unit test
+        if: steps.check.outputs.ready == 'true'
+        run: npm run test --if-present
 
       - name: Type check & Build
         if: steps.check.outputs.ready == 'true'
