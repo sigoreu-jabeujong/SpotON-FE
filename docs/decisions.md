@@ -15,6 +15,7 @@
 
 | 날짜 | 결정 | 메모 |
 |---|---|---|
+| 2026-11-17 | **랜딩 지도 뒤 궤도 구슬 공전은 "5초 넘는 자동 반복 금지"의 예외** (사용자 요청) | 장식이라 aria-hidden·누를 수 없음, transform만, 동작 줄이기면 원래 자리에 멈춤, 탭이 안 보이면 멈춤. 모션 예외는 랜딩 소개 카드 호버와 함께 2개 (LandingOrbit, index.css orbit-move·orbit-turn) |
 | 2026-11-17 | **STEP 04 위 카드는 PDF 진단서 저장만, 요약 이미지 기능 제거** (사용자 요청) | 요약 이미지·상담센터 안내·지원사업 안내 카드를 뺐다. 요약 이미지를 쓰는 곳이 없어 SummaryImageCard·useSummaryImage·html2canvas 의존성도 지웠다. 상담센터·지원사업 목록과 다시 진단은 그대로 |
 | 2026-11-15 | **최종 제출은 GitHub, 공개 배포 기준 브랜치는 `main`** (공공 GitLab에서 변경) | `develop`을 `main`에 merge commit으로 합치고 Vercel Production Branch를 `main`으로 바꾼다. 이후 작업은 develop에 머지하고 공개 반영은 develop → main PR로 한다 ([deploy.md 5장](deploy.md#5-vercel-미리보기-배포)) |
 | 2026-11-14 | **AI 본문은 연결 문단으로, 부족한 자료는 제목 옆 정보 팝오버로** (사용자 요청) | BE #130과 FE를 함께 수정하며 이번 화면은 휴대폰에서도 화면 안에 들어가게 한다. 실제 계산 기반 문단 후보를 AI가 선택하고 body/paragraphs/used_indicator_ids/evidence를 반환한다. 화면·진단서의 번호형 구역/근거 칩을 제거하고 기존 배열은 내부 근거로 유지한다. 서울 %p는 BE 계산, 주소·건물·층호까지 캐시 구분, 조건 변경 시 요청 취소. [상세 계약](ai-narrative.md) |
