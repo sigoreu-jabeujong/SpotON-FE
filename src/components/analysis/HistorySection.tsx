@@ -78,7 +78,7 @@ export default function HistorySection() {
               source={meta?.source}
               sourceNames
               baseline={formatDataBaseline(meta)}
-              spaceLabel="선택한 주소·상세 위치의 폐업 이력"
+              spaceLabel="선택한 주소·상세 위치의 점포 이력"
               denominator={meta?.denominator}
               isDemo={meta?.is_demo}
             />

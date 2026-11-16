@@ -152,7 +152,7 @@ export const MESSAGES = {
     addressClear: '주소 지우기',
     addressExample: '예) 서울특별시 마포구 양화로 45 2층',
     /** 층·호수를 함께 쓰면 geocode가 floor_unit으로 읽어 이력의 "같은 자리" 판정에 쓴다 */
-    addressFloorHint: '층·호수까지 입력하면 같은 자리였는지 더 정확히 확인해요',
+    addressFloorHint: '층·호수는 주소 뒤에 적으면 자동 반영해요. 생략하면 기본 주소로 진단해요.',
     searchButton: '주소 검색',
     categoryLabel: '업종 선택',
     required: '*필수 입력 항목입니다.',
@@ -227,11 +227,12 @@ export const MESSAGES = {
     summary: (total: number) => `이 건물에서 확인된 음식점·카페 인허가 기록 ${total}건`,
     noFloor: '입력한 주소에 층·호실이 없어 건물 단위 이력으로 보여줘요',
     sortLabel: '최근 개업 순',
-    caption: '선택한 상세 위치의 폐업 인허가 기록 (폐업일 최신순)',
+    caption: '선택한 상세 위치의 점포 인허가 기록 (최근 개업 순)',
     columns: {
       no: '번호',
       name: '점포명',
       category: '업종',
+      status: '최신 데이터 기준 상태',
       openDate: '개업일',
       closeDate: '폐업일',
       period: '영업 기간',

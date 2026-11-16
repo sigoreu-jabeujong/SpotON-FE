@@ -73,6 +73,97 @@ function fixture(): LocationReference {
 }
 
 describe('actual administrative references', () => {
+  it('uses the selected top-three estimate and actual source names instead of a legacy median', () => {
+    const data = fixture()
+    data.sales.top_markets_estimate = {
+      method: 'top3_markets_by_store_count_v1',
+      source_quarter: '20254',
+      status: 'ready',
+      reason: null,
+      eligible_market_count: 8,
+      selected_market_count: 3,
+      excluded_item_count: 0,
+      total_sales: '2000',
+      total_store_count: '150',
+      metric: number('13원/점포', '13.333'),
+      markets: ['가상상권A', '가상상권B', '가상상권C'].map((name, index) => ({
+        market_code: String(index),
+        market_name: name,
+        total_sales: '100',
+        total_store_count: '10',
+        industry_codes: ['CS100010'],
+        metric: number('10원/점포'),
+      })),
+    }
+    data.sales.per_store_average = {
+      status: 'ready',
+      primary_quarter: '20254',
+      representative_method: 'store_weighted_median_v1',
+      metric: number('999,999원/점포'),
+      total_sales: '999999',
+      total_store_count: '1',
+      listed_item_count: 1,
+      included_item_count: 1,
+      excluded_counts: {},
+      groups: [],
+      store_weighted_distribution: {
+        method: 'store_weighted_median_v1',
+        model: 'repeat_market_mean_for_each_reference_store',
+        individual_store_sales_observed: false,
+        total_store_count: '1',
+        reference_count: 1,
+        median: number('999,999원/점포'),
+        mean: number('999,999원/점포'),
+        minimum: number('999,999원/점포'),
+        maximum: number('999,999원/점포'),
+        variance: {
+          value: '0',
+          unit: 'KRW_source_reported_per_store_squared',
+          scope: 'between_market_per_store_means',
+        },
+        bin_method: 'equal_width_exact_fraction_v1',
+        bins: [],
+      },
+    }
+    const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    expect(html).toContain('13원')
+    expect(html).toContain('가상상권A · 가상상권B · 가상상권C')
+    expect(html).toContain('상권의 매출액을 토대로 추정했습니다.')
+    expect(html).toContain('2000원 ÷ 점포 수 합계 150개')
+    expect(html).toContain('점포 수 상위 3개 상권')
+    expect(html).not.toContain('점포 수 기준 매출 분포')
+    expect(html).not.toContain('/점포')
+    data.sales.items[0].average_contribution = { status: 'included', reason: null }
+    expect(renderToStaticMarkup(<LocationReferenceView data={data} />)).toContain(
+      '점포 수 상위 3개 상권 외 참고자료',
+    )
+    data.sales.top_markets_estimate.markets[0].market_code = data.sales.items[0].market_code
+    data.sales.top_markets_estimate.excluded_item_count = 2
+    const selected = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    expect(selected).toContain('추정 매출 산정에 반영한 상권')
+    expect(selected).toContain('2개 항목은 제외했어요')
+    data.sales.top_markets_estimate.selected_market_count = 1
+    data.sales.top_markets_estimate.markets = data.sales.top_markets_estimate.markets.slice(0, 1)
+    expect(renderToStaticMarkup(<LocationReferenceView data={data} />)).toContain(
+      '1곳의 자료를 사용했어요',
+    )
+    data.sales.top_markets_estimate.status = 'no_data'
+    data.sales.top_markets_estimate.selected_market_count = 0
+    data.sales.top_markets_estimate.metric = null
+    data.sales.top_markets_estimate.markets = []
+    const empty = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    expect(empty).toContain('함께 확인할 수 있는 상권이 없어요')
+    expect(empty).not.toContain('13원')
+    expect(empty).not.toContain('999,999원')
+    expect(empty).not.toContain('가중 중앙값')
+    expect(empty).not.toContain('점포 수 기준 매출 분포')
+    expect(empty).not.toContain('토대로 추정했습니다')
+    data.sales.top_markets_estimate = null
+    const nullHtml = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    expect(nullHtml).toContain('자료 없음')
+    expect(nullHtml).not.toContain('999,999원')
+    expect(nullHtml).not.toContain('가중 중앙값')
+  })
   it('selects the reference median and labels the weighted mean as comparison only', () => {
     const data = fixture()
     data.sales.per_store_average = {
