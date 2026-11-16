@@ -17,6 +17,8 @@ type Props = {
   value: string | null
   /** 값이 없을 때 값 자리에 쓸 상태와 문장 (사유 또는 안내) */
   empty: { status: DataStatus; text: string | null }
+  /** 값 자리를 대신하는 그림 (예: 비율 지표 도넛 — 값·상태 글자를 그림 안에 포함) */
+  visual?: ReactNode
   /** 값 아래 작은 설명 (분자/분모, 기간, 상권, 서울 평균 등) */
   details?: ReactNode
   /** 링크·복사 버튼처럼 카드 안에서 할 수 있는 일 */
@@ -45,6 +47,7 @@ export default function IndicatorCard({
   title,
   value,
   empty,
+  visual,
   details,
   actions,
   status,
@@ -68,7 +71,9 @@ export default function IndicatorCard({
       </h3>
 
       <div className="mt-3 flex min-h-12 items-center">
-        {value ? (
+        {visual ? (
+          visual
+        ) : value ? (
           <p className="text-title leading-tight font-bold text-gray-900 tabular-nums">{value}</p>
         ) : (
           <p className="flex items-start gap-2 text-body font-semibold text-gray-600">

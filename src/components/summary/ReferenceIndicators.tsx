@@ -5,6 +5,7 @@ import type { IndicatorId, MetricIndicator, RiskIndicator } from '../../types/ri
 import MetaLine from '../common/MetaLine'
 import IndicatorArea from './IndicatorArea'
 import IndicatorCard from './IndicatorCard'
+import RateDonut from './RateDonut'
 import {
   formatIndicatorValue,
   formatSeoulAvg,
@@ -42,8 +43,12 @@ export default function ReferenceIndicators({ indicators }: { indicators: RiskIn
   )
 }
 
+/** 도넛으로 보여 줄 비율 지표 (반경 안 동종업체 수·주야간 인구비는 숫자 카드 그대로) */
+const RATE_IDS: IndicatorId[] = ['closure_rate_12m', 'survival_rate_1y', 'survival_rate_3y']
+
 function ReferenceCard({ ind }: { ind: MetricIndicator }) {
   const value = formatIndicatorValue(ind)
+  const emptyText = indicatorReasonText(ind.reason) ?? DATA_STATUS[ind.status].label
   const seoul = formatSeoulAvg(ind)
   const name = INDICATOR_NAME[ind.id as keyof typeof INDICATOR_NAME] ?? ind.id
   const seoulLine = ind.unit === '%' && (seoul || ind.seoul_avg_reason)
@@ -56,10 +61,16 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
       title={name}
       // 값이 없으면 숫자(0) 대신 상태 아이콘과 사유만
       value={value}
-      empty={{
-        status: ind.status,
-        text: indicatorReasonText(ind.reason) ?? DATA_STATUS[ind.status].label,
-      }}
+      empty={{ status: ind.status, text: emptyText }}
+      visual={
+        RATE_IDS.includes(ind.id) && ind.unit === '%' ? (
+          <RateDonut
+            percent={value && typeof ind.value === 'number' ? ind.value : null}
+            text={value}
+            empty={{ status: ind.status, text: emptyText }}
+          />
+        ) : undefined
+      }
       details={
         (seoulLine || fraction) && (
           <ul className="flex flex-col gap-0.5">
