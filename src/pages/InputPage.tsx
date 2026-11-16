@@ -1,4 +1,7 @@
 import { useNavigate } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { rememberAddress } from '../utils/addressConfirmation'
+import { normalizeAddressDetail } from '../api/addressDetail'
 import { IMAGES } from '../assets/images'
 import Logo from '../components/common/Logo'
 import SiteFooter from '../components/layout/SiteFooter'
@@ -24,12 +27,51 @@ export default function InputPage() {
   // 결과 화면 STEP 01 링크로 돌아오면 이전 주소·업종을 채워 둔다
   const { query } = useDiagnosisQuery()
   const geocode = useGeocodeSearch()
-  const candidates = geocode.data?.data.candidates ?? []
+  const generation = useRef(0)
+  useEffect(
+    () => () => {
+      generation.current += 1
+    },
+    [],
+  )
+  const [choices, setChoices] = useState<GeocodeCandidate[]>([])
+  const [selected, setSelected] = useState<GeocodeCandidate | null>(null)
+  useEffect(() => {
+    if (selected) document.getElementById('address-detail')?.focus()
+  }, [selected])
+  const [detail, setDetail] = useState(query.detailText ?? query.floorUnit ?? '')
+  const [confirming, setConfirming] = useState(false)
+  const [detailError, setDetailError] = useState<string | null>(null)
+  const confirm = async (withoutDetail = false) => {
+    if (!selected || confirming) return
+    const token = generation.current
+    setConfirming(true)
+    setDetailError(null)
+    try {
+      const normalized =
+        withoutDetail || !detail.trim() ? null : (await normalizeAddressDetail(detail)).floor_unit
+      if (token !== generation.current) return
+      if (!withoutDetail && detail.trim() && !normalized) {
+        setDetailError(
+          '상세 위치를 하나의 층·호수로 확인할 수 없어요. 수정하거나 미확인으로 계속해 주세요.',
+        )
+        return
+      }
+      goToResult({ ...selected, floor_unit: normalized })
+    } catch {
+      if (token === generation.current)
+        setDetailError('상세주소 확인에 실패했어요. 다시 시도하거나 미확인으로 계속해 주세요.')
+    } finally {
+      if (token === generation.current) setConfirming(false)
+    }
+  }
 
   /** 선택한 주소(geocode 결과)로 결과 화면 이동. 진단 조건은 기본값에서 시작 */
   const goToResult = (c: GeocodeCandidate) => {
     const search = toDiagnosisSearch({
       address: c.address_road || c.address_jibun,
+      detailText: detail.trim(),
+      detailUnverified: !!detail.trim() && !c.floor_unit,
       category: c.category,
       subCategories: [],
       radius: DEFAULT_RADIUS,
@@ -43,6 +85,7 @@ export default function InputPage() {
       floorUnit: c.floor_unit,
       sigungu: c.sigungu,
     })
+    rememberAddress(search)
     navigate({ pathname: ROUTES.analysis, search })
   }
 
@@ -69,22 +112,90 @@ export default function InputPage() {
             apiError={geocode.error ? getErrorMessageFrom(geocode.error) : null}
             onChange={() => {
               // 주소·업종을 바꾸면 이전 검색 결과(후보·오류)를 지운다
-              if (geocode.data || geocode.error) geocode.reset()
+              generation.current += 1
+              setConfirming(false)
+              setSelected(null)
+              setChoices([])
+              setDetail('')
+              geocode.reset()
             }}
-            onSubmit={(address, category) =>
+            onSubmit={(address, category) => {
+              const token = ++generation.current
+              setConfirming(false)
+              setSelected(null)
+              setChoices([])
               geocode.mutate(
                 { query: address, category },
                 {
                   onSuccess: ({ data }) => {
-                    // 후보가 여러 개면 목록을 보여주고, 1건이면 바로 결과 화면으로
-                    if (data.candidates.length <= 1) goToResult(data.candidates[0] ?? data)
+                    // 단일 후보도 상세주소를 확인한 뒤 결과 화면으로 이동한다.
+                    if (token !== generation.current) return
+                    const next = data.candidates.length ? data.candidates : [data]
+                    setChoices(next)
+                    setDetail(
+                      next[0].floor_unit ?? (detail || (/[층호]/.test(address) ? address : '')),
+                    )
+                    if (next.length === 1) setSelected(next[0])
                   },
                 },
               )
-            }
+            }}
           >
-            {candidates.length > 1 && (
-              <CandidateList candidates={candidates} onSelect={goToResult} />
+            {choices.length > 1 && (
+              <CandidateList
+                candidates={choices}
+                onSelect={(c) => {
+                  generation.current += 1
+                  setConfirming(false)
+                  setSelected(c)
+                  setDetailError(null)
+                }}
+              />
+            )}
+            {selected && (
+              <div className="mt-4 space-y-3 rounded-control border border-gray-300 p-4">
+                <p>선택한 주소: {selected.address_road || selected.address_jibun}</p>
+                <label htmlFor="address-detail">상세주소 (층·호수)</label>
+                <input
+                  id="address-detail"
+                  value={detail}
+                  maxLength={100}
+                  placeholder="예: 2층 201호"
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+                      event.preventDefault()
+                      void confirm()
+                    }
+                  }}
+                  className="w-full rounded border p-2"
+                  onChange={(e) => {
+                    generation.current += 1
+                    setConfirming(false)
+                    setDetail(e.target.value)
+                    setDetailError(null)
+                  }}
+                />
+                <p className="text-caption">
+                  입력한 층·호수로 이력을 비교해요. 실제 입점 여부를 확인한 정보는 아니에요.
+                </p>
+                {detailError && <p role="alert">{detailError}</p>}
+                <button
+                  type="button"
+                  disabled={confirming}
+                  onClick={() => void confirm()}
+                  className="rounded bg-blue-600 px-4 py-2 text-white"
+                >
+                  {confirming ? '확인 중…' : '이 주소로 진단하기'}
+                </button>
+                <button
+                  type="button"
+                  disabled={confirming}
+                  onClick={() => void confirm(true)}
+                  className="block underline"
+                >
+                  상세 위치 미확인으로 계속
+                </button>
+              </div>
             )}
           </DiagnosisForm>
         </main>

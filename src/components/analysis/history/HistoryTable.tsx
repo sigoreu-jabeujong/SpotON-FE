@@ -7,6 +7,7 @@ import { cn } from '../../../utils/cn'
 import { sortHistoryRecentFirst } from '../../../utils/history'
 import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
+import { locationRelationLabel } from '../../../utils/locationRelationLabel'
 import FranchiseNote from '../../common/FranchiseNote'
 import StoreFranchiseCell from '../../common/StoreFranchiseCell'
 import ShowMoreButton from '../../common/ShowMoreButton'
@@ -69,6 +70,9 @@ export default function HistoryTable({ stores }: Props) {
                   >
                     <span className="max-md:mx-auto max-md:line-clamp-1 max-md:max-w-32 max-md:break-all">
                       {name.text}
+                    </span>
+                    <span className="mt-1 block text-micro font-normal text-gray-600">
+                      {locationRelationLabel(s)}
                     </span>
                   </th>
                   <td className="px-3 py-4">{SUB_CATEGORY_LABEL[s.sub_category]}</td>

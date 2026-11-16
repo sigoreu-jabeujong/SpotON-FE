@@ -1,3 +1,5 @@
+import { diagnosisAddress } from '../utils/diagnosisAddress'
+import AddressVerification from '../components/common/AddressVerification'
 import { BRAND_API_ENABLED } from '../api/analysisProfile'
 import { BrandResultBoundary } from '../components/common/BrandStatusNotice'
 import InfoBox from '../components/common/InfoBox'
@@ -45,6 +47,7 @@ import {
 } from '../utils/format'
 import { cn } from '../utils/cn'
 import { sortHistoryRecentFirst } from '../utils/history'
+import { locationRelationLabel } from '../utils/locationRelationLabel'
 import {
   franchiseEstimateYear,
   storeCloseDate,
@@ -72,7 +75,7 @@ const REFERENCE_IDS = [
  * 인쇄용 진단서 — window.print()로 "PDF로 저장". 별도 API 없음.
  * 결과 화면과 같은 쿼리 캐시를 쓰고, 값은 형식 변환만 한다 (A4 2장 이내 목표).
  */
-export default function ReportPage() {
+function ReportPageContent() {
   usePageTitle(MESSAGES.titles.report)
   const data = useReportData(true)
   const [printFailed, setPrintFailed] = useState(false)
@@ -219,7 +222,7 @@ function ReportHeader({ isDemo, data }: { isDemo: boolean; data: Data }) {
     .map((s) => s.label)
     .join('·')
   const rows: [string, string][] = [
-    [T.address, query.address],
+    [T.address, diagnosisAddress(query)],
     [T.category, subs ? `${category} (${subs})` : category],
     [T.radius, `${query.radius.toLocaleString('ko-KR')}m`],
     [T.asOf, formatYearMonthKo(query.asOf) ?? T.asOfCurrent],
@@ -302,7 +305,12 @@ function HistoryBlock({ data }: { data: Data }) {
               const period = storePeriod(s)
               return (
                 <tr key={storeKey(s.source, s.license_no)} className="break-inside-avoid">
-                  <Td>{storeName(s).text}</Td>
+                  <Td>
+                    {storeName(s).text}
+                    <span className="block text-micro text-gray-600">
+                      {locationRelationLabel(s)}
+                    </span>
+                  </Td>
                   {/* 기간 사유가 길어져도 업종(2~3글자)은 한 줄로 */}
                   <Td nowrap>{SUB_CATEGORY_LABEL[s.sub_category]}</Td>
                   <Td>{storeOpenDate(s).text}</Td>
@@ -660,5 +668,13 @@ function FooterBlock({
       </ul>
       <p className="mt-1 text-right text-[9.5px] text-gray-600">{T.brand}</p>
     </Block>
+  )
+}
+
+export default function ReportPage() {
+  return (
+    <AddressVerification>
+      <ReportPageContent />
+    </AddressVerification>
   )
 }

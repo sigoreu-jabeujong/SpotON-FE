@@ -1,3 +1,4 @@
+import type { LocationRelation } from './addressDetail'
 import type { BrandEvidence, BrandScope, BrandUnknown } from '../constants/diagnosis'
 import type {
   LocationMatch,
@@ -71,6 +72,7 @@ export type ChainStore = {
   area_m2?: number | null
   floor_unit?: string | null
   location_match?: LocationMatch | null
+  location_relation?: LocationRelation | null
   brand: StoreBrand
   operation: { type: 'unknown'; basis: null }
 }
