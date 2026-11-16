@@ -9,6 +9,7 @@ import homeGlow from './home-glow.webp'
 import koreaMap from './korea-map.webp'
 import logoSymbol from './logo.webp'
 import robotImage from './robot.webp'
+import storePin from './store-pin.webp'
 
 export const IMAGES: {
   /** S 심볼 로고 (글자 없음) — 헤더 로고 옆. 파비콘·공유 이미지는 이 그림으로 만든 public/ 정적 파일 */
@@ -26,6 +27,8 @@ export const IMAGES: {
   resultHeader: string | null
   /** AI 해석 카드, "다른 자리도 궁금하신가요?" 옆 로봇 */
   robot: string | null
+  /** ③ STEP 03 참고지표 "반경 안 동종업체 수" 카드 오른쪽 가게·위치 핀 (투명 여백을 잘라 320px로 줄인 그림, 원본은 저장소 밖) */
+  storePin: string | null
 } = {
   logo: logoSymbol,
   landingMap: koreaMap,
@@ -33,4 +36,5 @@ export const IMAGES: {
   inputBackground: cityImage,
   resultHeader: cityImage,
   robot: robotImage,
+  storePin,
 }
