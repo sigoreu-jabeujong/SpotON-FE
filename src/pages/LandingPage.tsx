@@ -31,9 +31,8 @@ export default function LandingPage() {
     <div className="flex min-h-full flex-col bg-gray-0">
       <SkipLink />
       <main id={MAIN_ID} tabIndex={-1} className="flex-1 focus:outline-none">
-        {/* 첫 화면(1440×900) — 제목·버튼·전국 지도는 그대로, 아래에 소개 섹션이 이어진다.
-            화면 높이보다 110px 낮게 해서 아래 소개의 배경 경계·제목이 화면 맨 아래에 살짝 보이게 (스크롤할 수 있다는 단서) */}
-        <div className="relative flex min-h-[calc(100svh-110px)] flex-col overflow-hidden bg-gray-0">
+        {/* 첫 화면(1440×900) — 제목·버튼·전국 지도는 그대로, 아래에 소개 섹션이 이어진다 */}
+        <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-0">
           <LandingMap />
 
           <header className="relative mx-auto w-full max-w-[1200px] px-10 pt-10 max-md:px-4 max-md:pt-6">
