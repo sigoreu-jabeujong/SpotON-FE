@@ -7,6 +7,7 @@ import { scrollBehavior } from '../../constants/motion'
 import { ANALYSIS_SECTIONS, RESULT_STEPS, ROUTES } from '../../constants/routes'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { cn } from '../../utils/cn'
+import { diagnosisAddress } from '../../utils/diagnosisAddress'
 import Logo from '../common/Logo'
 
 const STEP_ICON: Record<number, LucideIcon> = {
@@ -116,7 +117,7 @@ export default function ResultSidebar({ activeSection }: { activeSection: string
                   {step.step === 1 && (query.address || categoryLabel) && (
                     <dl className="mt-2 space-y-1 text-caption text-gray-600">
                       <dt className="sr-only">{MESSAGES.layout.addressTerm}</dt>
-                      <dd className="break-keep">{query.address}</dd>
+                      <dd className="break-keep">{diagnosisAddress(query)}</dd>
                       <dt className="sr-only">{MESSAGES.layout.categoryTerm}</dt>
                       <dd>
                         {categoryLabel}
