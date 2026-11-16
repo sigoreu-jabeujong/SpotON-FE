@@ -10,6 +10,7 @@ import type {
 } from '../../../types/locationReference'
 import InfoPopover from '../../common/InfoPopover'
 import SalesDistributionChart from './SalesDistributionChart'
+import RestaurantSales from './RestaurantSales'
 
 const R = MESSAGES.reference
 const quarter = (q: string | null) => (q ? R.quarter(q) : R.noValue)
@@ -89,7 +90,19 @@ function Card({ id, title, children }: { id: string; title: ReactNode; children:
 }
 
 /** 인근 상권 추정매출 — 큰 숫자 + 한 줄 요약 + 그래프 하나 + 접힌 상권별 표 */
-function SalesCard({ data }: { data: LocationReference }) {
+function SalesCard({
+  data,
+  category,
+}: {
+  data: LocationReference
+  category: 'cafe' | 'restaurant'
+}) {
+  if (category === 'restaurant')
+    return (
+      <Card id="sales" title={R.salesTitle}>
+        <RestaurantSales data={data} />
+      </Card>
+    )
   const average = data.sales.per_store_average
   const weighted = average?.store_weighted_distribution
   const useWeightedMedian = average?.representative_method === 'store_weighted_median_v1'
@@ -444,10 +457,12 @@ function PopulationCard({ data, grid }: { data: LocationReference; grid?: ReactN
 /** 결과 화면(STEP 02·03)용 위치 참고자료. 진단서는 LocationReferencePrint */
 export default function LocationReferenceView({
   data,
+  category,
   isDemo = false,
   grid,
 }: {
   data: LocationReference
+  category: 'cafe' | 'restaurant'
   isDemo?: boolean
   /** 생활인구 카드 맨 아래 접힌 "격자 단위 부분자료 보기"에 넣을 내용 (250m 격자 공개자료) */
   grid?: ReactNode
@@ -457,7 +472,7 @@ export default function LocationReferenceView({
       {/* 긴 안내 문단은 각 카드 제목 옆 ⓘ 팝오버로 옮겼다 */}
       {isDemo && <p className="text-caption text-orange-700">{R.demo}</p>}
       <div className="grid grid-cols-2 items-start gap-6 max-md:grid-cols-1">
-        <SalesCard data={data} />
+        <SalesCard data={data} category={category} />
         <PopulationCard data={data} grid={grid} />
       </div>
     </div>

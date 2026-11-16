@@ -592,3 +592,7 @@ FE 전용 오류 (`src/api/client.ts`): `TIMEOUT`(15초 초과), `NETWORK_ERROR`
 
 ## 2026-11-17 상위 3개 상권 추정매출
 `GET /api/v2/location-reference`의 `sales.top_markets_estimate`를 대표값으로 사용한다. 같은 분기의 유효 업종 자료를 상권별 합산 후 점포 수 상위 3곳(동률 상권코드순)을 선정한다. `metric`은 선정 매출 합계/점포 수 합계이며 `markets`는 실제 선정 상권명과 합계/점포 수/업종 코드다. 부족하면 1~2곳만 사용하며 없으면 값 없음이다. 기존 `per_store_average`는 호환 보존한다.
+
+
+## 음식점 상권별 선택 업종 합산 (#223)
+GET /api/v2/location-reference의 sales.market_aggregation은 restaurant이면 항상 객체, cafe이면 null이다. rule_version=restaurant_market_rollup_v1. requested_industries는 실제 적용 업종 코드와 공식명이고 items는 상권당 하나이며 합계·점포 수·per_store_metric·rank·selected_for_estimate·부분 업종 사유를 포함한다. selected_market_codes는 기존 top_markets_estimate의 순위순 최대 3곳과 동일하다. FE는 금액을 재계산하지 않으며 합산 목록·출처·대표값은 같은 집합을 사용한다. 기존 sales.items는 업종별 원자료로 보존한다. 생략 업종은 음식점4종 전체, 중복/부적합/직접 빈 문자열은422다.

@@ -6,6 +6,7 @@ import type {
 } from '../../../types/locationReference'
 import SubTitle from '../../common/SubTitle'
 import SalesDistributionChart from './SalesDistributionChart'
+import RestaurantSales from './RestaurantSales'
 
 const quarter = (q: string | null) => (q ? `${q.slice(0, 4)}년 ${q.slice(4)}분기` : '자료 없음')
 const exclusion: Record<string, string> = {
@@ -94,9 +95,11 @@ function PopulationSource() {
  */
 export default function LocationReferencePrint({
   data,
+  category,
   isDemo = false,
 }: {
   data: LocationReference
+  category: 'cafe' | 'restaurant'
   isDemo?: boolean
 }) {
   const people = data.living_population.items ?? []
@@ -121,194 +124,205 @@ export default function LocationReferencePrint({
           title="인근 상권 추정매출"
           notice="상권 단위 원자료 금액으로, 이 자리 점포의 실제 매출이 아니에요."
         >
-          {topMarkets && (
-            <div
-              className="rounded-control border border-gray-200 p-4"
-              data-testid="top-markets-estimate"
-            >
-              <p className="font-semibold">점포당 추정 매출</p>
-              <p className="text-xl font-bold break-all">{metric(topMarkets.metric)}</p>
-              {topMarkets.metric ? (
-                <>
-                  <p className="mt-2 text-caption text-gray-600">
-                    {topMarkets.markets.map((m) => m.market_name).join(' · ')} 상권의 매출액을
-                    토대로 추정했습니다.
-                  </p>
-                  <p className="mt-1 text-caption text-gray-600">
-                    자료 분기 {quarter(topMarkets.source_quarter)} · 점포 수 상위{' '}
-                    {topMarkets.selected_market_count}개 상권
-                  </p>
-                  {topMarkets.selected_market_count < 3 && (
-                    <p className="text-caption text-gray-600">
-                      유효한 상권이 3곳보다 적어 {topMarkets.selected_market_count}곳의 자료를
-                      사용했어요.
+          {category === 'restaurant' ? (
+            <RestaurantSales data={data} />
+          ) : (
+            <>
+              {topMarkets && (
+                <div
+                  className="rounded-control border border-gray-200 p-4"
+                  data-testid="top-markets-estimate"
+                >
+                  <p className="font-semibold">점포당 추정 매출</p>
+                  <p className="text-xl font-bold break-all">{metric(topMarkets.metric)}</p>
+                  {topMarkets.metric ? (
+                    <>
+                      <p className="mt-2 text-caption text-gray-600">
+                        {topMarkets.markets.map((m) => m.market_name).join(' · ')} 상권의 매출액을
+                        토대로 추정했습니다.
+                      </p>
+                      <p className="mt-1 text-caption text-gray-600">
+                        자료 분기 {quarter(topMarkets.source_quarter)} · 점포 수 상위{' '}
+                        {topMarkets.selected_market_count}개 상권
+                      </p>
+                      {topMarkets.selected_market_count < 3 && (
+                        <p className="text-caption text-gray-600">
+                          유효한 상권이 3곳보다 적어 {topMarkets.selected_market_count}곳의 자료를
+                          사용했어요.
+                        </p>
+                      )}
+                      {topMarkets.excluded_item_count > 0 && (
+                        <p className="text-caption text-gray-600">
+                          매출과 점포 수를 함께 확인할 수 없는 {topMarkets.excluded_item_count}개
+                          항목은 제외했어요.
+                        </p>
+                      )}
+                      <details className="mt-2 text-caption text-gray-600">
+                        <summary className="cursor-pointer">계산 기준</summary>
+                        <p>
+                          선정한 상권의 매출 합계 {topMarkets.total_sales}원 ÷ 점포 수 합계{' '}
+                          {topMarkets.total_store_count}개
+                        </p>
+                        {topMarkets.markets.map((m) => (
+                          <p key={m.market_code}>
+                            {m.market_name}: 매출 {m.total_sales}원 · 점포 {m.total_store_count}개
+                          </p>
+                        ))}
+                      </details>
+                    </>
+                  ) : (
+                    <p className="text-caption">
+                      같은 분기의 매출과 점포 수를 함께 확인할 수 있는 상권이 없어요.
                     </p>
                   )}
-                  {topMarkets.excluded_item_count > 0 && (
-                    <p className="text-caption text-gray-600">
-                      매출과 점포 수를 함께 확인할 수 없는 {topMarkets.excluded_item_count}개 항목은
-                      제외했어요.
+                </div>
+              )}
+              {hasTopMarketsContract && !topMarkets && (
+                <div className="rounded-control border border-gray-200 p-4">
+                  <p className="font-semibold">점포당 추정 매출</p>
+                  <p>자료 없음</p>
+                </div>
+              )}
+              {!hasTopMarketsContract && data.sales.per_store_average && (
+                <div className="rounded-control border border-gray-200 p-4">
+                  <p className="font-semibold">점포당 추정 매출</p>
+                  <p className="text-xl font-bold break-all">
+                    {metric(
+                      useWeightedMedian ? weighted?.median : data.sales.per_store_average.metric,
+                    )}
+                  </p>
+                  {useWeightedMedian && (
+                    <p className="text-caption text-gray-600">점포 수 가중 중앙값 · 추정 모델</p>
+                  )}
+                  {data.sales.per_store_average.metric && (
+                    <details className="mt-2 text-caption text-gray-600">
+                      <summary className="cursor-pointer">계산 기준</summary>
+                      <p>
+                        {useWeightedMedian
+                          ? '상권별 점포당 평균에 점포 수를 반영한 추정 분포의 중앙값이에요.'
+                          : '같은 분기 목록의 매출 합계를 같은 목록의 점포 수 합계로 나눠요.'}
+                      </p>
+                      <p>점포 수 가중평균(비교): {metric(data.sales.per_store_average.metric)}</p>
+                    </details>
+                  )}
+                  {data.sales.per_store_average.temporal_relation && (
+                    <p className="text-caption">
+                      {periodRelation(data.sales.per_store_average.temporal_relation)}
                     </p>
                   )}
-                  <details className="mt-2 text-caption text-gray-600">
-                    <summary className="cursor-pointer">계산 기준</summary>
-                    <p>
-                      선정한 상권의 매출 합계 {topMarkets.total_sales}원 ÷ 점포 수 합계{' '}
-                      {topMarkets.total_store_count}개
+                  <p className="text-caption">
+                    자료 분기 {quarter(data.sales.per_store_average.primary_quarter)} · 전체{' '}
+                    {data.sales.per_store_average.listed_item_count}항목 중{' '}
+                    {data.sales.per_store_average.included_item_count}항목 반영
+                  </p>
+                  {!useWeightedMedian && data.sales.per_store_average.metric && (
+                    <p className="text-caption break-words">
+                      매출 합계 {data.sales.per_store_average.total_sales}원 ÷ 점포 수 합계{' '}
+                      {data.sales.per_store_average.total_store_count}개
                     </p>
-                    {topMarkets.markets.map((m) => (
-                      <p key={m.market_code}>
-                        {m.market_name}: 매출 {m.total_sales}원 · 점포 {m.total_store_count}개
+                  )}
+                  <SalesDistributionChart
+                    average={data.sales.per_store_average}
+                    items={data.sales.items}
+                  />
+                  <details>
+                    <summary>다른 분기·제외 항목 보기</summary>
+                    {data.sales.per_store_average.groups.map((g) => (
+                      <p key={g.source_quarter}>
+                        {quarter(g.source_quarter)}: {useWeightedMedian ? '가중 중앙값' : '평균'}{' '}
+                        {metric(
+                          useWeightedMedian ? g.store_weighted_distribution?.median : g.metric,
+                        )}
                       </p>
                     ))}
+                    <p>
+                      제외 항목 수:{' '}
+                      {Object.entries(data.sales.per_store_average.excluded_counts)
+                        .map(
+                          ([reason, count]) =>
+                            `${exclusion[reason] ?? '자료 확인 필요'} ${count}항목`,
+                        )
+                        .join(' / ') || '0'}
+                    </p>
                   </details>
-                </>
-              ) : (
-                <p className="text-caption">
-                  같은 분기의 매출과 점포 수를 함께 확인할 수 있는 상권이 없어요.
-                </p>
+                </div>
               )}
-            </div>
-          )}
-          {hasTopMarketsContract && !topMarkets && (
-            <div className="rounded-control border border-gray-200 p-4">
-              <p className="font-semibold">점포당 추정 매출</p>
-              <p>자료 없음</p>
-            </div>
-          )}
-          {!hasTopMarketsContract && data.sales.per_store_average && (
-            <div className="rounded-control border border-gray-200 p-4">
-              <p className="font-semibold">점포당 추정 매출</p>
-              <p className="text-xl font-bold break-all">
-                {metric(useWeightedMedian ? weighted?.median : data.sales.per_store_average.metric)}
-              </p>
-              {useWeightedMedian && (
-                <p className="text-caption text-gray-600">점포 수 가중 중앙값 · 추정 모델</p>
-              )}
-              {data.sales.per_store_average.metric && (
-                <details className="mt-2 text-caption text-gray-600">
-                  <summary className="cursor-pointer">계산 기준</summary>
-                  <p>
-                    {useWeightedMedian
-                      ? '상권별 점포당 평균에 점포 수를 반영한 추정 분포의 중앙값이에요.'
-                      : '같은 분기 목록의 매출 합계를 같은 목록의 점포 수 합계로 나눠요.'}
-                  </p>
-                  <p>점포 수 가중평균(비교): {metric(data.sales.per_store_average.metric)}</p>
-                </details>
-              )}
-              {data.sales.per_store_average.temporal_relation && (
-                <p className="text-caption">
-                  {periodRelation(data.sales.per_store_average.temporal_relation)}
-                </p>
-              )}
-              <p className="text-caption">
-                자료 분기 {quarter(data.sales.per_store_average.primary_quarter)} · 전체{' '}
-                {data.sales.per_store_average.listed_item_count}항목 중{' '}
-                {data.sales.per_store_average.included_item_count}항목 반영
-              </p>
-              {!useWeightedMedian && data.sales.per_store_average.metric && (
-                <p className="text-caption break-words">
-                  매출 합계 {data.sales.per_store_average.total_sales}원 ÷ 점포 수 합계{' '}
-                  {data.sales.per_store_average.total_store_count}개
-                </p>
-              )}
-              <SalesDistributionChart
-                average={data.sales.per_store_average}
-                items={data.sales.items}
-              />
-              <details>
-                <summary>다른 분기·제외 항목 보기</summary>
-                {data.sales.per_store_average.groups.map((g) => (
-                  <p key={g.source_quarter}>
-                    {quarter(g.source_quarter)}: {useWeightedMedian ? '가중 중앙값' : '평균'}{' '}
-                    {metric(useWeightedMedian ? g.store_weighted_distribution?.median : g.metric)}
-                  </p>
-                ))}
-                <p>
-                  제외 항목 수:{' '}
-                  {Object.entries(data.sales.per_store_average.excluded_counts)
-                    .map(
-                      ([reason, count]) => `${exclusion[reason] ?? '자료 확인 필요'} ${count}항목`,
-                    )
-                    .join(' / ') || '0'}
-                </p>
-              </details>
-            </div>
-          )}
-          {data.sales.items?.length ? (
-            data.sales.items.map((item) => (
-              <div
-                className="min-w-0 rounded-control border border-gray-200 p-4"
-                key={`${item.market_code}-${item.industry_code}`}
-              >
-                <p className="font-semibold break-words">
-                  {item.market_name} · {relation(item.spatial_relation)}
-                </p>
-                <p className="text-caption text-gray-600">
-                  {item.industry_name} · 자료 분기{' '}
-                  {item.source_quarter
-                    ? `${item.source_quarter.slice(0, 4)}년 ${item.source_quarter.slice(4)}분기`
-                    : '없음'}
-                </p>
-                <p className="text-caption text-gray-600">
-                  {periodRelation(item.temporal_relation)}
-                </p>
-                <p className="text-xl font-bold break-all">{metric(item.metric)}</p>
-                {item.store_reference && (
-                  <p className="text-caption">
-                    자료상 전체 점포 수{' '}
-                    {item.store_reference.total_stores === null
-                      ? '자료 없음'
-                      : `${item.store_reference.total_stores}개`}{' '}
-                    · 해당 상권 점포당 {metric(item.per_store_metric)}
-                  </p>
-                )}
-                {item.average_contribution && (
-                  <p className="text-caption">
-                    {item.average_contribution.status === 'included'
-                      ? topMarkets
-                        ? data.sales.items.some(
-                            (other) =>
-                              other.market_code === item.market_code &&
-                              other.source_quarter === item.source_quarter &&
-                              other.per_store_metric &&
-                              other.market_name !== item.market_name,
-                          )
-                          ? '자료 정보 불일치로 추정 매출 산정 제외'
-                          : topMarkets.markets.some(
-                                (m) =>
-                                  m.market_code === item.market_code &&
-                                  m.industry_codes.includes(item.industry_code),
+              {data.sales.items?.length ? (
+                data.sales.items.map((item) => (
+                  <div
+                    className="min-w-0 rounded-control border border-gray-200 p-4"
+                    key={`${item.market_code}-${item.industry_code}`}
+                  >
+                    <p className="font-semibold break-words">
+                      {item.market_name} · {relation(item.spatial_relation)}
+                    </p>
+                    <p className="text-caption text-gray-600">
+                      {item.industry_name} · 자료 분기{' '}
+                      {item.source_quarter
+                        ? `${item.source_quarter.slice(0, 4)}년 ${item.source_quarter.slice(4)}분기`
+                        : '없음'}
+                    </p>
+                    <p className="text-caption text-gray-600">
+                      {periodRelation(item.temporal_relation)}
+                    </p>
+                    <p className="text-xl font-bold break-all">{metric(item.metric)}</p>
+                    {item.store_reference && (
+                      <p className="text-caption">
+                        자료상 전체 점포 수{' '}
+                        {item.store_reference.total_stores === null
+                          ? '자료 없음'
+                          : `${item.store_reference.total_stores}개`}{' '}
+                        · 해당 상권 점포당 {metric(item.per_store_metric)}
+                      </p>
+                    )}
+                    {item.average_contribution && (
+                      <p className="text-caption">
+                        {item.average_contribution.status === 'included'
+                          ? topMarkets
+                            ? data.sales.items.some(
+                                (other) =>
+                                  other.market_code === item.market_code &&
+                                  other.source_quarter === item.source_quarter &&
+                                  other.per_store_metric &&
+                                  other.market_name !== item.market_name,
                               )
-                            ? '추정 매출 산정에 반영한 상권'
-                            : '점포 수 상위 3개 상권 외 참고자료'
-                        : useWeightedMedian
-                          ? '추정 분포 반영 대상'
-                          : '평균 산정 대상'
-                      : item.average_contribution.status === 'different_quarter'
-                        ? '다른 자료 분기'
-                        : topMarkets
-                          ? '추정 매출 산정 제외'
-                          : '평균 계산 제외'}
-                    {item.average_contribution.reason &&
-                      item.average_contribution.status === 'excluded' &&
-                      ` · ${exclusion[item.average_contribution.reason] ?? '자료 확인 필요'}`}
-                  </p>
-                )}
-                {!item.metric && <p className="text-caption">{unavailable(item.reason)}</p>}
-              </div>
-            ))
-          ) : (
-            <p role="status">{unavailable(data.sales.reason)}</p>
+                              ? '자료 정보 불일치로 추정 매출 산정 제외'
+                              : topMarkets.markets.some(
+                                    (m) =>
+                                      m.market_code === item.market_code &&
+                                      m.industry_codes.includes(item.industry_code),
+                                  )
+                                ? '추정 매출 산정에 반영한 상권'
+                                : '점포 수 상위 3개 상권 외 참고자료'
+                            : useWeightedMedian
+                              ? '추정 분포 반영 대상'
+                              : '평균 산정 대상'
+                          : item.average_contribution.status === 'different_quarter'
+                            ? '다른 자료 분기'
+                            : topMarkets
+                              ? '추정 매출 산정 제외'
+                              : '평균 계산 제외'}
+                        {item.average_contribution.reason &&
+                          item.average_contribution.status === 'excluded' &&
+                          ` · ${exclusion[item.average_contribution.reason] ?? '자료 확인 필요'}`}
+                      </p>
+                    )}
+                    {!item.metric && <p className="text-caption">{unavailable(item.reason)}</p>}
+                  </div>
+                ))
+              ) : (
+                <p role="status">{unavailable(data.sales.reason)}</p>
+              )}
+              <a
+                className="text-caption underline"
+                href="https://data.seoul.go.kr/dataList/OA-15572/S/1/datasetView.do"
+                target="_blank"
+                rel="noreferrer"
+              >
+                출처: 서울시 상권분석서비스 추정매출
+              </a>
+            </>
           )}
-          <a
-            className="text-caption underline"
-            href="https://data.seoul.go.kr/dataList/OA-15572/S/1/datasetView.do"
-            target="_blank"
-            rel="noreferrer"
-          >
-            출처: 서울시 상권분석서비스 추정매출
-          </a>
         </Frame>
         <Frame title="생활인구">
           {people.length ? (
