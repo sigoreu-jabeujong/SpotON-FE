@@ -2,7 +2,7 @@ import { BRAND_API_ENABLED } from '../api/analysisProfile'
 import { BrandResultBoundary } from '../components/common/BrandStatusNotice'
 import InfoBox from '../components/common/InfoBox'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
-import PopulationReferenceView from '../components/analysis/population/PopulationReferenceView'
+import LocationReferenceView from '../components/analysis/population/LocationReferenceView'
 import { brandConditionSummary, brandFilterNotice } from '../utils/brands'
 import { ArrowLeft, Printer } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
@@ -44,7 +44,6 @@ import {
   formatCount,
   formatDataBaseline,
   formatDate,
-  formatKrwApprox,
   formatOperatingMonths,
   formatPeriod,
   formatSpace,
@@ -61,10 +60,6 @@ import {
   storePeriod,
 } from '../utils/storeDisplay'
 import { storeKey } from '../utils/storeKey'
-import {
-  optionalDataState,
-  type OptionalDataState,
-} from '../components/analysis/activity/optionalData'
 import SkipLink, { MAIN_ID } from '../components/common/SkipLink'
 import { checklistItems, reportChecklistLine } from '../components/summary/ai/checklist'
 import { presentOfficialIndicators } from '../components/summary/officialPresence'
@@ -118,7 +113,7 @@ export default function ReportPage() {
     data.nearby.data?.meta,
     data.activity.data?.meta,
     data.risk.data?.meta,
-    data.population.data?.meta,
+    data.locationReference.data?.meta,
   ]
   const isDemo = metas.some((m) => m?.is_demo)
 
@@ -194,20 +189,19 @@ export default function ReportPage() {
 type Data = ReturnType<typeof useReportData>
 
 function PopulationBlock({ data }: { data: Data }) {
-  const population = data.population
+  const reference = data.locationReference
   if (!data.populationEnabled) return null
   return (
-    <Block title="공개자료 주야간 비교 (부분)">
-      {population.isPending || population.isFetching ? (
-        <p>공개자료를 불러오는 중이에요.</p>
-      ) : population.isError ? (
-        <p>공개자료를 불러오지 못했어요. 다른 진단 결과는 그대로 확인할 수 있어요.</p>
+    <Block title="위치에 연결된 공개 참고자료">
+      {reference.isPending || reference.isFetching ? (
+        <p>매출·생활인구 자료를 불러오는 중이에요.</p>
+      ) : reference.isError ? (
+        <p>참고자료를 불러오지 못했어요. 다른 진단 결과는 그대로 확인할 수 있어요.</p>
       ) : (
-        <SectionErrorBoundary resetKey={String(population.dataUpdatedAt)}>
-          <PopulationReferenceView
-            data={population.data.data}
-            isDemo={population.data.meta?.is_demo ?? false}
-            compact
+        <SectionErrorBoundary resetKey={String(reference.dataUpdatedAt)}>
+          <LocationReferenceView
+            data={reference.data.data}
+            isDemo={reference.data.meta?.is_demo ?? false}
           />
         </SectionErrorBoundary>
       )}
@@ -469,12 +463,6 @@ function ActivityBlock({ data }: { data: Data }) {
   const a = data.activity.data?.data
   if (!a) return null
   const A = MESSAGES.activity
-  // 화면 블록과 같은 기준 — 값이 없으면 "자료 확인 중(사유)" 또는 "자료 없음" (숫자를 만들지 않음)
-  const meta = data.activity.data?.meta
-  const missingText = (s: OptionalDataState) =>
-    s.kind === 'pending' ? `${s.label} (${s.reason})` : T.noData
-  const sales = optionalDataState(a, meta, 'sales')
-  const living = optionalDataState(a, meta, 'living_pop')
   const trend = a.yearly_trend ?? []
   // 연도가 적으면(목업 5개 등) 예전처럼 오른쪽 칸, 많으면(실제 24~60개) 아래 전체 폭에 여러 줄로
   const inline = trend.length <= TREND_INLINE_MAX
@@ -496,32 +484,10 @@ function ActivityBlock({ data }: { data: Data }) {
               )
               .join(' · ')}
           </li>
-          <li>
-            {A.salesTitle}:{' '}
-            {sales.kind === 'data' && a.sales
-              ? (a.sales.markets ?? [])
-                  .map((m) => `${m.market_name} ${formatKrwApprox(m.est_sales)}(${A.estimate})`)
-                  .join(' · ')
-              : missingText(sales)}
-          </li>
-          <li>
-            {A.livingTitle}:{' '}
-            {living.kind === 'data' && a.living_pop
-              ? T.livingSummary(
-                  A.people(a.living_pop.total),
-                  A.estimate,
-                  formatDate(a.living_pop.date) ?? '',
-                  a.living_pop.missing_grid_count,
-                )
-              : missingText(living)}
-          </li>
         </ul>
         {inline && <TrendTables trend={trend} perRow={Math.max(1, trend.length)} />}
       </div>
       {!inline && <TrendTables trend={trend} perRow={TREND_ROW_SIZE} className="mt-1" />}
-      <p className="mt-0.5 text-[9.5px] text-gray-600">
-        {A.salesNotice} · {A.livingNotice}
-      </p>
     </Block>
   )
 }
