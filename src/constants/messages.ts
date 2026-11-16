@@ -497,7 +497,10 @@ export const MESSAGES = {
   /** STEP 04 결과 저장 및 상담 (F-09·F-10) */
   share: {
     cards: {
-      pdf: { title: 'PDF 진단서 저장', desc: '인쇄 화면에서 "PDF로 저장"을 골라 주세요' },
+      pdf: {
+        title: 'PDF로 결과 저장',
+        desc: '입지 정보 분석·종합 진단 결과 화면을 그대로 PDF로 저장해요',
+      },
     },
     consultingTitle: '공공 창업 상담센터',
     supportTitle: '소상공인 지원사업',
@@ -520,6 +523,7 @@ export const MESSAGES = {
     title: 'Spot:ON 입지 진단서',
     toolbarHint: '인쇄 창에서 대상(프린터)을 "PDF로 저장"으로 고르면 파일로 저장돼요.',
     print: 'PDF로 저장 (인쇄)',
+    screenLoading: '화면 내용을 불러오는 중이에요. 다 불러오면 저장할 수 있어요',
     back: '결과 화면으로 돌아가기',
     printFailed: '인쇄 창을 열지 못했어요. 다시 시도해 주세요',
     loading: '진단서 내용을 모으는 중이에요',
@@ -578,7 +582,7 @@ export const MESSAGES = {
     /** 화면 읽기 프로그램용: "7건 중 5건 표시" */
     shownCount: (shown: number, total: number) => `${total}건 중 ${shown}건 표시`,
   },
-  /** 상권 활동 아래 위치 참고자료 (추정매출·생활인구) — 화면용. 진단서는 LocationReferencePrint 그대로 */
+  /** 상권 활동 아래 위치 참고자료 (추정매출·생활인구) — 결과 화면과 화면 그대로 PDF에 같이 쓴다 */
   reference: {
     salesTitle: '인근 상권 추정매출',
     demo: '예시 자료',
@@ -780,6 +784,8 @@ export const MESSAGES = {
     /** 화면 읽기 프로그램에만 알리는 도착 안내 */
     loadedAnnounce: 'AI 해석을 불러왔어요',
     startNotice: '만 18세 이상 대상 · 참고용 해석이에요',
+    printNotRequested:
+      'AI 해석은 저장 전에 화면에서 "AI 해석 보기"를 눌러 받은 경우에만 PDF에 담겨요.',
     loading: 'AI가 해석을 만들고 있어요 (최대 20초)',
     retry: '다시 시도',
     /** 422 INVALID_PARAM — 요청 형식 오류 (지표는 그대로, 다시 시도는 버튼으로만) */

@@ -454,7 +454,7 @@ function PopulationCard({ data, grid }: { data: LocationReference; grid?: ReactN
   )
 }
 
-/** 결과 화면(STEP 02·03)용 위치 참고자료. 진단서는 LocationReferencePrint */
+/** 결과 화면(STEP 02·03)용 위치 참고자료. 화면 그대로 PDF(ScreenReportPage)도 이 컴포넌트를 쓴다 */
 export default function LocationReferenceView({
   data,
   category,

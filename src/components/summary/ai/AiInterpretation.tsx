@@ -4,9 +4,10 @@ import { useEffect, useRef } from 'react'
 import { toRiskInterpretRequest } from '../../../api/params'
 import { queryKeys } from '../../../api/queryKeys'
 import { ApiRequestError } from '../../../api/client'
-import { hasRiskBaseline } from '../../../api/interpretationContext'
+import { BRAND_API_ENABLED } from '../../../api/analysisProfile'
+import { hasRiskBaseline, interpretationMatches } from '../../../api/interpretationContext'
 import { MESSAGES } from '../../../constants/messages'
-import { useRiskInterpret } from '../../../hooks/useRisk'
+import { useCachedInterpretation, useRiskInterpret } from '../../../hooks/useRisk'
 import type { ApiMeta, CommonQueryParams } from '../../../types/api'
 import type {
   RiskInterpretation,
@@ -82,7 +83,18 @@ export default function AiInterpretation({ params, history, address, meta }: Pro
     )
   }
 
-  const result = interpret.data?.data
+  // 같은 조건으로 이미 받아 둔(검증 통과) 해석이 있으면 버튼 대신 바로 보여 준다
+  // — 화면을 다시 열었을 때와 화면 그대로 PDF(STEP 02+03)에서 새 요청 없이 같은 결과를 쓴다
+  const cached = useCachedInterpretation(params, history, address, meta)
+  const cachedResult =
+    cached.data &&
+    cached.data.data.verification.passed === true &&
+    !!cached.data.data.body?.trim() &&
+    (!BRAND_API_ENABLED || interpretationMatches(cached.data, params, meta))
+      ? cached.data.data
+      : undefined
+  const showCached = interpret.isIdle && !!cachedResult
+  const result = interpret.data?.data ?? (showCached ? cachedResult : undefined)
   const verified = result?.verification.passed === true && !!result.body?.trim()
 
   return (
@@ -103,14 +115,16 @@ export default function AiInterpretation({ params, history, address, meta }: Pro
         dataUpdatedAt={result?.evidence?.data_updated_at ?? meta?.data_updated_at}
       />
 
-      {interpret.isIdle && (
+      {interpret.isIdle && !showCached && (
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-card bg-gray-0 px-6 py-5 shadow-card">
           <div className="flex items-center gap-3">
             {/* 장식이라 아이콘 크기로 — 설명 문장이 먼저 보이게 */}
             <RobotArt className="size-10" />
             <p className="text-body text-gray-900">{T.intro}</p>
           </div>
-          <div className="flex items-center gap-3">
+          {/* 인쇄(화면 그대로 PDF)에는 누를 수 없는 버튼 대신 안내만 */}
+          <p className="hidden text-caption text-gray-600 print:block">{T.printNotRequested}</p>
+          <div className="flex items-center gap-3 print:hidden">
             <span className="text-micro text-gray-600">{T.startNotice}</span>
             <Button
               disabled={!baselineReady}
@@ -128,6 +142,7 @@ export default function AiInterpretation({ params, history, address, meta }: Pro
         </p>
       )}
 
+      {showCached && result && <AiResultCard result={result} />}
       {!interpret.isIdle && (
         <div ref={regionRef} tabIndex={-1} className="flex flex-col gap-3 focus:outline-none">
           <AiOutcome interpret={interpret} result={result} verified={verified} onRetry={request} />

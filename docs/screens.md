@@ -18,7 +18,7 @@
 | ④ 주변 점포 `#nearby` | ✅ 완료 (카카오 지도 → 아래 필터 바·점포 표, 시점 조회. 지도·표 선택도 `storeKey`, 결측 표시, `data-range` 세부 업종·`min_month=null` — PR #30) | `components/analysis/NearbySection.tsx`, `ConditionFilterBar.tsx`, `AsOfPicker.tsx`, `analysis/nearby/`, `components/map/` | 배포 도메인을 카카오 콘솔 허용 도메인에 등록 |
 | ⑤ 상권 활동 `#activity` | ✅ 완료 (점포 현황·연도별 차트·조건부 지표. 선택 항목 "자료 확인 중"+사유, YTD 안내, 가맹 분류 확인 중 안내 — PR #31) | `components/analysis/ActivitySection.tsx`, `analysis/activity/` | 추정매출·생활인구는 BE 수치 활성화 후 실제 값 확인 |
 | ⑥ 종합 진단 `/result/summary` | ✅ 완료 (상권 판정 3가지(in_market·unverified·outside)·공식/참고 지표·서울 평균 비교·AI 해석(query-only)·체크리스트 — PR #29) | `pages/SummaryPage.tsx`, `components/summary/` | 실제 데이터 적재 후 Risk 200·AI 503 확인 |
-| ⑦ 저장·상담 `/result/share` | ✅ 완료 (PDF 진단서·요약 이미지·상담 링크(구 관할 센터 포함, 실제 BE 확인)·재진단 — PR #31) | `pages/SharePage.tsx`, `pages/ReportPage.tsx`, `components/share/` | — |
+| ⑦ 저장·상담 `/result/share` | ✅ 완료 (화면 그대로 PDF·상담 링크(구 관할 센터 포함, 실제 BE 확인)·재진단 — PR #31, 화면 PDF 전환 2026-11-17) | `pages/SharePage.tsx`, `pages/ScreenReportPage.tsx`, `components/share/` | — |
 | 공통 | ✅ | 사이드바 레이아웃, 진단 조건 요약 바(`ConditionBar`, STEP 02~04 상단 고정 + [조건 바꾸기]), 탭 제목, 404, 화면별 나눠 불러오기, 스켈레톤 로딩(`common/Skeleton`), 오류 경계(라우터 `RouteErrorPage` + 섹션별 `SectionErrorBoundary`), 모션(동작 줄이기 대응) | — |
 
 ## 1. 디자인 구조
@@ -168,6 +168,7 @@
 |---|---|
 | 기능 | F-09 결과 저장(PDF 우선, 요약 이미지는 그다음, 선택), F-10 상담·지원 연결 + 다른 주소 재진단 |
 | API | `GET /api/support-links` (`sigungu`, `category` — 값이 없으면 생략, 주소·좌표 안 보냄). PDF는 API 없이 앞 화면 응답으로 생성 |
+| PDF | `/result/report`(ScreenReportPage)가 STEP 02·03 화면 컴포넌트를 그대로 이어 붙여 `window.print()`로 저장한다(A3 세로·데스크톱 배치, STEP 03은 새 페이지, 사이드바·도구 막대·조건 바꾸기 제외). AI 해석은 같은 조건으로 받아 둔 경우에만 담기며 새로 요청하지 않는다. 예전 A4 요약 진단서(ReportPage)는 2026-11-17 사용자 결정으로 대체 |
 | 상담 링크 | 구 지정 시 관할 지역센터 1곳 + 공통 4곳 (서버 순서 그대로). 관할 센터에 "관할 지역센터 연락처" 배지 + 공고일·확인일 안내, "모집 기간·지원 조건은 공식 사이트에서 확인" 안내 |
 | 로딩 | 링크 목록 로딩 / PDF 생성 중 표시 |
 | 오류 | 링크 불러오기 실패 → 다시 시도 / PDF 생성 실패 → 재시도 안내 |

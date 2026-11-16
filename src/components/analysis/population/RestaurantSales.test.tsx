@@ -2,10 +2,10 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { locationReferenceFixture } from '../../../api/mocks/locationReference'
 import LocationReferenceView from './LocationReferenceView'
-import LocationReferencePrint from './LocationReferencePrint'
 
 describe('restaurant market aggregates', () => {
-  for (const Component of [LocationReferenceView, LocationReferencePrint]) {
+  // 화면 그대로 PDF도 같은 LocationReferenceView를 쓴다 (예전 인쇄 전용 컴포넌트는 제거)
+  for (const Component of [LocationReferenceView]) {
     it(`${Component.name} renders three distinct market cards and the pooled estimate`, () => {
       const data = locationReferenceFixture()
       const html = renderToStaticMarkup(<Component category="restaurant" data={data} />)
