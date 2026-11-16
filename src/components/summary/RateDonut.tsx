@@ -1,9 +1,9 @@
 import type { CSSProperties } from 'react'
 import { useInViewOnce } from '../../hooks/useInViewOnce'
 
-/** 링 반지름·굵기 (viewBox 100 기준) */
-const R = 42
-const STROKE = 10
+/** 링 반지름·굵기 (viewBox 100 기준) — 통통한 링, R + STROKE/2 ≤ 50이라 바깥이 잘리지 않는다 */
+const R = 41
+const STROKE = 17
 const CIRCUMFERENCE = 2 * Math.PI * R
 
 /**
@@ -21,8 +21,8 @@ export default function RateDonut({ percent }: { percent: number | null }) {
   const [svg, shown] = useInViewOnce<SVGSVGElement>({ enabled: has, threshold: 0.4 })
   const dash = shown ? full : `0 ${CIRCUMFERENCE}`
   return (
-    // 112px, 휴대폰 80px — 동종업체 수 카드의 가게 그림과 같은 칸
-    <div className="size-28 shrink-0 max-sm:size-20" aria-hidden="true">
+    // 136px, 휴대폰 96px — 동종업체 수 카드의 가게 그림과 같은 칸
+    <div className="size-34 shrink-0 max-sm:size-24" aria-hidden="true">
       <svg ref={svg} data-donut viewBox="0 0 100 100" className="size-full -rotate-90">
         <circle
           cx="50"
@@ -30,7 +30,8 @@ export default function RateDonut({ percent }: { percent: number | null }) {
           r={R}
           fill="none"
           strokeWidth={STROKE}
-          className={has ? 'stroke-blue-100' : 'stroke-gray-300'}
+          // 바탕 링은 값 링(blue-500)과 확실히 구분되되 비어 보이지 않게 한 톤 진하게
+          className={has ? 'stroke-blue-500/20' : 'stroke-gray-300'}
         />
         {has && (
           <circle
