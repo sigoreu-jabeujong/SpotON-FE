@@ -71,7 +71,7 @@ export default function AiSectionsInterpretation({
     queries.every((q) => !q.isFetching && !q.isError) &&
     Object.values(baseline).every((v) => v === null || /^[0-9a-f]{64}$/.test(v)) &&
     (!historyParams || !!history.data?.meta?.ai_report_address_context)
-  const key = ['ai-sections-v1', params, address, baseline] as const
+  const key = ['ai-sections-v2', params, address, baseline] as const
   const cached = useQuery<ApiResult<AiSectionsReport>>({
     queryKey: key,
     queryFn: skipToken,
