@@ -97,18 +97,18 @@ describe('actual administrative references', () => {
       },
     }
     const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
-    expect(html).toContain('점포당 평균 추정 매출')
+    expect(html).toContain('점포당 추정 매출')
     expect(html).toContain('900원')
     expect(html).not.toContain('20원')
     expect(html).toContain('같은 목록의 점포 수 합계')
     expect(html).not.toContain('중앙값 기준')
     expect(html).not.toContain('사분위 범위')
     expect(html).not.toContain('항목 간 분산:')
-    expect(html).toContain('전체 점포 수를 반영한 점포당 평균')
+    expect(html).toContain('점포 수 가중평균(비교)')
     data.sales.per_store_average.distribution!.sample_count = 4
     data.sales.per_store_average.distribution!.limited_reference_count = false
     const four = renderToStaticMarkup(<LocationReferenceView data={data} />)
-    expect(four).toContain('그래프를 표시할 자료가 없어요')
+    expect(four).toContain('분포를 표시할 자료가 없어요')
   })
   it('shows the server weighted average, calculation basis and excluded reasons', () => {
     const data = fixture()
@@ -124,7 +124,7 @@ describe('actual administrative references', () => {
       groups: [{ source_quarter: '20254', metric: number('250,000원/점포', '250000') }],
     }
     const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
-    expect(html).toContain('점포당 평균 추정 매출')
+    expect(html).toContain('점포당 추정 매출')
     expect(html).toContain('250,000원')
     expect(html).toContain('10000000')
     expect(html).not.toContain('상권별 점포 수를 가중한 참고평균이에요')
@@ -221,8 +221,8 @@ describe('actual administrative references', () => {
       groups: [],
     }
     const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
-    expect(html).toContain('평균 추정 매출 그래프')
-    expect(html).toContain('전체 평균 40원')
+    expect(html).toContain('분포를 표시할 자료가 없어요')
+    expect(html).toContain('40원')
     expect(html).not.toContain('중앙값')
     expect(html).not.toContain('/점포')
   })
@@ -242,5 +242,66 @@ describe('actual administrative references', () => {
     const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
     expect(html).toContain('자료 없음')
     expect(html).not.toContain('중앙값 기준')
+  })
+  it('uses the store-weighted median as the headline instead of pooled mean', () => {
+    const data = fixture()
+    const metric = (value: string) => ({
+      ...number(`${value}원/점포`, value),
+      unit: 'KRW_source_reported_per_store',
+    })
+    data.sales.items = ['500', '173'].map((count, index) => ({
+      ...data.sales.items[0],
+      market_code: `311000${index}`,
+      metric: {
+        ...number(index === 0 ? '50,000원' : '155,700원', index === 0 ? '50000' : '155700'),
+        unit: 'KRW_source_reported',
+      },
+      store_reference: { total_stores: count, reason: null },
+      per_store_metric: metric(index === 0 ? '100' : '900'),
+      average_contribution: { status: 'included', reason: null },
+    }))
+    data.sales.per_store_average = {
+      status: 'ready',
+      primary_quarter: '20254',
+      representative_method: 'store_weighted_median_v1',
+      graph_basis: 'store_weighted_histogram_v1',
+      metric: metric('306'),
+      total_sales: '205700',
+      total_store_count: '673',
+      listed_item_count: 2,
+      included_item_count: 2,
+      excluded_counts: {},
+      groups: [],
+      store_weighted_distribution: {
+        method: 'store_weighted_median_v1',
+        model: 'repeat_market_mean_for_each_reference_store',
+        individual_store_sales_observed: false,
+        total_store_count: '673',
+        reference_count: 2,
+        median: metric('100'),
+        mean: metric('306'),
+        minimum: metric('100'),
+        maximum: metric('900'),
+        variance: {
+          value: '10000',
+          unit: 'KRW_source_reported_per_store_squared',
+          scope: 'between_market_per_store_means',
+        },
+        bin_method: 'equal_width_exact_fraction_v1',
+        bins: [
+          {
+            lower: metric('100'),
+            upper: metric('500'),
+            store_count: '500',
+            upper_inclusive: false,
+          },
+          { lower: metric('500'), upper: metric('900'), store_count: '173', upper_inclusive: true },
+        ],
+      },
+    }
+    const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    expect(html).toContain('점포 수 기준 매출 분포')
+    expect(html.indexOf('100원')).toBeLessThan(html.indexOf('306원'))
+    expect(html).toContain('점포 수 가중 중앙값 100원')
   })
 })
