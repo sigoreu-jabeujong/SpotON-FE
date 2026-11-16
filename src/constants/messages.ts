@@ -348,6 +348,8 @@ export const MESSAGES = {
   /** STEP 02 ② 안의 시점 조회 (F-05) */
   snapshot: {
     title: '시점 조회',
+    /** 제목 옆 작은 칩 — 조회한 기준 시점 (예: "2025. 11. 기준") */
+    asOfChip: (date: string) => `${date} 기준`,
     guide:
       '과거 시점을 고르면 그때 영업하던 점포가 최신 데이터 기준으로 어떻게 됐는지 볼 수 있어요',
     quickTitle: '빠른 선택',
