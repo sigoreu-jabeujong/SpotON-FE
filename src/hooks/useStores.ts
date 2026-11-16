@@ -3,12 +3,21 @@ import { queryKeys } from '../api/queryKeys'
 import { getNearbyStores, getStoreHistory, getStoreSnapshot } from '../api/stores'
 import type { CommonQueryParams } from '../types/api'
 import type { StoreHistoryParams } from '../types/stores'
+import { getLocationHistory } from '../api/locationHistory'
+import type { LocationHistoryParams } from '../types/locationHistory'
 
 /** F-02 과거 점포 이력. params가 null이면 요청하지 않는다 */
 export function useStoreHistory(params: StoreHistoryParams | null) {
   return useQuery({
     queryKey: queryKeys.storeHistory(params),
     queryFn: params ? () => getStoreHistory(params) : skipToken,
+  })
+}
+
+export function useLocationHistory(params: LocationHistoryParams | null) {
+  return useQuery({
+    queryKey: ['stores', 'closed-location-history', 'closed-location-v1', params],
+    queryFn: params ? ({ signal }) => getLocationHistory(params, signal) : skipToken,
   })
 }
 

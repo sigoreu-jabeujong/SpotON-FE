@@ -1,4 +1,5 @@
 import { diagnosisAddress } from '../../utils/diagnosisAddress'
+import { closedHistoryTitle, closedHistoryNotice } from '../../utils/closedHistory'
 import { BRAND_API_ENABLED } from '../../api/analysisProfile'
 import { brandConditionSummary } from '../../utils/brands'
 import { forwardRef, type CSSProperties } from 'react'
@@ -136,11 +137,14 @@ const SummaryImageCard = forwardRef<HTMLDivElement, { data: Data }>(function Sum
             · {query.includeUnknown ? MESSAGES.brand.areaUnknown : MESSAGES.brand.areaExcluded}
           </div>
         )}
-        {history && (
+        {
           <div style={{ fontSize: 28, marginTop: 20, ...pill(C.blueLight, C.blueDark) }}>
-            {MESSAGES.history.summary(history.total)}
+            {closedHistoryTitle(history, data.history.isError)}
+            <div style={{ fontSize: 20, marginTop: 8 }}>
+              {closedHistoryNotice(history, data.history.isError)}
+            </div>
           </div>
-        )}
+        }
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>

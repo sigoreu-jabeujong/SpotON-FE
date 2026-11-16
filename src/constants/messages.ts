@@ -227,7 +227,7 @@ export const MESSAGES = {
     summary: (total: number) => `이 건물에서 확인된 음식점·카페 인허가 기록 ${total}건`,
     noFloor: '입력한 주소에 층·호실이 없어 건물 단위 이력으로 보여줘요',
     sortLabel: '최근 개업 순',
-    caption: '이 건물을 거쳐 간 음식점·카페 점포 이력 (최근 개업 순)',
+    caption: '선택한 상세 위치의 폐업 인허가 기록 (폐업일 최신순)',
     columns: {
       no: '번호',
       name: '점포명',

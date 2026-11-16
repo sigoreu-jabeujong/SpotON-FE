@@ -1,7 +1,7 @@
-import { toStoreHistoryParams } from '../api/params'
+import { toCommonQueryParams } from '../api/params'
 import { formatDataBaseline } from '../utils/format'
-import { useDiagnosisQuery } from './useDiagnosisQuery'
-import { useStoreHistory } from './useStores'
+import { getCoordinates, useDiagnosisQuery } from './useDiagnosisQuery'
+import { useNearbyStores } from './useStores'
 
 /**
  * 결과 화면 하단 "데이터 기준일 YYYY. MM. DD. (수집 YYYY. MM. DD.)" 값.
@@ -10,6 +10,7 @@ import { useStoreHistory } from './useStores'
  */
 export function useResultBaseline(enabled = true): string | null {
   const { query } = useDiagnosisQuery()
-  const history = useStoreHistory(enabled ? toStoreHistoryParams(query) : null)
+  const coords = getCoordinates(query)
+  const history = useNearbyStores(enabled && coords ? toCommonQueryParams(query, coords) : null)
   return formatDataBaseline(history.data?.meta)
 }

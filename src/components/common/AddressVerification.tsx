@@ -12,6 +12,10 @@ export default function AddressVerification({ children }: { children: ReactNode 
   const identity = addressIdentity(search)
   const params = new URLSearchParams(location.search)
   const invalid =
+    ['historyScope', 'historyIdentity'].some((key) => params.getAll(key).length > 1) ||
+    (params.has('historyScope') && !['floor', 'unit'].includes(params.get('historyScope')!)) ||
+    (params.has('historyIdentity') &&
+      !['address_scope', 'verified_building'].includes(params.get('historyIdentity')!)) ||
     (params.has('detailMode') && params.get('detailMode') !== 'unverified') ||
     (query.detailText?.length ?? 0) > 100 ||
     ['address', 'bk', 'floor', 'detail', 'detailMode', 'lat', 'lng'].some(
