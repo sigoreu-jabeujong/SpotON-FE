@@ -17,3 +17,4 @@ export const queryClient = new QueryClient({
 queryClient.setQueryDefaults(['risk', 'interpret'], { gcTime: 30 * 60 * 1000 })
 queryClient.setQueryDefaults(['ai-sections-v1'], { gcTime: 30 * 60 * 1000 })
 queryClient.setQueryDefaults(['ai-sections-v2'], { gcTime: 30 * 60 * 1000 })
+queryClient.setQueryDefaults(['ai-sections-v3'], { gcTime: 30 * 60 * 1000 })
