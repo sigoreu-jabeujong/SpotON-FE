@@ -4,6 +4,7 @@ import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { useSupportLinks } from '../../hooks/useSupportLinks'
 import type { SupportLink } from '../../types/support'
 import { linkPhone, telHref } from '../../utils/phone'
+import { supportDisplayTitle } from '../../utils/supportTitle'
 import Badge from '../common/Badge'
 import EmptyState from '../common/EmptyState'
 import ErrorState from '../common/ErrorState'
@@ -100,9 +101,11 @@ function LinkGroup({
                       {T.districtBadge}
                     </Badge>
                   )}
-                  <p className="text-caption font-semibold text-blue-700">{l.org_name}</p>
+                  <p className="text-caption font-semibold wrap-anywhere break-keep text-blue-700">
+                    {l.org_name}
+                  </p>
                   <p className="mt-0.5 text-subtitle font-bold break-keep text-gray-900">
-                    {l.title}
+                    {supportDisplayTitle(l.title)}
                   </p>
                 </div>
                 {phone ? (
