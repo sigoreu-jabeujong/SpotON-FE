@@ -71,6 +71,8 @@ export default function StoreStatusCards({ activity, risk }: Props) {
               triggerLabel={T.avgPeriodInfo.trigger}
               title={T.avgPeriodInfo.title}
               closeLabel={T.avgPeriodInfo.close}
+              // 화면 오른쪽 끝 카드라 팝오버를 왼쪽으로 펼친다
+              align="end"
             >
               <span className="block">{T.avgPeriodInfo.body}</span>
             </InfoPopover>
