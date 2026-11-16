@@ -126,10 +126,13 @@ export default function AiInterpretation({ params, history, address, meta }: Pro
           <p className="hidden text-caption text-gray-600 print:block">{T.printNotRequested}</p>
           <div className="flex items-center gap-3 print:hidden">
             <span className="text-micro text-gray-600">{T.startNotice}</span>
+            {/* STEP 04 전화·바로가기 버튼과 같은 계열(흰 바탕 + 파란 테두리)로 한 단계 작게 — 이 버튼에만 덧입힘 */}
             <Button
+              variant="secondary"
               disabled={!baselineReady}
               onClick={request}
-              iconRight={<Sparkles className="size-4" />}
+              iconRight={<Sparkles className="size-3.5" />}
+              className="shrink-0 gap-1.5! px-3.5! text-caption! whitespace-nowrap ring-blue-500! disabled:ring-0!"
             >
               {T.start}
             </Button>
