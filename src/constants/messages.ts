@@ -395,7 +395,7 @@ export const MESSAGES = {
     loadingValue: '불러오는 중',
     failedValue: '불러오지 못했어요',
     trendTitle: '연도별 개업·폐업 추이',
-    trendChartLabel: '연도별 개업·폐업 수 막대그래프. 같은 숫자를 아래 표에서 볼 수 있어요.',
+    trendChartLabel: '연도별 개업·폐업 수 선 그래프. 같은 숫자를 아래 표에서 볼 수 있어요.',
     trendOpened: '개업',
     trendClosed: '폐업',
     trendYear: (y: number) => `${y}년`,

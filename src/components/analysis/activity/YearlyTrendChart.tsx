@@ -1,10 +1,10 @@
 import { ChevronDown, Table2 } from 'lucide-react'
 import { useId, useState } from 'react'
 import {
-  Bar,
-  BarChart,
   CartesianGrid,
   Legend,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -16,6 +16,7 @@ import type { MarketActivity } from '../../../types/market'
 import { cn } from '../../../utils/cn'
 import { tokenColor } from '../../../utils/tokenColor'
 import EmptyState from '../../common/EmptyState'
+import { withGaps } from '../../../utils/trend'
 
 const T = MESSAGES.activity
 /** 차트 색은 디자인 토큰에서 읽는다 (index.css --color-chart-*). 개업 파랑 / 폐업 분홍 — 상태 구분용, 등급 색 아님 */
@@ -28,8 +29,8 @@ const chartColors = () => ({
   text: tokenColor('--color-chart-text', '#1a1a1a'),
 })
 
-/** 막대 등장 시간은 모션 토큰(느림)과 맞추고, 동작 줄이기면 애니메이션 없이 바로 그린다 */
-const barMotion = () =>
+/** 선 등장 시간은 모션 토큰(느림)과 맞추고, 동작 줄이기면 애니메이션 없이 바로 그린다 */
+const lineMotion = () =>
   ({
     isAnimationActive: !prefersReducedMotion(),
     animationDuration: MOTION_MS.slow,
@@ -51,18 +52,14 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
 
   if (trend.length === 0) return <EmptyState message={T.trendEmpty} />
   const yearTicks = axisTicks(trend.map((t) => t.year))
+  const series = withGaps(trend)
 
   return (
     <div className="flex flex-col gap-2">
       <div role="img" aria-label={T.trendChartLabel} className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          {/* 연도가 많으면(실제 데이터 24~60개) 개업·폐업 막대 사이를 좁혀 막대를 조금이라도 넓게 */}
-          <BarChart
-            data={trend}
-            margin={{ top: 8, right: 16, bottom: 0, left: -8 }}
-            barGap={trend.length > 20 ? 1 : 4}
-          >
-            {/* 가로 격자는 옅게 — 막대가 먼저 보이게 */}
+          <LineChart data={series} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
+            {/* 가로 격자는 옅게 — 선이 먼저 보이게 */}
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={COLOR.grid} />
             {/* 숫자 축: 실제 연도 간격대로 그린다 (없는 연도는 0으로 채우지 않고 빈 자리로 둔다 — 1971→2002가 붙어 보이지 않게) */}
             <XAxis
@@ -85,36 +82,43 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
               width={40}
             />
             <Tooltip
-              cursor={{ fill: COLOR.opened, fillOpacity: 0.06 }}
+              cursor={{ stroke: COLOR.line }}
               labelFormatter={(y) => T.trendYear(Number(y))}
               formatter={(value, name) => [T.trendUnit(Number(value)), name]}
               contentStyle={{ borderRadius: 10, borderColor: COLOR.line, fontSize: 13 }}
               animationDuration={MOTION_MS.fast}
               isAnimationActive={!prefersReducedMotion()}
             />
-            {/* 범례 글자는 진한 회색 (막대 색 글자는 흰 바탕 대비 4.5:1 미만) — 색은 동그라미로만 */}
+            {/* 범례 글자는 진한 회색 (선 색 글자는 흰 바탕 대비 4.5:1 미만) — 색은 동그라미로만 */}
             <Legend
               iconType="circle"
               wrapperStyle={{ fontSize: 13 }}
               formatter={(value) => <span style={{ color: COLOR.text }}>{value}</span>}
             />
-            <Bar
+            {/* 개업·폐업 두 선 + 점 — 자료가 없는 연도에서는 선을 잇지 않는다 (connectNulls 끔) */}
+            <Line
+              type="linear"
               dataKey="opened"
               name={T.trendOpened}
-              fill={COLOR.opened}
-              radius={[4, 4, 0, 0]}
-              maxBarSize={28}
-              {...barMotion()}
+              stroke={COLOR.opened}
+              strokeWidth={2}
+              dot={{ r: 3, fill: COLOR.opened, strokeWidth: 0 }}
+              activeDot={{ r: 5 }}
+              connectNulls={false}
+              {...lineMotion()}
             />
-            <Bar
+            <Line
+              type="linear"
               dataKey="closed"
               name={T.trendClosed}
-              fill={COLOR.closed}
-              radius={[4, 4, 0, 0]}
-              maxBarSize={28}
-              {...barMotion()}
+              stroke={COLOR.closed}
+              strokeWidth={2}
+              dot={{ r: 3, fill: COLOR.closed, strokeWidth: 0 }}
+              activeDot={{ r: 5 }}
+              connectNulls={false}
+              {...lineMotion()}
             />
-          </BarChart>
+          </LineChart>
         </ResponsiveContainer>
       </div>
 
