@@ -8,6 +8,7 @@ const params = {
   floor_unit: '2층',
   scope: 'floor' as const,
   identity_requirement: 'address_scope' as const,
+  category: 'cafe' as const,
 }
 const row = {
   history_scope: 'floor',
