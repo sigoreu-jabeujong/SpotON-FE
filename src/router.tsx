@@ -29,7 +29,7 @@ export const router = createBrowserRouter([
         children: [{ path: '*', lazy: lazyPage(() => import('./pages/NotFoundPage')) }],
       },
       // 인쇄용 진단서 — 사이드바 없이 A4 지면만 (PDF 저장)
-      { path: ROUTES.report, lazy: lazyPage(() => import('./pages/ReportPage')) },
+      { path: ROUTES.report, lazy: lazyPage(() => import('./pages/ScreenReportPage')) },
       {
         // 결과 화면(STEP 02~04): 왼쪽 사이드바 레이아웃
         lazy: lazyPage(() => import('./components/layout/ResultLayout')),

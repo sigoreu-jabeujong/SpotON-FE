@@ -93,7 +93,7 @@ export default function ConditionBar() {
           aria-haspopup="dialog"
           aria-expanded={editing}
           onClick={() => setEditing(true)}
-          className="group inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-gray-0 px-4 text-caption font-semibold text-blue-700 ring-1 ring-blue-500/40 motion-colors ring-inset hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          className="group inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-gray-0 px-4 text-caption font-semibold text-blue-700 ring-1 ring-blue-500/40 motion-colors ring-inset hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 print:hidden"
         >
           <SlidersHorizontal className="size-4" aria-hidden="true" />
           {T.edit}
