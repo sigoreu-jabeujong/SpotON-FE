@@ -7,6 +7,7 @@ import {
 } from '../../../constants/diagnosis'
 import { MESSAGES } from '../../../constants/messages'
 import { brandConditionSummary } from '../../../utils/brands'
+import { formatDate } from '../../../utils/format'
 
 export default function AiConditions({
   address,
@@ -30,7 +31,7 @@ export default function AiConditions({
     [T.address, address || T.unknown],
     [T.category, category || T.unknown],
     [T.radius, `${params.radius.toLocaleString('ko-KR')}m`],
-    [T.asOf, asOf || params.as_of || T.latest],
+    [T.asOf, formatDate(asOf || params.as_of) || T.latest],
     [
       T.area,
       FACILITY_SIZE_OPTIONS.find((v) => v.id === (params.area ?? 'all'))?.range ?? T.unknown,
@@ -54,19 +55,26 @@ export default function AiConditions({
             params.include_unknown_franchise !== false ? T.included : T.excluded,
           ],
         ]),
-    [T.dataUpdatedAt, dataUpdatedAt || T.unknown],
+    [T.dataUpdatedAt, formatDate(dataUpdatedAt) || T.unknown],
   ]
   return (
-    <dl
-      aria-label={T.label}
-      className="grid grid-cols-1 gap-x-6 gap-y-2 rounded-control bg-blue-100/60 p-4 text-caption sm:grid-cols-2"
-    >
-      {items.map(([label, value]) => (
-        <div key={label} className="flex min-w-0 gap-2">
-          <dt className="shrink-0 text-gray-600">{label}</dt>
-          <dd className="min-w-0 font-medium break-words text-gray-900">{value}</dd>
-        </div>
-      ))}
-    </dl>
+    // 한 박스 안에 표처럼 — 칸마다 오른쪽·아래 가는 선, 바깥쪽 끝 선은 -m으로 박스 밖에 숨긴다 (열 수와 상관없이)
+    // 데스크톱 4열 · 태블릿 2열 · 휴대폰 한 줄씩
+    <div className="overflow-hidden rounded-control border border-gray-300 bg-gray-0">
+      <dl
+        aria-label={T.label}
+        className="-mr-px -mb-px grid grid-cols-1 text-caption sm:grid-cols-2 lg:grid-cols-4"
+      >
+        {items.map(([label, value]) => (
+          <div
+            key={label}
+            className="flex min-w-0 flex-col gap-0.5 border-r border-b border-gray-300 px-4 py-3"
+          >
+            <dt className="text-micro text-gray-600">{label}</dt>
+            <dd className="min-w-0 font-semibold break-words text-gray-900">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   )
 }
