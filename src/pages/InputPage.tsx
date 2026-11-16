@@ -36,34 +36,32 @@ export default function InputPage() {
     [],
   )
   const [choices, setChoices] = useState<GeocodeCandidate[]>([])
-  const [selected, setSelected] = useState<GeocodeCandidate | null>(null)
-  useEffect(() => {
-    if (selected) document.getElementById('address-detail')?.focus()
-  }, [selected])
   const [detail, setDetail] = useState(query.detailText ?? query.floorUnit ?? '')
   const [confirming, setConfirming] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
-  const confirm = async (withoutDetail = false, candidate = selected, enteredDetail = detail) => {
-    if (!candidate || confirming) return
+  const confirm = async (candidate: GeocodeCandidate, enteredDetail: string) => {
+    if (confirming) return
     const token = generation.current
     setConfirming(true)
     setDetailError(null)
     try {
-      const normalized =
-        withoutDetail || !enteredDetail.trim()
-          ? null
-          : (await normalizeAddressDetail(enteredDetail)).floor_unit
+      const normalized = !enteredDetail.trim()
+        ? null
+        : (await normalizeAddressDetail(enteredDetail)).floor_unit
       if (token !== generation.current) return
-      if (!withoutDetail && enteredDetail.trim() && !normalized) {
+      if (
+        enteredDetail.trim() &&
+        (!normalized || !/^(?:[1-9]\d{0,2}층|B[1-9]\d{0,2})(?: |$)/.test(normalized))
+      ) {
         setDetailError(
-          '상세 위치를 하나의 층·호수로 확인할 수 없어요. 수정하거나 미확인으로 계속해 주세요.',
+          '층·호수를 확인할 수 없어요. 주소 입력칸에서 상세주소를 수정한 뒤 다시 검색해 주세요.',
         )
         return
       }
       goToResult({ ...candidate, floor_unit: normalized }, enteredDetail)
     } catch {
       if (token === generation.current)
-        setDetailError('상세주소 확인에 실패했어요. 다시 시도하거나 미확인으로 계속해 주세요.')
+        setDetailError('상세주소 확인에 실패했어요. 주소 입력칸에서 다시 검색해 주세요.')
     } finally {
       if (token === generation.current) setConfirming(false)
     }
@@ -114,20 +112,19 @@ export default function InputPage() {
               .join(' ')}
             initialCategory={query.category}
             loading={geocode.isPending || confirming}
-            apiError={geocode.error ? getErrorMessageFrom(geocode.error) : null}
+            apiError={detailError ?? (geocode.error ? getErrorMessageFrom(geocode.error) : null)}
             onChange={() => {
               // 주소·업종을 바꾸면 이전 검색 결과(후보·오류)를 지운다
               generation.current += 1
               setConfirming(false)
-              setSelected(null)
               setChoices([])
               setDetail('')
+              setDetailError(null)
               geocode.reset()
             }}
             onSubmit={(address, category) => {
               const token = ++generation.current
               setConfirming(false)
-              setSelected(null)
               setChoices([])
               setDetailError(null)
               geocode.mutate(
@@ -140,8 +137,7 @@ export default function InputPage() {
                     setDetail(resolved.detail)
                     setChoices(resolved.selected ? [] : next)
                     if (resolved.selected) {
-                      setSelected(resolved.selected)
-                      void confirm(false, resolved.selected, resolved.detail)
+                      void confirm(resolved.selected, resolved.detail)
                     }
                   },
                 },
@@ -152,60 +148,14 @@ export default function InputPage() {
               <CandidateList
                 candidates={choices}
                 detail={detail}
+                disabled={confirming}
                 onSelect={(c) => {
                   generation.current += 1
                   setConfirming(false)
-                  setSelected(c)
-                  setChoices([])
                   setDetailError(null)
-                  void confirm(false, c, detail)
+                  void confirm(c, detail)
                 }}
               />
-            )}
-            {selected && (
-              <div className="mt-4 space-y-3 rounded-control border border-gray-300 p-4">
-                <p>진단 주소: {selected.address_road || selected.address_jibun}</p>
-                <label htmlFor="address-detail">상세주소 (층·호수)</label>
-                <input
-                  id="address-detail"
-                  value={detail}
-                  maxLength={100}
-                  placeholder="예: 2층 201호"
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
-                      event.preventDefault()
-                      void confirm()
-                    }
-                  }}
-                  className="w-full rounded border p-2"
-                  onChange={(e) => {
-                    generation.current += 1
-                    setConfirming(false)
-                    setDetail(e.target.value)
-                    setDetailError(null)
-                  }}
-                />
-                <p className="text-caption">
-                  주소 뒤에 입력한 층·호수를 자동으로 반영해요. 비워 두면 기본 주소로 진단해요.
-                </p>
-                {detailError && <p role="alert">{detailError}</p>}
-                <button
-                  type="button"
-                  disabled={confirming}
-                  onClick={() => void confirm()}
-                  className="rounded bg-blue-600 px-4 py-2 text-white"
-                >
-                  {confirming ? '확인 중…' : '이 주소로 진단하기'}
-                </button>
-                <button
-                  type="button"
-                  disabled={confirming}
-                  onClick={() => void confirm(true)}
-                  className="block underline"
-                >
-                  상세 위치 미확인으로 계속
-                </button>
-              </div>
             )}
           </DiagnosisForm>
         </main>

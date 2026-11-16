@@ -289,7 +289,7 @@ function HistoryBlock({ data }: { data: Data }) {
           <span className="text-gray-600"> ({T.historyMore(HISTORY_ROWS, stores.length)})</span>
         )}
       </p>
-      <p className="mb-2 text-gray-600">{closedHistoryNotice(h)}</p>
+      {closedHistoryNotice(h) && <p className="mb-2 text-gray-600">{closedHistoryNotice(h)}</p>}
       {rows.length === 0 ? (
         <p className="text-gray-600">
           {h.location?.result_status === 'pending_identity'
