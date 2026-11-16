@@ -16,7 +16,7 @@ export function useStoreHistory(params: StoreHistoryParams | null) {
 
 export function useLocationHistory(params: LocationHistoryParams | null) {
   return useQuery({
-    queryKey: ['stores', 'closed-location-history', 'closed-location-v1', params],
+    queryKey: ['stores', 'location-history', 'location-history-all-status-v1', params],
     queryFn: params ? ({ signal }) => getLocationHistory(params, signal) : skipToken,
   })
 }

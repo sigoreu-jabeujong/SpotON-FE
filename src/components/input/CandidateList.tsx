@@ -9,6 +9,7 @@ const MAX_CANDIDATES = 5
 
 type Props = {
   candidates: GeocodeCandidate[]
+  detail?: string
   onSelect: (candidate: GeocodeCandidate) => void
 }
 
@@ -16,7 +17,7 @@ type Props = {
  * 주소 후보가 여러 개일 때 고르는 목록 — 앱의 선택 목록처럼 한 장의 흰 상자 안에 행을 나눠 보여준다.
  * 키보드: Tab·Enter·Space(기존 그대로) + 위·아래 화살표로 후보 사이 이동. 초점이 간 행은 파란 배경·테두리로 또렷하게
  */
-export default function CandidateList({ candidates, onSelect }: Props) {
+export default function CandidateList({ candidates, detail, onSelect }: Props) {
   const listRef = useRef<HTMLUListElement>(null)
   const firstRef = useRef<HTMLButtonElement>(null)
 
@@ -45,8 +46,15 @@ export default function CandidateList({ candidates, onSelect }: Props) {
         role="status"
         className="px-1 text-caption font-semibold text-gray-900"
       >
-        {T.candidatesTitle}
+        {candidates.length > 1
+          ? T.candidatesTitle
+          : '입력한 주소와 정확히 일치하는지 후보 주소를 확인해 주세요.'}
       </p>
+      {detail && (
+        <p className="mt-1 px-1 text-caption text-gray-600">
+          상세주소 {detail}은 선택한 주소에 함께 적용해요.
+        </p>
+      )}
       <ul
         ref={listRef}
         aria-labelledby="candidate-title"
