@@ -1,5 +1,6 @@
 import { BRAND_API_ENABLED } from '../api/analysisProfile'
 import { API_MESSAGES } from './apiMessages'
+import { formatDate } from '../utils/format'
 /** 화면에 보이는 안내·오류·면책 문구 (한곳에서 관리) */
 const BRAND = 'Spot:ON'
 const withBrand = (name: string) => `${name} | ${BRAND}`
@@ -805,7 +806,7 @@ export function getErrorMessage(code: string | null | undefined): string {
 
 /**
  * AS_OF_OUT_OF_RANGE 오류면 error.detail의 min_month·max_month로
- * "선택할 수 있는 기간은 YYYY.MM ~ YYYY.MM이에요"를 만든다. 다른 오류·detail 없음이면 null
+ * "선택할 수 있는 기간은 YYYY. MM. ~ YYYY. MM.이에요"를 만든다. 다른 오류·detail 없음이면 null
  */
 export function getAsOfRangeMessage(
   error: unknown,
@@ -813,7 +814,7 @@ export function getAsOfRangeMessage(
 ): string | null {
   if (typeof error !== 'object' || error === null) return null
   if (!('code' in error) || error.code !== 'AS_OF_OUT_OF_RANGE') return null
-  const dot = (ym: string) => ym.replace('-', '.')
+  const dot = (ym: string) => formatDate(ym) ?? ym
   const detail = 'detail' in error ? error.detail : null
   const min =
     typeof detail === 'object' && detail && 'min_month' in detail ? detail.min_month : null

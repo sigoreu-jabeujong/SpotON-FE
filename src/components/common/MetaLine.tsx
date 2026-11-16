@@ -10,7 +10,7 @@ type Props = {
   source?: string | readonly string[] | null
   /** true면 출처를 이름으로 보여준다 ("행정안전부 일반음식점 인허가(R5)"). 기본은 R번호만 */
   sourceNames?: boolean
-  /** "데이터 기준일 YYYY.MM.DD (수집 YYYY.MM.DD)" — formatDataBaseline 결과 */
+  /** "데이터 기준일 YYYY. MM. DD. (수집 YYYY. MM. DD.)" — formatDataBaseline 결과 */
   baseline?: string | null
   /** 기준일 YYYY-MM-DD (meta.as_of) */
   asOf?: string | null
@@ -31,7 +31,7 @@ type Props = {
 
 /**
  * 지표·목록 아래 작은 메타 줄: 출처 · 데이터 기준일 · 기준일 · 공간 단위 · 표본 (+ 시연 데이터)
- * 예) 출처 R5·R6 · 기준일 2026.10.31 · 반경 500m · 표본 46곳
+ * 예) 출처 R5·R6 · 기준일 2026. 10. 31. · 반경 500m · 표본 46곳
  */
 export default function MetaLine({
   source,
@@ -69,7 +69,7 @@ export default function MetaLine({
     })
   }
   if (baseline) {
-    // "데이터 기준일 2026.11.08 (수집 …)" → 이름표 "데이터 기준일" + 값
+    // "데이터 기준일 2026. 11. 08. (수집 …)" → 이름표 "데이터 기준일" + 값
     const m = /^(데이터 기준일) (.+)$/.exec(baseline)
     parts.push(
       m ? { key: 'baseline', label: m[1], node: m[2] } : { key: 'baseline', node: baseline },

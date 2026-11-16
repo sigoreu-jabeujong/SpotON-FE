@@ -27,7 +27,7 @@ type Props = {
   /** 반경(m) — 서버 radius_m */
   radiusM: number
   markers: NearbyMarker[]
-  /** 지도 위 배지 문구 (예: "반경 500m · 기준일 2026.10.31") */
+  /** 지도 위 배지 문구 (예: "반경 500m · 기준일 2026. 10. 31.") */
   badge: string
   /** 과거 시점 배지 (예: "2023년 10월 기준"). 있으면 지도 위에 주황색으로 눈에 띄게 표시 */
   pastBadge?: string | null
