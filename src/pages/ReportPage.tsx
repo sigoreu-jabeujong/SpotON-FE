@@ -33,6 +33,7 @@ import {
 import { MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
 import { parseSourceIds, SOURCES } from '../constants/sources'
+import AiPopulationInfo from '../components/summary/ai/AiPopulationInfo'
 import { isDiagnosisReady, toDiagnosisSearch } from '../hooks/useDiagnosisQuery'
 import { useReportData } from '../hooks/useReportData'
 import type { ApiMeta } from '../types/api'
@@ -650,6 +651,7 @@ function AiBlock({ data }: { data: Data }) {
       ) : (
         <div className="rounded border border-blue-500 px-2 py-1">
           <Badge tone="blue">{ai.label}</Badge>
+          <AiPopulationInfo data={ai.evidence?.population_reference} />
           <div className="mt-2 space-y-2 leading-relaxed">
             {ai.body
               ?.split(/\n\s*\n/)

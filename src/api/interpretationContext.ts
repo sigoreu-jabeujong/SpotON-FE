@@ -4,6 +4,52 @@ import type { ApiResult } from './client'
 import type { RiskInterpretation } from '../types/risk'
 import { RESTAURANT_SUB_CATEGORIES } from '../constants/diagnosis'
 
+function populationContractMatches(result: ApiResult<RiskInterpretation>): boolean {
+  const version = result.meta?.prompt_version
+  const p = result.data.evidence?.population_reference
+  if (version === 'chain-risk-interpret-v1') return p === undefined
+  if (version !== 'chain-risk-interpret-v2' || !p || typeof p !== 'object') return false
+  if (
+    p.analysis_date !== result.meta?.as_of ||
+    p.population_filter_applied !== false ||
+    p.source_validation_performed !== false ||
+    p.population_total_validated !== false ||
+    !Array.isArray(p.sources)
+  )
+    return false
+  if (p.status === 'no_data')
+    return (
+      p.reason === 'no_observation_in_period' &&
+      p.observation_date === null &&
+      p.sources.length === 0
+    )
+  if (
+    typeof p.observation_date !== 'string' ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(p.observation_date) ||
+    p.observation_date < p.analysis_date.slice(0, 7) + '-01' ||
+    p.observation_date > p.analysis_date
+  )
+    return false
+  if (p.status === 'pending' || p.status === 'not_supported')
+    return (
+      p.sources.length === 0 &&
+      p.reason === (p.status === 'pending' ? 'ambiguous_source_version' : 'scope_too_large')
+    )
+  return (
+    p.status === 'ready' &&
+    p.reason === null &&
+    p.sources.length === 3 &&
+    p.sources.every(
+      (s, i) =>
+        s &&
+        s.source === ['local', 'long', 'short'][i] &&
+        (s.status === 'partial'
+          ? !!s.metrics
+          : ['no_data', 'not_supported'].includes(s.status) && s.metrics === null),
+    )
+  )
+}
+
 export function riskBaseline(meta?: ApiMeta | null) {
   return meta
     ? {
@@ -124,7 +170,7 @@ export function interpretationMatches(
     returned.source_drift === current.source_drift &&
     sameFilters(meta.brand_filters, filters) &&
     sameFilters(baseline.brand_filters, filters) &&
-    meta.prompt_version === 'chain-risk-interpret-v1' &&
+    populationContractMatches(result) &&
     /^[0-9a-f]{64}$/.test(meta.context_hash ?? '') &&
     /^[0-9a-f]{64}$/.test(meta.data_version_hash ?? '') &&
     /^[0-9a-f]{64}$/.test(meta.prompt_sha256 ?? '')
