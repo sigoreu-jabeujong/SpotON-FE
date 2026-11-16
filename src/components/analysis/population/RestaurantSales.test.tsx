@@ -18,6 +18,8 @@ describe('restaurant market aggregates', () => {
       expect(html).toContain('선택 업종: 한식 · 중식 · 일식 · 양식 합산')
       expect(html).toContain('나머지 상권 보기 (1곳)')
       expect(html).toContain('업종별 원자료')
+      expect(html).toContain('음식점 추정매출 자료 안내')
+      expect(html).toContain('분석 기준일 2025-11-30')
       expect(html).not.toContain('/점포')
     })
   }

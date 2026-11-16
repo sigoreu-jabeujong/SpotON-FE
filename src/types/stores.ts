@@ -54,6 +54,8 @@ export type OperatingPeriodReason =
  * null은 키 생략이 아니라 "값 없음" — 화면은 0이나 빈칸 대신 "정보 없음"·사유를 보여준다.
  */
 export type HistoryStore = {
+  history_scope?: 'address' | 'floor' | 'unit'
+  match_evidence?: 'road' | 'jibun' | 'both'
   location_relation?: LocationRelation | null
   source: StoreSource
   license_no: string
