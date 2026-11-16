@@ -139,8 +139,8 @@ export default function RestaurantSales({ data }: { data: LocationReference }) {
               </span>
               <span className="block">이 자리 점포의 실제 매출이 아니에요.</span>
               <span className="block">
-                가맹·브랜드·면적 조건으로 이 참고자료의 수치를 거르지 않아요. 기존 AI 해석에
-                반영되는 값은 아니에요.
+                면적 조건으로 이 참고자료의 수치를 거르지 않아요. 기존 AI 해석에 반영되는 값은
+                아니에요.
               </span>
             </InfoPopover>
           </span>

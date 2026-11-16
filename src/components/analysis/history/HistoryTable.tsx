@@ -8,8 +8,7 @@ import { cn } from '../../../utils/cn'
 import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
 import { locationRelationLabel } from '../../../utils/locationRelationLabel'
-import FranchiseNote from '../../common/FranchiseNote'
-import StoreFranchiseCell from '../../common/StoreFranchiseCell'
+import StoreReferenceCell from '../../common/StoreReferenceCell'
 import ShowMoreButton from '../../common/ShowMoreButton'
 
 const T = MESSAGES.history
@@ -17,10 +16,13 @@ const TABLE_ID = 'history-table'
 /** 값이 없을 때(정보 없음·확인 필요) — 흐린 글씨로 실제 값과 구분 */
 const missingClass = 'text-gray-600'
 
-type Props = { stores: HistoryStore[] }
+type Props = {
+  asOf?: string | null
+  stores: HistoryStore[]
+}
 
 /** 과거 점포 이력 표 — 최근 개업 순, 처음 5개 + 더보기 */
-export default function HistoryTable({ stores }: Props) {
+export default function HistoryTable({ stores, asOf }: Props) {
   // 표시 순서만 바꾼다 (진단서와 같은 정렬 — 개업일 미확인은 맨 뒤). 캐시 배열은 복사해 정렬
   const sorted = useMemo(() => [...stores], [stores])
   const { visible, shown, total, hasMore, showMore } = useShowMore(sorted)
@@ -110,7 +112,7 @@ export default function HistoryTable({ stores }: Props) {
                     )}
                   </td>
                   <td className="px-3 py-4">
-                    <StoreFranchiseCell store={s} />
+                    <StoreReferenceCell asOf={asOf} />
                   </td>
                 </tr>
               )
@@ -118,7 +120,7 @@ export default function HistoryTable({ stores }: Props) {
           </tbody>
         </table>
       </div>
-      <FranchiseNote rows={stores} />
+
       <p className="sr-only" aria-live="polite">
         {MESSAGES.list.shownCount(shown, total)}
       </p>

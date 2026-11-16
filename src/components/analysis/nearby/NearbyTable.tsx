@@ -10,11 +10,10 @@ import { storeName, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
 import { sortStores, type StoreSort } from '../../../utils/storeSort'
 import Badge, { type BadgeTone } from '../../common/Badge'
-import FranchiseNote from '../../common/FranchiseNote'
 import SubCategoryNote from '../../common/SubCategoryNote'
 import ShowMoreButton from '../../common/ShowMoreButton'
 import StatusLabel from '../../common/StatusLabel'
-import StoreFranchiseCell from '../../common/StoreFranchiseCell'
+import StoreReferenceCell from '../../common/StoreReferenceCell'
 import StorePeriodCell from '../../common/StorePeriodCell'
 
 const T = MESSAGES.nearby
@@ -26,6 +25,7 @@ const STATUS_TONE: Record<StoreStatus, BadgeTone> = {
 }
 
 type Props = {
+  asOf?: string | null
   markers: NearbyMarker[]
   selectedId: string | null
   /** 행(점포명)을 누르면 지도에서 해당 마커를 강조·정보창 열기. id = storeKey(source, license_no) */
@@ -33,7 +33,7 @@ type Props = {
 }
 
 /** 주변 점포 표 — 가까운 순(API 순서 그대로) / 영업 기간 순, 처음 5개 + 더보기 */
-export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
+export default function NearbyTable({ markers, selectedId, onSelect, asOf }: Props) {
   const [sort, setSort] = useState<StoreSort>('nearest')
   // 순서만 바꾼다 (서버 operating_months 그대로 — 새 계산 없음). 정렬을 바꾸면 더보기는 처음 5개부터
   const rows = useMemo(() => sortStores(markers, sort), [markers, sort])
@@ -155,7 +155,7 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
                     </Badge>
                   </td>
                   <td className="px-3 py-4">
-                    <StoreFranchiseCell store={m} />
+                    <StoreReferenceCell asOf={asOf} />
                   </td>
                 </tr>
               )
@@ -163,7 +163,7 @@ export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
           </tbody>
         </table>
       </div>
-      <FranchiseNote rows={markers} />
+
       <SubCategoryNote />
       <p className="sr-only" aria-live="polite">
         {MESSAGES.list.shownCount(shown, total)}

@@ -4,15 +4,12 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import {
   CATEGORIES,
   FACILITY_SIZE_OPTIONS,
-  FRANCHISE_OPTIONS,
   RESTAURANT_SUB_CATEGORIES,
 } from '../../constants/diagnosis'
 import { MESSAGES } from '../../constants/messages'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { formatYearMonthKo } from '../../utils/format'
 import { cn } from '../../utils/cn'
-import { BRAND_API_ENABLED } from '../../api/analysisProfile'
-import { brandConditionSummary } from '../../utils/brands'
 import ConditionDialog from './ConditionDialog'
 
 const T = MESSAGES.conditionBar
@@ -33,10 +30,6 @@ export default function ConditionBar() {
     .join('·')
   const area =
     query.area !== 'all' ? FACILITY_SIZE_OPTIONS.find((a) => a.id === query.area)?.label : null
-  const franchise =
-    query.franchise !== 'all'
-      ? FRANCHISE_OPTIONS.find((f) => f.id === query.franchise)?.label
-      : null
   const past = formatYearMonthKo(query.asOf)
   const barRef = useRef<HTMLElement>(null)
 
@@ -78,14 +71,7 @@ export default function ConditionBar() {
             <Chip>{T.asOfCurrent}</Chip>
           )}
           {area && <Chip>{T.area(area)}</Chip>}
-          {BRAND_API_ENABLED ? (
-            <Chip>{brandConditionSummary(query)}</Chip>
-          ) : (
-            franchise && <Chip>{T.franchise(franchise)}</Chip>
-          )}
-          {!query.includeUnknown && (
-            <Chip>{BRAND_API_ENABLED ? MESSAGES.brand.areaExcluded : T.excludeUnknown}</Chip>
-          )}
+          {!query.includeUnknown && <Chip>{'면적 정보 없음 제외'}</Chip>}
         </ul>
         <button
           ref={editButton}

@@ -18,7 +18,6 @@ import LoadingSkeleton from '../../common/Skeleton'
 import MetaLine from '../../common/MetaLine'
 import StatCard from '../../common/StatCard'
 import SubTitle from '../../common/SubTitle'
-import { franchiseEmptyMessage } from '../../../utils/storeDisplay'
 import SnapshotTable from './SnapshotTable'
 import { focusConditionFilter } from '../../../utils/focusConditionFilter'
 
@@ -67,7 +66,7 @@ export default function SnapshotBlock() {
         <SnapshotResult
           data={snapshot.data}
           periodLabel={periodLabel ?? ''}
-          emptyMessage={franchiseEmptyMessage(query.franchise, query) ?? T.emptyStores}
+          emptyMessage={T.emptyStores}
         />
       )}
     </div>
@@ -81,7 +80,6 @@ function SnapshotResult({
 }: {
   data: NonNullable<ReturnType<typeof useStoreSnapshot>['data']>
   periodLabel: string
-  /** 0건 문구 — 가맹 필터면 "분류 자료가 없어 0개" (storeDisplay.franchiseEmptyMessage) */
   emptyMessage: string
 }) {
   const count = (n: number) => formatCount(n, MESSAGES.units.store)
@@ -101,7 +99,7 @@ function SnapshotResult({
           onEditConditions={focusConditionFilter}
         />
       ) : (
-        <SnapshotTable stores={data.stores} periodLabel={periodLabel} />
+        <SnapshotTable asOf={data.as_of} stores={data.stores} periodLabel={periodLabel} />
       )}
       <p className="flex items-center gap-1.5 text-caption text-gray-600">
         <Info className="size-4 shrink-0" aria-hidden="true" />

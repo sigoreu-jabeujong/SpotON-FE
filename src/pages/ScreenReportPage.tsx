@@ -1,10 +1,7 @@
 import { ArrowLeft, Printer } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router'
-import { BRAND_API_ENABLED } from '../api/analysisProfile'
 import AddressVerification from '../components/common/AddressVerification'
-import BrandStatusNotice, { BrandResultBoundary } from '../components/common/BrandStatusNotice'
-import InfoBox from '../components/common/InfoBox'
 import SkipLink, { MAIN_ID } from '../components/common/SkipLink'
 import ConditionBar from '../components/layout/ConditionBar'
 import ResultFooter from '../components/layout/ResultFooter'
@@ -28,27 +25,12 @@ const T = MESSAGES.report
 function ScreenReportContent() {
   usePageTitle(MESSAGES.titles.report)
   const data = useReportData(true)
-  const baseline = useResultBaseline(
-    BRAND_API_ENABLED || data.query.brandUrlNotice !== 'unsupported_brand',
-  )
+  const baseline = useResultBaseline(true)
   const [printFailed, setPrintFailed] = useState(false)
   const { query } = data
 
   if (!isDiagnosisReady(query))
     return <Navigate to={{ pathname: ROUTES.input, search: toDiagnosisSearch(query) }} replace />
-  if (!BRAND_API_ENABLED && query.brandUrlNotice === 'unsupported_brand')
-    return (
-      <main className="p-6">
-        <InfoBox title={MESSAGES.brand.title} description={MESSAGES.brand.unsupportedUrl} />
-        <Link
-          className="inline-flex min-h-11 items-center underline"
-          to={{ pathname: ROUTES.input, search: toDiagnosisSearch(query) }}
-        >
-          {MESSAGES.brand.resetConditions}
-        </Link>
-      </main>
-    )
-
   const print = () => {
     setPrintFailed(false)
     try {
@@ -59,7 +41,7 @@ function ScreenReportContent() {
   }
 
   return (
-    <BrandResultBoundary>
+    <>
       <div className="screen-report min-h-full bg-bg">
         <div className="print:hidden">
           <SkipLink />
@@ -100,7 +82,7 @@ function ScreenReportContent() {
           className="mx-auto max-w-[1160px] focus:outline-none print:max-w-none"
         >
           <ConditionBar />
-          <BrandStatusNotice withFilterNotice />
+
           <section className="screen-report-step">
             <ResultHeader {...MESSAGES.resultPages.analysis} />
             <div className="px-4 pb-10 sm:px-10">
@@ -121,7 +103,7 @@ function ScreenReportContent() {
           <ResultFooter baseline={baseline} />
         </main>
       </div>
-    </BrandResultBoundary>
+    </>
   )
 }
 

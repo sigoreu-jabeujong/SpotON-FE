@@ -78,7 +78,6 @@ export default function InputPage() {
       radius: DEFAULT_RADIUS,
       asOf: null,
       area: DEFAULT_AREA,
-      franchise: 'all',
       includeUnknown: DEFAULT_INCLUDE_UNKNOWN,
       lat: c.lat,
       lng: c.lng,

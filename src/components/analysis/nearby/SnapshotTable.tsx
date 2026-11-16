@@ -6,9 +6,8 @@ import { cn } from '../../../utils/cn'
 import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
 import Badge, { type BadgeTone } from '../../common/Badge'
-import FranchiseNote from '../../common/FranchiseNote'
 import ShowMoreButton from '../../common/ShowMoreButton'
-import StoreFranchiseCell from '../../common/StoreFranchiseCell'
+import StoreReferenceCell from '../../common/StoreReferenceCell'
 import StorePeriodCell from '../../common/StorePeriodCell'
 
 const T = MESSAGES.snapshot
@@ -21,10 +20,14 @@ const STATUS_TONE: Record<StoreStatus, BadgeTone> = {
   other: 'orange',
 }
 
-type Props = { stores: SnapshotStore[]; periodLabel: string }
+type Props = {
+  asOf?: string | null
+  stores: SnapshotStore[]
+  periodLabel: string
+}
 
 /** 시점 조회 점포 목록 — API 순서 그대로, 처음 5개 + 더보기 */
-export default function SnapshotTable({ stores, periodLabel }: Props) {
+export default function SnapshotTable({ stores, periodLabel, asOf }: Props) {
   const { visible, shown, total, hasMore, showMore } = useShowMore(stores)
   return (
     <div>
@@ -94,7 +97,7 @@ export default function SnapshotTable({ stores, periodLabel }: Props) {
                     </Badge>
                   </td>
                   <td className="px-3 py-4">
-                    <StoreFranchiseCell store={s} />
+                    <StoreReferenceCell asOf={asOf} />
                   </td>
                 </tr>
               )
@@ -102,7 +105,7 @@ export default function SnapshotTable({ stores, periodLabel }: Props) {
           </tbody>
         </table>
       </div>
-      <FranchiseNote rows={stores} />
+
       <p className="sr-only" aria-live="polite">
         {MESSAGES.list.shownCount(shown, total)}
       </p>

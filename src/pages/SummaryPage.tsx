@@ -4,7 +4,6 @@ import { toCommonQueryParams } from '../api/params'
 import PastViewNote from '../components/analysis/nearby/PastViewNote'
 import LocationReferenceSection from '../components/analysis/population/LocationReferenceSection'
 import ErrorState from '../components/common/ErrorState'
-import FranchiseFilterNotice from '../components/common/FranchiseFilterNotice'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
 import LoadingSkeleton from '../components/common/Skeleton'
 import AiInterpretation from '../components/summary/ai/AiInterpretation'
@@ -16,7 +15,7 @@ import SummaryInfoGrid from '../components/summary/SummaryInfoGrid'
 import { MESSAGES } from '../constants/messages'
 import { getCoordinates, useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
 import { useRisk } from '../hooks/useRisk'
-import { BRAND_API_ENABLED } from '../api/analysisProfile'
+import { V2_API_ENABLED } from '../api/analysisProfile'
 import { queryKeys } from '../api/queryKeys'
 
 const T = MESSAGES.summary
@@ -58,8 +57,7 @@ export default function SummaryPage() {
               {T.insufficient}
             </p>
           )}
-          {/* 가맹 필터 지표는 목록명 일치로 고른 점포의 계산 — 당시 실제 프랜차이즈 코호트 아님 (요청서 5장) */}
-          <FranchiseFilterNotice franchise={query.franchise} meta={risk.data.meta} />
+
           {/* 카드 묶음마다 오류 경계 — 하나가 깨져도 다른 지표는 계속 보인다 */}
           <SectionErrorBoundary resetKey={search}>
             <MarketCard market={risk.data.data.market} />
@@ -82,17 +80,17 @@ export default function SummaryPage() {
 
       <LocationReferenceSection params={params} />
       {/* AI 해석 — 지표를 불러온 뒤에만. 조건(search)이 바뀌면 key로 새로 만들어 이전 결과를 지운다 */}
-      {BRAND_API_ENABLED && (risk.isFetching || risk.isError) && (
+      {V2_API_ENABLED && (risk.isFetching || risk.isError) && (
         <p role="status" className="text-caption text-gray-600">
-          {MESSAGES.brand.waitingRisk}
+          {'같은 기준의 지표를 불러온 뒤 AI 해석을 확인할 수 있어요.'}
         </p>
       )}
-      {risk.data && params && (!BRAND_API_ENABLED || (!risk.isFetching && !risk.isError)) && (
+      {risk.data && params && (!V2_API_ENABLED || (!risk.isFetching && !risk.isError)) && (
         <SectionErrorBoundary resetKey={search}>
           {/* 본문은 조회 조건(params)만 — 서버가 같은 조건으로 다시 계산한다 */}
           <AiInterpretation
             key={
-              BRAND_API_ENABLED
+              V2_API_ENABLED
                 ? JSON.stringify(
                     queryKeys.riskInterpretation(params, undefined, query.address, risk.data.meta),
                   )

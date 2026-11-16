@@ -1,5 +1,5 @@
-import type { ChainHistoryResponse } from '../api/storeAdapters'
-import type { ChainStore } from './brands'
+import type { AnalysisHistoryResponse } from '../api/storeAdapters'
+import type { AnalysisStore } from './analysis'
 
 export type LocationHistoryParams = {
   building_key: string
@@ -35,8 +35,8 @@ export type LocationHistoryMeta = {
   undated_closure_count: number
   current_vacancy: 'not_verified'
 }
-export type LocationHistoryResponse = Omit<ChainHistoryResponse, 'message' | 'stores'> & {
-  stores: (ChainStore & {
+export type LocationHistoryResponse = Omit<AnalysisHistoryResponse, 'message' | 'stores'> & {
+  stores: (AnalysisStore & {
     history_scope: 'address' | 'floor' | 'unit'
     match_evidence: 'road' | 'jibun' | 'both'
   })[]
