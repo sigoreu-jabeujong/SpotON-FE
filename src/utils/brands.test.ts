@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { parseDiagnosisQuery } from '../hooks/useDiagnosisQuery'
-import { brandSelectionFor, normalizeBrandSelection } from './brands'
+import { brandConditionSummary, brandSelectionFor, normalizeBrandSelection } from './brands'
 
-const ALL = { brandScope: 'all', brandUnknown: 'include', brandEvidence: 'include_estimates' }
-const CHAIN = { brandScope: 'chain', brandUnknown: 'exclude', brandEvidence: 'include_estimates' }
+const ALL = {
+  brandScope: 'all',
+  brandUnknown: 'include',
+  brandEvidence: 'include_estimates',
+} as const
+const CHAIN = {
+  brandScope: 'chain',
+  brandUnknown: 'exclude',
+  brandEvidence: 'include_estimates',
+} as const
 
 describe('brandSelectionFor — 화면 선택 → 요청 조건', () => {
   it('전체는 미확인 포함·추정 근거 포함 (지금 기본값과 같음)', () => {
@@ -61,5 +69,22 @@ describe('예전 링크 주소 → 화면 조건 (v2)', () => {
   })
   it('brandScope=all&brandUnknown=exclude → 전체 (미확인 포함)', () => {
     expect(parse('analysisVersion=v2&brandScope=all&brandUnknown=exclude')).toMatchObject(ALL)
+  })
+})
+
+describe('brandConditionSummary — 조건 요약은 한 단어', () => {
+  it('전체 / 브랜드·체인만 (미확인·판정 근거는 붙이지 않음)', () => {
+    expect(brandConditionSummary(ALL)).toBe('전체')
+    expect(brandConditionSummary(CHAIN)).toBe('브랜드·체인')
+  })
+  it('예전 값도 정리한 뒤 한 단어로', () => {
+    expect(brandConditionSummary({ brandScope: 'non_chain', brandUnknown: 'exclude' })).toBe('전체')
+    expect(
+      brandConditionSummary({
+        brandScope: 'chain',
+        brandUnknown: 'include',
+        brandEvidence: 'confirmed_only',
+      }),
+    ).toBe('브랜드·체인')
   })
 })

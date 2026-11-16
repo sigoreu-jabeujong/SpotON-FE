@@ -1,9 +1,5 @@
 import { BRAND_API_ENABLED } from '../api/analysisProfile'
-import {
-  BRAND_EVIDENCE_OPTIONS,
-  BRAND_SCOPE_OPTIONS,
-  BRAND_UNKNOWN_OPTIONS,
-} from '../constants/diagnosis'
+import { BRAND_SCOPE_OPTIONS } from '../constants/diagnosis'
 import { MESSAGES } from '../constants/messages'
 import type { ApiMeta } from '../types/api'
 import type { DiagnosisQuery } from '../types/diagnosis'
@@ -18,26 +14,18 @@ export function brandSelection(query: BrandSelection) {
   } as const
 }
 
+/** 조건 요약 — 화면 선택 그대로 "전체" 또는 "브랜드·체인" 한 단어 (조건 바·요약 이미지·AI 조건·진단서 공통) */
 export function brandConditionSummary(query: BrandSelection): string {
-  const q = brandSelection(query)
-  return [
-    BRAND_SCOPE_OPTIONS.find((v) => v.id === q.brandScope)?.label,
-    BRAND_UNKNOWN_OPTIONS.find((v) => v.id === q.brandUnknown)?.label,
-    BRAND_EVIDENCE_OPTIONS.find((v) => v.id === q.brandEvidence)?.label,
-  ].join(' · ')
+  const q = normalizeBrandSelection(query)
+  return BRAND_SCOPE_OPTIONS.find((v) => v.id === q.brandScope)?.label ?? ''
 }
 
-export function brandFilterNotice(query: BrandSelection, meta?: ApiMeta | null): string {
-  const q = brandSelection(query)
+/** 브랜드·체인 기준 안내 — 소속 추정 설명 + 자료 상태(준비 전·재검증). 미확인·판정 근거 선택지를 뺐으므로 그 설명은 붙이지 않는다 */
+export function brandFilterNotice(meta?: ApiMeta | null): string {
   const T = MESSAGES.brand
   const notes: string[] = [T.membershipLimit]
   if (meta?.brand_classification?.status === 'pending') notes.push(T.pending)
   if (meta?.brand_classification?.source_drift) notes.push(T.drift)
-  if (q.brandUnknown === 'include') notes.push(T.unknownIncluded)
-  if (q.brandScope === 'non_chain') notes.push(T.nonChainLimit)
-  if (q.brandEvidence === 'confirmed_only') notes.push(T.confirmedLimit)
-  if (q.brandEvidence === 'confirmed_only' && q.brandUnknown === 'include')
-    notes.push(T.confirmedUnknown)
   return notes.join(' ')
 }
 

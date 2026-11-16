@@ -284,9 +284,8 @@ describe('v2 record display and nullable values', () => {
     s.brand.status = 'estimated'
     s.brand.basis = 'semas_address_corroborated'
     expect(storeFranchise(s)).toMatchObject({ kind: 'estimate', label: MESSAGES.brand.estimate })
-    expect(brandFilterNotice({ brandScope: 'non_chain' }, baseline)).toContain(
-      MESSAGES.brand.nonChainLimit,
-    )
+    // 미확인·판정 근거 선택지를 뺐으므로 그 설명 없이 소속 추정 설명만
+    expect(brandFilterNotice(baseline)).toBe(MESSAGES.brand.membershipLimit)
   })
 })
 

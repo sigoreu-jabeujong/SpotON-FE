@@ -547,7 +547,7 @@ function IndicatorsBlock({ indicators, data }: { indicators: RiskIndicator[]; da
       {(BRAND_API_ENABLED || data.query.franchise !== 'all') && (
         <p className="mb-1 text-gray-600">
           {BRAND_API_ENABLED
-            ? brandFilterNotice(data.query, data.risk.data?.meta)
+            ? brandFilterNotice(data.risk.data?.meta)
             : data.query.franchise === 'independent'
               ? MESSAGES.store.franchise.filterIndependent
               : MESSAGES.store.franchise.filterFranchise(

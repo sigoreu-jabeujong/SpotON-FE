@@ -110,7 +110,7 @@ export default function BrandStatusNotice({
                   : T.observation
         }
       >
-        {withFilterNotice && normal && <p className="mt-1">{brandFilterNotice(query)}</p>}
+        {withFilterNotice && normal && <p className="mt-1">{brandFilterNotice()}</p>}
       </InfoBox>
     </div>
   )
