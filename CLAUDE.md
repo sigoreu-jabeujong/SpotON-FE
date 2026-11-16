@@ -1,5 +1,7 @@
 # CLAUDE.md — SpotON-FE
 
+2026-11-16 #76은 [공개 부분자료 AI 호환 연결](docs/population-ai.md)이다. BE #184의 실제 v2 AI 연결을 위해 promptv1/필드없음과 promptv2/정합한 population evidence를 함께 허용한다. 정보창/보고서에 AI 관측일·원천별 부분 상태와 제한을 표시하고 고정 미확보 문구의 모순을 제거한다. 기존키/.env/사용자폴더/호스팅설정은 보존하며 호환 FE를 main/Vercel에 먼저 배포한 뒤 BE가 배포된다. 실제 검수/CI/공개검증은 연결PR 기록을 따른다.
+
 2026-11-16 사용자 최신 요청이 API 구현·FE 수정·운영 배포를 승인했다. [FE #73 공개자료 주야간 비교](docs/population-reference.md)는 BE #180의 새 `/api/v2/population-reference`를 프로필과 무관하게6개 입력만으로 요청한다. 원천별 부분 비교·decimal/display·0/null·편향/범위·날짜를 유지하고 분석/종합/보고서에 같은 계약을 쓴다. Report만 인구를 조회하며 실제 fetch 중 인쇄를 기다리고 핵심 표는 표시한다. 기존 전체 living_pop/Risk/AI 입력은 유지한다. 로컬 환경파일/키·사용자 폴더는 보존하고 BE 준비 후 develop/main 정상 PR로 공개한다. 실제 CI·배포 결과는 각 PR 실행 기록을 따른다. 과거 FE 수정/배포 승인 대기는 이번 요청에 한해 충족됐다.
 
 2026-11-15 운영 v2 전환 완료. BE PR154의 성능 보완/0012·publication·조회 권한 검증 뒤 FE PR62를 공개 활성화했다. Production=v2, Preview/development=v1, 일반 로컬 기본v1이다. 공개 필터·실제 AI·보고서·모바일390/360·키보드·오류/취소를 확인했다. [운영 실행·검수·복구 기록](https://github.com/sigoreu-jabeujong/SpotON-BE/blob/develop/docs/designs/production-chain-v2-rollout.md)을 따른다. 아래 과거 진행/승인 대기 문구는 이 전환에 관해 완료된 이력이다.

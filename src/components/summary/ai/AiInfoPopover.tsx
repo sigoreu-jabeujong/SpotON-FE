@@ -2,6 +2,7 @@ import { Info, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import type { ApiMeta } from '../../../types/api'
 import type { RiskInterpretation } from '../../../types/risk'
+import AiPopulationInfo from './AiPopulationInfo'
 import { MESSAGES } from '../../../constants/messages'
 
 export default function AiInfoPopover({
@@ -43,6 +44,7 @@ export default function AiInfoPopover({
     }
   }, [open])
   const missing = [...new Set(result?.missing_data.map((v) => v.text) ?? [])]
+  const population = result?.evidence?.population_reference
   const available =
     result?.evidence?.indicators?.filter((v) => v.status === 'fact').map((v) => v.id) ?? []
   return (
@@ -101,12 +103,13 @@ export default function AiInfoPopover({
             </section>
             <section>
               <h4 className="mb-1 font-bold">{T.unavailable}</h4>
-              <p>{T.unavailableText}</p>
+              <p>{population ? T.populationUnavailableText : T.unavailableText}</p>
             </section>
+            <AiPopulationInfo data={population} />
             <section>
               <h4 className="mb-1 font-bold">{T.limitations}</h4>
               <ul className="list-disc space-y-2 pl-4">
-                {T.rules.map((text) => (
+                {[...T.rules, population ? T.populationRule : T.excludedRule].map((text) => (
                   <li key={text}>{text}</li>
                 ))}
               </ul>
