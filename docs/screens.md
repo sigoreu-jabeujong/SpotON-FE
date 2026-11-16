@@ -1,5 +1,7 @@
 # 화면별 요구사항
 
+2026-11-17 사용자 요청으로 STEP 03의 상권 판정 기능을 제거하였다. 판정 카드와 상권 안/밖/확인 중 안내, 전용 로딩 자리는 표시하지 않는다. 공식/참고 지표·서울 평균 비교·AI 해석·위치별 참고자료는 계속 제공한다.
+
 2026-11-16 FE #73은 [공개자료 주야간 비교](population-reference.md)를 ActivitySection·SummaryPage·ReportPage에 연결한다. `analysis/population/`의 전용 카드와 새 API/hook을 사용하고 기존 전체 인구 pending 카드와 구분한다. 인쇄 버튼은 인구 fetch 완료를 기다리며 화면의 핵심 표와 AI 요청은 독립이다. 실제 브라우저390/360·서버값 일치·보고서/오류 격리는 연결 문서와 PR 검증 기록을 따른다.
 
 > 마지막 갱신: 2026-11-11 (PR #16 디자인 이미지·배치 반영)
@@ -17,7 +19,7 @@
 | ③ 과거 점포 이력 `#history` | ✅ 완료 (점포 식별 `source`+`license_no`, 결측 "정보 없음"·사유 — PR #28) | `components/analysis/HistorySection.tsx`, `analysis/history/`, `utils/history.ts`, `utils/storeDisplay.ts` | 실제 데이터로 위치 일치 판정 확인 |
 | ④ 주변 점포 `#nearby` | ✅ 완료 (카카오 지도 → 아래 필터 바·점포 표, 시점 조회. 지도·표 선택도 `storeKey`, 결측 표시, `data-range` 세부 업종·`min_month=null` — PR #30) | `components/analysis/NearbySection.tsx`, `ConditionFilterBar.tsx`, `AsOfPicker.tsx`, `analysis/nearby/`, `components/map/` | 배포 도메인을 카카오 콘솔 허용 도메인에 등록 |
 | ⑤ 상권 활동 `#activity` | ✅ 완료 (점포 현황·연도별 차트·조건부 지표. 선택 항목 "자료 확인 중"+사유, YTD 안내, 가맹 분류 확인 중 안내 — PR #31) | `components/analysis/ActivitySection.tsx`, `analysis/activity/` | 추정매출·생활인구는 BE 수치 활성화 후 실제 값 확인 |
-| ⑥ 종합 진단 `/result/summary` | ✅ 완료 (상권 판정 3가지(in_market·unverified·outside)·공식/참고 지표·서울 평균 비교·AI 해석(query-only)·체크리스트 — PR #29) | `pages/SummaryPage.tsx`, `components/summary/` | 실제 데이터 적재 후 Risk 200·AI 503 확인 |
+| ⑥ 종합 진단 `/result/summary` | ✅ 완료 (공식/참고 지표·서울 평균 비교·AI 해석(query-only)·체크리스트. 2026-11-17 상권 판정 제거) | `pages/SummaryPage.tsx`, `components/summary/` | — |
 | ⑦ 저장·상담 `/result/share` | ✅ 완료 (화면 그대로 PDF·상담 링크(구 관할 센터 포함, 실제 BE 확인)·재진단 — PR #31, 화면 PDF 전환 2026-11-17) | `pages/SharePage.tsx`, `pages/ScreenReportPage.tsx`, `components/share/` | — |
 | 공통 | ✅ | 사이드바 레이아웃, 진단 조건 요약 바(`ConditionBar`, STEP 02~04 상단 고정 + [조건 바꾸기]), 탭 제목, 404, 화면별 나눠 불러오기, 스켈레톤 로딩(`common/Skeleton`), 오류 경계(라우터 `RouteErrorPage` + 섹션별 `SectionErrorBoundary`), 모션(동작 줄이기 대응) | — |
 
@@ -154,7 +156,7 @@
 |---|---|
 | 기능 | F-07 지표, F-08 AI 해석·체크리스트 |
 | API | `GET /api/risk`, `POST /api/risk/interpret` ("AI 해석 보기" 클릭 시에만) |
-| 표시 | 상권 판정(상권 안: 상권명·유형·관광특구 `also_in` / **확인 중(`unverified`)**: "공식 상권 적용 기준을 확인 중이에요" — 안·밖으로 확정하지 않음 / 상권 밖) / **서울시 공식** 영역: 공식 폐업률, 상권변화지표(조건부), 공식 창업위험도 링크 / **Spot:ON 참고지표** 영역: 참고 폐업률(12개월), 개업 1·3주년 생존율, 동종업체 수, 주야간 인구비(조건부) |
+| 표시 | **서울시 공식** 영역: 공식 폐업률, 상권변화지표(조건부), 공식 창업위험도 링크 / **Spot:ON 참고지표** 영역: 참고 폐업률(12개월), 개업 1·3주년 생존율, 동종업체 수, 주야간 인구비(조건부). 별도 상권 판정은 표시하지 않음 |
 | AI 해석 | "AI 해석" 제목 옆 정보 아이콘, 주소·업종·반경·실제 적용 시점·필터·원천 기준일, 연결된 본문 문단, 본문 아래 "계약 전 확인사항"(서버 checklist 그대로, 비어 있으면 숨김)과 하단 참고 안내. 번호형 구역과 반복 근거 칩은 표시하지 않는다. 부족한 자료와 해석 한계는 클릭/키보드로 여는 정보 팝오버에서 확인한다. [새 문단 계약](ai-narrative.md) |
 | 로딩 | 지표 로딩 / AI 해석 생성 중(전송 대기 최대 45초) 별도 로딩 |
 | 오류 | 지표 오류 → 다시 시도 / AI 오류(`AI_UNAVAILABLE`·`AI_VERIFY_FAILED`·500) → 지표는 그대로 + "AI 해석을 불러오지 못했어요" / 422 → 요청 형식 오류 안내 |

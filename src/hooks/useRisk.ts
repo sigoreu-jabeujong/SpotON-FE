@@ -3,10 +3,9 @@ import type { ApiResult } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { getRisk, postRiskInterpret } from '../api/risk'
 import type { CommonQueryParams, ApiMeta } from '../types/api'
-import { BRAND_API_ENABLED } from '../api/analysisProfile'
+import { V2_API_ENABLED } from '../api/analysisProfile'
 import { interpretationMatches } from '../api/interpretationContext'
 import { ApiRequestError } from '../api/client'
-import { MESSAGES } from '../constants/messages'
 import type {
   RiskInclude,
   RiskInterpretation,
@@ -19,7 +18,7 @@ export function useRisk(params: CommonQueryParams | null, include: RiskInclude[]
   return useQuery({
     queryKey: queryKeys.risk(params, include),
     queryFn: params ? () => getRisk(params, include) : skipToken,
-    ...(BRAND_API_ENABLED ? { staleTime: 0 } : {}),
+    ...(V2_API_ENABLED ? { staleTime: 0 } : {}),
   })
 }
 
@@ -40,8 +39,12 @@ export function useRiskInterpret() {
       baseline?: ApiMeta | null
     }) => {
       const res = await postRiskInterpret(body, signal)
-      if (BRAND_API_ENABLED && !interpretationMatches(res, body.query, baseline))
-        throw new ApiRequestError('AI_CONTEXT_CHANGED', MESSAGES.brand.changed, null)
+      if (V2_API_ENABLED && !interpretationMatches(res, body.query, baseline))
+        throw new ApiRequestError(
+          'AI_CONTEXT_CHANGED',
+          '조회 조건이나 자료가 변경됐어요. 다시 조회해 주세요.',
+          null,
+        )
       return res
     },
   })

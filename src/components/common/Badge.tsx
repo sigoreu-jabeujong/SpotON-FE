@@ -19,7 +19,6 @@ type Props = {
   className?: string
 }
 
-/** 작은 둥근 배지 (예: 영업 중·폐업·프랜차이즈(추정)). 글자를 꼭 넣는다 */
 export default function Badge({ tone = 'gray', icon, children, className }: Props) {
   return (
     <span

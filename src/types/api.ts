@@ -1,5 +1,4 @@
-import type { Category, FranchiseFilter, RadiusMeters, SubCategory } from '../constants/diagnosis'
-import type { BrandClassification, BrandFilters } from './brands'
+import type { Category, RadiusMeters, SubCategory } from '../constants/diagnosis'
 
 /**
  * API 공통 응답 형식 { data, meta, error }
@@ -10,7 +9,6 @@ import type { BrandClassification, BrandFilters } from './brands'
 /** 공간 단위: point / radius_{n}m / market / grid / seoul */
 export type ApiSpace = 'point' | 'market' | 'grid' | 'seoul' | `radius_${number}m`
 
-/** 상태 + 사유 코드 (선택 항목 상태, 가맹 분류 상태 등) */
 export type ApiStatusReason = { status: string; reason?: string | null }
 
 /** 기간 시작·종료 YYYY-MM-DD */
@@ -28,27 +26,15 @@ export type ApiDistrictContactSource = {
 }
 
 /**
- * 가맹 분류 방법의 상태 (history·nearby·snapshot·activity·risk meta).
  * 미적용 DB: pending / brand_mapping_blocked, 적용 DB: estimate / reference_catalog_name_match.
  * 지표의 fact·pending이나 상권 unverified와 다른 축이다. coverage=partial은 정확도·제공률이 아니다.
  */
-export type ApiFranchiseClassification = ApiStatusReason & {
-  reference_year?: number | null
-  source?: string[] | null
-  coverage?: string | null
-  historical_contract_verified?: boolean | null
-  industry_mapping_verified?: boolean | null
-}
-
-/** 데이터 버전 (화면 표시 안 함, 캐시·디버깅용) */
 export type ApiDataVersion = {
   stores_batch_ids?: string[] | null
   /** 공식 지표에 쓴 기준 분기 (예: "20262"). 미사용 시 null */
   trdar_quarter?: string | null
   map_version?: string | null
   rule_version?: string | null
-  /** 가맹 목록 적용 기록 (UUID·hash — 화면에 표시하거나 조회 조건·AI 본문으로 다시 보내지 않음) */
-  brand_mapping?: Record<string, string | number | null> | null
 }
 
 /**
@@ -69,15 +55,6 @@ export type ApiMeta = {
   population_total_validated?: false
   global_content_rechecked?: false
   public_subset_calculation_performed?: Record<'local' | 'long' | 'short', boolean>
-  brand_classification?: BrandClassification | null
-  brand_filters?: BrandFilters | null
-  brand_counts?: {
-    estimated: number
-    conflict: number
-    stale_or_drift: number
-    unknown: number
-  } | null
-  brand_counts_scope?: string
   prompt_version?: string
   prompt_sha256?: string
   context_hash?: string
@@ -114,8 +91,6 @@ export type ApiMeta = {
   yearly_comparison_basis?: string | null
   /** market/activity: 연도별 비교 기간 { "2026": { start, end } } */
   yearly_periods?: Record<string, ApiPeriod> | null
-  /** market/activity: 가맹 분류 상태 (지금 BE는 pending / brand_mapping_blocked) */
-  franchise_classification?: ApiFranchiseClassification | null
   /** risk: 계산 한계 코드 (예: franchise_name_match_not_contract_or_history) */
   limitations?: string[] | null
   /** market/activity: 요청한 선택 항목(sales·living_pop)의 상태 — 요청한 항목만 있음 */
@@ -163,38 +138,12 @@ export type V1QueryParams = {
   /** YYYY-MM. 생략 = 현재 월 */
   as_of?: string
   area?: ApiArea
-  franchise?: FranchiseFilter
   /**
-   * 정보 없음 포함 — 면적·가맹을 따로 보낸다 (legacy include_unknown과 섞으면 422라 쓰지 않음).
-   * 프랜차이즈·개인 매장만 볼 때는 include_unknown_franchise=false (BE 가맹 추정 요청서 3장)
+   * 정보 없음 포함 — 면적을 따로 보낸다 (legacy include_unknown과 섞으면 422라 쓰지 않음).
    */
   include_unknown_area?: boolean
-  include_unknown_franchise?: boolean
-  brand_scope?: never
-  brand_unknown?: never
-  brand_evidence?: never
-  brand_time_basis?: never
-  operation_type?: never
 }
 
-export type V2QueryParams = Omit<
-  V1QueryParams,
-  | 'franchise'
-  | 'include_unknown_franchise'
-  | 'brand_scope'
-  | 'brand_unknown'
-  | 'brand_evidence'
-  | 'brand_time_basis'
-  | 'operation_type'
-> & {
-  brand_scope: BrandFilters['brand_scope']
-  brand_unknown: BrandFilters['brand_unknown']
-  brand_evidence: BrandFilters['brand_evidence']
-  brand_time_basis: 'observed_record'
-  operation_type: 'any'
-  franchise?: never
-  include_unknown_franchise?: never
-  include_unknown?: never
-}
+export type V2QueryParams = V1QueryParams
 
 export type CommonQueryParams = V1QueryParams | V2QueryParams

@@ -1,5 +1,5 @@
 import { apiGet, apiPost } from './client'
-import { adaptChainHistory } from './storeAdapters'
+import { adaptAnalysisHistory } from './storeAdapters'
 import type { LocationHistoryParams, LocationHistoryResponse } from '../types/locationHistory'
 
 export async function getLocationHistory(params: LocationHistoryParams, signal?: AbortSignal) {
@@ -35,7 +35,7 @@ export async function getLocationHistory(params: LocationHistoryParams, signal?:
     { signal },
   )
   const raw = response.data
-  const adapted = adaptChainHistory({ ...raw, message: null })
+  const adapted = adaptAnalysisHistory({ ...raw, message: null })
   if (
     raw.stores.some(
       (s) =>

@@ -3,11 +3,9 @@ import { useState } from 'react'
 import { toDataRangeParams } from '../../api/params'
 import {
   FACILITY_SIZE_OPTIONS,
-  FRANCHISE_OPTIONS,
   RADIUS_OPTIONS,
   RESTAURANT_SUB_CATEGORIES,
   type FacilitySize,
-  type FranchiseFilter,
   type RadiusMeters,
   type SubCategory,
 } from '../../constants/diagnosis'
@@ -17,40 +15,21 @@ import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import type { DiagnosisQuery } from '../../types/diagnosis'
 import { cn } from '../../utils/cn'
 import { ChoiceGroup as Group, Choice } from '../common/ConditionChoices'
-import InfoPopover from '../common/InfoPopover'
 import AsOfPicker from './AsOfPicker'
-import { BRAND_API_ENABLED } from '../../api/analysisProfile'
-import { BRAND_SCOPE_CHOICES } from '../../constants/diagnosis'
-import { brandSelection, brandSelectionFor } from '../../utils/brands'
 
 const T = MESSAGES.filter
 
-type Draft = Pick<
-  DiagnosisQuery,
-  | 'radius'
-  | 'subCategories'
-  | 'area'
-  | 'franchise'
-  | 'includeUnknown'
-  | 'asOf'
-  | 'brandScope'
-  | 'brandUnknown'
-  | 'brandEvidence'
->
+type Draft = Pick<DiagnosisQuery, 'radius' | 'subCategories' | 'area' | 'includeUnknown' | 'asOf'>
 
 const sameDraft = (a: Draft, b: Draft) =>
   a.radius === b.radius &&
   a.area === b.area &&
-  a.franchise === b.franchise &&
   a.includeUnknown === b.includeUnknown &&
   a.asOf === b.asOf &&
-  a.brandScope === b.brandScope &&
-  a.brandUnknown === b.brandUnknown &&
-  a.brandEvidence === b.brandEvidence &&
   [...a.subCategories].sort().join(',') === [...b.subCategories].sort().join(',')
 
 /**
- * 진단 조건 필터 바 — 반경·세부 업종(음식점만)·시설 규모·프랜차이즈·기준 시점·정보 없음 포함.
+ * 진단 조건 필터 바 — 반경·세부 업종(음식점만)·시설 규모·기준 시점·정보 없음 포함.
  * "조회"를 눌러야 URL 쿼리가 바뀐다. 이력 섹션을 뺀 모든 섹션에 적용된다.
  * 값 목록은 constants/diagnosis.ts에서만 가져온다.
  */
@@ -68,11 +47,9 @@ function FilterForm({
   onApply: (patch: Partial<DiagnosisQuery>) => void
 }) {
   const applied: Draft = {
-    ...brandSelection(query),
     radius: query.radius,
     subCategories: query.subCategories,
     area: query.area,
-    franchise: query.franchise,
     includeUnknown: query.includeUnknown,
     asOf: query.asOf,
   }
@@ -148,52 +125,6 @@ function FilterForm({
           ))}
         </Group>
 
-        {/* 프랜차이즈·개인 매장을 고르면 기준을 바로 보여준다 (개인 매장은 지금 자료로 거의 0개) */}
-        {!BRAND_API_ENABLED && (
-          <Group
-            legend={T.franchise}
-            segmented
-            hint={
-              draft.franchise === 'all'
-                ? undefined
-                : MESSAGES.store.franchise.optionHint[draft.franchise]
-            }
-          >
-            {FRANCHISE_OPTIONS.map((f) => (
-              <Choice
-                key={f.id}
-                type="radio"
-                segmented
-                name="franchise"
-                checked={draft.franchise === f.id}
-                onChange={() => setDraft((d) => ({ ...d, franchise: f.id as FranchiseFilter }))}
-              >
-                {f.label}
-              </Choice>
-            ))}
-          </Group>
-        )}
-
-        {BRAND_API_ENABLED && (
-          <>
-            {/* 브랜드 소속은 전체 / 브랜드·체인 두 가지만 — 미확인·판정 근거 요청 값은 선택에 따라 정한다 */}
-            <Group legend={MESSAGES.brand.scope} legendExtra={<BrandFilterInfo />} segmented>
-              {BRAND_SCOPE_CHOICES.map((option) => (
-                <Choice
-                  key={option.id}
-                  type="radio"
-                  segmented
-                  name="brand-scope"
-                  checked={draft.brandScope === option.id}
-                  onChange={() => setDraft((d) => ({ ...d, ...brandSelectionFor(option.id) }))}
-                >
-                  {option.label}
-                </Choice>
-              ))}
-            </Group>
-          </>
-        )}
-
         <Group legend={T.asOf}>
           <AsOfPicker
             value={draft.asOf}
@@ -213,11 +144,9 @@ function FilterForm({
             aria-describedby="include-unknown-hint"
             className="size-4 accent-blue-500"
           />
-          <span className="font-semibold">
-            {BRAND_API_ENABLED ? MESSAGES.brand.areaUnknown : T.includeUnknown}
-          </span>
+          <span className="font-semibold">{'면적 정보 없음 포함'}</span>
           <span id="include-unknown-hint" className="text-gray-600">
-            {BRAND_API_ENABLED ? '' : T.includeUnknownHint}
+            {'신고 면적이 없는 기록도 포함해요.'}
           </span>
         </label>
         <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
@@ -251,23 +180,5 @@ function FilterForm({
         </div>
       </div>
     </form>
-  )
-}
-
-/** 브랜드 소속 설명 (legend 옆 ⓘ) */
-function BrandFilterInfo() {
-  const B = MESSAGES.brand
-  return (
-    <InfoPopover
-      triggerLabel={B.filterInfoTrigger}
-      title={B.filterInfoTitle}
-      closeLabel={B.filterInfoClose}
-      className="ml-1"
-    >
-      <span className="block">
-        <strong className="mb-1 block font-bold">{B.scope}</strong>
-        <span className="block">{B.membershipLimit}</span>
-      </span>
-    </InfoPopover>
   )
 }
