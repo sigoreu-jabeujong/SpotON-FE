@@ -73,6 +73,26 @@ function fixture(): LocationReference {
 }
 
 describe('actual administrative references', () => {
+  it('shows the server weighted average, calculation basis and excluded reasons', () => {
+    const data = fixture()
+    data.sales.per_store_average = {
+      status: 'partial',
+      primary_quarter: '20254',
+      metric: number('250,000원/점포', '250000'),
+      total_sales: '10000000',
+      total_store_count: '40',
+      listed_item_count: 3,
+      included_item_count: 2,
+      excluded_counts: { different_quarter: 1 },
+      groups: [{ source_quarter: '20254', metric: number('250,000원/점포', '250000') }],
+    }
+    const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    expect(html).toContain('점포 1개당 평균 추정매출')
+    expect(html).toContain('250,000원/점포')
+    expect(html).toContain('10000000')
+    expect(html).toContain('중복 포함될 수 있어요')
+    expect(html).toContain('다른 자료 분기 1항목')
+  })
   it('preserves exact source KRW and dates, scopes, intersect labels and independent AI notice', () => {
     const html = renderToStaticMarkup(<LocationReferenceView data={fixture()} />)
     for (const text of [
