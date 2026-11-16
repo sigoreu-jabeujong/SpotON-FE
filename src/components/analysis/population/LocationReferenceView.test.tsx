@@ -194,7 +194,7 @@ describe('결과 화면 위치 참고자료 — 핵심 숫자 + 한 줄', () => 
     expect(html).toContain('주간 50.8% · 야간 49.2%')
     expect(html).toContain('width:50.8%')
     expect(html).not.toContain('1.03209')
-    expect(html).toContain('출처: 서울시 행정동 내국인 생활인구 · 행정동 단위 · 통계적 추정치')
+    expect(html).not.toContain('출처: 서울시 행정동 내국인 생활인구 · 행정동 단위 · 통계적 추정치')
   })
 
   it('다른 날짜·원천의 주야간 비교는 이 행정동에 붙이지 않는다', () => {
