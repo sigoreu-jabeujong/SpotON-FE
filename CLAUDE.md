@@ -1,5 +1,7 @@
 # CLAUDE.md — SpotON-FE
 
+2026-11-16 사용자 최신 요청이 API 구현·FE 수정·운영 배포를 승인했다. [FE #73 공개자료 주야간 비교](docs/population-reference.md)는 BE #180의 새 `/api/v2/population-reference`를 프로필과 무관하게6개 입력만으로 요청한다. 원천별 부분 비교·decimal/display·0/null·편향/범위·날짜를 유지하고 분석/종합/보고서에 같은 계약을 쓴다. Report만 인구를 조회하며 실제 fetch 중 인쇄를 기다리고 핵심 표는 표시한다. 기존 전체 living_pop/Risk/AI 입력은 유지한다. 로컬 환경파일/키·사용자 폴더는 보존하고 BE 준비 후 develop/main 정상 PR로 공개한다. 실제 CI·배포 결과는 각 PR 실행 기록을 따른다. 과거 FE 수정/배포 승인 대기는 이번 요청에 한해 충족됐다.
+
 2026-11-15 운영 v2 전환 완료. BE PR154의 성능 보완/0012·publication·조회 권한 검증 뒤 FE PR62를 공개 활성화했다. Production=v2, Preview/development=v1, 일반 로컬 기본v1이다. 공개 필터·실제 AI·보고서·모바일390/360·키보드·오류/취소를 확인했다. [운영 실행·검수·복구 기록](https://github.com/sigoreu-jabeujong/SpotON-BE/blob/develop/docs/designs/production-chain-v2-rollout.md)을 따른다. 아래 과거 진행/승인 대기 문구는 이 전환에 관해 완료된 이력이다.
 
 2026-11-15 PR60 병합 뒤 사용자 후속 승인으로 [운영 v2 전환](docs/production-chain-v2.md)을 진행한다. 운영 BE0012/publication/조회권한/실제 AI 검증 후 production만v2로 활성화한다. Vercel 전용 빌드가 production=v2/preview·development=v1을 고정하고 일반 로컬 기본v1을 유지한다. 이번 승인으로 앞선 develop 병합/공개 v2 별도 승인 대기는 충족됐으며 검증·실제 Claude 검수·PR CI 후 병합한다.

@@ -14,6 +14,7 @@ import MetaLine from '../common/MetaLine'
 import SubTitle from '../common/SubTitle'
 import AnalysisSection from './AnalysisSection'
 import ConditionalBlocks from './activity/ConditionalBlocks'
+import PopulationReferenceSection from './population/PopulationReferenceSection'
 import StoreStatusCards from './activity/StoreStatusCards'
 import PastViewNote from './nearby/PastViewNote'
 import { focusConditionFilter } from '../../utils/focusConditionFilter'
@@ -83,6 +84,7 @@ export default function ActivitySection() {
             <ConditionalBlocks activity={activity.data.data} meta={meta} />
           </>
         )}
+        <PopulationReferenceSection params={params} />
       </div>
     </AnalysisSection>
   )

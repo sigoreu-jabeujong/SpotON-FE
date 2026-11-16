@@ -1,6 +1,8 @@
 import { BRAND_API_ENABLED } from '../api/analysisProfile'
 import { BrandResultBoundary } from '../components/common/BrandStatusNotice'
 import InfoBox from '../components/common/InfoBox'
+import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
+import PopulationReferenceView from '../components/analysis/population/PopulationReferenceView'
 import { brandConditionSummary, brandFilterNotice } from '../utils/brands'
 import { ArrowLeft, Printer } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
@@ -82,7 +84,7 @@ const REFERENCE_IDS = [
  */
 export default function ReportPage() {
   usePageTitle(MESSAGES.titles.report)
-  const data = useReportData()
+  const data = useReportData(true)
   const [printFailed, setPrintFailed] = useState(false)
   const { query } = data
 
@@ -115,6 +117,7 @@ export default function ReportPage() {
     data.nearby.data?.meta,
     data.activity.data?.meta,
     data.risk.data?.meta,
+    data.population.data?.meta,
   ]
   const isDemo = metas.some((m) => m?.is_demo)
 
@@ -138,7 +141,7 @@ export default function ReportPage() {
             <button
               type="button"
               onClick={print}
-              disabled={data.loading}
+              disabled={data.captureLoading}
               className="flex h-10 items-center gap-1.5 rounded-full bg-blue-600 px-5 text-caption font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-wait disabled:bg-gray-300"
             >
               <Printer className="size-4" aria-hidden="true" />
@@ -171,6 +174,7 @@ export default function ReportPage() {
               <HistoryBlock data={data} />
               <NearbyBlock data={data} />
               <ActivityBlock data={data} />
+              <PopulationBlock data={data} />
               <IndicatorsBlock indicators={data.risk.data?.data.indicators ?? []} data={data} />
               <AiBlock data={data} />
               <FooterBlock
@@ -187,6 +191,28 @@ export default function ReportPage() {
 }
 
 type Data = ReturnType<typeof useReportData>
+
+function PopulationBlock({ data }: { data: Data }) {
+  const population = data.population
+  if (!data.populationEnabled) return null
+  return (
+    <Block title="공개자료 주야간 비교 (부분)">
+      {population.isPending || population.isFetching ? (
+        <p>공개자료를 불러오는 중이에요.</p>
+      ) : population.isError ? (
+        <p>공개자료를 불러오지 못했어요. 다른 진단 결과는 그대로 확인할 수 있어요.</p>
+      ) : (
+        <SectionErrorBoundary resetKey={String(population.dataUpdatedAt)}>
+          <PopulationReferenceView
+            data={population.data.data}
+            isDemo={population.data.meta?.is_demo ?? false}
+            compact
+          />
+        </SectionErrorBoundary>
+      )}
+    </Block>
+  )
+}
 
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
