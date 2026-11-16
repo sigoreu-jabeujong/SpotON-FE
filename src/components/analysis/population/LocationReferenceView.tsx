@@ -1,5 +1,12 @@
 import { ChevronDown } from 'lucide-react'
-import { createContext, useContext, type CSSProperties, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  type CSSProperties,
+  type ReactNode,
+} from 'react'
 import { MESSAGES } from '../../../constants/messages'
 import { useInViewOnce } from '../../../hooks/useInViewOnce'
 import { cn } from '../../../utils/cn'
@@ -92,8 +99,8 @@ function Card({ id, title, children }: { id: string; title: ReactNode; children:
       data-card={id}
       // 누를 수 없는 카드라 포인터·눌림 없음, 동작 줄이기면 그림자만 (hover-card)
       className={cn(
-        'flex min-w-0 flex-col gap-3 rounded-card border border-gray-300 bg-gray-0 p-5',
-        lively && 'hover-card',
+        'flex min-w-0 flex-col gap-3 rounded-card border border-gray-300 bg-gray-0 p-5 md:pb-[calc(1.25rem+var(--reference-card-extra-space,0px))] print:pb-5',
+        lively ? 'hover-card' : 'transition-none',
       )}
     >
       <h3 className="flex items-center gap-1 text-subtitle font-bold text-gray-900">{title}</h3>
@@ -508,12 +515,54 @@ export default function LocationReferenceView({
   /** STEP 02 결과 화면 — 카드 호버·막대 채움을 켠다 */
   lively?: boolean
 }) {
+  const cardsRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const container = cardsRef.current
+    if (!container) return
+    let active = true
+    const cards = Array.from(container.children).filter(
+      (card): card is HTMLElement => card instanceof HTMLElement,
+    )
+
+    // Match the closed cards only. Expanded details must never set their sibling's height.
+    const matchClosedHeights = () => {
+      if (
+        !active ||
+        Array.from(container.querySelectorAll('details[open]')).some(
+          (details) => !details.parentElement?.closest('details:not([open])'),
+        )
+      )
+        return
+      cards.forEach((card) => card.style.removeProperty('--reference-card-extra-space'))
+      if (!window.matchMedia('(min-width: 768px)').matches) return
+      const heights = cards.map((card) => card.getBoundingClientRect().height)
+      const height = Math.ceil(Math.max(...heights))
+      // Preserve the initial empty space, so opening details adds its full height to this card.
+      cards.forEach((card, index) => {
+        card.style.setProperty('--reference-card-extra-space', `${height - heights[index]}px`)
+      })
+    }
+
+    matchClosedHeights()
+    // Content-box observation ignores our padding adjustment, but catches fonts and reflow.
+    const observer = new ResizeObserver(matchClosedHeights)
+    cards.forEach((card) => observer.observe(card))
+    container.addEventListener('toggle', matchClosedHeights, true)
+    void document.fonts?.ready.then(matchClosedHeights)
+    return () => {
+      active = false
+      observer.disconnect()
+      container.removeEventListener('toggle', matchClosedHeights, true)
+    }
+  }, [data, category, grid])
+
   return (
     <Lively.Provider value={lively}>
       <div className="flex min-w-0 flex-col gap-6" data-testid="location-reference">
         {/* 긴 안내 문단은 각 카드 제목 옆 ⓘ 팝오버로 옮겼다 */}
         {isDemo && <p className="text-caption text-orange-700">{R.demo}</p>}
-        <div className="grid grid-cols-2 items-stretch gap-6 max-md:grid-cols-1">
+        <div ref={cardsRef} className="grid grid-cols-2 items-start gap-6 max-md:grid-cols-1">
           <SalesCard data={data} category={category} />
           <PopulationCard data={data} grid={grid} />
         </div>
