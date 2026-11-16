@@ -167,7 +167,8 @@ export type ActivityEvidenceId =
   'recent_open_close' | 'avg_operating_months' | 'yearly_trend' | 'nearby_profile'
 /** BE #98 이력 문맥 근거: 건물 전체 건수 / 같은 자리 영업·폐업과 기간 범위 (최신 자료 기준·지원 업종 전체) */
 export type HistoryEvidenceId = 'building_history' | 'same_spot_history'
-export type EvidenceId = IndicatorId | ActivityEvidenceId | HistoryEvidenceId
+export type EvidenceId =
+  IndicatorId | ActivityEvidenceId | HistoryEvidenceId | 'population_public_subset'
 
 export type InterpretItem = { text: string; indicator_ids: EvidenceId[] }
 export type InterpretSourcedItem = InterpretItem & { sources: string[] }
@@ -179,6 +180,7 @@ export type RiskInterpretation = {
   paragraphs?: InterpretItem[]
   used_indicator_ids?: EvidenceId[]
   evidence?: {
+    population_reference?: import('./aiPopulation').AiPopulationReference
     as_of?: string
     data_updated_at?: string
     collected_at?: string | null

@@ -289,6 +289,64 @@ describe('v2 record display and nullable values', () => {
 })
 
 describe('AI shared metadata and selection cache', () => {
+  it.each(['approval', 'observation_month', 'old_version_with_new_evidence'] as const)(
+    'rejects inconsistent population evidence: %s',
+    (failure) => {
+      const response = result()
+      response.meta.prompt_version = 'chain-risk-interpret-v2'
+      response.data.evidence!.population_reference = {
+        status: 'no_data',
+        reason: 'no_observation_in_period',
+        analysis_date: response.meta.as_of!,
+        observation_date: null,
+        calculation_method: 'fixed_public_component_24h',
+        day_hours: '06-17',
+        night_hours: '00-05,18-23',
+        ratio_definition: 'pooled_day_sum_over_pooled_night_sum',
+        population_filter_applied: false,
+        source_validation_performed: false,
+        population_total_validated: false,
+        sources: [],
+      }
+      expect(interpretationMatches(response, params, baseline)).toBe(true)
+      const p = response.data.evidence!.population_reference
+      if (failure === 'approval') Object.assign(p, { population_total_validated: true })
+      if (failure === 'observation_month')
+        Object.assign(p, {
+          status: 'pending',
+          reason: 'ambiguous_source_version',
+          observation_date: '2026-10-31',
+        })
+      if (failure === 'old_version_with_new_evidence')
+        response.meta.prompt_version = 'chain-risk-interpret-v1'
+      expect(interpretationMatches(response, params, baseline)).toBe(false)
+    },
+  )
+  it('accepts both released prompts while requiring new population evidence for v2', () => {
+    const response = result()
+    response.meta.prompt_version = 'chain-risk-interpret-v2'
+    expect(interpretationMatches(response, params, baseline)).toBe(false)
+    response.data.evidence!.population_reference = {
+      status: 'no_data',
+      reason: 'no_observation_in_period',
+      analysis_date: response.meta.as_of!,
+      observation_date: null,
+      calculation_method: 'fixed_public_component_24h',
+      day_hours: '06-17',
+      night_hours: '00-05,18-23',
+      ratio_definition: 'pooled_day_sum_over_pooled_night_sum',
+      population_filter_applied: false,
+      source_validation_performed: false,
+      population_total_validated: false,
+      sources: [],
+    }
+    expect(interpretationMatches(response, params, baseline)).toBe(true)
+    response.data.evidence!.population_reference.analysis_date = '2025-01-01'
+    expect(interpretationMatches(response, params, baseline)).toBe(false)
+    response.meta.prompt_version = 'chain-risk-interpret-v3'
+    expect(interpretationMatches(response, params, baseline)).toBe(false)
+    expect(interpretationMatches(result(), params, baseline)).toBe(true)
+  })
   it('accepts the real date-only contract and does not equate raw version metadata with an AI hash', () => {
     expect(interpretationMatches(result(), params, baseline)).toBe(true)
     expect(baseline.data_version).not.toEqual(result().meta.data_version_hash)
