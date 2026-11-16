@@ -60,6 +60,42 @@ describe('AI population evidence compatibility', () => {
           source: 'long',
           status: 'partial',
           reason: 'public_subset_only',
+          metrics: {
+            day_share_pct: {
+              display: '66.7%',
+              exact_zero: false,
+              rounded: true,
+              unit: 'pct_of_public_subset',
+              reason: null,
+            },
+            night_share_pct: {
+              display: '33.3%',
+              exact_zero: false,
+              rounded: true,
+              unit: 'pct_of_public_subset',
+              reason: null,
+            },
+            day_night_ratio: {
+              display: '2.00000배',
+              exact_zero: false,
+              rounded: false,
+              unit: 'ratio',
+              reason: null,
+            },
+          },
+          quality: {
+            ...quality,
+            used_grid_count: 1,
+            used_component_count: 1,
+            excluded_component_count: 0,
+            excluded_by_hour_class: { day_only: 0, night_only: 0, both: 0 },
+          },
+          limitations: ['not_population_total'],
+        },
+        {
+          source: 'short',
+          status: 'no_data',
+          reason: 'no_common_public_components',
           metrics: null,
           quality,
           limitations: ['not_population_total'],
@@ -70,6 +106,7 @@ describe('AI population evidence compatibility', () => {
     expect(html).toContain('2026-11-07')
     expect(html).toContain('내국인: 모든 시간에 공개된 동일 구성이 없어요')
     expect(html).toContain('장기체류 외국인: 공개된 동일 구성의 부분 비교')
+    expect(html).toContain('서울시 생활인구 250m 격자 공개자료(R4)')
     expect(html).toContain('전체 인구·실제 방문객을 대표하지 않아요')
   })
   it.each([
