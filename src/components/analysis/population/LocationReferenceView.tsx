@@ -1,6 +1,7 @@
 import { ChevronDown } from 'lucide-react'
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, type CSSProperties, type ReactNode } from 'react'
 import { MESSAGES } from '../../../constants/messages'
+import { useInViewOnce } from '../../../hooks/useInViewOnce'
 import { cn } from '../../../utils/cn'
 import { formatDate } from '../../../utils/format'
 import type {
@@ -109,6 +110,7 @@ function SalesCard({
   data: LocationReference
   category: 'cafe' | 'restaurant'
 }) {
+  const lively = useContext(Lively)
   if (category === 'restaurant')
     return (
       <Card id="sales" title={R.salesTitle}>
@@ -218,6 +220,7 @@ function SalesCard({
               items={items}
               variant="screen"
               title={R.chart.referenceTitle}
+              animate={lively}
             />
           )}
         </div>
@@ -230,7 +233,12 @@ function SalesCard({
           <p className="mt-1 text-caption break-keep text-gray-600">
             {R.salesSummary(average.included_item_count, quarter(average.primary_quarter))}
           </p>
-          <SalesDistributionChart average={average} items={items} variant="screen" />
+          <SalesDistributionChart
+            average={average}
+            items={items}
+            variant="screen"
+            animate={lively}
+          />
         </div>
       ) : (
         !items.length && <p role="status">{unavailable(data.sales.reason)}</p>
@@ -320,14 +328,32 @@ function ShareBar({
   mean: ReferenceNumber | null
 }) {
   const pct = share?.value != null && /^\d+(\.\d+)?$/.test(share.value) ? Number(share.value) : null
+  // STEP 02 결과 화면이면 화면에 처음 보일 때 한 번 0 → 값 (SeoulCompare와 같은 방식, 숫자는 처음부터 최종)
+  const lively = useContext(Lively)
+  const [track, shown] = useInViewOnce<HTMLSpanElement>({
+    enabled: lively && pct !== null,
+    threshold: 0.3,
+  })
+  const full = `translateX(${Math.min(100, Math.max(0, pct ?? 0)) - 100}%)`
   return (
     <div className="flex items-center gap-3 text-caption">
       <span className="w-8 shrink-0 text-gray-600">{label}</span>
-      <span className="h-3 flex-1 overflow-hidden rounded-full bg-gray-100" aria-hidden="true">
+      <span
+        ref={track}
+        className="h-3 flex-1 overflow-hidden rounded-full bg-gray-100"
+        aria-hidden="true"
+      >
         {pct !== null && (
+          // 칸 너비 막대를 왼쪽으로 밀어 둔 만큼 숨긴다 — 서버 % 그대로, 인쇄는 --bar-full로 최종 길이
           <span
-            className={`block h-full rounded-full ${label === R.day ? 'bg-blue-500' : 'bg-gray-600'}`}
-            style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
+            data-bar-fill
+            className={`block h-full rounded-full transition-transform duration-800 ease-(--ease-out-soft) ${label === R.day ? 'bg-blue-500' : 'bg-gray-600'}`}
+            style={
+              {
+                transform: !lively || shown ? full : 'translateX(-100%)',
+                '--bar-full': full,
+              } as CSSProperties
+            }
           />
         )}
       </span>
