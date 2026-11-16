@@ -1,6 +1,7 @@
 import { ChevronDown } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
 import { MESSAGES } from '../../../constants/messages'
+import { cn } from '../../../utils/cn'
 import { formatDate } from '../../../utils/format'
 import type {
   DayNightReferenceItem,
@@ -77,11 +78,22 @@ function marketNote(
     : R.marketNote.notTop
 }
 
+/**
+ * STEP 02 결과 화면에서만 켠다 — 카드 호버 떠오르기·막대 채움 (모션 예외, docs/decisions.md).
+ * STEP 03·화면 그대로 PDF는 꺼진 채 처음부터 최종 모양
+ */
+const Lively = createContext(false)
+
 function Card({ id, title, children }: { id: string; title: ReactNode; children: ReactNode }) {
+  const lively = useContext(Lively)
   return (
     <section
       data-card={id}
-      className="flex min-w-0 flex-col gap-3 rounded-card border border-gray-300 bg-gray-0 p-5"
+      // 누를 수 없는 카드라 포인터·눌림 없음, 동작 줄이기면 그림자만 (hover-card)
+      className={cn(
+        'flex min-w-0 flex-col gap-3 rounded-card border border-gray-300 bg-gray-0 p-5',
+        lively && 'hover-card',
+      )}
     >
       <h3 className="flex items-center gap-1 text-subtitle font-bold text-gray-900">{title}</h3>
       {children}
@@ -460,21 +472,26 @@ export default function LocationReferenceView({
   category,
   isDemo = false,
   grid,
+  lively = false,
 }: {
   data: LocationReference
   category: 'cafe' | 'restaurant'
   isDemo?: boolean
   /** 생활인구 카드 맨 아래 접힌 "격자 단위 부분자료 보기"에 넣을 내용 (250m 격자 공개자료) */
   grid?: ReactNode
+  /** STEP 02 결과 화면 — 카드 호버·막대 채움을 켠다 */
+  lively?: boolean
 }) {
   return (
-    <div className="flex min-w-0 flex-col gap-6" data-testid="location-reference">
-      {/* 긴 안내 문단은 각 카드 제목 옆 ⓘ 팝오버로 옮겼다 */}
-      {isDemo && <p className="text-caption text-orange-700">{R.demo}</p>}
-      <div className="grid grid-cols-2 items-start gap-6 max-md:grid-cols-1">
-        <SalesCard data={data} category={category} />
-        <PopulationCard data={data} grid={grid} />
+    <Lively.Provider value={lively}>
+      <div className="flex min-w-0 flex-col gap-6" data-testid="location-reference">
+        {/* 긴 안내 문단은 각 카드 제목 옆 ⓘ 팝오버로 옮겼다 */}
+        {isDemo && <p className="text-caption text-orange-700">{R.demo}</p>}
+        <div className="grid grid-cols-2 items-start gap-6 max-md:grid-cols-1">
+          <SalesCard data={data} category={category} />
+          <PopulationCard data={data} grid={grid} />
+        </div>
       </div>
-    </div>
+    </Lively.Provider>
   )
 }
