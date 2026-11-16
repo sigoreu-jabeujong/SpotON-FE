@@ -3,7 +3,6 @@ import { MESSAGES } from '../../constants/messages'
 import type { ApiMeta } from '../../types/api'
 import InfoBox from './InfoBox'
 import { BRAND_API_ENABLED } from '../../api/analysisProfile'
-import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { brandFilterNotice } from '../../utils/brands'
 import { useBrandStatusNormal } from '../../hooks/useBrandsStatus'
 
@@ -16,7 +15,6 @@ type Props = { franchise: FranchiseFilter; meta: ApiMeta | null | undefined; cla
  * - 개인 매장: 분류 자료가 거의 없어 0곳으로 보일 수 있음 (점포 부재 아님)
  */
 export default function FranchiseFilterNotice({ franchise, meta, className }: Props) {
-  const { query } = useDiagnosisQuery()
   const brandNormal = useBrandStatusNormal()
   // 브랜드 자료가 정상이면 같은 문구가 결과 화면 위쪽 '브랜드·체인 기준' 상자에 합쳐져 있다 (BrandStatusNotice)
   if (BRAND_API_ENABLED && brandNormal) return null
@@ -25,7 +23,7 @@ export default function FranchiseFilterNotice({ franchise, meta, className }: Pr
       <InfoBox
         showTitle
         title={MESSAGES.brand.title}
-        description={brandFilterNotice(query, meta)}
+        description={brandFilterNotice(meta)}
         className={className}
       />
     )

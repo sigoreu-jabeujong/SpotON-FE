@@ -129,7 +129,7 @@ describe('v2 profile and URL contract', () => {
       ...query,
       brandScope: 'chain' as const,
       brandUnknown: 'exclude' as const,
-      brandEvidence: 'confirmed_only' as const,
+      brandEvidence: 'include_estimates' as const,
       includeUnknown: false,
     }
     const search = toDiagnosisSearch(q, 'v2')
@@ -141,17 +141,21 @@ describe('v2 profile and URL contract', () => {
       'unsupported_brand',
     )
   })
-  it('migrates legacy independent explicitly, without silently including unknowns', () => {
+  it('migrates legacy independent to 전체 (비체인 조건은 화면에서 뺐다), keeping the area flag', () => {
     const q = parseDiagnosisQuery(
       new URLSearchParams('category=cafe&franchise=independent&includeUnknown=false'),
       'v2',
     )
     expect(q).toMatchObject({
-      brandScope: 'non_chain',
-      brandUnknown: 'exclude',
+      brandScope: 'all',
+      brandUnknown: 'include',
+      brandEvidence: 'include_estimates',
       includeUnknown: false,
-      brandUrlNotice: 'legacy_independent',
     })
+    expect(q.brandUrlNotice).toBeUndefined()
+    expect(
+      parseDiagnosisQuery(new URLSearchParams('category=cafe&franchise=franchise'), 'v2'),
+    ).toMatchObject({ brandScope: 'chain', brandUnknown: 'exclude' })
     expect(
       parseDiagnosisQuery(new URLSearchParams('franchise=all&includeUnknown=false'), 'v2'),
     ).toMatchObject({ brandScope: 'all', brandUnknown: 'include', includeUnknown: false })
@@ -164,7 +168,7 @@ describe('v2 profile and URL contract', () => {
       ),
     ).toMatchObject({
       brandScope: 'chain',
-      brandUnknown: 'include',
+      brandUnknown: 'exclude',
       brandEvidence: 'include_estimates',
       brandUrlNotice: 'mixed_legacy',
     })
@@ -180,11 +184,9 @@ describe('v2 profile and URL contract', () => {
       brandUnknown: 'include',
       brandUrlNotice: 'mixed_legacy',
     })
-    expect(parseDiagnosisQuery(new URLSearchParams('includeUnknown=false'), 'v2')).toMatchObject({
-      includeUnknown: false,
-      brandUnknown: 'include',
-      brandUrlNotice: 'legacy_area',
-    })
+    const legacyArea = parseDiagnosisQuery(new URLSearchParams('includeUnknown=false'), 'v2')
+    expect(legacyArea).toMatchObject({ includeUnknown: false, brandUnknown: 'include' })
+    expect(legacyArea.brandUrlNotice).toBeUndefined()
   })
   it('notifies when invalid brand values are reset', () => {
     expect(
@@ -282,9 +284,8 @@ describe('v2 record display and nullable values', () => {
     s.brand.status = 'estimated'
     s.brand.basis = 'semas_address_corroborated'
     expect(storeFranchise(s)).toMatchObject({ kind: 'estimate', label: MESSAGES.brand.estimate })
-    expect(brandFilterNotice({ brandScope: 'non_chain' }, baseline)).toContain(
-      MESSAGES.brand.nonChainLimit,
-    )
+    // 미확인·판정 근거 선택지를 뺐으므로 그 설명 없이 소속 추정 설명만
+    expect(brandFilterNotice(baseline)).toBe(MESSAGES.brand.membershipLimit)
   })
 })
 

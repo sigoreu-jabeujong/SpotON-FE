@@ -1,5 +1,7 @@
 # API 계약 요약 (FE 관점)
 
+2026-11-16 FE #81 / BE #190: 매출·행정동 내국인 시간당 평균·주야간은 별도 `GET /api/v2/location-reference`를 사용한다. 입력7개·시간모드·정확 문자열·실제 관측일/구역 관계·기존AI와의 분리는 [위치 참고자료 계약](location-reference.md)을 따른다. 기존 activity의 nullable sales/living_pop과 격자 부분 API 계약은 변경하지 않는다.
+
 2026-11-16 FE #73 / BE #180의 [신규 인구 참고 API](population-reference.md)를 추가한다. 기존 activity.living_pop=null / Risk day_night_ratio=pending / AI 계약은 보존한다. `GET /api/v2/population-reference`는 lat,lng,category 필수와 radius/sub_category/as_of만 받으며 brand/area/franchise/include는422다. 최상위 ready/pending/no_data/not_supported, 원천별 partial/no_data/not_supported를 분리하고 숫자는 decimal 문자열/display·정확한0/반올림 flag·품질/한계를 포함한다. 같은월 최신 관측일과 부분 공개 구성을 사용하며 전체 인구로 변환하지 않는다. 구현 세부/오류·보고서·mock 계약은 연결 문서를 따른다.
 
 2026-11-15: 아래 기존 계약은 v1이다. 명시적 v2 프로필의 분석/AI는 `/api/v2`를 사용하고 legacy 가맹 필드를 전송하지 않는다. 브랜드 판정·nullable 행·metadata/AI baseline·기존 URL 변환은 [v2 계약·실제 검증](brand-chain-v2.md)과 BE의 fe-chain-v2-api-request.md/fe-chain-ai-api-request.md를 따른다. geocode/data-range/support/health는 기존 경로를 유지한다.

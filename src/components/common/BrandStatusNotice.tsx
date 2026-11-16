@@ -83,7 +83,7 @@ export default function BrandStatusNotice({
 }) {
   const status = useBrandsStatus()
   const normal = useBrandStatusNormal()
-  const { query, updateQuery } = useDiagnosisQuery()
+  const { query } = useDiagnosisQuery()
   if (!BRAND_API_ENABLED) return null
   const c = status.data?.data
   const T = MESSAGES.brand
@@ -94,31 +94,6 @@ export default function BrandStatusNotice({
       )}
       {query.brandUrlNotice === 'mixed_legacy' && (
         <InfoBox title={T.title} description={T.mixedLegacy} />
-      )}
-      {query.brandUrlNotice === 'legacy_area' && (
-        <InfoBox title={T.title} description={T.legacyArea}>
-          <button
-            type="button"
-            className="mt-2 min-h-11 underline"
-            onClick={() => updateQuery({ brandUnknown: 'exclude', brandUrlNotice: undefined })}
-          >
-            {T.excludeUnknownAction}
-          </button>
-        </InfoBox>
-      )}
-      {query.brandEvidence === 'confirmed_only' && query.brandUnknown === 'include' && (
-        <InfoBox title={T.title} description={T.confirmedUnknown} />
-      )}
-      {query.brandUrlNotice === 'legacy_independent' && (
-        <InfoBox title={T.title} description={T.legacyIndependent}>
-          <button
-            type="button"
-            className="mt-2 min-h-11 underline"
-            onClick={() => updateQuery({ brandUnknown: 'include', brandUrlNotice: undefined })}
-          >
-            {T.includeUnknownAction}
-          </button>
-        </InfoBox>
       )}
       <InfoBox
         showTitle
@@ -135,7 +110,7 @@ export default function BrandStatusNotice({
                   : T.observation
         }
       >
-        {withFilterNotice && normal && <p className="mt-1">{brandFilterNotice(query)}</p>}
+        {withFilterNotice && normal && <p className="mt-1">{brandFilterNotice()}</p>}
       </InfoBox>
     </div>
   )

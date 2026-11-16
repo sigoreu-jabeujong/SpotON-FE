@@ -3,6 +3,7 @@ import { useAsOfRangeMessage } from '../hooks/useAsOfRangeMessage'
 import { toCommonQueryParams, toInterpretHistory } from '../api/params'
 import PastViewNote from '../components/analysis/nearby/PastViewNote'
 import PopulationReferenceSection from '../components/analysis/population/PopulationReferenceSection'
+import LocationReferenceSection from '../components/analysis/population/LocationReferenceSection'
 import ErrorState from '../components/common/ErrorState'
 import FranchiseFilterNotice from '../components/common/FranchiseFilterNotice'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
@@ -80,7 +81,13 @@ export default function SummaryPage() {
         </>
       )}
 
-      <PopulationReferenceSection params={params} />
+      <LocationReferenceSection params={params} />
+      <details>
+        <summary className="cursor-pointer text-caption text-gray-600">
+          250m 격자 공개자료 주야간 비교 (부분·별도 자료)
+        </summary>
+        <PopulationReferenceSection params={params} />
+      </details>
       {/* AI 해석 — 지표를 불러온 뒤에만. 조건(search)이 바뀌면 key로 새로 만들어 이전 결과를 지운다 */}
       {BRAND_API_ENABLED && (risk.isFetching || risk.isError) && (
         <p role="status" className="text-caption text-gray-600">

@@ -23,7 +23,7 @@ import {
   BRAND_UNKNOWN_OPTIONS,
   BRAND_EVIDENCE_OPTIONS,
 } from '../constants/diagnosis'
-import { brandSelection } from '../utils/brands'
+import { brandSelection, normalizeBrandSelection } from '../utils/brands'
 
 const SUB_IDS: readonly string[] = RESTAURANT_SUB_CATEGORIES.map((s) => s.id)
 
@@ -96,28 +96,17 @@ export function parseDiagnosisQuery(
         : DEFAULT_INCLUDE_UNKNOWN,
     ...(version === 'v2'
       ? {
-          brandScope: native
-            ? scope
-            : franchise === 'franchise'
-              ? 'chain'
-              : franchise === 'independent'
-                ? 'non_chain'
-                : 'all',
-          brandUnknown: native
-            ? unknown
-            : franchise === 'franchise' || franchise === 'independent'
-              ? 'exclude'
-              : 'include',
-          brandEvidence: evidence,
+          // 화면에서 고를 수 있는 건 전체 / 브랜드·체인 두 가지 — 예전 링크 값(비체인·미확인·판정 근거 조합)은 조용히 둘 중 하나로 정리
+          ...normalizeBrandSelection({
+            brandScope: native ? scope : franchise === 'franchise' ? 'chain' : 'all',
+            brandUnknown: unknown,
+            brandEvidence: evidence,
+          }),
           ...(!validBrand || !validMarker || !validArea
             ? { brandUrlNotice: 'invalid_brand' as const }
             : native && (params.has('franchise') || params.has('includeUnknown'))
               ? { brandUrlNotice: 'mixed_legacy' as const }
-              : !native && franchise === 'independent'
-                ? { brandUrlNotice: 'legacy_independent' as const }
-                : !native && params.get('includeUnknown') === 'false'
-                  ? { brandUrlNotice: 'legacy_area' as const }
-                  : {}),
+              : {}),
         }
       : hasBrand
         ? { brandUrlNotice: 'unsupported_brand' as const }

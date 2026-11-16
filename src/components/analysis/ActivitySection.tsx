@@ -13,7 +13,7 @@ import LoadingSkeleton from '../common/Skeleton'
 import MetaLine from '../common/MetaLine'
 import SubTitle from '../common/SubTitle'
 import AnalysisSection from './AnalysisSection'
-import ConditionalBlocks from './activity/ConditionalBlocks'
+import LocationReferenceSection from './population/LocationReferenceSection'
 import PopulationReferenceSection from './population/PopulationReferenceSection'
 import StoreStatusCards from './activity/StoreStatusCards'
 import PastViewNote from './nearby/PastViewNote'
@@ -80,11 +80,15 @@ export default function ActivitySection() {
               </Suspense>
               {ytd && <p className="text-caption text-gray-600">{T.trendYtd(ytd)}</p>}
             </div>
-
-            <ConditionalBlocks activity={activity.data.data} meta={meta} />
           </>
         )}
-        <PopulationReferenceSection params={params} />
+        <LocationReferenceSection params={params} />
+        <details>
+          <summary className="cursor-pointer text-caption text-gray-600">
+            250m 격자 공개자료 주야간 비교 (부분·별도 자료)
+          </summary>
+          <PopulationReferenceSection params={params} />
+        </details>
       </div>
     </AnalysisSection>
   )
