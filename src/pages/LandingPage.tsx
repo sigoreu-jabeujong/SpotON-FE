@@ -66,14 +66,17 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* 아래에 소개가 더 있다는 작은 힌트 (이용 대상·면책 문구는 하단 SiteFooter로 옮김) */}
-          <div className="relative mx-auto w-full max-w-[1200px] px-10 pt-10 pb-8 max-md:order-2 max-md:px-4 max-md:pt-2">
+          {/* 아래에 소개가 더 있다는 안내 — 첫 화면 맨 아래 가운데, 시작 버튼보다는 덜 튀게 (이용 대상·면책 문구는 하단 SiteFooter로 옮김) */}
+          <div className="relative mx-auto flex w-full max-w-[1200px] justify-center px-10 pt-10 pb-6 max-md:order-2 max-md:px-4 max-md:pt-4">
             <a
               href="#landing-features-title"
-              className="group inline-flex items-center gap-1 rounded text-caption text-gray-600 motion-colors hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 max-md:min-h-11"
+              className="group flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-control px-3 py-1 text-body font-semibold text-gray-900 motion-colors hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
               {MESSAGES.landingIntro.scrollHint}
-              <ChevronDown className="size-4" aria-hidden="true" />
+              <ChevronDown
+                className="size-5 text-blue-600 motion-safe:animate-nudge-down"
+                aria-hidden="true"
+              />
             </a>
           </div>
         </div>
