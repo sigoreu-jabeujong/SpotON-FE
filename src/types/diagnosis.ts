@@ -1,13 +1,4 @@
-import type {
-  Category,
-  BrandScope,
-  BrandUnknown,
-  BrandEvidence,
-  FacilitySize,
-  FranchiseFilter,
-  RadiusMeters,
-  SubCategory,
-} from '../constants/diagnosis'
+import type { Category, FacilitySize, RadiusMeters, SubCategory } from '../constants/diagnosis'
 
 /** 사용자가 정한 진단 조건. URL 쿼리로 유지해 새로고침·공유해도 그대로 남는다 */
 export type DiagnosisQuery = {
@@ -24,12 +15,7 @@ export type DiagnosisQuery = {
   asOf: string | null
   /** 시설 규모 (단일 선택, 기본 all) */
   area: FacilitySize
-  franchise: FranchiseFilter
-  brandScope?: BrandScope
-  brandUnknown?: BrandUnknown
-  brandEvidence?: BrandEvidence
-  brandUrlNotice?: 'mixed_legacy' | 'invalid_brand' | 'unsupported_brand'
-  /** 면적·프랜차이즈 "정보 없음" 점포 포함 여부 (기본 true) */
+  /** 면적 "정보 없음" 점포 포함 여부 (기본 true) */
   includeUnknown: boolean
   /* ── /geocode 결과 (입력 화면에서 채움, URL: lat·lng·bk·floor·gu) ── */
   /** WGS84 위도 */

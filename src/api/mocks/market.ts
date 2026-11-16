@@ -11,7 +11,7 @@ import {
   unknownFlags,
 } from './common'
 import type { MockHandler } from './index'
-import { storeStats } from './nearby'
+import { monthsBetween, storeStats } from './nearby'
 
 /** 목업 전용: 지금 영업 중 점포를 세부 업종별로 (점포 수·평균 영업 기간) */
 function bySubCategory(stats: ReturnType<typeof storeStats>): MarketActivity['by_sub_category'] {
@@ -84,6 +84,7 @@ export const marketActivityMock: MockHandler = (query) => {
   const optional_data = pending
     ? Object.fromEntries(missing.map((k) => [k, { status: 'pending', reason: PENDING_REASON[k] }]))
     : null
+  const operatingMonths = stats.openNow.map((store) => monthsBetween(store.open_date, asOf))
 
   const data: MarketActivity = {
     recent_12m: {
@@ -96,6 +97,12 @@ export const marketActivityMock: MockHandler = (query) => {
       (y) => y.year >= TREND_MIN_YEAR && (y.opened > 0 || y.closed > 0),
     ),
     by_sub_category: bySubCategory(stats),
+    avg_operating_months:
+      operatingMonths.length === 0
+        ? null
+        : Math.floor(
+            operatingMonths.reduce((total, months) => total + months, 0) / operatingMonths.length,
+          ),
     sales: salesAvailable
       ? {
           markets: [
@@ -136,10 +143,6 @@ export const marketActivityMock: MockHandler = (query) => {
     space,
     denominator: null,
     operating_period_basis: 'elapsed_months_of_active_at_as_of',
-    // 가맹 분류: 기본은 목록 적용(estimate, DEMO_META), pending 시나리오는 미적용 DB처럼
-    ...(pending
-      ? { franchise_classification: { status: 'pending', reason: 'brand_mapping_blocked' } }
-      : {}),
     ...(optional_data ? { optional_data } : {}),
   })
 }

@@ -66,7 +66,6 @@ export function Choice({
     <label
       className={cn(
         'inline-flex cursor-pointer items-center gap-1 text-caption font-semibold motion-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-500',
-        name.startsWith('brand-') && 'min-h-11',
         segmented
           ? cn(
               'h-8 rounded-lg px-3.5',

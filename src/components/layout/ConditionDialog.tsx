@@ -2,13 +2,10 @@ import { RefreshCw, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router'
-import { BRAND_API_ENABLED } from '../../api/analysisProfile'
 import { toDataRangeParams } from '../../api/params'
 import {
-  BRAND_SCOPE_CHOICES,
   CATEGORIES,
   FACILITY_SIZE_OPTIONS,
-  FRANCHISE_OPTIONS,
   RADIUS_OPTIONS,
   RESTAURANT_SUB_CATEGORIES,
   type SubCategory,
@@ -36,7 +33,7 @@ const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 /**
- * 결과 화면 "조건 바꾸기" 팝업 — 업종(세부 업종)·반경·시설 규모·브랜드(또는 가맹)·기준 시점을 바꿔
+ * 결과 화면 "조건 바꾸기" 팝업 — 업종(세부 업종)·반경·시설 규모·기준 시점을 바꿔
  * 같은 결과 화면의 URL 쿼리만 바꾼다(useDiagnosisQuery). 주소는 바꾸지 않고 "다른 주소로 진단하기"로 입력 화면에.
  * STEP 02 조회 조건 필터와 같은 URL 조건을 쓰므로 한쪽에서 바꾸면 다른 쪽에도 그대로 보인다.
  * 접근성: role=dialog·aria-modal, 열면 첫 선택지로 포커스, Tab 순환, Esc·바깥 클릭·닫기로 닫고 여는 버튼으로 포커스 복귀, 배경 스크롤 잠금.
@@ -129,7 +126,7 @@ export default function ConditionDialog({
         onSubmit={(e) => {
           e.preventDefault()
           if (!changed) return
-          updateQuery(draftToPatch(draft, BRAND_API_ENABLED))
+          updateQuery(draftToPatch(draft))
           close()
         }}
         className="flex max-h-[88vh] w-full max-w-[680px] flex-col overflow-hidden rounded-card bg-gray-0 shadow-card transition-transform duration-(--duration-base) ease-(--ease-out-soft) max-md:max-h-[92vh] max-md:max-w-none max-md:rounded-b-none starting:translate-y-4"
@@ -236,38 +233,6 @@ export default function ConditionDialog({
               </Choice>
             ))}
           </ChoiceGroup>
-
-          {BRAND_API_ENABLED ? (
-            <ChoiceGroup legend={MESSAGES.brand.scope} segmented className={GROUP}>
-              {BRAND_SCOPE_CHOICES.map((o) => (
-                <Choice
-                  key={o.id}
-                  type="radio"
-                  segmented
-                  name="brand-dlg-scope"
-                  checked={draft.brandScope === o.id}
-                  onChange={() => setDraft((d) => ({ ...d, brandScope: o.id }))}
-                >
-                  {o.label}
-                </Choice>
-              ))}
-            </ChoiceGroup>
-          ) : (
-            <ChoiceGroup legend={F.franchise} segmented className={GROUP}>
-              {FRANCHISE_OPTIONS.map((f) => (
-                <Choice
-                  key={f.id}
-                  type="radio"
-                  segmented
-                  name="dlg-franchise"
-                  checked={draft.franchise === f.id}
-                  onChange={() => setDraft((d) => ({ ...d, franchise: f.id }))}
-                >
-                  {f.label}
-                </Choice>
-              ))}
-            </ChoiceGroup>
-          )}
 
           <ChoiceGroup legend={F.asOf} className={cn(GROUP, 'border-b-0')}>
             <AsOfPicker

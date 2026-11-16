@@ -1,3 +1,5 @@
+2026-11-17 변경: 브랜드·프랜차이즈·체인 판정 계약은 제거되었습니다. 일반 v1/v2 조회는 업종·반경·기준월·면적만 적용합니다. 브랜드 상태 API/판정 메타/소속 응답 필드와 operation은 제공하지 않습니다. 점포 상세는 응답의 as_of를 기준 시점으로 표시합니다. 이전 브랜드 관련 설명은 역사 기록이며 최신 계약은 [기능 제거](remove-brand-feature.md)를 따릅니다.
+
 # API 계약 요약 (FE 관점)
 
 2026-11-16 FE #81 / BE #190: 매출·행정동 내국인 시간당 평균·주야간은 별도 `GET /api/v2/location-reference`를 사용한다. 입력7개·시간모드·정확 문자열·실제 관측일/구역 관계·기존AI와의 분리는 [위치 참고자료 계약](location-reference.md)을 따른다. 기존 activity의 nullable sales/living_pop과 격자 부분 API 계약은 변경하지 않는다.
@@ -323,6 +325,7 @@ FE 처리 (지도·표 공통)
 | `recent_12m` | `{ period, opened, closed }` — `period`는 `(시작일, 종료일]` 실제 기간, 개·폐업 **사건 수** (폐업한 점포 기록 포함) |
 | `yearly_trend[]` | `{ year, opened, closed }` — **사건 기록이 있는 연도만** (없는 연도를 0으로 채우지 않음). 비교 기간은 `meta.yearly_comparison_basis`·`yearly_periods` |
 | `by_sub_category[]` | `{ sub_category, open_count, avg_operating_months }` — T에 유효한 점포 수, 그 점포들이 **T까지 경과한 개월의 평균(버림)**. `0` = 실제 0개월, `null` = 계산 불가(정보 없음) |
+| `avg_operating_months` | 선택한 세부 업종·면적·반경 등 전체 조건의 영업 점포별 완료 개월 합계 / 전체 점포 수를 마지막에 버림. 점포 현황에는 이 통합값 하나를 표시. `0`은 실제 0개월, 대상 없으면 `null`. 업종별 평균의 단순 평균·버림된 평균의 가중 평균으로 재계산하지 않음 |
 | `sales` | (선택) `{ markets[], status: "estimate", meta }` — 상권별로 따로, 합산 금지. **지금 BE는 항상 `null`** |
 | `living_pop` | (선택) `{ date, total, grid_count, missing_grid_count, status: "estimate", meta }` — 250m 격자. **지금 BE는 항상 `null`** |
 | `flags.missing` | **요청했지만** 미산정인 선택 항목만 (미요청 항목은 넣지 않음) |
