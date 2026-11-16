@@ -19,12 +19,8 @@ import { cn } from '../../utils/cn'
 import InfoPopover from '../common/InfoPopover'
 import AsOfPicker from './AsOfPicker'
 import { BRAND_API_ENABLED } from '../../api/analysisProfile'
-import {
-  BRAND_SCOPE_OPTIONS,
-  BRAND_UNKNOWN_OPTIONS,
-  BRAND_EVIDENCE_OPTIONS,
-} from '../../constants/diagnosis'
-import { brandScopeHint, brandSelection } from '../../utils/brands'
+import { BRAND_SCOPE_CHOICES } from '../../constants/diagnosis'
+import { brandSelection, brandSelectionFor } from '../../utils/brands'
 
 const T = MESSAGES.filter
 
@@ -84,7 +80,6 @@ function FilterForm({
   // 적용된 업종·세부 업종 기준 (주변 조회와 같은 조건)
   const dataRange = useDataRange(toDataRangeParams(query))
   const changed = !sameDraft(draft, applied)
-  const scopeHint = brandScopeHint(draft)
   const isRestaurant = query.category === 'restaurant'
 
   const toggleSub = (id: SubCategory) =>
@@ -180,67 +175,16 @@ function FilterForm({
 
         {BRAND_API_ENABLED && (
           <>
-            <Group
-              legend={MESSAGES.brand.scope}
-              legendExtra={<BrandFilterInfo />}
-              segmented
-              // 브랜드·체인 + 미확인 포함이면 미확인도 함께 나온다는 안내 (BE·필터 의미는 그대로)
-              below={
-                scopeHint && (
-                  <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-micro text-gray-900">
-                    <span>{MESSAGES.brand[scopeHint]}</span>
-                    <button
-                      type="button"
-                      onClick={() => onApply({ ...draft, brandUnknown: 'exclude' })}
-                      className="inline-flex min-h-8 items-center rounded-full border border-blue-500 px-3 font-semibold text-blue-700 motion-colors hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 max-md:min-h-11"
-                    >
-                      {MESSAGES.brand.chainExcludeUnknownAction}
-                    </button>
-                  </p>
-                )
-              }
-            >
-              {BRAND_SCOPE_OPTIONS.map((option) => (
+            {/* 브랜드 소속은 전체 / 브랜드·체인 두 가지만 — 미확인·판정 근거 요청 값은 선택에 따라 정한다 */}
+            <Group legend={MESSAGES.brand.scope} legendExtra={<BrandFilterInfo />} segmented>
+              {BRAND_SCOPE_CHOICES.map((option) => (
                 <Choice
                   key={option.id}
                   type="radio"
                   segmented
                   name="brand-scope"
                   checked={draft.brandScope === option.id}
-                  onChange={() =>
-                    setDraft((d) => ({
-                      ...d,
-                      brandScope: option.id,
-                    }))
-                  }
-                >
-                  {option.label}
-                </Choice>
-              ))}
-            </Group>
-            <Group legend={MESSAGES.brand.unknown} segmented>
-              {BRAND_UNKNOWN_OPTIONS.map((option) => (
-                <Choice
-                  key={option.id}
-                  type="radio"
-                  segmented
-                  name="brand-unknown"
-                  checked={draft.brandUnknown === option.id}
-                  onChange={() => setDraft((d) => ({ ...d, brandUnknown: option.id }))}
-                >
-                  {option.label}
-                </Choice>
-              ))}
-            </Group>
-            <Group legend={MESSAGES.brand.evidence} segmented>
-              {BRAND_EVIDENCE_OPTIONS.map((option) => (
-                <Choice
-                  key={option.id}
-                  type="radio"
-                  segmented
-                  name="brand-evidence"
-                  checked={draft.brandEvidence === option.id}
-                  onChange={() => setDraft((d) => ({ ...d, brandEvidence: option.id }))}
+                  onChange={() => setDraft((d) => ({ ...d, ...brandSelectionFor(option.id) }))}
                 >
                   {option.label}
                 </Choice>
@@ -309,22 +253,9 @@ function FilterForm({
   )
 }
 
-/** 브랜드 세 그룹의 긴 설명을 한곳에 — 예전 legend 옆 설명 문구 그대로, 위치만 옮김 */
+/** 브랜드 소속 설명 (legend 옆 ⓘ) */
 function BrandFilterInfo() {
   const B = MESSAGES.brand
-  const unknownLabel = (id: 'include' | 'exclude') =>
-    BRAND_UNKNOWN_OPTIONS.find((o) => o.id === id)?.label
-  const sections: { title: string; lines: string[] }[] = [
-    { title: B.scope, lines: [B.membershipLimit] },
-    {
-      title: B.unknown,
-      lines: [
-        `${unknownLabel('include')} · ${B.unknownIncluded}`,
-        `${unknownLabel('exclude')} · ${B.unknownExcluded}`,
-      ],
-    },
-    { title: B.evidence, lines: [B.confirmedLimit] },
-  ]
   return (
     <InfoPopover
       triggerLabel={B.filterInfoTrigger}
@@ -332,16 +263,10 @@ function BrandFilterInfo() {
       closeLabel={B.filterInfoClose}
       className="ml-1"
     >
-      {sections.map((s) => (
-        <span key={s.title} className="block">
-          <strong className="mb-1 block font-bold">{s.title}</strong>
-          {s.lines.map((line) => (
-            <span key={line} className="block">
-              {line}
-            </span>
-          ))}
-        </span>
-      ))}
+      <span className="block">
+        <strong className="mb-1 block font-bold">{B.scope}</strong>
+        <span className="block">{B.membershipLimit}</span>
+      </span>
     </InfoPopover>
   )
 }
@@ -351,15 +276,12 @@ function Group({
   legendExtra,
   hint,
   segmented,
-  below,
   children,
 }: {
   legend: string
   /** legend 글자 옆에 붙는 요소 (예: ⓘ 설명 버튼) */
   legendExtra?: ReactNode
   hint?: string
-  /** 선택지 아래 한 줄 안내 */
-  below?: ReactNode
   /** 하나만 고르는 선택지 — 회색 틀 안의 세그먼트 모양 */
   segmented?: boolean
   children: ReactNode
@@ -379,7 +301,6 @@ function Group({
       >
         {children}
       </div>
-      {below}
     </fieldset>
   )
 }

@@ -73,6 +73,11 @@ export const BRAND_EVIDENCE_OPTIONS = [
   { id: 'include_estimates', label: '추정 근거 포함' },
   { id: 'confirmed_only', label: '확인 근거만' },
 ] as const
+/**
+ * 조회 조건 화면에 보이는 브랜드 소속 선택지 — 전체 / 브랜드·체인 두 가지만.
+ * (미확인·판정 근거는 선택에 따라 brandSelectionFor가 정한다. 위 목록·타입은 예전 링크 호환용으로 그대로 둔다)
+ */
+export const BRAND_SCOPE_CHOICES = BRAND_SCOPE_OPTIONS.filter((o) => o.id !== 'non_chain')
 export type BrandScope = (typeof BRAND_SCOPE_OPTIONS)[number]['id']
 export type BrandUnknown = (typeof BRAND_UNKNOWN_OPTIONS)[number]['id']
 export type BrandEvidence = (typeof BRAND_EVIDENCE_OPTIONS)[number]['id']

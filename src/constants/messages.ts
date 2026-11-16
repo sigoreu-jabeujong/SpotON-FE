@@ -39,11 +39,7 @@ export const MESSAGES = {
     legacyIndependent:
       '예전 개인 매장 조건을 확인된 비체인 조건으로 바꿨어요. 현재 확인 근거가 없어 0건일 수 있어요.',
     includeUnknownAction: '미확인도 포함해서 보기',
-    /** 조회 조건에서 브랜드·체인 + 미확인 포함을 골랐을 때 (브랜드 소속 아래 한 줄) */
-    chainIncludesUnknown:
-      '미확인 점포도 함께 보여요. 브랜드·체인(추정)만 보려면 미확인을 제외하세요',
-    chainExcludeUnknownAction: '미확인 제외하고 보기',
-    /** 조회 조건 브랜드 설명 팝오버 (세 그룹 옆에 붙어 있던 긴 설명을 모아 둠) */
+    /** 조회 조건 브랜드 소속 설명 팝오버 */
     filterInfoTrigger: '브랜드·체인 조건 설명 보기',
     filterInfoTitle: '브랜드·체인 조건 설명',
     filterInfoClose: '설명 닫기',
