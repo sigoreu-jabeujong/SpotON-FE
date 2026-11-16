@@ -96,6 +96,9 @@ export default function LocationReferenceView({
   isDemo?: boolean
 }) {
   const people = data.living_population.items ?? []
+  const weighted = data.sales.per_store_average?.store_weighted_distribution
+  const useWeightedMedian =
+    data.sales.per_store_average?.representative_method === 'store_weighted_median_v1'
   return (
     <div className="flex min-w-0 flex-col gap-6" data-testid="location-reference">
       <p className="text-caption text-gray-600">
@@ -114,15 +117,22 @@ export default function LocationReferenceView({
         >
           {data.sales.per_store_average && (
             <div className="rounded-control border border-gray-200 p-4">
-              <p className="font-semibold">점포당 평균 추정 매출</p>
+              <p className="font-semibold">점포당 추정 매출</p>
               <p className="text-xl font-bold break-all">
-                {metric(data.sales.per_store_average.metric)}
+                {metric(useWeightedMedian ? weighted?.median : data.sales.per_store_average.metric)}
               </p>
+              {useWeightedMedian && (
+                <p className="text-caption text-gray-600">점포 수 가중 중앙값 · 추정 모델</p>
+              )}
               {data.sales.per_store_average.metric && (
                 <details className="mt-2 text-caption text-gray-600">
                   <summary className="cursor-pointer">계산 기준</summary>
-                  <p>같은 분기 목록의 매출 합계를 같은 목록의 점포 수 합계로 나눠요.</p>
-                  <p>전체 점포 수를 반영한 점포당 평균이에요.</p>
+                  <p>
+                    {useWeightedMedian
+                      ? '상권별 점포당 평균에 점포 수를 반영한 추정 분포의 중앙값이에요.'
+                      : '같은 분기 목록의 매출 합계를 같은 목록의 점포 수 합계로 나눠요.'}
+                  </p>
+                  <p>점포 수 가중평균(비교): {metric(data.sales.per_store_average.metric)}</p>
                 </details>
               )}
               {data.sales.per_store_average.temporal_relation && (
@@ -135,7 +145,7 @@ export default function LocationReferenceView({
                 {data.sales.per_store_average.listed_item_count}항목 중{' '}
                 {data.sales.per_store_average.included_item_count}항목 반영
               </p>
-              {data.sales.per_store_average.metric && (
+              {!useWeightedMedian && data.sales.per_store_average.metric && (
                 <p className="text-caption break-words">
                   매출 합계 {data.sales.per_store_average.total_sales}원 ÷ 점포 수 합계{' '}
                   {data.sales.per_store_average.total_store_count}개
@@ -149,7 +159,8 @@ export default function LocationReferenceView({
                 <summary>다른 분기·제외 항목 보기</summary>
                 {data.sales.per_store_average.groups.map((g) => (
                   <p key={g.source_quarter}>
-                    {quarter(g.source_quarter)}: 평균 {metric(g.metric)}
+                    {quarter(g.source_quarter)}: {useWeightedMedian ? '가중 중앙값' : '평균'}{' '}
+                    {metric(useWeightedMedian ? g.store_weighted_distribution?.median : g.metric)}
                   </p>
                 ))}
                 <p>
@@ -194,7 +205,9 @@ export default function LocationReferenceView({
                 {item.average_contribution && (
                   <p className="text-caption">
                     {item.average_contribution.status === 'included'
-                      ? '평균 산정 대상'
+                      ? useWeightedMedian
+                        ? '추정 분포 반영 대상'
+                        : '평균 산정 대상'
                       : item.average_contribution.status === 'different_quarter'
                         ? '다른 자료 분기'
                         : '평균 계산 제외'}
