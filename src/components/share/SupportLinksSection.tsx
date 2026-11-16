@@ -92,8 +92,9 @@ function LinkGroup({
             return (
               <li
                 key={l.id}
-                // 블록 하나 = 기관명 · 제목 · 바로가기 (크게, 넉넉한 간격)
-                className="flex items-center justify-between gap-4 rounded-card border border-gray-300 bg-gray-0 px-5 py-5 max-sm:flex-col max-sm:items-start"
+                // 블록 하나 = 기관명 · 제목 · 바로가기 (크게, 넉넉한 간격).
+                // 마우스를 올리면 살짝 떠오르기(hover-card, 모션 예외) — 블록은 누를 수 없어 포인터·눌림 없음, 바로가기 화살표도 같이 살짝
+                className="group flex hover-card items-center justify-between gap-4 rounded-card border border-gray-300 bg-gray-0 px-5 py-5 max-sm:flex-col max-sm:items-start"
               >
                 <div className="min-w-0">
                   {l.id === districtId && (
