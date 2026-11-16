@@ -1,6 +1,6 @@
 import { TriangleAlert } from 'lucide-react'
 import { useAsOfRangeMessage } from '../hooks/useAsOfRangeMessage'
-import { toCommonQueryParams, toInterpretHistory } from '../api/params'
+import { toCommonQueryParams } from '../api/params'
 import PastViewNote from '../components/analysis/nearby/PastViewNote'
 import PopulationReferenceSection from '../components/analysis/population/PopulationReferenceSection'
 import LocationReferenceSection from '../components/analysis/population/LocationReferenceSection'
@@ -101,17 +101,11 @@ export default function SummaryPage() {
             key={
               BRAND_API_ENABLED
                 ? JSON.stringify(
-                    queryKeys.riskInterpretation(
-                      params,
-                      toInterpretHistory(query),
-                      query.address,
-                      risk.data.meta,
-                    ),
+                    queryKeys.riskInterpretation(params, undefined, query.address, risk.data.meta),
                   )
                 : search
             }
             params={params}
-            history={toInterpretHistory(query)}
             address={query.address}
             meta={risk.data.meta}
           />

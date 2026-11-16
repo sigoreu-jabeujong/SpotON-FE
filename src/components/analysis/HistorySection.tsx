@@ -1,75 +1,89 @@
-import { Info, SlidersHorizontal } from 'lucide-react'
 import { Link } from 'react-router'
-import { toStoreHistoryParams } from '../../api/params'
-import { MESSAGES } from '../../constants/messages'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
-import { useStoreHistory } from '../../hooks/useStores'
+import { useLocationHistory } from '../../hooks/useStores'
+import {
+  closedHistoryParams,
+  closedHistoryTitle,
+  closedHistoryNotice,
+} from '../../utils/closedHistory'
 import { formatDataBaseline } from '../../utils/format'
-import EmptyState from '../common/EmptyState'
+import { ROUTES } from '../../constants/routes'
 import ErrorState from '../common/ErrorState'
 import LoadingSkeleton from '../common/Skeleton'
-import InfoBox from '../common/InfoBox'
 import MetaLine from '../common/MetaLine'
 import AnalysisSection from './AnalysisSection'
 import HistoryTable from './history/HistoryTable'
-import { ROUTES } from '../../constants/routes'
 
-const T = MESSAGES.history
-
-/** STEP 02 ① 과거 점포 이력 (F-02) — /stores/history */
 export default function HistorySection() {
-  const { query, search } = useDiagnosisQuery()
-  const history = useStoreHistory(toStoreHistoryParams(query))
+  const { query, search, updateQuery } = useDiagnosisQuery()
+  const params = closedHistoryParams(query)
+  const history = useLocationHistory(params)
+  const h = history.data?.data
   const meta = history.data?.meta
-
   return (
     <AnalysisSection id="history">
-      {history.isPending ? (
+      <div className="mb-4 flex flex-wrap gap-4 text-caption">
+        <label className="flex w-full max-w-full min-w-0 flex-col gap-2 sm:w-auto">
+          이력 비교 범위{' '}
+          <select
+            aria-label="이력 비교 범위"
+            value={query.historyScope ?? (query.floorUnit?.includes('호') ? 'unit' : 'floor')}
+            onChange={(e) => updateQuery({ historyScope: e.target.value as 'floor' | 'unit' })}
+            className="w-full max-w-full min-w-0 rounded border p-2"
+          >
+            <option value="floor">같은 층</option>
+            <option value="unit" disabled={!query.floorUnit?.includes('호')}>
+              같은 층·호수
+            </option>
+          </select>
+        </label>
+        <label className="flex w-full max-w-full min-w-0 flex-col gap-2 sm:w-auto">
+          주소 확인 기준{' '}
+          <select
+            aria-label="주소 확인 기준"
+            value={query.historyIdentity ?? 'address_scope'}
+            onChange={(e) =>
+              updateQuery({
+                historyIdentity: e.target.value as 'address_scope' | 'verified_building',
+              })
+            }
+            className="w-full max-w-full min-w-0 rounded border p-2"
+          >
+            <option value="address_scope">같은 지번 주소 범위 (참고)</option>
+            <option value="verified_building">검증된 같은 건물·동</option>
+          </select>
+        </label>
+      </div>
+      {!params ? (
+        <div className="space-y-2">
+          <p>{closedHistoryTitle()}</p>
+          <p>{closedHistoryNotice()}</p>
+          <Link className="underline" to={{ pathname: ROUTES.input, search }}>
+            층·호수 입력하기
+          </Link>
+        </div>
+      ) : history.isPending ? (
         <LoadingSkeleton variant="table" />
       ) : history.isError ? (
         <ErrorState error={history.error} onRetry={() => void history.refetch()} />
       ) : (
-        <div className="flex flex-col gap-4">
-          <div>
-            {/* 서버 total 그대로 표시 (계산하지 않음) */}
-            <p className="text-subtitle font-bold text-gray-900">
-              {T.summary(history.data.data.total)}
+        h && (
+          <div className="flex flex-col gap-4">
+            <p className="text-subtitle font-bold" role="status">
+              {closedHistoryTitle(h)}
             </p>
-            {!query.floorUnit && (
-              <p className="mt-1 flex items-center gap-1.5 text-caption text-gray-600">
-                <Info className="size-4 shrink-0" aria-hidden="true" />
-                {T.noFloor}
-              </p>
-            )}
-          </div>
-          {history.data.data.total === 0 || !history.data.data.stores?.length ? (
-            <EmptyState
-              message={history.data.data.message ?? MESSAGES.common.empty}
-              description={T.emptyHint}
-              action={
-                // 주소·층은 입력 화면에서 바꾼다 (지금 주소·업종이 채워진 채로 열림)
-                <Link
-                  to={{ pathname: ROUTES.input, search }}
-                  className="inline-flex h-10 items-center gap-2 rounded-full bg-gray-0 px-4 text-body font-semibold text-blue-700 ring-1 ring-blue-500/40 ring-inset hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-                >
-                  {MESSAGES.common.editConditions}
-                  <SlidersHorizontal className="size-4" aria-hidden="true" />
-                </Link>
-              }
+            <p className="text-caption text-gray-600">{closedHistoryNotice(h)}</p>
+            {h.total > 0 && <HistoryTable stores={h.stores} />}
+            <MetaLine
+              source={meta?.source}
+              sourceNames
+              baseline={formatDataBaseline(meta)}
+              spaceLabel="선택한 주소·상세 위치의 폐업 이력"
+              denominator={meta?.denominator}
+              isDemo={meta?.is_demo}
             />
-          ) : (
-            <HistoryTable stores={history.data.data.stores} />
-          )}
-          <InfoBox title={T.noticeTitle} items={T.notices} />
-          <MetaLine
-            source={meta?.source}
-            sourceNames
-            baseline={formatDataBaseline(meta)}
-            spaceLabel={T.spaceBuilding}
-            denominator={meta?.denominator}
-            isDemo={meta?.is_demo}
-          />
-        </div>
+          </div>
+        )
       )}
     </AnalysisSection>
   )

@@ -46,7 +46,7 @@ import {
   formatYearMonthKo,
 } from '../utils/format'
 import { cn } from '../utils/cn'
-import { sortHistoryRecentFirst } from '../utils/history'
+import { closedHistoryTitle, closedHistoryNotice } from '../utils/closedHistory'
 import { locationRelationLabel } from '../utils/locationRelationLabel'
 import {
   franchiseEstimateYear,
@@ -268,20 +268,31 @@ function ReportHeader({ isDemo, data }: { isDemo: boolean; data: Data }) {
 
 function HistoryBlock({ data }: { data: Data }) {
   const h = data.history.data?.data
-  if (!h) return null
+  if (!h)
+    return (
+      <Block title={T.historyTitle}>
+        <p>{closedHistoryTitle(undefined, data.history.isError)}</p>
+        <p>{closedHistoryNotice(undefined, data.history.isError)}</p>
+      </Block>
+    )
   const stores = h.stores ?? []
   // 화면 이력 표와 같은 정렬·결측 표시 (utils/history)
-  const rows = sortHistoryRecentFirst(stores)
+  const rows = stores
   return (
     <Block title={T.historyTitle}>
       <p className="mb-1">
-        {MESSAGES.history.summary(h.total)}
+        {closedHistoryTitle(h)}
         {stores.length > HISTORY_ROWS && (
           <span className="text-gray-600"> ({T.historyMore(HISTORY_ROWS, stores.length)})</span>
         )}
       </p>
+      <p className="mb-2 text-gray-600">{closedHistoryNotice(h)}</p>
       {rows.length === 0 ? (
-        <p className="text-gray-600">{h.message}</p>
+        <p className="text-gray-600">
+          {h.location?.result_status === 'pending_identity'
+            ? '건물 식별 근거 확보 후 확인할 수 있어요.'
+            : '선택한 범위에서 확정해 표시할 폐업 기록을 찾지 못했어요.'}
+        </p>
       ) : (
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">{MESSAGES.history.caption}</caption>

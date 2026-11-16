@@ -1,4 +1,5 @@
 import type { LocationRelation } from './addressDetail'
+import type { LocationHistoryMeta } from './locationHistory'
 import type { StoreBrand } from './brands'
 import type { Category, SubCategory } from '../constants/diagnosis'
 
@@ -78,6 +79,7 @@ export type HistoryStore = {
 }
 
 export type StoreHistory = {
+  location?: LocationHistoryMeta
   total: number
   /** 개업일 오름차순, 개업일 미확인은 마지막 (화면은 utils/history의 sortHistoryRecentFirst로 다시 정렬) */
   stores: HistoryStore[]

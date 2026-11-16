@@ -1,14 +1,10 @@
-import {
-  ACTIVITY_INCLUDE,
-  toCommonQueryParams,
-  toStoreHistoryParams,
-  toInterpretHistory,
-} from '../api/params'
+import { ACTIVITY_INCLUDE, toCommonQueryParams } from '../api/params'
 import { getCoordinates, useDiagnosisQuery } from './useDiagnosisQuery'
 import { useMarketActivity } from './useMarketActivity'
 import { useLocationReference } from './useLocationReference'
 import { useCachedInterpretation, useRisk } from './useRisk'
-import { useNearbyStores, useStoreHistory, useStoreSnapshot } from './useStores'
+import { useNearbyStores, useLocationHistory, useStoreSnapshot } from './useStores'
+import { closedHistoryParams } from '../utils/closedHistory'
 import { BRAND_API_ENABLED } from '../api/analysisProfile'
 import { interpretationMatches } from '../api/interpretationContext'
 
@@ -22,19 +18,14 @@ export function useReportData(includePopulation = false) {
   const coords = getCoordinates(query)
   const params = coords && !unsupported ? toCommonQueryParams(query, coords) : null
 
-  const history = useStoreHistory(unsupported ? null : toStoreHistoryParams(query))
+  const history = useLocationHistory(unsupported ? null : closedHistoryParams(query))
   const nearby = useNearbyStores(params)
   const snapshot = useStoreSnapshot(params) // 기준 시점(asOf)이 있을 때만 요청됨
   const activity = useMarketActivity(params, ACTIVITY_INCLUDE)
   const risk = useRisk(params)
   const populationEnabled = includePopulation && params !== null
   const locationReference = useLocationReference(populationEnabled ? params : null)
-  const ai = useCachedInterpretation(
-    params,
-    toInterpretHistory(query),
-    query.address,
-    risk.data?.meta,
-  )
+  const ai = useCachedInterpretation(params, undefined, query.address, risk.data?.meta)
 
   const queries = [history, nearby, snapshot, activity, risk]
   const loading = queries.some((q) => q.isLoading || (BRAND_API_ENABLED && q.isFetching))
