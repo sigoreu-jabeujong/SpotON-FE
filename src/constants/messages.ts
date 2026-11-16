@@ -413,7 +413,7 @@ export const MESSAGES = {
     salesNotice: '상권 단위 추정치로, 이 자리 점포의 실제 매출이 아니에요',
     salesQuarter: (q: string) => `${q.replace('-Q', '년 ')}분기`,
     estimate: '추정치',
-    livingTitle: '생활인구 (250m 격자)',
+    livingTitle: '전체 생활인구 (250m 격자)',
     livingNotice: '250m 격자 단위 통계적 추정치로, 실제 방문객 수가 아니에요',
     livingTotal: '생활인구 합계',
     livingDate: '기준일',

@@ -55,6 +55,20 @@ export type ApiDataVersion = {
  * 응답 공통 메타 정보. 서버가 빈 객체 {}를 줄 수도 있어 모든 필드를 선택·null 허용으로 둔다.
  */
 export type ApiMeta = {
+  /** Population reference result provenance; independent from store/brand generations. */
+  population_snapshot_token?: string
+  format_version?: string
+  rule_version?: string
+  observation_version_id?: string | null
+  grid_version_id?: string | null
+  input_sha256?: string | null
+  content_sha256?: string | null
+  grid_input_sha256?: string | null
+  grid_content_sha256?: string | null
+  source_validation_performed?: false
+  population_total_validated?: false
+  global_content_rechecked?: false
+  public_subset_calculation_performed?: Record<'local' | 'long' | 'short', boolean>
   brand_classification?: BrandClassification | null
   brand_filters?: BrandFilters | null
   brand_counts?: {

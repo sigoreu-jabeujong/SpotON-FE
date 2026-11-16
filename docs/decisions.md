@@ -1,5 +1,7 @@
 # 결정 사항과 미결 사항
 
+2026-11-16 사용자 결정: 생활인구 API 구현·FE 수정·배포 진행. [FE #73](population-reference.md)은 원천별 고정 공개 구성의 부분 참고값을 전용 API/카드/보고서로 연결한다. 전체 인구·비공개값 대체·원천 간 합산·기존 AI 입력 변경은 하지 않는다. 기존 FE 수정/공개 반영 승인 대기는 이번 요청으로 충족됐다.
+
 > 마지막 갱신: 2026-11-15
 > 새 결정은 날짜와 함께 위에 추가하고, 관련 문서([api-contract.md](api-contract.md), [screens.md](screens.md), [display-rules.md](display-rules.md))를 따라 고친다.
 
