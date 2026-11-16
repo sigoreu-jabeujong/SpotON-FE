@@ -53,6 +53,15 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
   const name = INDICATOR_NAME[ind.id as keyof typeof INDICATOR_NAME] ?? ind.id
   const seoulLine = ind.unit === '%' && (seoul || ind.seoul_avg_reason)
   const fraction = value && ind.numerator != null && ind.denominator != null
+  const details = (seoulLine || fraction) && (
+    <ul className="flex flex-col gap-0.5">
+      {seoulLine && (
+        <li>{seoul ? T.seoulAvg(seoul) : indicatorReasonText(ind.seoul_avg_reason)}</li>
+      )}
+      {fraction && <li>{T.fraction(ind.numerator as number, ind.denominator as number)}</li>}
+    </ul>
+  )
+  const donut = RATE_IDS.includes(ind.id) && ind.unit === '%'
   return (
     <IndicatorCard
       id={ind.id}
@@ -63,24 +72,17 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
       value={value}
       empty={{ status: ind.status, text: emptyText }}
       visual={
-        RATE_IDS.includes(ind.id) && ind.unit === '%' ? (
+        donut ? (
           <RateDonut
             percent={value && typeof ind.value === 'number' ? ind.value : null}
             text={value}
             empty={{ status: ind.status, text: emptyText }}
+            // 서울 평균·분자/분모는 도넛 오른쪽에 (휴대폰은 아래)
+            details={details}
           />
         ) : undefined
       }
-      details={
-        (seoulLine || fraction) && (
-          <ul className="flex flex-col gap-0.5">
-            {seoulLine && (
-              <li>{seoul ? T.seoulAvg(seoul) : indicatorReasonText(ind.seoul_avg_reason)}</li>
-            )}
-            {fraction && <li>{T.fraction(ind.numerator as number, ind.denominator as number)}</li>}
-          </ul>
-        )
-      }
+      details={donut ? undefined : details}
       status={ind.status}
       hideFactLabel
       source={
