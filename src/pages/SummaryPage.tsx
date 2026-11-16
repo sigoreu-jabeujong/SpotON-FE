@@ -81,7 +81,7 @@ export default function SummaryPage() {
           {'같은 기준의 지표를 불러온 뒤 AI 해석을 확인할 수 있어요.'}
         </p>
       )}
-      {risk.data && params && (!V2_API_ENABLED || (!risk.isFetching && !risk.isError)) && (
+      {risk.data && params && (
         <SectionErrorBoundary resetKey={search}>
           {/* 본문은 조회 조건(params)만 — 서버가 같은 조건으로 다시 계산한다 */}
           <AiInterpretation
@@ -95,6 +95,7 @@ export default function SummaryPage() {
             params={params}
             address={query.address}
             meta={risk.data.meta}
+            basisLoading={risk.isFetching || risk.isError}
           />
         </SectionErrorBoundary>
       )}
