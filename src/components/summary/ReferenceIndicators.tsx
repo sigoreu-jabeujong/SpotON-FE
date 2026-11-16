@@ -71,6 +71,8 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
       // 값이 없으면 숫자(0) 대신 상태 아이콘과 사유만
       value={value}
       empty={{ status: ind.status, text: emptyText }}
+      // 숫자만 있는 카드도 도넛(size-26)과 같은 높이에서 세로 가운데 — 제목·본문·출처 줄이 가로로 맞는다
+      valueClassName="min-h-26"
       visual={
         donut ? (
           <RateDonut
