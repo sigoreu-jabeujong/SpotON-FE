@@ -1,4 +1,4 @@
-import { ExternalLink, Handshake, Headset, Info, type LucideIcon } from 'lucide-react'
+import { ExternalLink, Handshake, Headset, Info, Phone, type LucideIcon } from 'lucide-react'
 import { MESSAGES } from '../../constants/messages'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { useSupportLinks } from '../../hooks/useSupportLinks'
@@ -108,9 +108,9 @@ function LinkGroup({
                 {phone ? (
                   <a
                     href={telHref(phone)}
-                    className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full bg-blue-100 px-4 text-subtitle font-bold whitespace-nowrap text-blue-700 tabular-nums motion-colors hover:bg-blue-500/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                    className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-blue-500 bg-gray-0 px-4 text-body font-semibold whitespace-nowrap text-blue-700 tabular-nums motion-colors hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
                   >
-                    <span aria-hidden="true">☎</span>
+                    <Phone className="size-4 shrink-0" aria-hidden="true" />
                     <span className="sr-only">{T.phoneLabel(l.org_name)}</span>
                     {phone}
                   </a>
