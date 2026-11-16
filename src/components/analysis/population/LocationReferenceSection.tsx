@@ -3,6 +3,7 @@ import { useLocationReference } from '../../../hooks/useLocationReference'
 import ErrorState from '../../common/ErrorState'
 import SectionErrorBoundary from '../../common/SectionErrorBoundary'
 import LocationReferenceView from './LocationReferenceView'
+import PopulationReferenceSection from './PopulationReferenceSection'
 
 export default function LocationReferenceSection({ params }: { params: PopulationParams | null }) {
   const reference = useLocationReference(params)
@@ -18,6 +19,8 @@ export default function LocationReferenceSection({ params }: { params: Populatio
           <LocationReferenceView
             data={reference.data.data}
             isDemo={reference.data.meta?.is_demo ?? false}
+            // 250m 격자 공개자료는 생활인구 카드 안 접힌 표로 (따로 된 카드 없이)
+            grid={<PopulationReferenceSection params={params} />}
           />
         </SectionErrorBoundary>
       )}

@@ -5,7 +5,7 @@ import { BRAND_API_ENABLED } from '../api/analysisProfile'
 import { BrandResultBoundary } from '../components/common/BrandStatusNotice'
 import InfoBox from '../components/common/InfoBox'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
-import LocationReferenceView from '../components/analysis/population/LocationReferenceView'
+import LocationReferencePrint from '../components/analysis/population/LocationReferencePrint'
 import { brandConditionSummary, brandFilterNotice } from '../utils/brands'
 import { ArrowLeft, Printer } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
@@ -197,7 +197,7 @@ function PopulationBlock({ data }: { data: Data }) {
         <p>참고자료를 불러오지 못했어요. 다른 진단 결과는 그대로 확인할 수 있어요.</p>
       ) : (
         <SectionErrorBoundary resetKey={String(reference.dataUpdatedAt)}>
-          <LocationReferenceView
+          <LocationReferencePrint
             data={reference.data.data}
             isDemo={reference.data.meta?.is_demo ?? false}
           />
