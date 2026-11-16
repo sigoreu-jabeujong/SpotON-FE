@@ -102,6 +102,7 @@ describe('population reference transport', () => {
       { lat: 37.5, lng: 127, category: 'cafe' },
       controller.signal,
     )
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce())
     controller.abort()
     await expect(pending).rejects.toMatchObject({ code: 'TIMEOUT' })
     expect(fetch.mock.calls[0][1].signal?.aborted).toBe(true)
