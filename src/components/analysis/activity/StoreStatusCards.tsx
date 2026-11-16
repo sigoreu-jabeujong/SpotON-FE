@@ -1,5 +1,4 @@
 import { CirclePlus, CircleX, Clock, Store } from 'lucide-react'
-import { SUB_CATEGORY_LABEL } from '../../../constants/labels'
 import { MESSAGES } from '../../../constants/messages'
 import type { MarketActivity } from '../../../types/market'
 import type { MetricIndicator, Risk } from '../../../types/risk'
@@ -65,6 +64,7 @@ export default function StoreStatusCards({ activity, risk }: Props) {
         <StatCard
           icon={Clock}
           label={T.avgPeriod}
+          value={formatOperatingMonths(activity.avg_operating_months)}
           // 정의(기준 시점까지 경과 기간 평균, 폐업 점포 수명 아님)는 제목 옆 ⓘ로
           badge={
             <InfoPopover
@@ -77,11 +77,9 @@ export default function StoreStatusCards({ activity, risk }: Props) {
               <span className="block">{T.avgPeriodInfo.body}</span>
             </InfoPopover>
           }
-        >
-          <AvgPeriod items={activity.by_sub_category ?? []} />
-        </StatCard>
+        />
       </div>
-      {/* 세부 업종별 평균 기간 카드 바로 아래 — 음식점일 때만 */}
+      {/* 세부 업종 기준 안내 — 음식점일 때만 */}
       <SubCategoryNote />
       {competitor && (
         <MetaLine
@@ -94,42 +92,5 @@ export default function StoreStatusCards({ activity, risk }: Props) {
         />
       )}
     </div>
-  )
-}
-
-/**
- * 평균 영업 기간 — 업종이 하나면 큰 숫자 하나만. 음식점 세부 업종을 여러 개 고르면 서버가 합친 값을 주지 않으므로
- * 지금처럼 업종별로 따로 보여 준다 (FE에서 합치거나 평균 내지 않음)
- */
-function AvgPeriod({ items }: { items: MarketActivity['by_sub_category'] }) {
-  if (items.length === 1) {
-    const months = items[0].avg_operating_months
-    return months === null ? (
-      <div className="mt-1">
-        <StatusLabel status="unknown" />
-      </div>
-    ) : (
-      <p className="text-title leading-tight font-bold text-gray-900 tabular-nums">
-        {formatOperatingMonths(months)}
-      </p>
-    )
-  }
-  if (items.length === 0)
-    return <p className="text-title leading-tight font-bold text-gray-900">—</p>
-  return (
-    <ul className="mt-0.5 flex flex-col gap-0.5">
-      {items.map((s) => (
-        <li key={s.sub_category} className="flex items-baseline justify-between gap-2">
-          <span className="text-caption text-gray-600">{SUB_CATEGORY_LABEL[s.sub_category]}</span>
-          {s.avg_operating_months === null ? (
-            <StatusLabel status="unknown" />
-          ) : (
-            <span className="text-subtitle font-bold text-gray-900 tabular-nums">
-              {formatOperatingMonths(s.avg_operating_months)}
-            </span>
-          )}
-        </li>
-      ))}
-    </ul>
   )
 }

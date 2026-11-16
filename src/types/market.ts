@@ -43,6 +43,8 @@ export type MarketActivity = {
    * 비교 기간은 meta.yearly_comparison_basis·yearly_periods (같은 월일까지 YTD일 수 있음)
    */
   yearly_trend: { year: number; opened: number; closed: number }[]
+  /** 선택 조건에 맞는 전체 영업 점포의 완료 개월 평균(서버 계산·버림). 대상 없으면 null */
+  avg_operating_months: number | null
   by_sub_category: {
     sub_category: ApiSubCategory
     /** 기준 시점 T에 유효한 인허가 점포 수 */
