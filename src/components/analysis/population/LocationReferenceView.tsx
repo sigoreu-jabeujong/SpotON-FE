@@ -5,6 +5,7 @@ import type {
   ReferenceNumber,
 } from '../../../types/locationReference'
 import SubTitle from '../../common/SubTitle'
+import SalesDistributionChart from './SalesDistributionChart'
 
 const quarter = (q: string | null) => (q ? `${q.slice(0, 4)}년 ${q.slice(4)}분기` : '자료 없음')
 const exclusion: Record<string, string> = {
@@ -36,9 +37,7 @@ const periodRelation = (value: string | null) =>
       : '분석 기간 자료'
 function metric(value: ReferenceNumber | null | undefined) {
   // The exact decimal/string and source unit are server-owned, including huge KRW values.
-  return value?.display
-    ? `${value.display}${value.rounded && !value.display.includes('미만') ? ' (표시 반올림)' : ''}`
-    : '자료 없음'
+  return value?.display?.replace(/\/점포$/, '') ?? '자료 없음'
 }
 
 function Frame({
@@ -48,13 +47,13 @@ function Frame({
 }: {
   title: string
   children: ReactNode
-  notice: string
+  notice?: string
 }) {
   return (
     <section className="flex min-w-0 break-inside-avoid flex-col gap-3">
       <SubTitle>{title}</SubTitle>
       {children}
-      <p className="text-caption text-gray-600">{notice}</p>
+      {notice && <p className="text-caption text-gray-600">{notice}</p>}
     </section>
   )
 }
@@ -63,12 +62,29 @@ function Place({ item }: { item: AdminReferenceItem }) {
   return (
     <>
       <p className="font-semibold break-words">
-        {item.area_name} · {relation(item.spatial_relation)}
+        {item.area_name}
+        {item.spatial_relation !== 'contains_point' && ` · ${relation(item.spatial_relation)}`}
       </p>
       <p className="text-caption text-gray-600">
         관측일 {item.observation_date} · {periodRelation(item.temporal_relation)}
       </p>
     </>
+  )
+}
+
+function PopulationSource() {
+  return (
+    <div className="mt-3 border-t border-gray-300 pt-3 text-caption text-gray-600">
+      <p>관측일 24시간 생활인구의 시간당 평균이에요.</p>
+      <a
+        className="mt-1 inline-block underline"
+        href="https://data.seoul.go.kr/dataList/OA-23016/S/1/datasetView.do"
+        target="_blank"
+        rel="noreferrer"
+      >
+        출처: 서울시 행정동 내국인 생활인구
+      </a>
+    </div>
   )
 }
 
@@ -98,20 +114,18 @@ export default function LocationReferenceView({
       <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
         <Frame
           title="인근 상권 추정매출"
-          notice="상권 단위 원자료 금액으로, 이 자리 점포의 실제 매출이 아니에요. 매출 집계 기간과 경계 적용 시점은 확인 중이며 월매출·분기매출로 환산하지 않아요."
+          notice="상권 단위 원자료 금액으로, 이 자리 점포의 실제 매출이 아니에요."
         >
           {data.sales.per_store_average && (
             <div className="rounded-control border border-gray-200 p-4">
-              <p className="font-semibold">
-                {useMedian
-                  ? '상권·업종별 점포당 추정매출 중앙값 · 참고'
-                  : '점포 1개당 평균 추정매출 · 참고'}
-              </p>
+              <p className="font-semibold">점포당 평균 추정 매출</p>
               <p className="text-xl font-bold break-all">
-                {metric(distribution?.median ?? data.sales.per_store_average.metric)}
+                {metric(useMedian ? distribution?.median : data.sales.per_store_average.metric)}
               </p>
+              {useMedian && <p className="text-caption text-gray-600">중앙값 기준</p>}
               {distribution && (
-                <div className="text-caption">
+                <details className="mt-2 text-caption text-gray-600">
+                  <summary className="cursor-pointer">계산 기준·비교 평균</summary>
                   <p>
                     같은 분기의 상권·업종별 점포당 값을 동일 비중으로 정렬한 중앙값이에요. 개별 가게
                     매출의 중앙값은 아니에요.
@@ -120,30 +134,8 @@ export default function LocationReferenceView({
                   {distribution.limited_reference_count && (
                     <p>비교 항목이 4개 미만이에요. 값의 퍼짐을 판단할 자료가 적어요.</p>
                   )}
-                  {!distribution.limited_reference_count && (
-                    <p>
-                      사분위 범위 {metric(distribution.q1)} ~ {metric(distribution.q3)}
-                    </p>
-                  )}
-                  <details>
-                    <summary>분산과 가중평균 비교 보기</summary>
-                    {!distribution.limited_reference_count && (
-                      <>
-                        <p>사분위 간격: {metric(distribution.iqr)}</p>
-                        <p className="break-all">
-                          항목 간 분산: {distribution.variance.value} (원자료 원/점포)² · 대상{' '}
-                          {distribution.sample_count}개 항목 수로 나눈 기술통계
-                        </p>
-                      </>
-                    )}
-                    <p>점포 수 가중평균(비교): {metric(data.sales.per_store_average.metric)}</p>
-                    <p>점포 수가 적은 항목에도 같은 비중을 부여해요.</p>
-                    <p>
-                      분산으로 값을 제거하거나 대표 방식을 자동 전환하지 않아요. 중첩 상권의 중복도
-                      제거하지 않았어요.
-                    </p>
-                  </details>
-                </div>
+                  <p>점포 수 가중평균(비교): {metric(data.sales.per_store_average.metric)}</p>
+                </details>
               )}
               {data.sales.per_store_average.temporal_relation && (
                 <p className="text-caption">
@@ -161,12 +153,13 @@ export default function LocationReferenceView({
                   {data.sales.per_store_average.total_store_count}개
                 </p>
               )}
-              <p className="text-caption">
-                {useMedian
-                  ? '대표값은 상권·업종 항목에 같은 비중을 둔 중앙값이에요.'
-                  : '상권별 점포 수를 가중한 참고평균이에요.'}{' '}
-                겹치는 상권의 점포는 중복 포함될 수 있어요. 월매출로 환산하지 않아요.
-              </p>
+              {distribution && (
+                <SalesDistributionChart
+                  distribution={distribution}
+                  items={data.sales.items}
+                  quarter={data.sales.per_store_average.primary_quarter}
+                />
+              )}
               <details>
                 <summary>다른 분기·제외 항목 보기</summary>
                 {data.sales.per_store_average.groups.map((g) => (
@@ -245,10 +238,7 @@ export default function LocationReferenceView({
             출처: 서울시 상권분석서비스 추정매출
           </a>
         </Frame>
-        <Frame
-          title="생활인구 (행정동·내국인)"
-          notice="관측일 24시간 생활인구의 시간당 평균이에요. 외국인을 포함한 전체 생활인구, 일일 순방문객 수나 선택 반경 안의 인구가 아니에요."
-        >
+        <Frame title="생활인구">
           {people.length ? (
             people.map((item) => (
               <div
@@ -259,23 +249,19 @@ export default function LocationReferenceView({
                 <p className="text-xl font-bold break-all">{metric(item.mean_24h)}</p>
                 <p className="text-caption">공개된 관측 시간 {item.observed_hours}/24시간</p>
                 {!item.mean_24h && <p className="text-caption">{unavailable(item.reason)}</p>}
+                <PopulationSource />
               </div>
             ))
           ) : (
-            <p role="status">{unavailable(data.living_population.reason)}</p>
+            <div className="min-w-0 rounded-control border border-gray-200 p-4">
+              <p role="status">{unavailable(data.living_population.reason)}</p>
+              <PopulationSource />
+            </div>
           )}
-          <a
-            className="text-caption underline"
-            href="https://data.seoul.go.kr/dataList/OA-23016/S/1/datasetView.do"
-            target="_blank"
-            rel="noreferrer"
-          >
-            출처: 서울시 행정동 내국인 생활인구
-          </a>
         </Frame>
       </div>
       <Frame
-        title="주야간 생활인구 비교 (행정동·내국인)"
+        title="주야간 생활인구 비교"
         notice="주간 06~17시 · 야간 00~05시, 18~23시 (Spot:ON 기준). 동일 행정동·관측일·내국인 자료로 비교해요. 통계적 추정치이며 실제 방문객·고객 수나 창업의 유불리를 의미하지 않아요. 행정동 경계의 적용일은 확인 중이에요."
       >
         {data.day_night.items?.length ? (
