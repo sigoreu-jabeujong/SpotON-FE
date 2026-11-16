@@ -112,8 +112,17 @@ export default function LandingOrbit({ glow }: { glow: string }) {
         // 바깥 칸(궤도 상자 전체)을 옮기면 % 이동이 상자 기준이 된다 — 움직임은 transform만
         <div
           key={b.duration}
+          data-orbit-holder
           className="absolute inset-0"
-          style={{ transform: `translate(${b.x}%, ${b.y}%)` } as CSSProperties}
+          style={
+            {
+              // 멈춘 자리(동작 줄이기·첫 그림). 공전은 index.css orbit-move가 같은 자리에서 이어서 돈다
+              transform: `translate(${b.x}%, ${b.y}%)`,
+              '--orbit-time': `calc(${b.duration}s * var(--orbit-slow))`,
+              // 음수 지연 = 바퀴 중간(frac)에서 시작
+              '--orbit-delay': `calc(${-b.frac * b.duration}s * var(--orbit-slow))`,
+            } as CSSProperties
+          }
         >
           <div
             data-orbit-bead
