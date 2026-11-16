@@ -235,8 +235,6 @@ export const MESSAGES = {
       openDate: '개업일',
       closeDate: '폐업일',
       period: '영업 기간',
-      status: '상태',
-      location: '위치',
       franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
     },
     noCloseDate: '폐업일 없음',
