@@ -1,8 +1,10 @@
 import { Calculator } from 'lucide-react'
+import { IMAGES } from '../../assets/images'
 import { DATA_STATUS, INDICATOR_NAME } from '../../constants/labels'
 import { MESSAGES } from '../../constants/messages'
 import type { IndicatorId, MetricIndicator, RiskIndicator } from '../../types/risk'
 import MetaLine from '../common/MetaLine'
+import { StatusIcon } from '../common/StatusLabel'
 import IndicatorArea from './IndicatorArea'
 import IndicatorCard from './IndicatorCard'
 import RateDonut from './RateDonut'
@@ -72,6 +74,44 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
     </ul>
   )
   const donut = RATE_IDS.includes(ind.id) && ind.unit === '%'
+  const statusLabel = DATA_STATUS[ind.status].label
+  // 오른쪽 그림 칸 — 비율 지표는 도넛 링(숫자는 왼쪽에만), 동종업체 수는 가게 그림. 같은 크기(112px, 휴대폰 80px)
+  const picture = donut ? (
+    <RateDonut percent={value && typeof ind.value === 'number' ? ind.value : null} />
+  ) : ind.id === 'competitor_count' && IMAGES.storePin ? (
+    <img
+      src={IMAGES.storePin}
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      className="size-28 shrink-0 object-contain max-sm:size-20"
+    />
+  ) : null
+  // 카드 본문 좌우 2칸 — 왼쪽 큰 숫자 + 서울 평균·분자/분모, 오른쪽 그림 (세로 가운데)
+  const body = (
+    <div className="flex w-full items-center justify-between gap-4">
+      <div className="flex min-w-0 flex-col gap-1.5">
+        {value ? (
+          <p className="text-title leading-tight font-bold text-gray-900 tabular-nums">{value}</p>
+        ) : (
+          // 값이 없으면 숫자(0) 대신 상태 글자 + 사유
+          <>
+            <p className="flex items-center gap-1.5 text-subtitle font-bold text-gray-600">
+              <StatusIcon status={ind.status} className="size-5 shrink-0" />
+              {statusLabel}
+            </p>
+            {emptyText !== statusLabel && (
+              <p className="text-caption break-keep text-gray-600">{emptyText}</p>
+            )}
+          </>
+        )}
+        {details && (
+          <div className="text-caption break-keep text-gray-600 lg:text-body">{details}</div>
+        )}
+      </div>
+      {picture}
+    </div>
+  )
   return (
     <IndicatorCard
       hoverLift
@@ -82,21 +122,10 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
       // 값이 없으면 숫자(0) 대신 상태 아이콘과 사유만
       value={value}
       empty={{ status: ind.status, text: emptyText }}
-      // 숫자만 있는 카드도 도넛(size-28)과 같은 높이에서 가운데 — 제목·본문·출처 줄이 가로로 맞고, 넓은 카드에서 왼쪽에 몰리지 않는다
-      valueClassName="min-h-28 justify-center"
+      // 그림 칸(112px, 휴대폰 80px) 높이에 맞춰 제목·본문·출처 줄이 카드끼리 가로로 맞는다
+      valueClassName="min-h-28 max-sm:min-h-20"
       className="md:p-6"
-      visual={
-        donut ? (
-          <RateDonut
-            percent={value && typeof ind.value === 'number' ? ind.value : null}
-            text={value}
-            empty={{ status: ind.status, text: emptyText }}
-            // 서울 평균·분자/분모는 도넛 오른쪽에 (휴대폰은 아래)
-            details={details}
-          />
-        ) : undefined
-      }
-      details={donut ? undefined : details}
+      visual={body}
       status={ind.status}
       hideFactLabel
       source={
