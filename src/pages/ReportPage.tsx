@@ -188,7 +188,8 @@ type Data = ReturnType<typeof useReportData>
 
 function PopulationBlock({ data }: { data: Data }) {
   const reference = data.locationReference
-  if (!data.populationEnabled) return null
+  const category = data.query.category
+  if (!data.populationEnabled || !category) return null
   return (
     <Block title="위치에 연결된 공개 참고자료">
       {reference.isPending || reference.isFetching ? (
@@ -198,6 +199,7 @@ function PopulationBlock({ data }: { data: Data }) {
       ) : (
         <SectionErrorBoundary resetKey={String(reference.dataUpdatedAt)}>
           <LocationReferencePrint
+            category={category}
             data={reference.data.data}
             isDemo={reference.data.meta?.is_demo ?? false}
           />
