@@ -1,5 +1,7 @@
 <div align="center">
 
+2026-11-16 [생활인구 공개자료 주야간 비교](docs/population-reference.md)를 추가했습니다. 새 BE API로 내국인·장기/단기 외국인의 동일 공개 구성을 각각 비교하며 전체 인구와 구분합니다. 분석·종합진단·인쇄 보고서에 같은 서버 표시값/범위를 사용합니다. 실제 BE/FE 운영 반영 상태와 배포 commit은 FE #73 및 연결 PR의 실행 기록을 따릅니다.
+
 <img src="docs/images/banner.webp" alt="Spot:ON Frontend — Is your spot on? 내 자리, 딱 맞는 자리일까요? 창업 전, 그 자리의 과거를 확인하세요" width="100%">
 
 계약하려는 주소 하나로 그 자리를 거쳐 간 점포의 이력과 주변 같은 업종의 생존 기록을 근거와 함께 보여주는<br>

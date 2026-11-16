@@ -81,7 +81,7 @@ async function request<T>(
 ): Promise<ApiResult<T>> {
   // 조건에 import.meta.env를 직접 써야 빌드 때 false로 바뀌어 이 블록이 제거된다
   if (import.meta.env.VITE_USE_MOCK === 'true' && !REAL_API_PATHS.has(path.split('?')[0])) {
-    if (path.startsWith('/v2/'))
+    if (path.startsWith('/v2/') && path.split('?')[0] !== '/v2/population-reference')
       throw new ApiRequestError('MOCK_UNAVAILABLE', API_MESSAGES.brandMock, null)
     const { getMockResponse } = await import('./mocks')
     const mock = await getMockResponse<T>(path, init)
@@ -132,8 +132,16 @@ function unwrap<T>(body: ApiResponse<T>, status: number): ApiResult<T> {
 }
 
 /** @param options.timeoutMs 기본 45초. 잠든 무료 서버를 깨우는 첫 요청(health·첫 주소 검색)만 60초 */
-export function apiGet<T>(path: string, params?: QueryParams, options?: { timeoutMs?: number }) {
-  return request<T>(`${path}${toQueryString(params)}`, undefined, options?.timeoutMs)
+export function apiGet<T>(
+  path: string,
+  params?: QueryParams,
+  options?: { timeoutMs?: number; signal?: AbortSignal },
+) {
+  return request<T>(
+    `${path}${toQueryString(params)}`,
+    { signal: options?.signal },
+    options?.timeoutMs,
+  )
 }
 
 /** @param options.timeoutMs 기본 45초 */

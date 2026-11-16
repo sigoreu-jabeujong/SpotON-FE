@@ -12,9 +12,9 @@ export default defineConfig(({ mode }) => {
   )
   return {
     plugins: [react(), tailwindcss()],
-    // 단위 테스트 (npm run test) — 순수 함수만 테스트하므로 브라우저 흉내(jsdom) 없이 node 환경
+    // 순수 함수와 서버 렌더링 표시 계약 — jsdom 없이 node 환경에서 확인한다.
     test: {
-      include: ['src/**/*.test.ts'],
+      include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
       environment: 'node',
     },
   }
