@@ -1,3 +1,4 @@
+import { diagnosisAddress } from '../../utils/diagnosisAddress'
 import { History, MapPin, SlidersHorizontal, type LucideIcon } from 'lucide-react'
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { Link } from 'react-router'
@@ -62,8 +63,7 @@ export default function ConditionBar() {
       <div className="flex max-w-[1080px] flex-wrap items-center justify-between gap-4">
         <ul className="flex min-w-0 flex-wrap items-center gap-1.5">
           <Chip icon={MapPin} strong>
-            {query.address}
-            {query.floorUnit && ` ${query.floorUnit}`}
+            {diagnosisAddress(query)}
           </Chip>
           {category && <Chip>{subs ? `${category} (${subs})` : category}</Chip>}
           <Chip>{T.radius(query.radius)}</Chip>
