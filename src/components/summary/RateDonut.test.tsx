@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import RateDonut from './RateDonut'
 
-const C = 2 * Math.PI * 42
+const C = 2 * Math.PI * 41
 
 describe('RateDonut — 채움 애니메이션', () => {
   it('IntersectionObserver가 없는 환경(서버 렌더·테스트)에서는 처음부터 서버 값만큼 채운다', () => {

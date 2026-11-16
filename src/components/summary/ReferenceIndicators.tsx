@@ -75,7 +75,7 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
   )
   const donut = RATE_IDS.includes(ind.id) && ind.unit === '%'
   const statusLabel = DATA_STATUS[ind.status].label
-  // 오른쪽 그림 칸 — 비율 지표는 도넛 링(숫자는 왼쪽에만), 동종업체 수는 가게 그림. 같은 크기(112px, 휴대폰 80px)
+  // 오른쪽 그림 칸 — 비율 지표는 도넛 링(숫자는 왼쪽에만), 동종업체 수는 가게 그림. 같은 크기(136px, 휴대폰 96px)
   const picture = donut ? (
     <RateDonut percent={value && typeof ind.value === 'number' ? ind.value : null} />
   ) : ind.id === 'competitor_count' && IMAGES.storePin ? (
@@ -84,7 +84,7 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
       alt=""
       aria-hidden="true"
       loading="lazy"
-      className="size-28 shrink-0 object-contain max-sm:size-20"
+      className="size-34 shrink-0 object-contain max-sm:size-24"
     />
   ) : null
   // 카드 본문 좌우 2칸 — 왼쪽 큰 숫자 + 서울 평균·분자/분모, 오른쪽 그림 (세로 가운데)
@@ -122,8 +122,8 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
       // 값이 없으면 숫자(0) 대신 상태 아이콘과 사유만
       value={value}
       empty={{ status: ind.status, text: emptyText }}
-      // 그림 칸(112px, 휴대폰 80px) 높이에 맞춰 제목·본문·출처 줄이 카드끼리 가로로 맞는다
-      valueClassName="min-h-28 max-sm:min-h-20"
+      // 그림 칸(136px, 휴대폰 96px) 높이에 맞춰 제목·본문·출처 줄이 카드끼리 가로로 맞는다
+      valueClassName="min-h-34 max-sm:min-h-24"
       className="md:p-6"
       visual={body}
       status={ind.status}
