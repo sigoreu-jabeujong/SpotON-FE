@@ -2,6 +2,7 @@ import { ACTIVITY_INCLUDE, toCommonQueryParams } from '../api/params'
 import { getCoordinates, useDiagnosisQuery } from './useDiagnosisQuery'
 import { useMarketActivity } from './useMarketActivity'
 import { useLocationReference } from './useLocationReference'
+import { usePopulationReference } from './usePopulationReference'
 import { useCachedInterpretation, useRisk } from './useRisk'
 import { useNearbyStores, useLocationHistory, useStoreSnapshot } from './useStores'
 import { closedHistoryParams } from '../utils/closedHistory'
@@ -24,6 +25,7 @@ export function useReportData(includePopulation = false) {
   const risk = useRisk(params)
   const populationEnabled = includePopulation && params !== null
   const locationReference = useLocationReference(populationEnabled ? params : null)
+  const gridReference = usePopulationReference(populationEnabled ? params : null)
   const ai = useCachedInterpretation(params, undefined, query.address, risk.data?.meta)
 
   const queries = [history, nearby, snapshot, activity, risk]
@@ -38,7 +40,8 @@ export function useReportData(includePopulation = false) {
     populationEnabled,
     locationReference,
     /** Keep core results visible; the print button waits for the optional comparison too. */
-    captureLoading: loading || (populationEnabled && locationReference.isFetching),
+    captureLoading:
+      loading || (populationEnabled && (locationReference.isFetching || gridReference.isFetching)),
     ai:
       ai.data &&
       (!V2_API_ENABLED ||

@@ -41,6 +41,13 @@ export type ApiDataVersion = {
  * 응답 공통 메타 정보. 서버가 빈 객체 {}를 줄 수도 있어 모든 필드를 선택·null 허용으로 둔다.
  */
 export type ApiMeta = {
+  ai_report_basis_token?: string
+  /** Client-only verified address context retained from the existing address lookup. */
+  ai_report_address_context?: {
+    context: string
+    floor_unit?: string
+    category: 'cafe' | 'restaurant'
+  }
   /** Population reference result provenance; independent from store/brand generations. */
   population_snapshot_token?: string
   format_version?: string

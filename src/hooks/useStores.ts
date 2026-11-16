@@ -14,8 +14,9 @@ export function useStoreHistory(params: StoreHistoryParams | null) {
   })
 }
 
-export function useLocationHistory(params: LocationHistoryParams | null) {
+export function useLocationHistory(params: LocationHistoryParams | null, enabled = true) {
   return useQuery({
+    enabled,
     queryKey: ['stores', 'location-history', 'road-jibun-v1', params],
     queryFn: params ? ({ signal }) => getLocationHistory(params, signal) : skipToken,
   })
