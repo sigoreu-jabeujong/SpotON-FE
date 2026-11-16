@@ -32,7 +32,7 @@ type NearbySeed = Omit<NearbyMarker, 'lat' | 'lng' | 'distance_m'> & { dx: numbe
 export const DEMO_TODAY = '2026-10-31'
 
 /** 목업 전용: 두 날짜 사이 개월 수 (소수점 버림) */
-function monthsBetween(from: string, to: string): number {
+export function monthsBetween(from: string, to: string): number {
   const [y1, m1, d1] = from.split('-').map(Number)
   const [y2, m2, d2] = to.split('-').map(Number)
   return (y2 - y1) * 12 + (m2 - m1) - (d2 < d1 ? 1 : 0)
