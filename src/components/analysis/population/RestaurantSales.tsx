@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react'
 import type {
   AggregatedMarket,
   LocationReference,
@@ -171,8 +172,14 @@ export default function RestaurantSales({ data }: { data: LocationReference }) {
           </>
         )}
       </div>
-      <details className="text-caption">
-        <summary className="min-h-11 cursor-pointer py-2">계산 기준</summary>
+      <details className="group text-caption">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold text-gray-900 focus-visible:outline-2 focus-visible:outline-blue-500 [&::-webkit-details-marker]:hidden">
+          <ChevronDown
+            className="size-4 shrink-0 text-gray-600 group-open:rotate-180 motion-safe:transition-transform"
+            aria-hidden="true"
+          />
+          계산 기준
+        </summary>
         <div className="flex min-w-0 flex-col gap-3">
           {top?.metric && (
             <p className="break-words">
