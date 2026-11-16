@@ -71,6 +71,25 @@ export type SalesContribution = {
   source_quarter: string
   metric: ReferenceNumber & { numerator: string; denominator: string }
 }
+export type StoreWeightedDistribution = {
+  method: 'store_weighted_median_v1'
+  model: 'repeat_market_mean_for_each_reference_store'
+  individual_store_sales_observed: false
+  total_store_count: string
+  reference_count: number
+  median: ReferenceNumber
+  mean: ReferenceNumber
+  minimum: ReferenceNumber
+  maximum: ReferenceNumber
+  variance: { value: string; unit: string; scope: 'between_market_per_store_means' }
+  bin_method: 'equal_width_exact_fraction_v1'
+  bins: {
+    lower: ReferenceNumber
+    upper: ReferenceNumber
+    store_count: string
+    upper_inclusive: boolean
+  }[]
+}
 export type LocationReference = {
   requested_as_of: string | null
   analysis_as_of: string
@@ -85,6 +104,7 @@ export type LocationReference = {
       representative_method?: string
       graph_basis?: string
       contributions?: SalesContribution[]
+      store_weighted_distribution?: StoreWeightedDistribution | null
       total_sales: string | null
       total_store_count: string | null
       listed_item_count: number
@@ -94,6 +114,7 @@ export type LocationReference = {
         source_quarter: string
         metric: ReferenceNumber | null
         distribution?: SalesDistribution | null
+        store_weighted_distribution?: StoreWeightedDistribution | null
       }[]
     } | null
   }
