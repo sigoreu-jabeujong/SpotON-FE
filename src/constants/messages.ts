@@ -344,18 +344,6 @@ export const MESSAGES = {
   },
   /** STEP 03 종합 진단 결과 (F-07) */
   summary: {
-    marketTitle: '상권 판정',
-    inMarket: (name: string, type: string | null) =>
-      `이 주소는 ${name} 상권${type ? `(${type})` : ''}에 속해요`,
-    alsoIn: (names: string) => `함께 속한 관광특구: ${names}`,
-    outside: '서울시 지정 상권 밖 주소예요',
-    /** market.status = unverified — 상권 안·밖으로 확정하지 않는다 */
-    unverified: '공식 상권 적용 기준을 확인 중이에요',
-    unverifiedHint:
-      '이 주소가 어느 서울시 상권에 속하는지 아직 확정하지 않았어요. 상권 단위 공식 지표는 확인이 끝나면 보여드려요.',
-    outsideHint:
-      '상권 단위로 집계하는 서울시 공식 지표는 "자료 없음"으로 보여요. 가까운 상권 수치로 대신하지 않아요.',
-    nearbyMarkets: '반경에 걸친 상권 (참고)',
     insufficient: '표본이 적어 일부 지표는 판단 보류로 보여요.',
     officialTitle: '서울시 공식 지표',
     officialDescription: '서울시가 공표한 값을 그대로 인용해요. 다시 계산하지 않아요.',
