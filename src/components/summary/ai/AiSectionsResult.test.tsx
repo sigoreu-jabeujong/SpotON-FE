@@ -20,7 +20,7 @@ it('shows interpretations and checklist without exposing evidence cards or sourc
     advantages: section,
     cautions: section,
     summary: section,
-    limitations: [],
+    limitations: [{ text: '팝오버에서만 읽는 자료 한계', evidence_ids: ['m1'], group_id: null }],
     metrics: [
       {
         id: 'm1',
@@ -55,4 +55,7 @@ it('shows interpretations and checklist without exposing evidence cards or sourc
   expect(html).not.toContain('표시하지 않을 근거 카드')
   expect(html).not.toContain('수치와 자료 기준')
   expect(html).not.toContain('data.go.kr')
+  expect(html).not.toContain('팝오버에서만 읽는 자료 한계')
+  expect(html).toContain('수치 해석의 주의사항')
+  expect(html).toContain('aria-expanded="false"')
 })
