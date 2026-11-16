@@ -1,21 +1,16 @@
 import type { ReactNode } from 'react'
+import { MESSAGES } from '../../../constants/messages'
 import type {
   AdminReferenceItem,
   LocationReference,
   ReferenceNumber,
+  SalesReferenceItem,
 } from '../../../types/locationReference'
 import SubTitle from '../../common/SubTitle'
 import SalesDistributionChart from './SalesDistributionChart'
 
-const quarter = (q: string | null) => (q ? `${q.slice(0, 4)}년 ${q.slice(4)}분기` : '자료 없음')
-const exclusion: Record<string, string> = {
-  sales_unavailable: '매출 자료 없음',
-  different_quarter: '다른 자료 분기',
-  store_row_missing: '점포 수 자료 없음',
-  store_mapping_conflict: '자료 정보 불일치',
-  zero_store_count: '점포 수 0개',
-  zero_store_count_with_sales: '점포 수 0개·매출 존재',
-}
+const R = MESSAGES.reference
+const quarter = (q: string | null) => (q ? R.quarter(q) : R.noValue)
 
 function unavailable(reason: string | null | undefined) {
   if (reason === 'no_spatial_overlap') return '이 위치나 반경과 겹치는 공개 구역이 없어요.'
@@ -37,7 +32,28 @@ const periodRelation = (value: string | null) =>
       : '분석 기간 자료'
 function metric(value: ReferenceNumber | null | undefined) {
   // The exact decimal/string and source unit are server-owned, including huge KRW values.
-  return value?.display?.replace(/\/점포$/, '') ?? '자료 없음'
+  return value?.display?.replace(/\/점포$/, '') ?? R.noValue
+}
+
+/** 상권 표 비고 — 반복 설명 대신 짧은 표시 (반영 대상은 비움) */
+function marketNote(item: SalesReferenceItem) {
+  if (!item.metric || item.status === 'no_data') return R.marketNote.no_data
+  const status = item.average_contribution?.status
+  if (status === 'different_quarter') return R.marketNote.different_quarter
+  if (status === 'excluded') return R.marketNote.excluded
+  return ''
+}
+
+function Card({ id, title, children }: { id: string; title: ReactNode; children: ReactNode }) {
+  return (
+    <section
+      data-card={id}
+      className="flex min-w-0 flex-col gap-3 rounded-card border border-gray-300 bg-gray-0 p-5"
+    >
+      <h3 className="flex items-center gap-1 text-subtitle font-bold text-gray-900">{title}</h3>
+      {children}
+    </section>
+  )
 }
 
 function Frame({
@@ -88,6 +104,101 @@ function PopulationSource() {
   )
 }
 
+/** 인근 상권 추정매출 — 큰 숫자 + 한 줄 요약 + 그래프 하나 + 접힌 상권별 표 */
+function SalesCard({ data }: { data: LocationReference }) {
+  const average = data.sales.per_store_average
+  const weighted = average?.store_weighted_distribution
+  const useWeightedMedian = average?.representative_method === 'store_weighted_median_v1'
+  const items = data.sales.items ?? []
+  const otherGroups = (average?.groups ?? []).filter(
+    (g) => g.source_quarter !== average?.primary_quarter,
+  )
+  return (
+    <Card id="sales" title={R.salesTitle}>
+      {average ? (
+        <div>
+          <p className="text-caption font-semibold text-gray-600">{R.salesHeadline}</p>
+          <p className="text-title leading-tight font-bold break-all text-gray-900">
+            {metric(useWeightedMedian ? weighted?.median : average.metric)}
+          </p>
+          <p className="mt-1 text-caption text-gray-600">
+            {R.salesSummary(average.included_item_count, quarter(average.primary_quarter))}
+          </p>
+          <SalesDistributionChart average={average} items={items} variant="screen" />
+        </div>
+      ) : (
+        !items.length && <p role="status">{unavailable(data.sales.reason)}</p>
+      )}
+      {items.length > 0 && (
+        <details className="text-caption">
+          <summary className="flex min-h-11 cursor-pointer items-center font-semibold text-gray-900">
+            {R.marketsToggle(items.length)}
+          </summary>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[320px] text-left tabular-nums">
+              <caption className="sr-only">{R.marketsCaption}</caption>
+              <thead className="text-gray-600">
+                <tr className="border-b border-gray-300">
+                  <th scope="col" className="py-2 pr-3 font-semibold">
+                    {R.marketCols.name}
+                  </th>
+                  <th scope="col" className="py-2 pr-3 text-right font-semibold">
+                    {R.marketCols.perStore}
+                  </th>
+                  <th scope="col" className="py-2 pr-3 text-right font-semibold">
+                    {R.marketCols.stores}
+                  </th>
+                  <th scope="col" className="py-2 font-semibold">
+                    {R.marketCols.note}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-900">
+                {items.map((item) => (
+                  <tr
+                    key={`${item.market_code}-${item.industry_code}`}
+                    className="border-b border-gray-300/60 last:border-b-0"
+                  >
+                    <th scope="row" className="py-2 pr-3 font-semibold break-keep">
+                      {item.market_name}
+                    </th>
+                    <td className="py-2 pr-3 text-right whitespace-nowrap">
+                      {item.per_store_metric ? metric(item.per_store_metric) : '—'}
+                    </td>
+                    <td className="py-2 pr-3 text-right whitespace-nowrap">
+                      {item.store_reference?.total_stores
+                        ? `${item.store_reference.total_stores}개`
+                        : '—'}
+                    </td>
+                    <td className="py-2 text-gray-600">{marketNote(item)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {otherGroups.map((g) => (
+            <p key={g.source_quarter} className="mt-2 text-gray-600">
+              {R.otherQuarter(
+                quarter(g.source_quarter),
+                metric(useWeightedMedian ? g.store_weighted_distribution?.median : g.metric),
+              )}
+            </p>
+          ))}
+        </details>
+      )}
+      <a
+        className="mt-auto text-caption text-gray-600 underline"
+        href="https://data.seoul.go.kr/dataList/OA-15572/S/1/datasetView.do"
+        target="_blank"
+        rel="noreferrer"
+      >
+        {R.salesSource}
+      </a>
+    </Card>
+  )
+}
+
+/** 결과 화면(STEP 02·03)용 위치 참고자료. 진단서는 LocationReferencePrint */
 export default function LocationReferenceView({
   data,
   isDemo = false,
@@ -96,9 +207,6 @@ export default function LocationReferenceView({
   isDemo?: boolean
 }) {
   const people = data.living_population.items ?? []
-  const weighted = data.sales.per_store_average?.store_weighted_distribution
-  const useWeightedMedian =
-    data.sales.per_store_average?.representative_method === 'store_weighted_median_v1'
   return (
     <div className="flex min-w-0 flex-col gap-6" data-testid="location-reference">
       <p className="text-caption text-gray-600">
@@ -110,127 +218,8 @@ export default function LocationReferenceView({
         자료로 계산해요. 기존 AI 해석에 반영되는 값은 아니에요. 가맹·브랜드·면적 등 점포 조건으로 이
         참고자료의 수치를 거르지 않아요.
       </p>
-      <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
-        <Frame
-          title="인근 상권 추정매출"
-          notice="상권 단위 원자료 금액으로, 이 자리 점포의 실제 매출이 아니에요."
-        >
-          {data.sales.per_store_average && (
-            <div className="rounded-control border border-gray-200 p-4">
-              <p className="font-semibold">점포당 추정 매출</p>
-              <p className="text-xl font-bold break-all">
-                {metric(useWeightedMedian ? weighted?.median : data.sales.per_store_average.metric)}
-              </p>
-              {useWeightedMedian && (
-                <p className="text-caption text-gray-600">점포 수 가중 중앙값 · 추정 모델</p>
-              )}
-              {data.sales.per_store_average.metric && (
-                <details className="mt-2 text-caption text-gray-600">
-                  <summary className="cursor-pointer">계산 기준</summary>
-                  <p>
-                    {useWeightedMedian
-                      ? '상권별 점포당 평균에 점포 수를 반영한 추정 분포의 중앙값이에요.'
-                      : '같은 분기 목록의 매출 합계를 같은 목록의 점포 수 합계로 나눠요.'}
-                  </p>
-                  <p>점포 수 가중평균(비교): {metric(data.sales.per_store_average.metric)}</p>
-                </details>
-              )}
-              {data.sales.per_store_average.temporal_relation && (
-                <p className="text-caption">
-                  {periodRelation(data.sales.per_store_average.temporal_relation)}
-                </p>
-              )}
-              <p className="text-caption">
-                자료 분기 {quarter(data.sales.per_store_average.primary_quarter)} · 전체{' '}
-                {data.sales.per_store_average.listed_item_count}항목 중{' '}
-                {data.sales.per_store_average.included_item_count}항목 반영
-              </p>
-              {!useWeightedMedian && data.sales.per_store_average.metric && (
-                <p className="text-caption break-words">
-                  매출 합계 {data.sales.per_store_average.total_sales}원 ÷ 점포 수 합계{' '}
-                  {data.sales.per_store_average.total_store_count}개
-                </p>
-              )}
-              <SalesDistributionChart
-                average={data.sales.per_store_average}
-                items={data.sales.items}
-              />
-              <details>
-                <summary>다른 분기·제외 항목 보기</summary>
-                {data.sales.per_store_average.groups.map((g) => (
-                  <p key={g.source_quarter}>
-                    {quarter(g.source_quarter)}: {useWeightedMedian ? '가중 중앙값' : '평균'}{' '}
-                    {metric(useWeightedMedian ? g.store_weighted_distribution?.median : g.metric)}
-                  </p>
-                ))}
-                <p>
-                  제외 항목 수:{' '}
-                  {Object.entries(data.sales.per_store_average.excluded_counts)
-                    .map(
-                      ([reason, count]) => `${exclusion[reason] ?? '자료 확인 필요'} ${count}항목`,
-                    )
-                    .join(' / ') || '0'}
-                </p>
-              </details>
-            </div>
-          )}
-          {data.sales.items?.length ? (
-            data.sales.items.map((item) => (
-              <div
-                className="min-w-0 rounded-control border border-gray-200 p-4"
-                key={`${item.market_code}-${item.industry_code}`}
-              >
-                <p className="font-semibold break-words">
-                  {item.market_name} · {relation(item.spatial_relation)}
-                </p>
-                <p className="text-caption text-gray-600">
-                  {item.industry_name} · 자료 분기{' '}
-                  {item.source_quarter
-                    ? `${item.source_quarter.slice(0, 4)}년 ${item.source_quarter.slice(4)}분기`
-                    : '없음'}
-                </p>
-                <p className="text-caption text-gray-600">
-                  {periodRelation(item.temporal_relation)}
-                </p>
-                <p className="text-xl font-bold break-all">{metric(item.metric)}</p>
-                {item.store_reference && (
-                  <p className="text-caption">
-                    자료상 전체 점포 수{' '}
-                    {item.store_reference.total_stores === null
-                      ? '자료 없음'
-                      : `${item.store_reference.total_stores}개`}{' '}
-                    · 해당 상권 점포당 {metric(item.per_store_metric)}
-                  </p>
-                )}
-                {item.average_contribution && (
-                  <p className="text-caption">
-                    {item.average_contribution.status === 'included'
-                      ? useWeightedMedian
-                        ? '추정 분포 반영 대상'
-                        : '평균 산정 대상'
-                      : item.average_contribution.status === 'different_quarter'
-                        ? '다른 자료 분기'
-                        : '평균 계산 제외'}
-                    {item.average_contribution.reason &&
-                      item.average_contribution.status === 'excluded' &&
-                      ` · ${exclusion[item.average_contribution.reason] ?? '자료 확인 필요'}`}
-                  </p>
-                )}
-                {!item.metric && <p className="text-caption">{unavailable(item.reason)}</p>}
-              </div>
-            ))
-          ) : (
-            <p role="status">{unavailable(data.sales.reason)}</p>
-          )}
-          <a
-            className="text-caption underline"
-            href="https://data.seoul.go.kr/dataList/OA-15572/S/1/datasetView.do"
-            target="_blank"
-            rel="noreferrer"
-          >
-            출처: 서울시 상권분석서비스 추정매출
-          </a>
-        </Frame>
+      <div className="grid grid-cols-2 items-start gap-6 max-md:grid-cols-1">
+        <SalesCard data={data} />
         <Frame title="생활인구">
           {people.length ? (
             people.map((item) => (

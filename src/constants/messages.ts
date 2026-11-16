@@ -599,6 +599,40 @@ export const MESSAGES = {
     /** 화면 읽기 프로그램용: "7건 중 5건 표시" */
     shownCount: (shown: number, total: number) => `${total}건 중 ${shown}건 표시`,
   },
+  /** 상권 활동 아래 위치 참고자료 (추정매출·생활인구) — 화면용. 진단서는 LocationReferencePrint 그대로 */
+  reference: {
+    salesTitle: '인근 상권 추정매출',
+    salesHeadline: '점포당 추정 매출',
+    /** 큰 숫자 아래 한 줄 — 상권 수(곳 = 상권), 자료 분기, 추정치 성격 */
+    salesSummary: (markets: number, quarter: string) =>
+      `인근 상권 ${markets}곳 · ${quarter} · 추정치(실제 매출 아님)`,
+    salesSource: '출처: 서울시 상권분석서비스 추정매출 · 상권 단위',
+    marketsToggle: (n: number) => `상권별 자세히 보기 (${n}곳)`,
+    marketsCaption: '인근 상권별 점포당 추정 매출과 점포 수',
+    marketCols: { name: '상권', perStore: '점포당 매출', stores: '점포 수', note: '비고' },
+    /** 상권 표 비고 — 짧게 */
+    marketNote: {
+      no_data: '자료 없음',
+      different_quarter: '다른 분기',
+      excluded: '계산 제외',
+    },
+    otherQuarter: (quarter: string, value: string) => `${quarter} 중간값 ${value}`,
+    quarter: (q: string) => `${q.slice(0, 4)}년 ${q.slice(4)}분기`,
+    noValue: '자료 없음',
+    /** 추정매출 분포 그래프 — 화면은 쉬운 말(의미는 같음: 가중치 = 점포 수) */
+    chart: {
+      title: '점포당 추정 매출 분포',
+      basis: (stores: string, markets: number) => `점포 ${stores}개 · 상권 ${markets}곳 기준`,
+      yLabel: '점포 수 (개)',
+      groupLabel: '점포당 추정 매출 분포 그래프',
+      bin: (lower: string, upper: string, inclusive: boolean, count: string) =>
+        `${lower} 이상 ${upper} ${inclusive ? '이하' : '미만'}, 점포 수 ${count}개`,
+      median: (value: string) => `중간값 ${value}`,
+      axes: '가로: 점포당 추정 매출 · 세로: 점포 수',
+      selected: (lower: string, upper: string, count: string) =>
+        `선택 구간 ${lower} ~ ${upper} · 점포 수 ${count}개`,
+    },
+  },
   /** 단위·공통 글자 */
   units: {
     store: '개',

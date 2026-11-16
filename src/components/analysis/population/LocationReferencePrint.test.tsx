@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import type { LocationReference, ReferenceNumber } from '../../../types/locationReference'
-import LocationReferenceView from './LocationReferenceView'
+import LocationReferenceView from './LocationReferencePrint'
 
 function number(display: string, value = '12.34'): ReferenceNumber {
   return { value, display, unit: 'estimated_people_hourly_mean', rounded: false, exact_zero: false }
