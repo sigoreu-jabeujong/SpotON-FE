@@ -5,7 +5,7 @@ import { useLocationReference } from './useLocationReference'
 import { useCachedInterpretation, useRisk } from './useRisk'
 import { useNearbyStores, useLocationHistory, useStoreSnapshot } from './useStores'
 import { closedHistoryParams } from '../utils/closedHistory'
-import { BRAND_API_ENABLED } from '../api/analysisProfile'
+import { V2_API_ENABLED } from '../api/analysisProfile'
 import { interpretationMatches } from '../api/interpretationContext'
 
 /**
@@ -14,11 +14,10 @@ import { interpretationMatches } from '../api/interpretationContext'
  */
 export function useReportData(includePopulation = false) {
   const { query } = useDiagnosisQuery()
-  const unsupported = !BRAND_API_ENABLED && query.brandUrlNotice === 'unsupported_brand'
   const coords = getCoordinates(query)
-  const params = coords && !unsupported ? toCommonQueryParams(query, coords) : null
+  const params = coords ? toCommonQueryParams(query, coords) : null
 
-  const history = useLocationHistory(unsupported ? null : closedHistoryParams(query))
+  const history = useLocationHistory(closedHistoryParams(query))
   const nearby = useNearbyStores(params)
   const snapshot = useStoreSnapshot(params) // 기준 시점(asOf)이 있을 때만 요청됨
   const activity = useMarketActivity(params, ACTIVITY_INCLUDE)
@@ -28,7 +27,7 @@ export function useReportData(includePopulation = false) {
   const ai = useCachedInterpretation(params, undefined, query.address, risk.data?.meta)
 
   const queries = [history, nearby, snapshot, activity, risk]
-  const loading = queries.some((q) => q.isLoading || (BRAND_API_ENABLED && q.isFetching))
+  const loading = queries.some((q) => q.isLoading || (V2_API_ENABLED && q.isFetching))
   return {
     query,
     history,
@@ -42,7 +41,7 @@ export function useReportData(includePopulation = false) {
     captureLoading: loading || (populationEnabled && locationReference.isFetching),
     ai:
       ai.data &&
-      (!BRAND_API_ENABLED ||
+      (!V2_API_ENABLED ||
         (params &&
           !risk.isFetching &&
           !risk.isError &&

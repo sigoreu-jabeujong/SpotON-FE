@@ -1,4 +1,4 @@
-import type { ChainStore } from '../types/brands'
+import type { AnalysisStore } from '../types/analysis'
 import type {
   HistoryStore,
   NearbyMarker,
@@ -10,18 +10,18 @@ import type {
 import { ApiRequestError } from './client'
 import { API_MESSAGES } from '../constants/apiMessages'
 
-export type ChainHistoryResponse = Omit<StoreHistory, 'stores'> & { stores: ChainStore[] }
-export type ChainNearbyResponse = Omit<NearbyStores, 'markers'> & { markers: ChainStore[] }
-export type ChainSnapshotResponse = Omit<StoreSnapshot, 'stores'> & { stores: ChainStore[] }
+export type AnalysisHistoryResponse = Omit<StoreHistory, 'stores'> & { stores: AnalysisStore[] }
+export type AnalysisNearbyResponse = Omit<NearbyStores, 'markers'> & { markers: AnalysisStore[] }
+export type AnalysisSnapshotResponse = Omit<StoreSnapshot, 'stores'> & { stores: AnalysisStore[] }
 
 const invalid = () => {
-  throw new ApiRequestError('INVALID_RESPONSE', API_MESSAGES.chainResponse, null)
+  throw new ApiRequestError('INVALID_RESPONSE', API_MESSAGES.storeResponse, null)
 }
 const nullableText = (value: unknown) => value === null || typeof value === 'string'
 const nullableNumber = (value: unknown) =>
   value === null || (typeof value === 'number' && Number.isFinite(value))
 
-function checked(s: ChainStore): ChainStore {
+function checked(s: AnalysisStore): AnalysisStore {
   if (
     !s ||
     !['general_restaurant', 'rest_cafe'].includes(s.source) ||
@@ -30,13 +30,6 @@ function checked(s: ChainStore): ChainStore {
     !['open', 'closed', 'other'].includes(s.current_status) ||
     !['cafe', 'restaurant'].includes(s.category) ||
     !['cafe', 'korean', 'chinese', 'japanese', 'western'].includes(s.sub_category) ||
-    !s.brand ||
-    !['estimated', 'unknown', 'conflict'].includes(s.brand.status) ||
-    s.brand.time_basis !== 'observed_record' ||
-    s.brand.historical_membership !== 'not_verified' ||
-    !s.operation ||
-    s.operation.type !== 'unknown' ||
-    s.operation.basis !== null ||
     (s.operating_period_status === 'fact'
       ? s.operating_months === null || s.operating_period_reason !== null
       : s.operating_months !== null ||
@@ -60,16 +53,13 @@ function checked(s: ChainStore): ChainStore {
       nullableNumber,
     ) ||
     (s.location_match != null &&
-      !['same_spot', 'same_building', 'unverified'].includes(s.location_match)) ||
-    ['franchise', 'franchise_basis', 'franchise_reference_year'].some((key) =>
-      Object.hasOwn(s, key),
-    )
+      !['same_spot', 'same_building', 'unverified'].includes(s.location_match))
   )
     invalid()
   return s
 }
 
-export function adaptChainHistory(data: ChainHistoryResponse): StoreHistory {
+export function adaptAnalysisHistory(data: AnalysisHistoryResponse): StoreHistory {
   if (!Array.isArray(data.stores) || data.total !== data.stores.length) invalid()
   const stores: HistoryStore[] = data.stores.map((raw) => {
     const s = checked(raw)
@@ -83,7 +73,7 @@ export function adaptChainHistory(data: ChainHistoryResponse): StoreHistory {
   return { ...data, stores }
 }
 
-function spatial(raw: ChainStore): NearbyMarker {
+function spatial(raw: AnalysisStore): NearbyMarker {
   const s = checked(raw)
   return {
     ...s,
@@ -94,12 +84,12 @@ function spatial(raw: ChainStore): NearbyMarker {
   }
 }
 
-export function adaptChainNearby(data: ChainNearbyResponse): NearbyStores {
+export function adaptAnalysisNearby(data: AnalysisNearbyResponse): NearbyStores {
   if (!Array.isArray(data.markers) || data.count !== data.markers.length) invalid()
   return { ...data, markers: data.markers.map(spatial) }
 }
 
-export function adaptChainSnapshot(data: ChainSnapshotResponse): StoreSnapshot {
+export function adaptAnalysisSnapshot(data: AnalysisSnapshotResponse): StoreSnapshot {
   if (
     !Array.isArray(data.stores) ||
     data.total_at_as_of !== data.stores.length ||

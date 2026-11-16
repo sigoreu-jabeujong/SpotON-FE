@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import { toRiskInterpretRequest } from '../../../api/params'
 import { queryKeys } from '../../../api/queryKeys'
 import { ApiRequestError } from '../../../api/client'
-import { BRAND_API_ENABLED } from '../../../api/analysisProfile'
+import { V2_API_ENABLED } from '../../../api/analysisProfile'
 import { hasRiskBaseline, interpretationMatches } from '../../../api/interpretationContext'
 import { MESSAGES } from '../../../constants/messages'
 import { useCachedInterpretation, useRiskInterpret } from '../../../hooks/useRisk'
@@ -90,7 +90,7 @@ export default function AiInterpretation({ params, history, address, meta }: Pro
     cached.data &&
     cached.data.data.verification.passed === true &&
     !!cached.data.data.body?.trim() &&
-    (!BRAND_API_ENABLED || interpretationMatches(cached.data, params, meta))
+    (!V2_API_ENABLED || interpretationMatches(cached.data, params, meta))
       ? cached.data.data
       : undefined
   const showCached = interpret.isIdle && !!cachedResult
@@ -138,7 +138,7 @@ export default function AiInterpretation({ params, history, address, meta }: Pro
       )}
       {!baselineReady && (
         <p role="status" className="text-caption text-gray-600">
-          {MESSAGES.brand.waitingRisk}
+          {'같은 기준의 지표를 불러온 뒤 AI 해석을 확인할 수 있어요.'}
         </p>
       )}
 

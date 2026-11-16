@@ -1,6 +1,6 @@
 /** The free backend has one DB connection. Queue reads before starting their network timeout. */
 export function isDatabaseRead(path: string): boolean {
-  return /^\/(?:meta\/|v[123]\/(?:stores\/|market\/|risk(?:[/?]|$)|brands\/|location-reference(?:[/?]|$)|population-reference(?:[/?]|$)))/.test(
+  return /^\/(?:meta\/|v[123]\/(?:stores\/|market\/|risk(?:[/?]|$)|location-reference(?:[/?]|$)|population-reference(?:[/?]|$)))/.test(
     path,
   )
 }

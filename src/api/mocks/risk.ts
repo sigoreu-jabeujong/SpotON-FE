@@ -219,7 +219,10 @@ export const riskMock: MockHandler = (query) => {
       category,
       radius_m: radius,
       as_of: asOf,
-      filters: { franchise: query.get('franchise') ?? 'all' },
+      filters: {
+        area: query.get('area') ?? 'all',
+        include_unknown_area: query.get('include_unknown_area') !== 'false',
+      },
     },
     market,
     // BE #142 이후 응답(목업 주소에 "v142")에는 두 공식 지표가 없다
@@ -317,10 +320,6 @@ export const riskMock: MockHandler = (query) => {
     space,
     denominator: competitors,
     data_version: { ...DEMO_META.data_version, trdar_quarter: unverified ? null : '20262' },
-    // 가맹 필터를 고르면 이름 일치 추정의 한계 코드 (BE 가맹 추정 요청서 5장)
-    ...((query.get('franchise') ?? 'all') !== 'all'
-      ? { limitations: ['franchise_name_match_not_contract_or_history'] }
-      : {}),
   })
 }
 
@@ -409,11 +408,6 @@ function buildInterpretation(risk: Risk): RiskInterpretation {
   )
   if (seoulMissing?.seoul_avg_reason)
     missing_data.push({ text: '서울 평균 비교', reason: seoulMissing.seoul_avg_reason })
-  // 목록 적용 DB는 가맹 추정 한계를 함께 안내한다 (BE 가맹 추정 요청서 5장)
-  missing_data.push({
-    text: '프랜차이즈 여부는 2025년 브랜드 목록과 상호가 같은지로 추정한 값이에요',
-    reason: 'franchise_name_match_estimate',
-  })
 
   return {
     label: 'AI 해석',
@@ -465,11 +459,9 @@ const QUERY_KEYS = new Set([
   'sub_category',
   'as_of',
   'area',
-  'franchise',
   'include',
   'include_unknown',
   'include_unknown_area',
-  'include_unknown_franchise',
 ])
 
 const invalid = () => ({
@@ -500,11 +492,7 @@ export const riskInterpretMock: MockHandler = (_query, body) => {
     return invalid()
   if (q.as_of !== undefined && !(typeof q.as_of === 'string' && /^\d{4}-\d{2}$/.test(q.as_of)))
     return invalid()
-  if (
-    q.include_unknown !== undefined &&
-    (q.include_unknown_area !== undefined || q.include_unknown_franchise !== undefined)
-  )
-    return invalid()
+  if (q.include_unknown !== undefined && q.include_unknown_area !== undefined) return invalid()
 
   const radius = Number(q.radius ?? 500)
   if (radius === 1000)
