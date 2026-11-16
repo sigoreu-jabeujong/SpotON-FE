@@ -1,7 +1,6 @@
 import type { CommonQueryParams, V1QueryParams, V2QueryParams } from '../types/api'
 import { ANALYSIS_API_VERSION } from './analysisProfile'
 import type { AnalysisApiVersion } from '../config/analysisVersion'
-import { brandSelection } from '../utils/brands'
 import type { ActivityInclude } from '../types/market'
 import type { DiagnosisQuery } from '../types/diagnosis'
 import type { DataRangeParams } from '../types/meta'
@@ -32,11 +31,7 @@ export function toV1QueryParams(query: DiagnosisQuery, coords: Coordinates): V1Q
     category: query.category,
     radius: query.radius,
     area: query.area,
-    franchise: query.franchise,
-    // 면적 정보 없음은 체크박스 그대로. 가맹은 "전체"일 때만 체크박스를 따르고,
-    // 프랜차이즈·개인 매장을 고르면 미확인을 빼야 그 분류만 보인다 (BE 가맹 추정 요청서 3장)
     include_unknown_area: query.includeUnknown,
-    include_unknown_franchise: query.franchise === 'all' ? query.includeUnknown : false,
   }
   if (query.category === 'restaurant' && query.subCategories.length > 0) {
     params.sub_category = [...query.subCategories]
@@ -47,7 +42,6 @@ export function toV1QueryParams(query: DiagnosisQuery, coords: Coordinates): V1Q
 
 export function toV2QueryParams(query: DiagnosisQuery, coords: Coordinates): V2QueryParams | null {
   if (!query.category) return null
-  const brand = brandSelection(query)
   return {
     lat: coords.lat,
     lng: coords.lng,
@@ -59,11 +53,6 @@ export function toV2QueryParams(query: DiagnosisQuery, coords: Coordinates): V2Q
       ? { sub_category: [...query.subCategories] }
       : {}),
     ...(query.asOf ? { as_of: query.asOf } : {}),
-    brand_scope: brand.brandScope,
-    brand_unknown: brand.brandUnknown,
-    brand_evidence: brand.brandEvidence,
-    brand_time_basis: 'observed_record',
-    operation_type: 'any',
   }
 }
 

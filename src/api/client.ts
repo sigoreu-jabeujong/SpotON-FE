@@ -86,7 +86,7 @@ async function request<T>(
       path.startsWith('/v2/') &&
       !['/v2/population-reference', '/v2/location-reference'].includes(path.split('?')[0])
     )
-      throw new ApiRequestError('MOCK_UNAVAILABLE', API_MESSAGES.brandMock, null)
+      throw new ApiRequestError('MOCK_UNAVAILABLE', API_MESSAGES.analysisMock, null)
     const { getMockResponse } = await import('./mocks')
     const mock = await getMockResponse<T>(path, init)
     if (mock) return unwrap(mock.body, mock.status)

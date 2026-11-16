@@ -48,13 +48,6 @@ export const LOCATION_MATCH_LABEL = {
   unverified: '상세 위치 미확인',
 } as const
 
-/** 프랜차이즈 (API franchise). "가맹/비가맹" 표현은 쓰지 않는다 */
-export const FRANCHISE_LABEL = {
-  franchise: '프랜차이즈(추정)',
-  independent: '개인 매장',
-  unknown: '정보 없음',
-} as const
-
 /**
  * 주변·시점 점포의 상태 (API current_status) — **최신 데이터 기준** 상태다 (오늘 실시간 확인이 아님).
  * 그래서 제목·범례·열 이름에 "최신 데이터 기준"을 붙이고, 라벨 자체는 짧게 둔다

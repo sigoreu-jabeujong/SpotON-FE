@@ -8,7 +8,6 @@ import { useRisk } from '../../hooks/useRisk'
 import type { ApiMeta } from '../../types/api'
 import { formatDataBaseline } from '../../utils/format'
 import ErrorState from '../common/ErrorState'
-import FranchiseFilterNotice from '../common/FranchiseFilterNotice'
 import LoadingSkeleton from '../common/Skeleton'
 import MetaLine from '../common/MetaLine'
 import SubTitle from '../common/SubTitle'
@@ -52,8 +51,6 @@ export default function ActivitySection() {
           />
         ) : (
           <>
-            {/* 가맹 필터를 고르면 기준 안내 — 0건이어도 "점포 없음"으로 단정하지 않게 */}
-            <FranchiseFilterNotice franchise={query.franchise} meta={meta} />
             <div className="flex flex-col gap-3">
               <SubTitle>{T.statusTitle}</SubTitle>
               <StoreStatusCards

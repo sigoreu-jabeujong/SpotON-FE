@@ -35,12 +35,14 @@ export default function AiFailure({ error, verifyFailed, onRetry }: Props) {
           {invalid && <p className="mt-0.5 text-caption text-gray-600">{T.invalidRequest}</p>}
           {verifyFailed && <p className="mt-0.5 text-caption text-gray-600">{T.verifyFailed}</p>}
           {codeOf(error) === 'AI_CONTEXT_CHANGED' && (
-            <p className="mt-0.5 text-caption text-gray-600">{MESSAGES.brand.changed}</p>
+            <p className="mt-0.5 text-caption text-gray-600">
+              {'조회 조건이나 자료가 변경됐어요. 다시 조회해 주세요.'}
+            </p>
           )}
         </div>
       </div>
       <Button variant="secondary" onClick={onRetry} iconRight={<RotateCw className="size-4" />}>
-        {codeOf(error) === 'AI_CONTEXT_CHANGED' ? MESSAGES.brand.reload : T.retry}
+        {codeOf(error) === 'AI_CONTEXT_CHANGED' ? '다시 조회' : T.retry}
       </Button>
     </div>
   )

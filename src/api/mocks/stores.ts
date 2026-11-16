@@ -1,17 +1,13 @@
 /** /stores/history 목업 — 시연용 가상 값 (주변 점포·시점 조회는 nearby.ts) */
 import type { ApiMeta } from '../../types/api'
 import type { HistoryStore, StoreHistory } from '../../types/stores'
-import { DEMO_META, fail, franchiseBasis, ok } from './common'
+import { DEMO_META, fail, ok } from './common'
 import type { MockHandler } from './index'
 
 /** 기본 시나리오 행 — 날짜·기간이 모두 확인된 점포 (원천·기간 상태는 아래 withContract가 채움) */
 type BaseHistoryStore = Omit<
   HistoryStore,
-  | 'source'
-  | 'operating_period_status'
-  | 'operating_period_reason'
-  | 'franchise_basis'
-  | 'franchise_reference_year'
+  'source' | 'operating_period_status' | 'operating_period_reason'
 >
 
 /** 실제 BE 계약 필드 추가: 카페는 휴게음식점, 음식점은 일반음식점 원천. 기간이 있으면 fact */
@@ -19,8 +15,6 @@ const withContract = (s: BaseHistoryStore): HistoryStore => ({
   source: s.category === 'cafe' ? 'rest_cafe' : 'general_restaurant',
   operating_period_status: 'fact',
   operating_period_reason: null,
-  // 가맹 근거: 프랜차이즈 2곳 중 양식(서부 분류)은 기존 외부 분류, 카페는 2025년 목록명 일치 추정
-  ...franchiseBasis(s.franchise, s.sub_category === 'western'),
   ...s,
 })
 
@@ -39,7 +33,6 @@ const BASE_HISTORY_STORES: BaseHistoryStore[] = [
     close_date: '2012-08-30',
     operating_months: 40,
     store_status: 'closed',
-    franchise: 'independent',
     floor_unit: '1층',
     location_match: 'same_spot',
   },
@@ -52,7 +45,6 @@ const BASE_HISTORY_STORES: BaseHistoryStore[] = [
     close_date: '2015-12-05',
     operating_months: 37,
     store_status: 'closed',
-    franchise: 'unknown',
     floor_unit: null,
     location_match: 'unverified',
   },
@@ -65,7 +57,6 @@ const BASE_HISTORY_STORES: BaseHistoryStore[] = [
     close_date: '2018-11-30',
     operating_months: 32,
     store_status: 'closed',
-    franchise: 'independent',
     floor_unit: '1층',
     location_match: 'same_spot',
   },
@@ -78,7 +69,6 @@ const BASE_HISTORY_STORES: BaseHistoryStore[] = [
     close_date: '2017-11-18',
     operating_months: 18,
     store_status: 'closed',
-    franchise: 'independent',
     floor_unit: '2층',
     location_match: 'same_building',
   },
@@ -92,7 +82,6 @@ const BASE_HISTORY_STORES: BaseHistoryStore[] = [
     close_date: '2021-06-15',
     operating_months: 28,
     store_status: 'closed',
-    franchise: 'unknown',
     floor_unit: null,
     location_match: 'unverified',
   },
@@ -105,7 +94,6 @@ const BASE_HISTORY_STORES: BaseHistoryStore[] = [
     close_date: null,
     operating_months: 76,
     store_status: 'other',
-    franchise: 'franchise',
     floor_unit: '1층 102호',
     location_match: 'same_building',
   },
@@ -118,7 +106,6 @@ const BASE_HISTORY_STORES: BaseHistoryStore[] = [
     close_date: null,
     operating_months: 58,
     store_status: 'open',
-    franchise: 'franchise',
     floor_unit: '2층',
     location_match: 'same_building',
   },
@@ -131,7 +118,6 @@ const BASE_HISTORY_STORES: BaseHistoryStore[] = [
     close_date: null,
     operating_months: 31,
     store_status: 'open',
-    franchise: 'independent',
     floor_unit: '1층',
     location_match: 'same_spot',
   },
@@ -158,9 +144,6 @@ const MISSING_HISTORY_STORES: HistoryStore[] = [
     operating_period_status: 'fact',
     operating_period_reason: null,
     store_status: 'closed',
-    franchise: 'unknown',
-    franchise_basis: null,
-    franchise_reference_year: null,
     floor_unit: null,
     location_match: 'unverified',
   },
@@ -176,9 +159,6 @@ const MISSING_HISTORY_STORES: HistoryStore[] = [
     operating_period_status: 'no_data',
     operating_period_reason: 'missing_close_date',
     store_status: 'closed',
-    franchise: 'independent',
-    franchise_basis: 'external_classification',
-    franchise_reference_year: null,
     floor_unit: '1층',
     location_match: 'same_spot',
   },
@@ -194,9 +174,6 @@ const MISSING_HISTORY_STORES: HistoryStore[] = [
     operating_period_status: 'no_data',
     operating_period_reason: 'invalid_date_order',
     store_status: 'closed',
-    franchise: 'unknown',
-    franchise_basis: null,
-    franchise_reference_year: null,
     floor_unit: '2층',
     location_match: 'same_building',
   },
@@ -213,9 +190,6 @@ const MISSING_HISTORY_STORES: HistoryStore[] = [
     operating_period_status: 'no_data',
     operating_period_reason: 'invalid_close_date',
     store_status: 'closed',
-    franchise: 'unknown',
-    franchise_basis: null,
-    franchise_reference_year: null,
     floor_unit: null,
     location_match: 'unverified',
   },
@@ -232,9 +206,6 @@ const MISSING_HISTORY_STORES: HistoryStore[] = [
     operating_period_status: 'fact',
     operating_period_reason: null,
     store_status: 'open',
-    franchise: 'independent',
-    franchise_basis: 'external_classification',
-    franchise_reference_year: null,
     floor_unit: '2층',
     location_match: 'same_building',
   },
@@ -251,9 +222,6 @@ const MISSING_HISTORY_STORES: HistoryStore[] = [
     operating_period_status: 'fact',
     operating_period_reason: null,
     store_status: 'open',
-    franchise: 'franchise',
-    franchise_basis: 'catalog_exact_name',
-    franchise_reference_year: 2025,
     floor_unit: '1층',
     location_match: 'same_spot',
   },
@@ -270,9 +238,6 @@ const MISSING_HISTORY_STORES: HistoryStore[] = [
     operating_period_status: 'no_data',
     operating_period_reason: 'missing_open_date',
     store_status: 'closed',
-    franchise: 'unknown',
-    franchise_basis: null,
-    franchise_reference_year: null,
     floor_unit: null,
     location_match: 'unverified',
   },
@@ -289,9 +254,6 @@ const MISSING_HISTORY_STORES: HistoryStore[] = [
     operating_period_status: 'no_data',
     operating_period_reason: 'invalid_open_date',
     store_status: 'other',
-    franchise: 'unknown',
-    franchise_basis: null,
-    franchise_reference_year: null,
     floor_unit: null,
     location_match: 'unverified',
   },

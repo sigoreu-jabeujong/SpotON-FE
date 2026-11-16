@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { MESSAGES } from '../constants/messages'
-import { historyStore, nearbyMarker } from '../test/fixtures'
+import { historyStore } from '../test/fixtures'
 import {
-  franchiseEmptyMessage,
-  franchiseEstimateYear,
   storeCloseDate,
-  storeFranchise,
   storeName,
   storeOpenDate,
   storePeriod,
@@ -109,55 +106,5 @@ describe('storePeriod — 영업 기간', () => {
     )
     expect(line).toBe(`${S.missingValue} (${S.periodReasons.missing_source_date})`)
     expect(line).not.toMatch(/[a-z]+_[a-z]+/)
-  })
-})
-
-describe('storeFranchise — 프랜차이즈 근거 표시', () => {
-  it('목록명 일치 → "프랜차이즈(추정)" + 기준년도·한계 문구', () => {
-    const r = storeFranchise(
-      nearbyMarker({
-        franchise: 'franchise',
-        franchise_basis: 'catalog_exact_name',
-        franchise_reference_year: 2025,
-      }),
-    )
-    expect(r.kind).toBe('estimate')
-    expect(r.label).toBe(S.franchise.estimate)
-    expect(r.help).toBe(S.franchise.estimateHelp(2025))
-    expect(r.help).toContain('2025년')
-  })
-
-  it('기존 외부 분류 → 값 그대로 (자동 일치라고 설명하지 않음)', () => {
-    const f = storeFranchise(
-      nearbyMarker({ franchise: 'franchise', franchise_basis: 'external_classification' }),
-    )
-    expect(f).toMatchObject({ kind: 'external', label: S.franchise.external })
-    expect(f.help).not.toContain('브랜드 목록')
-    const i = storeFranchise(
-      nearbyMarker({ franchise: 'independent', franchise_basis: 'external_classification' }),
-    )
-    expect(i).toMatchObject({ kind: 'external', label: S.franchise.independent })
-  })
-
-  it('미확인(unknown) → "정보 없음" (개인 매장으로 바꾸지 않음)', () => {
-    const r = storeFranchise(nearbyMarker({ franchise: 'unknown', franchise_basis: null }))
-    expect(r).toEqual({ kind: 'unknown', label: S.franchise.unknown, help: null })
-    expect(r.label).not.toBe(S.franchise.independent)
-  })
-
-  it('표 아래 안내 연도: 추정 행이 있을 때만', () => {
-    const est = nearbyMarker({
-      franchise: 'franchise',
-      franchise_basis: 'catalog_exact_name',
-      franchise_reference_year: 2025,
-    })
-    expect(franchiseEstimateYear([nearbyMarker(), est])).toBe(2025)
-    expect(franchiseEstimateYear([nearbyMarker()])).toBeUndefined()
-  })
-
-  it('가맹 필터 0건 문구 — 전체면 null(서버 문구 사용)', () => {
-    expect(franchiseEmptyMessage('all')).toBeNull()
-    expect(franchiseEmptyMessage('franchise')).toBe(S.franchise.emptyFranchise)
-    expect(franchiseEmptyMessage('independent')).toBe(S.franchise.emptyIndependent)
   })
 })
