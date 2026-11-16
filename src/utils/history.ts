@@ -20,3 +20,8 @@ export function sortHistoryRecentFirst(stores: readonly HistoryStore[]): History
     return 0
   })
 }
+
+/** 최신 원천 데이터 기준 영업 상태. */
+export function historyStatusLabel(status: HistoryStore['store_status']): string {
+  return { open: '영업 중', closed: '폐업', other: '기타/미확인' }[status]
+}

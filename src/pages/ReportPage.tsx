@@ -1,3 +1,4 @@
+import { historyStatusLabel } from '../utils/history'
 import { diagnosisAddress } from '../utils/diagnosisAddress'
 import AddressVerification from '../components/common/AddressVerification'
 import { BRAND_API_ENABLED } from '../api/analysisProfile'
@@ -291,7 +292,7 @@ function HistoryBlock({ data }: { data: Data }) {
         <p className="text-gray-600">
           {h.location?.result_status === 'pending_identity'
             ? '건물 식별 근거 확보 후 확인할 수 있어요.'
-            : '선택한 범위에서 확정해 표시할 폐업 기록을 찾지 못했어요.'}
+            : '선택한 범위에서 확정해 표시할 점포 기록을 찾지 못했어요.'}
         </p>
       ) : (
         <table className="w-full border-collapse text-left">
@@ -324,6 +325,7 @@ function HistoryBlock({ data }: { data: Data }) {
                   </Td>
                   {/* 기간 사유가 길어져도 업종(2~3글자)은 한 줄로 */}
                   <Td nowrap>{SUB_CATEGORY_LABEL[s.sub_category]}</Td>
+                  <Td>{historyStatusLabel(s.store_status)}</Td>
                   <Td>{storeOpenDate(s).text}</Td>
                   <Td>{storeCloseDate(s, s.store_status)?.text ?? '—'}</Td>
                   <Td>

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { historyStatusLabel } from '../../../utils/history'
 import { SUB_CATEGORY_LABEL } from '../../../constants/labels'
 import { MESSAGES } from '../../../constants/messages'
 import { useShowMore } from '../../../hooks/useShowMore'
@@ -27,7 +28,7 @@ export default function HistoryTable({ stores }: Props) {
   return (
     <div>
       <p className="mb-2 text-right text-micro text-gray-600">
-        폐업일 최신순 · 날짜 미확인 기록은 마지막
+        최근 개업 순 · 날짜 미확인 기록은 마지막
       </p>
       {/* 휴대폰: 표를 가로로 밀어 볼 수 있게 (이때 머리글 고정은 끈다). relative는 칸 속 sr-only 글자가 상자 밖 화면 폭을 넓히지 않게. 데스크톱은 그대로 */}
       <div className="overflow-clip rounded-card border border-gray-300 bg-gray-0 max-md:relative max-md:overflow-x-auto">
@@ -77,6 +78,9 @@ export default function HistoryTable({ stores }: Props) {
                     </span>
                   </th>
                   <td className="px-3 py-4">{SUB_CATEGORY_LABEL[s.sub_category]}</td>
+                  <td className="px-3 py-4 whitespace-nowrap">
+                    {historyStatusLabel(s.store_status)}
+                  </td>
                   <td className={cn('px-3 py-4 whitespace-nowrap', open.missing && missingClass)}>
                     {open.text}
                   </td>

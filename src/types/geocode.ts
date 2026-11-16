@@ -24,6 +24,6 @@ export type GeocodeCandidate = {
 
 /** GET /api/geocode 응답 data */
 export type GeocodeResult = GeocodeCandidate & {
-  /** 결과가 여러 개일 때만 (최대 5건). 사용자가 고르게 한다 */
+  /** 여러 후보(최대 5건). 입력 주소와 유일하게 일치하면 자동 선택한다. */
   candidates: GeocodeCandidate[]
 }
