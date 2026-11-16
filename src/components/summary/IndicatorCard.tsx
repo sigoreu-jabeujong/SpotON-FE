@@ -35,6 +35,11 @@ type Props = {
   /** 맨 아래 출처·기준 줄 */
   source: ReactNode
   className?: string
+  /**
+   * 마우스를 올리면 살짝 떠오르기(hover-card). 누를 수 없는 카드라 포인터·눌림 없음,
+   * 동작 줄이기면 그림자만 (모션 예외 — STEP 03 참고지표 4개만, 공식 지표 카드는 그대로)
+   */
+  hoverLift?: boolean
 }
 
 /**
@@ -57,6 +62,7 @@ export default function IndicatorCard({
   hideFactLabel,
   source,
   className,
+  hoverLift,
 }: Props) {
   const showStatus = !(hideFactLabel && status === 'fact')
   return (
@@ -65,6 +71,7 @@ export default function IndicatorCard({
       tabIndex={-1}
       className={cn(
         'flex h-full scroll-mt-sticky flex-col rounded-control border border-gray-300 bg-gray-0 p-5 focus:outline-2 focus:outline-blue-500',
+        hoverLift && 'hover-card',
         className,
       )}
     >

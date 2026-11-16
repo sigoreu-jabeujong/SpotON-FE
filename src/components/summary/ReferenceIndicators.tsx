@@ -64,6 +64,7 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
   const donut = RATE_IDS.includes(ind.id) && ind.unit === '%'
   return (
     <IndicatorCard
+      hoverLift
       id={ind.id}
       icon={Calculator}
       iconClassName="text-gray-600"
