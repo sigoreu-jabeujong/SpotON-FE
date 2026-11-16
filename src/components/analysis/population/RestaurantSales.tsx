@@ -137,9 +137,7 @@ export default function RestaurantSales({ data }: { data: LocationReference }) {
               <span className="block">
                 같은 분기의 선택 업종 매출과 점포 수를 상권별로 합산한 참고값이에요.
               </span>
-              <span className="block">
-                이 자리 점포의 실제 매출이 아니에요. 상권 간 겹치는 점포는 중복될 수 있어요.
-              </span>
+              <span className="block">이 자리 점포의 실제 매출이 아니에요.</span>
               <span className="block">
                 가맹·브랜드·면적 조건으로 이 참고자료의 수치를 거르지 않아요. 기존 AI 해석에
                 반영되는 값은 아니에요.
