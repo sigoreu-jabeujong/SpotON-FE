@@ -114,6 +114,8 @@
   /* 한 번만 왕복하고 원래 자리(translateY 0)에서 멈춤 — 5초 넘게 자동으로 움직이지 않게 (웹 접근성) */
   --animate-float: float-y var(--duration-float) var(--ease-in-out-soft) 1 both;
   --animate-shimmer: shimmer var(--duration-shimmer) ease-in-out infinite;
+  /* 랜딩 '서비스 소개 보기' 화살표 — 처음 등장이 끝난 뒤 아래로 살짝 2번만 움직이고 멈춤 (반복 없음) */
+  --animate-nudge-down: nudge-down var(--duration-nudge) var(--ease-in-out-soft) 0.8s 1 both;
 
   /* 아래에서 살짝 떠오르며 등장 */
   @keyframes rise-in {
@@ -145,6 +147,18 @@
     }
     50% {
       transform: translateY(-8px);
+    }
+  }
+  /* 아래로 살짝 두 번 (끝은 원래 자리) */
+  @keyframes nudge-down {
+    0%,
+    50%,
+    100% {
+      transform: translateY(0);
+    }
+    25%,
+    75% {
+      transform: translateY(5px);
     }
   }
   /* 스켈레톤 은은한 반짝임 */
@@ -180,6 +194,7 @@
   --duration-stagger: 80ms; /* 순서대로 등장할 때 항목 사이 간격 */
   --duration-float: 4s; /* 랜딩 지도 떠 있기 한 번 왕복 (1회만, 5초 이내) */
   --duration-shimmer: 1.6s; /* 스켈레톤 반짝임 한 번 */
+  --duration-nudge: 1.2s; /* 랜딩 소개 보기 화살표 두 번 움직임 (시작 지연 0.8s 포함 2초 이내) */
 }
 
 /* 색·테두리·그림자만 부드럽게 바뀌는 반응 (선택 상태 전환, 표 행 hover 등) */

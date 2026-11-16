@@ -91,7 +91,7 @@ export const MESSAGES = {
   },
   /** ① 랜딩 첫 화면 아래 소개 섹션 (홍보용 수치·성공/실패 판정 표현 쓰지 않기) */
   landingIntro: {
-    scrollHint: '아래로 더 보기',
+    scrollHint: '서비스 소개 보기',
     featuresTitle: 'Spot:ON으로 확인할 수 있는 것',
     features: [
       {
