@@ -122,3 +122,6 @@ type ApiResponse<T> = {
 - `.env` 파일 내용을 출력하거나 커밋하지 않는다
 - 유료 라이브러리·유료 API를 추가하지 않는다
 - `git push --force`, 브랜치 삭제 등 되돌리기 어려운 명령은 사람에게 확인받기 전에 실행하지 않는다
+# 2026-11-16 중앙값 대표값 계약
+
+BE #203 `/api/v2/location-reference`는 기존 `sales.per_store_average.metric`(점포 수 가중평균)을 유지하고 `distribution` 및 `representative_method=median_of_reference_per_store_ratios_v1`을 추가한다. FE는 같은 분기 상권·업종별 S/N의 동일 비중 중앙값을 대표로 표시하고 기존 가중평균은 비교에 둔다. 개별 가게 매출의 중앙값은 아니다. 4개 미만은 표본 수 안내와 중앙값만 제공하고 분산/사분위 표시를 숨긴다. 분산 임계값에 따른 제거/전환은 없다. 기존 서버에 해당 필드가 없으면 평균 표시를 유지한다. DB/키/환경 변경 없이 분석·종합·보고서에 같은 표시를 쓴다.

@@ -80,6 +80,10 @@ export default function LocationReferenceView({
   isDemo?: boolean
 }) {
   const people = data.living_population.items ?? []
+  const distribution = data.sales.per_store_average?.distribution
+  const useMedian =
+    data.sales.per_store_average?.representative_method ===
+      'median_of_reference_per_store_ratios_v1' || !!distribution
   return (
     <div className="flex min-w-0 flex-col gap-6" data-testid="location-reference">
       <p className="text-caption text-gray-600">
@@ -87,9 +91,9 @@ export default function LocationReferenceView({
         {data.time_mode === 'latest_reference'
           ? '적재된 최신 공개자료를 별도 날짜의 참고값으로 표시해요.'
           : '선택한 분석 기간의 자료만 표시해요.'}{' '}
-        각 구역 단위의 수치이며 반경 비율로 나누지 않아요. 점포당 참고평균은 같은 분기의 매출·점포
-        수 자료행을 합산해 계산해요. 기존 AI 해석에 반영되는 값은 아니에요. 가맹·브랜드·면적 등 점포
-        조건으로 이 참고자료의 수치를 거르지 않아요.
+        각 구역 단위의 수치이며 반경 비율로 나누지 않아요. 점포당 참고값은 같은 분기의 상권·업종별
+        자료로 계산해요. 기존 AI 해석에 반영되는 값은 아니에요. 가맹·브랜드·면적 등 점포 조건으로 이
+        참고자료의 수치를 거르지 않아요.
       </p>
       <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
         <Frame
@@ -98,10 +102,49 @@ export default function LocationReferenceView({
         >
           {data.sales.per_store_average && (
             <div className="rounded-control border border-gray-200 p-4">
-              <p className="font-semibold">점포 1개당 평균 추정매출 · 참고</p>
-              <p className="text-xl font-bold break-all">
-                {metric(data.sales.per_store_average.metric)}
+              <p className="font-semibold">
+                {useMedian
+                  ? '상권·업종별 점포당 추정매출 중앙값 · 참고'
+                  : '점포 1개당 평균 추정매출 · 참고'}
               </p>
+              <p className="text-xl font-bold break-all">
+                {metric(distribution?.median ?? data.sales.per_store_average.metric)}
+              </p>
+              {distribution && (
+                <div className="text-caption">
+                  <p>
+                    같은 분기의 상권·업종별 점포당 값을 동일 비중으로 정렬한 중앙값이에요. 개별 가게
+                    매출의 중앙값은 아니에요.
+                  </p>
+                  <p>대상 {distribution.sample_count}개 상권·업종 항목</p>
+                  {distribution.limited_reference_count && (
+                    <p>비교 항목이 4개 미만이에요. 값의 퍼짐을 판단할 자료가 적어요.</p>
+                  )}
+                  {!distribution.limited_reference_count && (
+                    <p>
+                      사분위 범위 {metric(distribution.q1)} ~ {metric(distribution.q3)}
+                    </p>
+                  )}
+                  <details>
+                    <summary>분산과 가중평균 비교 보기</summary>
+                    {!distribution.limited_reference_count && (
+                      <>
+                        <p>사분위 간격: {metric(distribution.iqr)}</p>
+                        <p className="break-all">
+                          항목 간 분산: {distribution.variance.value} (원자료 원/점포)² · 대상{' '}
+                          {distribution.sample_count}개 항목 수로 나눈 기술통계
+                        </p>
+                      </>
+                    )}
+                    <p>점포 수 가중평균(비교): {metric(data.sales.per_store_average.metric)}</p>
+                    <p>점포 수가 적은 항목에도 같은 비중을 부여해요.</p>
+                    <p>
+                      분산으로 값을 제거하거나 대표 방식을 자동 전환하지 않아요. 중첩 상권의 중복도
+                      제거하지 않았어요.
+                    </p>
+                  </details>
+                </div>
+              )}
               {data.sales.per_store_average.temporal_relation && (
                 <p className="text-caption">
                   {periodRelation(data.sales.per_store_average.temporal_relation)}
@@ -112,21 +155,24 @@ export default function LocationReferenceView({
                 {data.sales.per_store_average.listed_item_count}항목 중{' '}
                 {data.sales.per_store_average.included_item_count}항목 반영
               </p>
-              {data.sales.per_store_average.metric && (
+              {!useMedian && data.sales.per_store_average.metric && (
                 <p className="text-caption break-words">
                   매출 합계 {data.sales.per_store_average.total_sales}원 ÷ 점포 수 합계{' '}
                   {data.sales.per_store_average.total_store_count}개
                 </p>
               )}
               <p className="text-caption">
-                상권별 점포 수를 가중한 참고평균이에요. 겹치는 상권의 점포는 중복 포함될 수 있어요.
-                월매출로 환산하지 않아요.
+                {useMedian
+                  ? '대표값은 상권·업종 항목에 같은 비중을 둔 중앙값이에요.'
+                  : '상권별 점포 수를 가중한 참고평균이에요.'}{' '}
+                겹치는 상권의 점포는 중복 포함될 수 있어요. 월매출로 환산하지 않아요.
               </p>
               <details>
                 <summary>다른 분기·제외 항목 보기</summary>
                 {data.sales.per_store_average.groups.map((g) => (
                   <p key={g.source_quarter}>
-                    {quarter(g.source_quarter)}: {metric(g.metric)}
+                    {quarter(g.source_quarter)}: {useMedian ? '중앙값 ' : '가중평균 '}
+                    {metric(useMedian ? g.distribution?.median : g.metric)}
                   </p>
                 ))}
                 <p>
@@ -171,10 +217,14 @@ export default function LocationReferenceView({
                 {item.average_contribution && (
                   <p className="text-caption">
                     {item.average_contribution.status === 'included'
-                      ? '대표평균 반영'
+                      ? useMedian
+                        ? '중앙값 산정 대상'
+                        : '대표평균 반영'
                       : item.average_contribution.status === 'different_quarter'
                         ? '다른 자료 분기'
-                        : '평균 계산 제외'}
+                        : useMedian
+                          ? '대표값 계산 제외'
+                          : '평균 계산 제외'}
                     {item.average_contribution.reason &&
                       item.average_contribution.status === 'excluded' &&
                       ` · ${exclusion[item.average_contribution.reason] ?? '자료 확인 필요'}`}
