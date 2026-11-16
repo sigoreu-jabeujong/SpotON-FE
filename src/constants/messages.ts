@@ -232,7 +232,7 @@ export const MESSAGES = {
       no: '번호',
       name: '점포명',
       category: '업종',
-      status: '최신 데이터 기준 상태',
+      status: '현재 상태',
       openDate: '개업일',
       closeDate: '폐업일',
       period: '영업 기간',
