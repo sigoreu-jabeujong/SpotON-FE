@@ -23,6 +23,11 @@ type Props = {
   actions?: ReactNode
   /** 카드 아래쪽 상태 라벨 */
   status: DataStatus
+  /**
+   * "확인된 사실"(fact) 라벨은 숨긴다 — 참고지표 카드용. 판단 보류·정보 없음·확인 중처럼
+   * 확인되지 않은 상태 라벨은 그대로 보인다 (화면 원칙)
+   */
+  hideFactLabel?: boolean
   /** 맨 아래 출처·기준 줄 */
   source: ReactNode
   className?: string
@@ -43,9 +48,11 @@ export default function IndicatorCard({
   details,
   actions,
   status,
+  hideFactLabel,
   source,
   className,
 }: Props) {
+  const showStatus = !(hideFactLabel && status === 'fact')
   return (
     <article
       id={indicatorAnchorId(id)}
@@ -75,9 +82,11 @@ export default function IndicatorCard({
       {actions && <div className="mt-3">{actions}</div>}
 
       <div className="mt-auto flex flex-col gap-3 pt-4">
-        <div>
-          <StatusLabel status={status} />
-        </div>
+        {showStatus && (
+          <div>
+            <StatusLabel status={status} />
+          </div>
+        )}
         <div className="border-t border-gray-300 pt-3">{source}</div>
       </div>
     </article>

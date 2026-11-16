@@ -71,6 +71,7 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
         )
       }
       status={ind.status}
+      hideFactLabel
       source={
         <MetaLine
           source={ind.source}
