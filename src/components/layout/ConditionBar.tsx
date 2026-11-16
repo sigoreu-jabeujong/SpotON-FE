@@ -1,7 +1,6 @@
 import { diagnosisAddress } from '../../utils/diagnosisAddress'
 import { History, MapPin, SlidersHorizontal, type LucideIcon } from 'lucide-react'
-import { useLayoutEffect, useRef, type ReactNode } from 'react'
-import { Link } from 'react-router'
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import {
   CATEGORIES,
   FACILITY_SIZE_OPTIONS,
@@ -9,22 +8,25 @@ import {
   RESTAURANT_SUB_CATEGORIES,
 } from '../../constants/diagnosis'
 import { MESSAGES } from '../../constants/messages'
-import { ROUTES } from '../../constants/routes'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { formatYearMonthKo } from '../../utils/format'
 import { cn } from '../../utils/cn'
 import { BRAND_API_ENABLED } from '../../api/analysisProfile'
 import { brandConditionSummary } from '../../utils/brands'
+import ConditionDialog from './ConditionDialog'
 
 const T = MESSAGES.conditionBar
 
 /**
  * 진단 대상 요약 바 (STEP 02~04 공통, 화면 제목 아래에 붙어 있음).
- * 주소·업종·반경·기준 시점·필터를 칩으로 보여주고, 입력 화면으로 돌아가 조건을 바꿀 수 있다.
+ * 주소·업종·반경·기준 시점·필터를 칩으로 보여주고, "조건 바꾸기" 팝업으로 같은 화면에서 조건을 바꿀 수 있다
+ * (다른 주소는 팝업 안 "다른 주소로 진단하기"로 입력 화면에).
  * 값은 URL 쿼리(useDiagnosisQuery)에서만 가져오고 API를 새로 부르지 않는다.
  */
 export default function ConditionBar() {
-  const { query, search } = useDiagnosisQuery()
+  const { query } = useDiagnosisQuery()
+  const [editing, setEditing] = useState(false)
+  const editButton = useRef<HTMLButtonElement>(null)
   const category = CATEGORIES.find((c) => c.id === query.category)?.label
   const subs = RESTAURANT_SUB_CATEGORIES.filter((s) => query.subCategories.includes(s.id))
     .map((s) => s.label)
@@ -85,15 +87,19 @@ export default function ConditionBar() {
             <Chip>{BRAND_API_ENABLED ? MESSAGES.brand.areaExcluded : T.excludeUnknown}</Chip>
           )}
         </ul>
-        <Link
-          to={{ pathname: ROUTES.input, search }}
-          title={T.editHint}
+        <button
+          ref={editButton}
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded={editing}
+          onClick={() => setEditing(true)}
           className="group inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-gray-0 px-4 text-caption font-semibold text-blue-700 ring-1 ring-blue-500/40 motion-colors ring-inset hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
         >
           <SlidersHorizontal className="size-4" aria-hidden="true" />
           {T.edit}
-        </Link>
+        </button>
       </div>
+      {editing && <ConditionDialog onClose={() => setEditing(false)} returnFocus={editButton} />}
     </section>
   )
 }

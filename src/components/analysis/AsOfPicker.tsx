@@ -13,13 +13,15 @@ type Props = {
   /** /meta/data-range 결과. 없으면(로딩·오류) 시점 선택 비활성 */
   range: DataRange | null
   status: 'loading' | 'error' | 'ready'
+  /** 연·월 선택 상자 id 앞부분 — 같은 화면에 둘이 있을 때(필터 + 조건 바꾸기 팝업) 겹치지 않게 */
+  idPrefix?: string
 }
 
 /**
  * 기준 시점 선택 — 현재 / 연도 + 월 / 빠른 선택(1·3·5년 전).
  * min_month ~ max_month 밖의 연·월·빠른 선택은 비활성. "조회"를 눌러야 반영된다.
  */
-export default function AsOfPicker({ value, onChange, range, status }: Props) {
+export default function AsOfPicker({ value, onChange, range, status, idPrefix = 'as-of' }: Props) {
   // 최소 월이 null이면(유효 표본 없음) 과거 월·빠른 선택을 막고 "현재"만 둔다
   const noPast = status === 'ready' && !!range && !range.min_month
   const disabled = status !== 'ready' || !range || noPast
@@ -57,11 +59,11 @@ export default function AsOfPicker({ value, onChange, range, status }: Props) {
           {T.asOfCurrent}
         </button>
 
-        <label className="sr-only" htmlFor="as-of-year">
+        <label className="sr-only" htmlFor={`${idPrefix}-year`}>
           {T.asOf} {T.asOfYear}
         </label>
         <select
-          id="as-of-year"
+          id={`${idPrefix}-year`}
           disabled={disabled}
           value={selected?.year ?? ''}
           onChange={(e) => changeYear(Number(e.target.value))}
@@ -77,11 +79,11 @@ export default function AsOfPicker({ value, onChange, range, status }: Props) {
           ))}
         </select>
 
-        <label className="sr-only" htmlFor="as-of-month">
+        <label className="sr-only" htmlFor={`${idPrefix}-month`}>
           {T.asOf} {T.asOfMonth}
         </label>
         <select
-          id="as-of-month"
+          id={`${idPrefix}-month`}
           disabled={disabled || !selected}
           value={selected?.month ?? ''}
           onChange={(e) => selected && onChange(toYearMonth(selected.year, Number(e.target.value)))}
