@@ -95,6 +95,26 @@ export type LocationReference = {
   analysis_as_of: string
   time_mode: 'latest_reference' | 'analysis_period'
   sales: ReferenceBlock<SalesReferenceItem> & {
+    top_markets_estimate?: {
+      method: 'top3_markets_by_store_count_v1'
+      source_quarter: string | null
+      status: 'ready' | 'partial' | 'no_data'
+      reason: string | null
+      eligible_market_count: number
+      selected_market_count: number
+      excluded_item_count: number
+      total_sales: string | null
+      total_store_count: string | null
+      metric: ReferenceNumber | null
+      markets: {
+        market_code: string
+        market_name: string
+        total_sales: string
+        total_store_count: string
+        industry_codes: string[]
+        metric: ReferenceNumber
+      }[]
+    } | null
     per_store_average?: {
       status: ReferenceStatus
       primary_quarter: string | null
