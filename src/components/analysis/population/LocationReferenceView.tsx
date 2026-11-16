@@ -6,6 +6,7 @@ import type {
   ReferenceNumber,
   SalesReferenceItem,
 } from '../../../types/locationReference'
+import InfoPopover from '../../common/InfoPopover'
 import SalesDistributionChart from './SalesDistributionChart'
 
 const R = MESSAGES.reference
@@ -20,6 +21,24 @@ function unavailable(reason: string | null | undefined) {
   if (reason === 'scope_too_large') return '조회 범위가 커서 자료를 표시할 수 없어요.'
   return '이 구역의 제공 가능한 자료가 없어요.'
 }
+
+const periodRelation = (value: string | null | undefined) =>
+  value === 'later_reference'
+    ? '분석 기준 이후 참고자료'
+    : value === 'earlier_reference'
+      ? '분석 기준 이전 참고자료'
+      : '분석 기간 자료'
+const exclusion: Record<string, string> = {
+  sales_unavailable: '매출 자료 없음',
+  different_quarter: '다른 자료 분기',
+  store_row_missing: '점포 수 자료 없음',
+  store_mapping_conflict: '자료 정보 불일치',
+  zero_store_count: '점포 수 0개',
+  zero_store_count_with_sales: '점포 수 0개·매출 존재',
+}
+const I = R.info
+/** 팝오버 안 한 문단 (InfoPopover는 글줄 요소만 받는다) */
+const Line = ({ children }: { children: ReactNode }) => <span className="block">{children}</span>
 
 function metric(value: ReferenceNumber | null | undefined) {
   // The exact decimal/string and source unit are server-owned, including huge KRW values.
@@ -57,7 +76,58 @@ function SalesCard({ data }: { data: LocationReference }) {
     (g) => g.source_quarter !== average?.primary_quarter,
   )
   return (
-    <Card id="sales" title={R.salesTitle}>
+    <Card
+      id="sales"
+      title={
+        <>
+          {R.salesTitle}
+          <InfoPopover triggerLabel={I.salesTrigger} title={I.salesTitle} closeLabel={I.close}>
+            <Line>
+              {I.analysisAsOf(data.analysis_as_of)} ·{' '}
+              {data.time_mode === 'latest_reference' ? I.latestReference : I.analysisPeriod}
+            </Line>
+            <Line>{I.areaUnit}</Line>
+            {average && (
+              <>
+                <Line>
+                  {useWeightedMedian ? I.weightedMedian : I.pooledMean}
+                  {!useWeightedMedian && average.metric && average.total_sales && (
+                    <> ({I.pooledFormula(average.total_sales, average.total_store_count ?? '')})</>
+                  )}
+                </Line>
+                {useWeightedMedian && average.metric && (
+                  <Line>{I.weightedMean(metric(average.metric))}</Line>
+                )}
+                <Line>
+                  {periodRelation(average.temporal_relation)} ·{' '}
+                  {I.included(average.listed_item_count, average.included_item_count)}
+                  {Object.keys(average.excluded_counts).length > 0 &&
+                    ` · ${I.excluded(
+                      Object.entries(average.excluded_counts)
+                        .map(
+                          ([reason, count]) =>
+                            `${exclusion[reason] ?? '자료 확인 필요'} ${count}항목`,
+                        )
+                        .join(', '),
+                    )}`}
+                </Line>
+              </>
+            )}
+            <Line>{I.notObserved}</Line>
+            <Line>{I.intersects}</Line>
+            <Line>{I.notAi}</Line>
+            <a
+              className="inline-flex min-h-11 items-center underline"
+              href="https://data.seoul.go.kr/dataList/OA-15572/S/1/datasetView.do"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {I.salesSourceLink}
+            </a>
+          </InfoPopover>
+        </>
+      }
+    >
       {average ? (
         <div>
           <p className="text-caption font-semibold text-gray-600">{R.salesHeadline}</p>
@@ -202,7 +272,37 @@ function PopulationCard({ data, grid }: { data: LocationReference; grid?: ReactN
       ),
   )
   return (
-    <Card id="population" title={R.populationTitle}>
+    <Card
+      id="population"
+      title={
+        <>
+          {R.populationTitle}
+          <InfoPopover
+            triggerLabel={I.populationTrigger}
+            title={I.populationTitle}
+            closeLabel={I.close}
+          >
+            <Line>{I.hourlyMean}</Line>
+            <Line>{I.dayNightHours}</Line>
+            <Line>{I.estimate}</Line>
+            {people.map((item) => (
+              <Line key={item.area_ref}>
+                {item.area_name} · {periodRelation(item.temporal_relation)}
+              </Line>
+            ))}
+            <Line>{I.boundary}</Line>
+            <a
+              className="inline-flex min-h-11 items-center underline"
+              href="https://data.seoul.go.kr/dataList/OA-22160/S/1/datasetView.do"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {I.boundarySource}
+            </a>
+          </InfoPopover>
+        </>
+      }
+    >
       {people.length ? (
         people.map((item) => {
           const pair = dayNight.find(
@@ -244,10 +344,6 @@ function PopulationCard({ data, grid }: { data: LocationReference; grid?: ReactN
       {!dayNight.length && people.length > 0 && (
         <p className="text-caption text-gray-600">{unavailable(data.day_night.reason)}</p>
       )}
-      <p className="text-caption text-gray-600">
-        관측일 24시간 생활인구의 시간당 평균이에요. 주간 06~17시 · 야간 00~05시, 18~23시 (Spot:ON
-        기준). 통계적 추정치이며 실제 방문객·고객 수나 창업의 유불리를 의미하지 않아요.
-      </p>
       <a
         className="text-caption text-gray-600 underline"
         href="https://data.seoul.go.kr/dataList/OA-23016/S/1/datasetView.do"
@@ -281,15 +377,8 @@ export default function LocationReferenceView({
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-6" data-testid="location-reference">
-      <p className="text-caption text-gray-600">
-        {isDemo && '예시 자료 · '}분석 기준일 {data.analysis_as_of} ·{' '}
-        {data.time_mode === 'latest_reference'
-          ? '적재된 최신 공개자료를 별도 날짜의 참고값으로 표시해요.'
-          : '선택한 분석 기간의 자료만 표시해요.'}{' '}
-        각 구역 단위의 수치이며 반경 비율로 나누지 않아요. 점포당 참고값은 같은 분기의 상권·업종별
-        자료로 계산해요. 기존 AI 해석에 반영되는 값은 아니에요. 가맹·브랜드·면적 등 점포 조건으로 이
-        참고자료의 수치를 거르지 않아요.
-      </p>
+      {/* 긴 안내 문단은 각 카드 제목 옆 ⓘ 팝오버로 옮겼다 */}
+      {isDemo && <p className="text-caption text-orange-700">{R.demo}</p>}
       <div className="grid grid-cols-2 items-start gap-6 max-md:grid-cols-1">
         <SalesCard data={data} />
         <PopulationCard data={data} grid={grid} />

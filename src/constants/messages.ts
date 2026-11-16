@@ -602,6 +602,39 @@ export const MESSAGES = {
   /** 상권 활동 아래 위치 참고자료 (추정매출·생활인구) — 화면용. 진단서는 LocationReferencePrint 그대로 */
   reference: {
     salesTitle: '인근 상권 추정매출',
+    demo: '예시 자료',
+    /** ⓘ 팝오버 — 카드 본문에서 옮긴 설명 (내용은 그대로, 위치만 이동) */
+    info: {
+      close: '설명 닫기',
+      salesTrigger: '인근 상권 추정매출 설명 보기',
+      salesTitle: '인근 상권 추정매출 설명',
+      populationTrigger: '생활인구 설명 보기',
+      populationTitle: '생활인구 설명',
+      analysisAsOf: (date: string) => `분석 기준일 ${date}`,
+      latestReference: '적재된 최신 공개자료를 별도 날짜의 참고값으로 표시해요.',
+      analysisPeriod: '선택한 분석 기간의 자료만 표시해요.',
+      areaUnit: '각 구역 단위의 수치이며 반경 비율로 나누지 않아요.',
+      weightedMedian:
+        '점포당 추정 매출은 상권별 점포당 평균에 점포 수를 반영한 추정 분포의 중간값이에요. 같은 분기의 상권·업종별 자료로 계산해요.',
+      pooledMean:
+        '점포당 추정 매출은 같은 분기 목록의 매출 합계를 같은 목록의 점포 수 합계로 나눠요.',
+      pooledFormula: (sales: string, stores: string) =>
+        `매출 합계 ${sales}원 ÷ 점포 수 합계 ${stores}개`,
+      weightedMean: (value: string) => `점포 수 가중평균(비교): ${value}`,
+      included: (listed: number, included: number) => `전체 ${listed}항목 중 ${included}항목 반영`,
+      excluded: (text: string) => `제외: ${text}`,
+      notObserved: '상권 단위 원자료 금액이에요. 개별 점포의 실제 매출을 관측한 분포는 아니에요.',
+      intersects: '선택 반경과 겹치는 상권도 함께 보여 주며, 이 자리 값을 대신하는 값은 아니에요.',
+      notAi:
+        '기존 AI 해석에 반영되는 값은 아니에요. 가맹·브랜드·면적 등 점포 조건으로 이 참고자료의 수치를 거르지 않아요.',
+      hourlyMean: '관측일 24시간 생활인구의 시간당 평균이에요.',
+      dayNightHours:
+        '주간 06~17시 · 야간 00~05시, 18~23시 (Spot:ON 기준). 동일 행정동·관측일·내국인 자료로 비교해요.',
+      estimate: '통계적 추정치이며 실제 방문객·고객 수나 창업의 유불리를 의미하지 않아요.',
+      boundary: '행정동 경계의 적용일은 확인 중이에요.',
+      boundarySource: '적용 공간: 서울시 행정동 경계 공개자료 (새 창)',
+      salesSourceLink: '서울시 상권분석서비스 추정매출 (새 창)',
+    },
     salesHeadline: '점포당 추정 매출',
     /** 큰 숫자 아래 한 줄 — 상권 수(곳 = 상권), 자료 분기, 추정치 성격 */
     salesSummary: (markets: number, quarter: string) =>
