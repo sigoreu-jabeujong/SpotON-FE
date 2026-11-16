@@ -6,6 +6,11 @@ import SubTitle from '../common/SubTitle'
 import { formatIndicatorValue, formatSeoulAvg, indicatorReasonText } from './indicatorFormat'
 
 const T = MESSAGES.summary
+/**
+ * 서울 평균 막대·범례 색 — 막대 바탕(gray-100)·카드 흰 바탕과 대비 약 6:1, 이 자리 막대(파랑)와도 구분.
+ * 예전 gray-300은 바탕과 거의 같아 안 보였다. 막대 옆 이름표 글자도 있어 색만으로 구분하지 않는다
+ */
+const SEOUL_BAR = 'bg-gray-600'
 
 /**
  * 서울 평균 비교 막대 (디자인 "업종별 생존율 비교") — 참고지표 % 값과 서울 평균이 둘 다 있을 때만.
@@ -21,7 +26,8 @@ export default function SeoulCompare({ indicators }: { indicators: RiskIndicator
   const reason = indicatorReasonText(reference.find((i) => i.seoul_avg_reason)?.seoul_avg_reason)
 
   return (
-    <div className="flex flex-col gap-3">
+    // 다른 지표 영역(참고지표)과 같은 흰 카드 한 장으로 묶는다
+    <section className="flex flex-col gap-3 rounded-card bg-gray-0 p-6 shadow-card">
       <SubTitle as="h2">{T.compareTitle}</SubTitle>
       {rows.length === 0 ? (
         <InfoBox
@@ -38,7 +44,7 @@ export default function SeoulCompare({ indicators }: { indicators: RiskIndicator
               {T.compareThis}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-sm bg-gray-300" />
+              <span className={`size-2.5 rounded-sm ${SEOUL_BAR}`} />
               {T.compareSeoul}
             </span>
           </div>
@@ -59,7 +65,7 @@ export default function SeoulCompare({ indicators }: { indicators: RiskIndicator
                     label={T.compareSeoul}
                     text={formatSeoulAvg(ind) ?? ''}
                     percent={ind.seoul_avg as number}
-                    className="bg-gray-300"
+                    className={SEOUL_BAR}
                   />
                 </dd>
               </div>
@@ -67,7 +73,7 @@ export default function SeoulCompare({ indicators }: { indicators: RiskIndicator
           </dl>
         </>
       )}
-    </div>
+    </section>
   )
 }
 
