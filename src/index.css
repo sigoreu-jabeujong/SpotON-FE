@@ -816,10 +816,18 @@ html {
   }
 }
 
-/* STEP 03 서울 평균 비교 막대 — 인쇄에서는 채움 전환 없이 처음부터 최종 길이 (SeoulCompare) */
+/* 서울 평균 비교 막대(STEP 03)·주간/야간 막대(STEP 02) — 인쇄에서는 채움 전환 없이 처음부터 최종 길이 (SeoulCompare, LocationReferenceView) */
 @media print {
   [data-bar-fill] {
     transform: var(--bar-full) !important;
+    transition: none !important;
+  }
+}
+
+/* STEP 02 매출 분포 막대 — 인쇄에서는 솟아오르기 없이 처음부터 최종 높이 (SalesDistributionChart) */
+@media print {
+  [data-bar-rise] {
+    transform: none !important;
     transition: none !important;
   }
 }

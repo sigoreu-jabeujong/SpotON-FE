@@ -1,4 +1,5 @@
 import { useId, useRef, useState } from 'react'
+import { useInViewOnce } from '../../../hooks/useInViewOnce'
 import { MESSAGES } from '../../../constants/messages'
 import type { LocationReference, SalesReferenceItem } from '../../../types/locationReference'
 
@@ -25,18 +26,26 @@ export default function SalesDistributionChart({
   items,
   variant = 'print',
   title,
+  animate = false,
 }: {
   average: Average
   items: SalesReferenceItem[]
   variant?: 'print' | 'screen'
   /** 화면 그래프 제목을 바꿀 때 (예: 큰 숫자와 계산 방식이 다른 참고 분포) */
   title?: string
+  /**
+   * STEP 02 결과 화면 — 막대 영역이 화면에 처음 보이면 막대들이 바닥에서 서버 값 높이까지 한 번 솟아오른다
+   * (0.8초, 모션 예외). 점선·축 숫자·선택 구간은 처음부터 최종, 동작 줄이기·인쇄면 처음부터 최종 높이
+   */
+  animate?: boolean
 }) {
   const screen = variant === 'screen'
   const C = MESSAGES.reference.chart
   const id = useId()
   const [selected, setSelected] = useState(0)
   const buttons = useRef<(HTMLButtonElement | null)[]>([])
+  const [plot, shown] = useInViewOnce<HTMLDivElement>({ enabled: animate, threshold: 0.3 })
+  const risen = !animate || shown
   const d = average.store_weighted_distribution
   const eligible = items.filter(
     (i) =>
@@ -132,6 +141,7 @@ export default function SalesDistributionChart({
           </div>
           <div className="min-w-0 flex-1">
             <div
+              ref={plot}
               className="relative flex h-44 items-end border-b border-gray-300"
               role="group"
               aria-label={screen ? C.groupLabel : '점포 수 가중 추정 매출 히스토그램'}
@@ -153,7 +163,8 @@ export default function SalesDistributionChart({
                   }}
                   tabIndex={index === active ? 0 : -1}
                   aria-pressed={index === active}
-                  className="relative flex h-full min-w-0 flex-1 cursor-pointer items-end px-0.5 focus-visible:z-20 focus-visible:outline-2 focus-visible:outline-blue-700"
+                  // overflow-hidden: 솟아오르기 전 아래로 밀어 둔 막대를 칸 안에서만 보이게
+                  className="relative flex h-full min-w-0 flex-1 cursor-pointer items-end overflow-hidden px-0.5 focus-visible:z-20 focus-visible:outline-2 focus-visible:outline-blue-700"
                   aria-label={
                     screen
                       ? C.bin(
@@ -185,10 +196,13 @@ export default function SalesDistributionChart({
                   }}
                 >
                   <span
-                    className={`block w-full rounded-t-sm border border-blue-700 ${index === active ? 'bg-blue-700' : 'bg-blue-500'}`}
+                    data-bar-rise
+                    // 높이는 그대로 두고 아래로 밀어 둔 만큼 숨긴다 — transform만 움직여 둥근 위 끝이 찌그러지지 않는다
+                    className={`block w-full rounded-t-sm border border-blue-700 transition-transform duration-800 ease-(--ease-out-soft) ${index === active ? 'bg-blue-700' : 'bg-blue-500'}`}
                     style={{
                       height: `${(Number(bin.store_count) / maxCount) * 100}%`,
                       borderWidth: bin.store_count === '0' ? 0 : 1,
+                      transform: risen ? undefined : 'translateY(100%)',
                     }}
                     aria-hidden="true"
                   />
