@@ -46,7 +46,6 @@ export default function RestaurantSales({ data }: { data: LocationReference }) {
       ? projection
       : null
   const selected = group?.items.filter((m) => m.selected_for_estimate) ?? []
-  const other = group?.items.filter((m) => !m.selected_for_estimate) ?? []
   const partial = selected.some((m) => m.status === 'partial')
   const emptyReasons = [
     ...new Set(
@@ -169,67 +168,63 @@ export default function RestaurantSales({ data }: { data: LocationReference }) {
                 유효한 상권이 3곳보다 적어 {top.selected_market_count}곳의 자료를 사용했어요.
               </p>
             )}
-            <details className="mt-2 text-caption">
-              <summary className="min-h-11 cursor-pointer py-2">계산 기준</summary>
-              <p className="break-words">
-                선정 상권 매출 합계 {integer(top.total_sales)}원 ÷ 점포 수 합계{' '}
-                {integer(top.total_store_count)}개
-              </p>
-            </details>
           </>
         )}
-        {group && (
-          <p className="text-caption">
-            선택 업종:{' '}
-            {group.requested_industries
-              .map((i) => labels[i.industry_code] ?? i.industry_name)
-              .join(' · ')}{' '}
-            합산
-          </p>
-        )}
-        {partial && (
-          <p className="mt-1 text-caption text-orange-700">
-            일부 상권은 선택 업종 일부만 합산했어요.
-          </p>
-        )}
       </div>
-      {!group ? (
-        <>
-          <p role="status" className="text-caption">
-            상권별 합산 자료를 현재 제공할 수 없어요.
-          </p>
-          {raw()}
-        </>
-      ) : (
-        <>
-          {selected.length === 0 && (
-            <p role="status" className="text-caption">
-              {reasons[group.reason ?? ''] ??
-                '같은 분기의 매출과 점포 수를 함께 확인할 수 있는 상권이 없어요.'}
+      <details className="text-caption">
+        <summary className="min-h-11 cursor-pointer py-2">계산 기준</summary>
+        <div className="flex min-w-0 flex-col gap-3">
+          {top?.metric && (
+            <p className="break-words">
+              선정 상권 매출 합계 {integer(top.total_sales)}원 ÷ 점포 수 합계{' '}
+              {integer(top.total_store_count)}개
             </p>
           )}
-          {selected.length === 0 && emptyReasons.length > 0 && (
-            <p className="text-caption text-gray-600">{emptyReasons.join(' · ')}</p>
+          {group && (
+            <p className="text-caption">
+              선택 업종:{' '}
+              {group.requested_industries
+                .map((i) => labels[i.industry_code] ?? i.industry_name)
+                .join(' · ')}{' '}
+              합산
+            </p>
           )}
-          {selected.map(market)}
-          {other.length > 0 && (
-            <details className="text-caption print:hidden">
-              <summary className="min-h-11 cursor-pointer py-2">
-                나머지 상권 보기 ({other.length}곳)
-              </summary>
-              <div className="flex flex-col gap-3">{other.map(market)}</div>
-            </details>
+          {partial && (
+            <p className="mt-1 text-caption text-orange-700">
+              일부 상권은 선택 업종 일부만 합산했어요.
+            </p>
           )}
-        </>
-      )}
-      <a
-        className="text-caption text-gray-600 underline"
-        href="https://data.seoul.go.kr/dataList/OA-15572/S/1/datasetView.do"
-        target="_blank"
-        rel="noreferrer"
-      >
-        출처: 서울시 상권분석서비스 추정매출
-      </a>
+          {!group ? (
+            <>
+              <p role="status" className="text-caption">
+                상권별 합산 자료를 현재 제공할 수 없어요.
+              </p>
+              {raw()}
+            </>
+          ) : (
+            <>
+              {selected.length === 0 && (
+                <p role="status" className="text-caption">
+                  {reasons[group.reason ?? ''] ??
+                    '같은 분기의 매출과 점포 수를 함께 확인할 수 있는 상권이 없어요.'}
+                </p>
+              )}
+              {selected.length === 0 && emptyReasons.length > 0 && (
+                <p className="text-caption text-gray-600">{emptyReasons.join(' · ')}</p>
+              )}
+              {selected.map(market)}
+            </>
+          )}
+          <a
+            className="text-caption text-gray-600 underline"
+            href="https://data.seoul.go.kr/dataList/OA-15572/S/1/datasetView.do"
+            target="_blank"
+            rel="noreferrer"
+          >
+            출처: 서울시 상권분석서비스 추정매출
+          </a>
+        </div>
+      </details>
     </div>
   )
 }
