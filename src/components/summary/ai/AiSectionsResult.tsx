@@ -1,6 +1,5 @@
 import type { AiSectionsReport, ReportSection, ReportText } from '../../../types/aiReport'
 import { REPORT_CHECKLIST } from '../../../api/aiReport'
-import { SOURCES } from '../../../constants/sources'
 import { MESSAGES } from '../../../constants/messages'
 import AiChecklist from './AiChecklist'
 
@@ -80,68 +79,9 @@ export default function AiSectionsResult({ report }: { report: AiSectionsReport 
           </div>
         ) : (
           <p className="text-body text-gray-600">
-            종합 해석을 불러오지 못했어요. 아래 수치와 기준을 확인해 주세요.
+            종합 해석을 불러오지 못했어요. 다른 해석과 분석 화면을 확인해 주세요.
           </p>
         )}
-        <dl
-          className="mt-5 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2"
-          aria-label="수치와 자료 기준"
-        >
-          {report.metrics.map((m) => (
-            <div
-              key={m.id}
-              className="min-w-0 rounded-control bg-gray-100 p-4 text-caption break-words"
-            >
-              <dt className="font-semibold text-gray-900">{m.label}</dt>
-              {m.area_label && <dd className="mt-1 text-gray-600">{m.area_label}</dd>}
-              <dd className="mt-1 text-body font-bold break-all text-gray-900">{m.display}</dd>
-              <dd className="mt-2 text-gray-600">
-                {m.period} · {m.spatial_scope}
-              </dd>
-              <dd className="text-gray-600">
-                {m.population_scope} · {m.filter_scope}
-              </dd>
-              {m.denominator !== null && (
-                <dd className="text-gray-600">계산 기준 수: {m.denominator}</dd>
-              )}
-              {m.rounded && <dd className="text-gray-600">표시 단위에 따라 반올림된 값이에요.</dd>}
-              {m.status === 'partial' && (
-                <dd className="text-gray-600">공개된 일부 자료의 참고값이에요.</dd>
-              )}
-              {m.value === null && (
-                <dd className="text-gray-600">제공 가능한 수치를 확인하지 못했어요.</dd>
-              )}
-              <dd className="mt-2 flex flex-wrap gap-2 text-gray-600">
-                {m.group === 'population' ? (
-                  <a
-                    href="https://data.seoul.go.kr/dataList/OA-23016/S/1/datasetView.do"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="min-h-11 content-center underline"
-                  >
-                    서울시 행정동 내국인 생활인구
-                  </a>
-                ) : (
-                  m.source_ids.map((id) =>
-                    SOURCES[id]?.url ? (
-                      <a
-                        key={id}
-                        href={SOURCES[id].url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="min-h-11 content-center underline"
-                      >
-                        {SOURCES[id].name}
-                      </a>
-                    ) : (
-                      <span key={id}>{id}</span>
-                    ),
-                  )
-                )}
-              </dd>
-            </div>
-          ))}
-        </dl>
       </section>
       <ReportChecklist />
       <p className="mt-6 border-t border-gray-300 pt-4 text-caption leading-relaxed text-gray-600">
