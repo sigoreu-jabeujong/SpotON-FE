@@ -1,4 +1,4 @@
-import { BRAND_API_ENABLED } from '../api/analysisProfile'
+import { V2_API_ENABLED } from '../api/analysisProfile'
 import { API_MESSAGES } from './apiMessages'
 import { formatDate } from '../utils/format'
 import { MIN_AS_OF } from './diagnosis'
@@ -8,51 +8,6 @@ const withBrand = (name: string) => `${name} | ${BRAND}`
 
 export const MESSAGES = {
   api: API_MESSAGES,
-  brand: {
-    title: '브랜드·체인 기준',
-    scope: '브랜드 소속',
-    unknown: '소속 미확인',
-    evidence: '판정 근거',
-    estimate: '브랜드·체인(추정)',
-    unknownLabel: '미확인',
-    conflict: '근거 충돌',
-    membershipLimit:
-      '가맹·직영·소규모 체인을 포함한 브랜드 소속 추정이에요. 실제 운영 형태·과거 소속은 확인되지 않았어요.',
-    mixedLegacy:
-      '새 브랜드 조건을 우선하고 예전 가맹·정보 없음 조건은 적용하지 않았어요. 조회 조건을 확인해 주세요.',
-    pending: '브랜드 자료가 아직 준비되지 않았어요. 빈 결과를 체인이 없다는 뜻으로 읽지 마세요.',
-    drift:
-      '원천 기록이 바뀌어 주소 대조 근거를 다시 확인하고 있어요. 재검증 전에는 미확인으로 표시해요.',
-    emptyConfirmed:
-      '이 조건에 쓸 확인 근거가 없어 0건이에요. 실제 점포나 비체인이 없다는 뜻은 아니에요.',
-    emptyExcluded: '미확인 기록을 제외한 조회 결과가 0건이에요. 실제 체인이 없다는 뜻은 아니에요.',
-    /** 조회 조건 브랜드 소속 설명 팝오버 */
-    filterInfoTrigger: '브랜드·체인 조건 설명 보기',
-    filterInfoTitle: '브랜드·체인 조건 설명',
-    filterInfoClose: '설명 닫기',
-    invalidUrl: '지원하지 않는 브랜드 조건을 기본값으로 바꿨어요. 조회 조건을 확인해 주세요.',
-    unsupportedUrl:
-      '이 화면에서는 새 브랜드·체인 조건을 지원하지 않아요. 조건을 다시 선택해 주세요.',
-    resetConditions: '조건 다시 선택하기',
-    statusFailed:
-      '브랜드 자료 연결 상태를 확인하지 못했어요. 각 조회 결과의 안내를 함께 확인해 주세요.',
-    statusLoading: '브랜드 자료 상태를 확인하고 있어요.',
-    generationMismatch:
-      '함께 조회한 자료의 공개 상태가 달라 결과를 잠시 숨겼어요. 같은 자료로 다시 조회해 주세요.',
-    reload: '같은 조건으로 다시 조회',
-    observation:
-      '현재 관측한 부분 자료이며 인허가 기록 단위예요. 실제 지점 수나 과거 소속을 확정하지 않아요.',
-    areaUnknown: '면적 정보 없음 포함',
-    areaExcluded: '면적 정보 없음 제외',
-    changed:
-      '자료가 갱신되었거나 조회 결과와 달라 해석을 표시하지 않았어요. 지표를 새로 확인한 뒤 다시 요청해 주세요.',
-    waitingRisk: '지표를 확인한 뒤 AI 해석을 요청할 수 있어요.',
-    stale: '입력 자료가 바뀌어 소속 재확인이 필요해요.',
-    semasBasis: '점포·주소 대조 근거',
-    catalogBasis: '브랜드명 대조 근거',
-    aliasBasis: '검수된 별칭 근거',
-  },
-  /** 브라우저 탭 제목 (document.title) */
   titles: {
     landing: `${BRAND} — 내 자리, 딱 맞는 자리일까요?`,
     input: withBrand('주소·업종 입력'),
@@ -169,41 +124,8 @@ export const MESSAGES = {
     /** 음식점 세부 업종 기준 (원본 인허가 신고 업태 그대로 — 화면 2곳·진단서 공통) */
     subCategoryBasis: '세부 업종은 인허가 신고 업태 기준이라 실제 메뉴와 다를 수 있어요.',
     /**
-     * 프랜차이즈 표시 (BE 가맹 추정 요청서 2장) — 표·지도 정보창·진단서 공통.
-     * "당시 프랜차이즈였다"처럼 과거 소속·계약으로 읽히는 표현을 쓰지 않는다
      */
-    franchise: {
-      estimate: '프랜차이즈(추정)',
-      external: '프랜차이즈',
-      independent: '개인 매장',
-      unknown: '정보 없음',
-      estimateHelp: (year: number | null) =>
-        `${year ? `${year}년 ` : ''}브랜드 목록과 상호 일치 · 실제 계약·과거 소속 아님`,
-      externalHelp: '기존 분류 자료 기준',
-      /** 표 아래 안내 (추정 행이 있을 때) */
-      /**
-       * 가맹 필터를 골랐을 때 안내 (요청서 3·5장) — 0건을 "이 조건의 점포가 없다"로 읽지 않게.
-       * 개인 매장은 기존 외부 분류(false)만 고르므로 지금 자료로는 거의 0건이다
-       */
-      filterNoticeTitle: '프랜차이즈 분류 기준 안내',
-      filterFranchise: (year: number | null) =>
-        `프랜차이즈(추정) 조건은 ${year ? `${year}년 ` : ''}브랜드 목록과 상호가 같은 점포만 골라 계산해요. 실제 가맹계약이나 개업 당시 소속 기준이 아니고, 분류가 확인되지 않은 점포는 빠져요.`,
-      filterIndependent:
-        '개인 매장 조건은 기존 분류 자료에서 개인 매장으로 확인된 점포만 골라요. 이 자료가 적어 0개로 보일 수 있고, 개인 매장이 없다는 뜻은 아니에요.',
-      /** 가맹 필터 + 0건일 때 빈 결과 문구 */
-      emptyFranchise:
-        '브랜드 목록과 상호가 일치한 점포가 없어 0개로 보여요. 프랜차이즈 점포가 없다는 뜻은 아니에요.',
-      emptyIndependent:
-        '개인 매장 분류 자료가 아직 없어 0개로 보여요. 이 조건의 점포가 없다는 뜻은 아니에요.',
-      /** 조회 조건의 가맹 선택지 옆 짧은 도움말 */
-      optionHint: {
-        franchise: '브랜드 목록 상호 일치 기준 · 분류 미확인 점포 제외',
-        independent: '기존 분류 자료가 있는 점포만 · 0개로 보일 수 있어요',
-      },
-      /** 표 아래 프랜차이즈(추정) 안내 — 기존 가맹 화면(v1)에서만. 브랜드·체인(v2)은 표의 '(추정)' 표시와 행별 근거 도움말로 알린다 */
-      note: (year: number | null) =>
-        `프랜차이즈(추정)은 ${year ? `${year}년 ` : ''}공정위 브랜드 목록과 상호가 같은 점포예요. 실제 가맹계약·직영 여부·개업 당시 소속을 확인한 값은 아니에요.`,
-    },
+
     /** 상호·개업일·기간이 없을 때 (0이나 빈칸으로 표시하지 않음) */
     missingValue: '정보 없음',
     /** 폐업 상태인데 폐업일이 비어 있을 때 — 사유별로 구분 (null만 보고 원자료가 없었다고 단정하지 않음) */
@@ -236,15 +158,12 @@ export const MESSAGES = {
       openDate: '개업일',
       closeDate: '폐업일',
       period: '영업 기간',
-      franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
+      referenceTime: '기준 시점',
     },
     noCloseDate: '폐업일 없음',
     notices: [
       '공공데이터 기반 정보로 실제 현황과 다를 수 있어요.',
       '폐업일은 행정상 신고 기록 기준이에요.',
-      BRAND_API_ENABLED
-        ? '브랜드·체인 소속은 추정이며 실제 계약·운영 형태·과거 소속은 미확인이에요.'
-        : '프랜차이즈(추정)은 공정위 브랜드 목록과 상호가 같은지로 고른 값이에요. 실제 계약이나 과거 소속은 아니에요.',
     ],
     noticeTitle: '이력 확인 시 참고하세요',
     spaceBuilding: '건물 단위',
@@ -258,9 +177,8 @@ export const MESSAGES = {
     subCategory: '세부 업종',
     subCategoryAll: '선택하지 않으면 음식점 전체',
     area: '시설 규모',
-    franchise: '프랜차이즈 여부',
     includeUnknown: '정보 없음 점포 포함',
-    includeUnknownHint: '면적·프랜차이즈 정보가 없는 점포도 함께 보여줘요.',
+    includeUnknownHint: '면적 정보가 없는 점포도 함께 보여줘요.',
     submit: '조회',
     scopeNotice: '이 조건은 지도·시점 조회·상권 활동·종합 진단에 함께 적용돼요.',
     unchanged: '바뀐 조건이 없어요.',
@@ -298,7 +216,7 @@ export const MESSAGES = {
       `반경 ${radius.toLocaleString('ko-KR')}m${asOf ? ` · 기준일 ${asOf}` : ''}`,
     total: (count: number) => `조건에 맞는 점포 ${count.toLocaleString('ko-KR')}개`,
     /**
-     * excluded_no_coord는 반경 안 수가 아니라 서울 전체 같은 조건(업종·시점·면적·가맹) 기준 (BE 제안 표현).
+     * excluded_no_coord는 반경 안 수가 아니라 서울 전체 같은 조건(업종·시점·면적) 기준 (BE 제안 표현).
      * 반경 점포 수와 합치지 않는다 — 화면·진단서 같은 문구
      */
     excludedNoCoord: (n: number) =>
@@ -325,7 +243,7 @@ export const MESSAGES = {
       openDate: '개업일',
       period: '영업 기간',
       status: '최신 데이터 기준 상태',
-      franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
+      referenceTime: '기준 시점',
     },
     showOnMap: '지도에서 보기',
     mapRegion: '주변 점포 지도',
@@ -343,7 +261,7 @@ export const MESSAGES = {
       openDate: '개업일',
       period: '영업 기간',
       status: '최신 데이터 기준 상태',
-      franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
+      referenceTime: '기준 시점',
     },
   },
   /** STEP 02 ② 안의 시점 조회 (F-05) */
@@ -370,7 +288,7 @@ export const MESSAGES = {
       closeDate: '폐업일',
       period: '영업 기간',
       status: '최신 데이터 기준 상태',
-      franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
+      referenceTime: '기준 시점',
     },
     noCloseDate: '폐업일 없음',
     emptyStores: '그 시점에 조건에 맞는 점포가 없어요',
@@ -421,10 +339,6 @@ export const MESSAGES = {
     missingData: '아직 확보하지 못한 자료예요.',
     /** meta.optional_data[item].status = pending — 0이나 원천 없음이 아니라 집계 기준 확인 중 */
     pendingData: '자료 확인 중',
-    /** 가맹 분류 미확인(franchise_classification pending)인데 프랜차이즈 조건을 골랐을 때 */
-    franchisePendingTitle: '프랜차이즈 분류 확인 중',
-    franchisePending:
-      '프랜차이즈 분류를 확인하고 있어, 선택한 분류로 확인할 수 있는 정보가 없거나 적을 수 있어요. 점포가 없다는 뜻은 아니에요.',
     people: (n: number) => `${n.toLocaleString('ko-KR')}명`,
     grids: (n: number) => `${n.toLocaleString('ko-KR')}개`,
   },
@@ -460,10 +374,6 @@ export const MESSAGES = {
       boundary_version_not_selected: '공식 상권 경계를 확인 중이에요.',
       population_aggregation_and_grid_time_unverified: '생활인구 집계 기준을 확인 중이에요.',
       source_period_and_boundary_unverified: '매출 집계 기간과 적용 경계를 확인하고 있어요.',
-      /** AI 부족한 자료 — 가맹 분류 (BE 가맹 추정 요청서 5장) */
-      franchise_name_match_estimate:
-        '프랜차이즈 여부는 브랜드 목록과 상호 일치로 추정한 값이에요 (실제 계약·과거 소속 아님)',
-      classification_unverified: '프랜차이즈 분류를 확인하고 있어요.',
       /** AI 부족한 자료 — 이력 문맥 (BE #98). 서버 문장은 그대로 두고 사유 줄만 */
       history_no_records: '이 건물의 인허가 기록이 없어요.',
       history_floor_unit_missing: '층·호수가 없어 건물 전체 기준이에요.',
@@ -528,7 +438,7 @@ export const MESSAGES = {
     radius: '반경',
     asOf: '기준 시점',
     asOfCurrent: '현재',
-    franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
+    referenceTime: '기준 시점',
     historyTitle: '1. 과거 점포 이력',
     historyMore: (shown: number, total: number) => `최근 개업 순 ${total}건 중 ${shown}건`,
     nearbyTitle: '2. 주변 점포·시점 조회',
@@ -611,7 +521,7 @@ export const MESSAGES = {
       notObserved: '상권 단위 원자료 금액이에요. 개별 점포의 실제 매출을 관측한 분포는 아니에요.',
       intersects: '선택 반경과 겹치는 상권도 함께 보여 주며, 이 자리 값을 대신하는 값은 아니에요.',
       notAi:
-        '기존 AI 해석에 반영되는 값은 아니에요. 가맹·브랜드·면적 등 점포 조건으로 이 참고자료의 수치를 거르지 않아요.',
+        '기존 AI 해석에 반영되는 값은 아니에요. 면적 등 점포 조건으로 이 참고자료의 수치를 거르지 않아요.',
       hourlyMean: '관측일 24시간 생활인구의 시간당 평균이에요.',
       dayNightHours:
         '주간 06~17시 · 야간 00~05시, 18~23시 (Spot:ON 기준). 동일 행정동·관측일·내국인 자료로 비교해요.',
@@ -667,7 +577,7 @@ export const MESSAGES = {
       caption: '250m 격자 공개자료 원천별 주간·야간 비중',
       cols: { source: '구분', day: '주간 비중', night: '야간 비중', grids: '사용 격자' },
       grids: (used: number, selected: number) => `${used} / ${selected}`,
-      note: '공개된 동일 구성만 비교한 참고값이며 전체 인구를 대표하지 않아요. 업종·브랜드·면적 조건으로 인구 자료를 거르지 않아요. 격자 적용일과 행정동별 합산 기준은 확인 중이에요.',
+      note: '공개된 동일 구성만 비교한 참고값이며 전체 인구를 대표하지 않아요. 업종·면적 조건으로 인구 자료를 거르지 않아요. 격자 적용일과 행정동별 합산 기준은 확인 중이에요.',
       detailToggle: '자료 범위와 공개 원천값 상세',
       sourceLink: (name: string) => `서울시 원천 자료: ${name} (새 창)`,
       loading: '격자 단위 부분자료를 불러오고 있어요.',
@@ -723,9 +633,7 @@ export const MESSAGES = {
       radius: '반경',
       asOf: '기준 시점',
       area: '시설 규모',
-      franchise: '가맹 필터',
       unknownArea: '면적 정보 없음',
-      unknownFranchise: '가맹 정보 없음',
       included: '포함',
       excluded: '제외',
       latest: '최신 자료 기준',
@@ -757,7 +665,7 @@ export const MESSAGES = {
       requestLimits: '이 요청에서 확인이 부족한 부분',
       rules: [
         '인허가 기록과 좌표 확보 자료를 기반으로 한 참고 정보이며, 지위승계 및 과거 영업 상태 재구성에 한계가 있어요.',
-        ...(BRAND_API_ENABLED
+        ...(V2_API_ENABLED
           ? []
           : [
               '공식 폐업률의 상권 적용 기준이 확인되지 않으면 해당 지표를 제공하지 않아요.',
@@ -765,9 +673,6 @@ export const MESSAGES = {
             ]),
         '상세 주소만으로 동일한 점포 자리의 과거 이력을 특정할 수 없을 수 있어요.',
         '건물 이력은 최신 자료 기준이며 요청한 과거 시점과 다를 수 있어요. 다른 업종의 기록을 직접적인 경쟁 지표로 쓰지 않아요.',
-        BRAND_API_ENABLED
-          ? '가맹·직영·소규모 체인을 포함한 소속 추정이며 실제 계약·운영 형태·과거 소속은 미확인이에요. 미확인을 개인 매장으로 바꾸지 않아요.'
-          : '프랜차이즈 추정은 공정위 브랜드 목록과 점포명 일치 여부를 참고하며 실제 계약이나 과거 소속을 증명하지 않아요. 정보 없음을 개인 매장으로 바꾸지 않아요.',
         '수집 완료일이 확인되지 않으면 검증일을 수집일로 대신 표시하지 않아요.',
       ],
     },
@@ -836,7 +741,6 @@ export const MESSAGES = {
     asOfPast: (ym: string) => `${ym} 기준`,
     pastNotice: '과거 시점 조회 중',
     area: (label: string) => `시설 규모 ${label}`,
-    franchise: (label: string) => `프랜차이즈 ${label}`,
     excludeUnknown: '정보 없음 점포 제외',
     edit: '조건 바꾸기',
   },

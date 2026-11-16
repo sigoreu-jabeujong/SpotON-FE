@@ -59,7 +59,6 @@ describe('single connection DB read scheduling', () => {
       '/v2/location-reference',
       '/v2/market/activity',
       '/v3/stores/location-history',
-      '/v2/brands/status',
     ]) {
       expect(isDatabaseRead(path)).toBe(true)
     }

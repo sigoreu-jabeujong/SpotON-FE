@@ -143,10 +143,6 @@ export const marketActivityMock: MockHandler = (query) => {
     space,
     denominator: null,
     operating_period_basis: 'elapsed_months_of_active_at_as_of',
-    // 가맹 분류: 기본은 목록 적용(estimate, DEMO_META), pending 시나리오는 미적용 DB처럼
-    ...(pending
-      ? { franchise_classification: { status: 'pending', reason: 'brand_mapping_blocked' } }
-      : {}),
     ...(optional_data ? { optional_data } : {}),
   })
 }

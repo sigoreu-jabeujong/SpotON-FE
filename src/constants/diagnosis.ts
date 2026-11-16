@@ -49,38 +49,8 @@ export const FACILITY_SIZE_OPTIONS = [
 export type FacilitySize = (typeof FACILITY_SIZE_OPTIONS)[number]['id']
 export const DEFAULT_AREA: FacilitySize = 'all'
 
-/** 면적·프랜차이즈 값이 "정보 없음"인 점포 포함 여부 (API include_unknown_area·include_unknown_franchise — params.ts) */
+/** 면적 값이 "정보 없음"인 점포 포함 여부 (API include_unknown_area — params.ts) */
 export const DEFAULT_INCLUDE_UNKNOWN = true
-
-/** 프랜차이즈 필터 */
-export const FRANCHISE_OPTIONS = [
-  { id: 'all', label: '전체' },
-  { id: 'franchise', label: '프랜차이즈(추정)' },
-  { id: 'independent', label: '개인 매장' },
-] as const
-export type FranchiseFilter = (typeof FRANCHISE_OPTIONS)[number]['id']
 
 /** 기준 시점으로 고를 수 있는 가장 이른 달 — 서버 범위가 더 이르더라도 여기서 자른다 (화면 선택지·예전 링크 공통) */
 export const MIN_AS_OF = '2010-01'
-
-export const BRAND_SCOPE_OPTIONS = [
-  { id: 'all', label: '전체' },
-  { id: 'chain', label: '브랜드·체인' },
-  { id: 'non_chain', label: '비체인 조건' },
-] as const
-export const BRAND_UNKNOWN_OPTIONS = [
-  { id: 'include', label: '미확인 포함' },
-  { id: 'exclude', label: '미확인 제외' },
-] as const
-export const BRAND_EVIDENCE_OPTIONS = [
-  { id: 'include_estimates', label: '추정 근거 포함' },
-  { id: 'confirmed_only', label: '확인 근거만' },
-] as const
-/**
- * 조회 조건 화면에 보이는 브랜드 소속 선택지 — 전체 / 브랜드·체인 두 가지만.
- * (미확인·판정 근거는 선택에 따라 brandSelectionFor가 정한다. 위 목록·타입은 예전 링크 호환용으로 그대로 둔다)
- */
-export const BRAND_SCOPE_CHOICES = BRAND_SCOPE_OPTIONS.filter((o) => o.id !== 'non_chain')
-export type BrandScope = (typeof BRAND_SCOPE_OPTIONS)[number]['id']
-export type BrandUnknown = (typeof BRAND_UNKNOWN_OPTIONS)[number]['id']
-export type BrandEvidence = (typeof BRAND_EVIDENCE_OPTIONS)[number]['id']

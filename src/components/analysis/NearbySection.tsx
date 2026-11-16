@@ -5,7 +5,6 @@ import { MESSAGES } from '../../constants/messages'
 import { scrollBehavior } from '../../constants/motion'
 import { getCoordinates, useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { useNearbyStores } from '../../hooks/useStores'
-import { franchiseEmptyMessage } from '../../utils/storeDisplay'
 import { formatDataBaseline, formatDate, formatYearMonthKo } from '../../utils/format'
 import EmptyState from '../common/EmptyState'
 import ErrorState from '../common/ErrorState'
@@ -78,6 +77,7 @@ export default function NearbySection() {
                   {/* 지도가 깨져도 아래 조회 조건·점포 표는 그대로 보인다 */}
                   <SectionErrorBoundary resetKey={paramsKey}>
                     <NearbyMap
+                      asOf={data.as_of}
                       center={data.center}
                       radiusM={data.radius_m}
                       markers={data.markers ?? []}
@@ -122,16 +122,13 @@ export default function NearbySection() {
             data &&
             (data.count === 0 || !data.markers?.length ? (
               <EmptyState
-                message={
-                  franchiseEmptyMessage(query.franchise, query) ??
-                  data.message ??
-                  MESSAGES.common.empty
-                }
+                message={data.message ?? MESSAGES.common.empty}
                 description={T.emptyHint}
                 onEditConditions={focusConditionFilter}
               />
             ) : (
               <NearbyTable
+                asOf={data.as_of}
                 markers={data.markers}
                 selectedId={selectedId}
                 onSelect={selectFromTable}
