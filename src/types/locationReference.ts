@@ -65,6 +65,12 @@ export type SalesDistribution = {
   iqr: ReferenceNumber
   variance: { value: string; unit: string }
 }
+export type SalesContribution = {
+  market_code: string
+  industry_code: string
+  source_quarter: string
+  metric: ReferenceNumber & { numerator: string; denominator: string }
+}
 export type LocationReference = {
   requested_as_of: string | null
   analysis_as_of: string
@@ -77,6 +83,8 @@ export type LocationReference = {
       metric: ReferenceNumber | null
       distribution?: SalesDistribution | null
       representative_method?: string
+      graph_basis?: string
+      contributions?: SalesContribution[]
       total_sales: string | null
       total_store_count: string | null
       listed_item_count: number

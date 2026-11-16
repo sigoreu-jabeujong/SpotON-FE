@@ -1,5 +1,7 @@
 # CLAUDE.md — SpotON-FE
 
+2026-11-17 최신 사용자 선택은 각 목록 매출÷전체 점포 수의 막대 그래프와 목록 매출 합계÷같은 목록 점포 수 합계의 대표 평균이다. BE #208의 `pooled_sales_over_total_stores_v1`/`each_sales_over_group_total_stores_v1` 및 `contributions`를 표시한다. 기존 중앙값·사분위 차트 대신 평균 구성 막대를 쓰며 FE는 합계·기여액을 계산하지 않는다. [계약](docs/sales-pooled-contributions.md)을 따른다.
+
 2026-11-16 #99 [매출 분포·생활인구 UI](docs/sales-distribution-ui.md)는 사용자 최신 문구·배치 요청이다. 대표값은 중앙값으로 유지하며 제목은 점포당 평균 추정 매출, 계산 기준은 그래프/접기에서 표시한다. 요청된 접미사/문단/인구 제목 괄호·포함동 부기를 제거한다. 원문 금액은 유지하고 Number는 그래프 좌표에만 사용한다. 실제 included 행의 점·서버 중앙값/사분위 밴드를 표시하고 같은 날짜·원천 검증은 유지한다. BE·DB·API·환경은 변경하지 않는다.
 
 사용자 후속 승인 #94/#202: [주소 상세 확인](docs/address-detail.md)을 구현·배포한다. 후보 선택→상세 확인→확정을 분리하고 입력/URL/출력에서 층·호를 보존한다. BE 정규화 API와 독립 같은층 관계를 사용하며 기존 AI 같은자리 판정은 유지한다. BE 선배포 후 FE main release를 공개 검증한다.
