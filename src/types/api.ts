@@ -93,7 +93,7 @@ export type ApiMeta = {
   denominator?: number | null
   /** 원천 데이터 갱신 시점 최댓값 (화면 "데이터 기준일") */
   data_updated_at?: string | null
-  /** 수집 배치 완료일 (화면 "(수집 YYYY.MM.DD)") */
+  /** 수집 배치 완료일 (화면 "(수집 YYYY. MM. DD.)") */
   collected_at?: string | null
   /** collected_at이 null인 이유 코드 (예: source_completion_time_not_recorded) */
   collection_reason?: string | null

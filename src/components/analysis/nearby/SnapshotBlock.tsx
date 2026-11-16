@@ -6,7 +6,12 @@ import { useDataRange } from '../../../hooks/useDataRange'
 import { getCoordinates, useDiagnosisQuery } from '../../../hooks/useDiagnosisQuery'
 import { useStoreSnapshot } from '../../../hooks/useStores'
 import { isMonthInRange, shiftMonth } from '../../../utils/date'
-import { formatCount, formatDataBaseline, formatYearMonthKo } from '../../../utils/format'
+import {
+  formatCount,
+  formatDataBaseline,
+  formatDate,
+  formatYearMonthKo,
+} from '../../../utils/format'
 import EmptyState from '../../common/EmptyState'
 import ErrorState from '../../common/ErrorState'
 import LoadingSkeleton from '../../common/Skeleton'
@@ -30,10 +35,19 @@ export default function SnapshotBlock() {
   const params = coords ? toCommonQueryParams(query, coords) : null
   const snapshot = useStoreSnapshot(params)
   const periodLabel = formatYearMonthKo(query.asOf)
+  const asOfDate = formatDate(query.asOf)
 
   return (
     <div className="flex flex-col gap-4">
-      <SubTitle>{T.title}</SubTitle>
+      <SubTitle>
+        {T.title}
+        {/* 조회한 기준 시점만 제목 옆 작은 칩으로 (제목보다 작고 연하게) */}
+        {asOfDate && (
+          <span className="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 align-middle text-caption font-semibold text-gray-600">
+            {T.asOfChip(asOfDate)}
+          </span>
+        )}
+      </SubTitle>
       {!query.asOf ? (
         <SnapshotGuide query={query} onPick={(asOf) => updateQuery({ asOf })} />
       ) : snapshot.isPending ? (
@@ -67,16 +81,13 @@ function SnapshotResult({
 }: {
   data: NonNullable<ReturnType<typeof useStoreSnapshot>['data']>
   periodLabel: string
-  /** 0건 문구 — 가맹 필터면 "분류 자료가 없어 0곳" (storeDisplay.franchiseEmptyMessage) */
+  /** 0건 문구 — 가맹 필터면 "분류 자료가 없어 0개" (storeDisplay.franchiseEmptyMessage) */
   emptyMessage: string
 }) {
   const count = (n: number) => formatCount(n, MESSAGES.units.store)
   return (
     <>
-      {/* 서버 summary_text 그대로 */}
-      <p className="rounded-control bg-blue-100 px-5 py-4 text-subtitle font-bold text-blue-700">
-        {data.summary_text}
-      </p>
+      {/* 서버 summary_text(시점·점포 수 요약) 블록은 뺐다 — 같은 숫자는 아래 카드 4개에, 시점은 제목 옆 칩에 있다 */}
       <div className="grid grid-cols-4 gap-3 max-md:grid-cols-2 max-sm:grid-cols-1">
         <StatCard icon={Store} label={T.cards.total} value={count(data.total_at_as_of)} />
         <StatCard icon={CircleCheck} label={T.cards.stillOpen} value={count(data.still_open)} />

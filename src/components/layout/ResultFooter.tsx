@@ -2,7 +2,7 @@ import { Info } from 'lucide-react'
 import { MESSAGES } from '../../constants/messages'
 
 type Props = {
-  /** "데이터 기준일 YYYY.MM.DD (수집 YYYY.MM.DD)" — formatDataBaseline 결과. 없으면 안내 문구 */
+  /** "데이터 기준일 YYYY. MM. DD. (수집 YYYY. MM. DD.)" — formatDataBaseline 결과. 없으면 안내 문구 */
   baseline?: string | null
 }
 

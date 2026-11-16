@@ -3,7 +3,6 @@ import { MESSAGES } from '../../constants/messages'
 import type { DataRange } from '../../types/meta'
 import { cn } from '../../utils/cn'
 import { isMonthInRange, parseYearMonth, shiftMonth, toYearMonth } from '../../utils/date'
-import { formatDate } from '../../utils/format'
 
 const T = MESSAGES.filter
 
@@ -130,11 +129,6 @@ export default function AsOfPicker({ value, onChange, range, status }: Props) {
         </p>
       )}
       {noPast && <p className="text-micro text-gray-600">{T.asOfNoPast}</p>}
-      {status === 'ready' && range?.min_month && (
-        <p className="text-micro text-gray-600">
-          {T.asOfRange(formatDate(range.min_month) ?? '', formatDate(range.max_month) ?? '')}
-        </p>
-      )}
     </div>
   )
 }

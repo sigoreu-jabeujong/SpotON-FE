@@ -11,7 +11,7 @@ export function formatIndicatorValue(ind: Pick<MetricIndicator, 'value' | 'unit'
   if (value === null || value === undefined) return null
   if (typeof value === 'string') return value
   if (unit === '%') return formatPercent(value, ind.type === 'official' ? 0 : 1)
-  if (unit === '개') return formatCount(value, '곳')
+  if (unit === '개') return formatCount(value, '개')
   if (unit === '배') return `${value}배`
   return String(value)
 }
