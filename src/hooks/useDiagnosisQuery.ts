@@ -82,6 +82,14 @@ export function parseDiagnosisQuery(
     !params.has('areaUnknown') || ['true', 'false'].includes(single('areaUnknown') ?? '')
   return {
     address: params.get('address') ?? '',
+    historyScope:
+      params.get('historyScope') === 'floor'
+        ? 'floor'
+        : params.get('historyScope') === 'unit'
+          ? 'unit'
+          : undefined,
+    historyIdentity:
+      params.get('historyIdentity') === 'verified_building' ? 'verified_building' : undefined,
     detailText: params.get('detail') ?? undefined,
     detailUnverified: params.get('detailMode') === 'unverified',
     category: isCategory(category) ? category : null,
@@ -130,6 +138,8 @@ export function toDiagnosisSearch(
 ): string {
   const p = new URLSearchParams()
   if (q.address) p.set('address', q.address)
+  if (q.historyScope) p.set('historyScope', q.historyScope)
+  if (q.historyIdentity) p.set('historyIdentity', q.historyIdentity)
   if (q.detailText) p.set('detail', q.detailText)
   if (q.detailUnverified) p.set('detailMode', 'unverified')
   if (q.category) p.set('category', q.category)

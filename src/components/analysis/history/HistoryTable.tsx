@@ -4,7 +4,6 @@ import { MESSAGES } from '../../../constants/messages'
 import { useShowMore } from '../../../hooks/useShowMore'
 import type { HistoryStore } from '../../../types/stores'
 import { cn } from '../../../utils/cn'
-import { sortHistoryRecentFirst } from '../../../utils/history'
 import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
 import { locationRelationLabel } from '../../../utils/locationRelationLabel'
@@ -22,12 +21,14 @@ type Props = { stores: HistoryStore[] }
 /** 과거 점포 이력 표 — 최근 개업 순, 처음 5개 + 더보기 */
 export default function HistoryTable({ stores }: Props) {
   // 표시 순서만 바꾼다 (진단서와 같은 정렬 — 개업일 미확인은 맨 뒤). 캐시 배열은 복사해 정렬
-  const sorted = useMemo(() => sortHistoryRecentFirst(stores), [stores])
+  const sorted = useMemo(() => [...stores], [stores])
   const { visible, shown, total, hasMore, showMore } = useShowMore(sorted)
 
   return (
     <div>
-      <p className="mb-2 text-right text-micro text-gray-600">{T.sortLabel}</p>
+      <p className="mb-2 text-right text-micro text-gray-600">
+        폐업일 최신순 · 날짜 미확인 기록은 마지막
+      </p>
       {/* 휴대폰: 표를 가로로 밀어 볼 수 있게 (이때 머리글 고정은 끈다). relative는 칸 속 sr-only 글자가 상자 밖 화면 폭을 넓히지 않게. 데스크톱은 그대로 */}
       <div className="overflow-clip rounded-card border border-gray-300 bg-gray-0 max-md:relative max-md:overflow-x-auto">
         <table

@@ -11,6 +11,8 @@ import type {
 
 /** 사용자가 정한 진단 조건. URL 쿼리로 유지해 새로고침·공유해도 그대로 남는다 */
 export type DiagnosisQuery = {
+  historyScope?: 'floor' | 'unit'
+  historyIdentity?: 'address_scope' | 'verified_building'
   detailText?: string
   detailUnverified?: boolean
   /** 입력한 주소 원문 (도로명 또는 지번) */
