@@ -46,7 +46,6 @@ export default function RestaurantSales({ data }: { data: LocationReference }) {
       ? projection
       : null
   const selected = group?.items.filter((m) => m.selected_for_estimate) ?? []
-  const other = group?.items.filter((m) => !m.selected_for_estimate) ?? []
   const partial = selected.some((m) => m.status === 'partial')
   const emptyReasons = [
     ...new Set(
@@ -214,7 +213,6 @@ export default function RestaurantSales({ data }: { data: LocationReference }) {
                 <p className="text-caption text-gray-600">{emptyReasons.join(' · ')}</p>
               )}
               {selected.map(market)}
-              {other.map(market)}
             </>
           )}
           <a
