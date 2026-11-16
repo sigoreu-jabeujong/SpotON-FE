@@ -502,11 +502,10 @@ export const MESSAGES = {
     consultingTitle: '공공 창업 상담센터',
     supportTitle: '소상공인 지원사업',
     linksEmpty: '안내할 기관 링크가 아직 없어요',
-    lastChecked: (date: string) => `${date} 확인`,
+    /** 기관 블록의 외부 링크 버튼 */
+    linkGo: '바로가기',
     /** 구 지정 시 서버가 맨 앞에 둔 관할 센터 (가까운 순·맞춤 추천 아님) */
     districtBadge: '관할 지역센터 연락처',
-    districtSource: (published: string | null, checked: string | null, page: number | null) =>
-      `관할 연락처는 중소벤처기업부 공고${published ? `(${published})` : ''}${page ? ` 첨부 ${page}쪽` : ''} 기준이에요${checked ? ` · ${checked} 확인` : ''}`,
     linksNotice:
       '모집 기간·지원 조건은 연결된 공식 사이트에서 확인해 주세요. 링크는 정기적으로 점검해요.',
     newWindow: '(새 창)',
