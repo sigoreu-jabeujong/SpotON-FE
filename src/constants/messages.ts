@@ -498,29 +498,6 @@ export const MESSAGES = {
   share: {
     cards: {
       pdf: { title: 'PDF 진단서 저장', desc: '인쇄 화면에서 "PDF로 저장"을 골라 주세요' },
-      image: { title: '요약 이미지 저장', desc: '핵심 숫자를 담은 1080×1350 PNG' },
-      consulting: { title: '공공 창업 상담센터 안내', desc: '전문가 상담을 받아 보세요' },
-      support: { title: '소상공인 지원사업 안내', desc: '지원사업과 모집 공고를 확인해 보세요' },
-    },
-    imageMaking: '이미지를 만드는 중이에요',
-    imageDone: '요약 이미지를 저장했어요',
-    imageFailed: '요약 이미지를 만들지 못했어요. 다시 시도해 주세요',
-    imageNeedsData: '진단 결과를 불러온 뒤 다시 눌러 주세요',
-    imageFooter: 'Spot:ON · 공공데이터 기반 창업 입지 진단 (참고용)',
-    imageFileName: 'spoton-summary.png',
-    image: {
-      heading: '입지 진단 요약',
-      conditions: (category: string, radius: number, asOf: string) =>
-        `${category} · 반경 ${radius.toLocaleString('ko-KR')}m · ${asOf} 기준`,
-      asOfCurrent: '현재',
-      competitor: '반경 안 동종업체 수 (참고지표)',
-      competitorNote: (radius: number) => `반경 ${radius.toLocaleString('ko-KR')}m`,
-      opened: '최근 12개월 개업 · 폐업',
-      referenceClosure: '참고 폐업률 (최근 12개월, 참고지표)',
-      referenceClosureNote: '반경 기준 · Spot:ON 계산',
-      officialClosure: '서울시 공식 폐업률',
-      officialClosureNote: '상권 기준 · 서울시 공표값',
-      sources: (names: string) => `출처: ${names}`,
     },
     consultingTitle: '공공 창업 상담센터',
     supportTitle: '소상공인 지원사업',
@@ -846,9 +823,6 @@ export const MESSAGES = {
    * 화면 아래 짧은 알림(토스트) — 사용자가 누른 일의 결과만. 실패는 무엇이 안 됐고 어떻게 하면 되는지
    */
   toast: {
-    imageDone: '요약 이미지를 저장했어요. 다운로드 폴더에서 확인해 주세요',
-    imageFailed: '요약 이미지를 만들지 못했어요. 잠시 후 다시 눌러 주세요',
-    imageNeedsData: '진단 결과를 아직 불러오는 중이에요. 불러온 뒤 다시 눌러 주세요',
     copyDone: '상권명·업종을 복사했어요. 상권분석서비스 검색창에 붙여 넣어 보세요',
     copyFailed: '복사하지 못했어요. 따옴표 안의 글자를 직접 선택해 복사해 주세요',
   },
