@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { IMAGES } from '../assets/images'
 import Logo from '../components/common/Logo'
+import LandingOrbit from '../components/landing/LandingOrbit'
 import LandingSections from '../components/landing/LandingSections'
 import SiteFooter from '../components/layout/SiteFooter'
 import { MESSAGES } from '../constants/messages'
@@ -98,14 +99,8 @@ function LandingMap() {
         className={`pointer-events-none absolute top-[16%] right-[3%] w-[52%] max-w-[820px] max-md:relative max-md:top-auto max-md:right-auto max-md:order-1 max-md:mx-auto max-md:mt-8 max-md:w-[86%] ${rise}`}
         style={delay(3)}
       >
-        {IMAGES.landingGradient && (
-          <img
-            src={IMAGES.landingGradient}
-            alt=""
-            aria-hidden="true"
-            className="absolute top-[18%] left-1/2 w-[118%] max-w-none -translate-x-1/2"
-          />
-        )}
+        {/* 뒤 파란 빛 + 궤도선 2개 + 구슬 3개 (구슬은 코드로 그려 공전할 수 있다) */}
+        {IMAGES.landingGradient && <LandingOrbit glow={IMAGES.landingGradient} />}
         <img
           src={IMAGES.landingMap}
           alt=""
