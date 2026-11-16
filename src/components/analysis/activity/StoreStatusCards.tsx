@@ -2,7 +2,7 @@ import { CirclePlus, CircleX, Clock, Store } from 'lucide-react'
 import { MESSAGES } from '../../../constants/messages'
 import type { MarketActivity } from '../../../types/market'
 import type { MetricIndicator, Risk } from '../../../types/risk'
-import { formatCount, formatOperatingMonths, formatPeriod } from '../../../utils/format'
+import { formatCount, formatOperatingMonths } from '../../../utils/format'
 import InfoPopover from '../../common/InfoPopover'
 import MetaLine from '../../common/MetaLine'
 import StatCard from '../../common/StatCard'
@@ -23,7 +23,6 @@ export default function StoreStatusCards({ activity, risk }: Props) {
   const competitor = risk.data?.indicators?.find(
     (i): i is MetricIndicator => i.id === 'competitor_count',
   )
-  const period = formatPeriod(activity.recent_12m.period)
 
   return (
     <div className="flex flex-col gap-3">
@@ -53,13 +52,11 @@ export default function StoreStatusCards({ activity, risk }: Props) {
           icon={CirclePlus}
           label={T.opened12m}
           value={formatCount(activity.recent_12m.opened, MESSAGES.units.store)}
-          footer={period && T.periodLabel(period)}
         />
         <StatCard
           icon={CircleX}
           label={T.closed12m}
           value={formatCount(activity.recent_12m.closed, MESSAGES.units.store)}
-          footer={period && T.periodLabel(period)}
         />
         <StatCard
           icon={Clock}
