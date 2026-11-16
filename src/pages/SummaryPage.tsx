@@ -7,7 +7,6 @@ import ErrorState from '../components/common/ErrorState'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
 import LoadingSkeleton from '../components/common/Skeleton'
 import AiInterpretation from '../components/summary/ai/AiInterpretation'
-import MarketCard from '../components/summary/MarketCard'
 import OfficialIndicators from '../components/summary/OfficialIndicators'
 import ReferenceIndicators from '../components/summary/ReferenceIndicators'
 import SeoulCompare from '../components/summary/SeoulCompare'
@@ -21,7 +20,7 @@ import { queryKeys } from '../api/queryKeys'
 const T = MESSAGES.summary
 
 /**
- * STEP 03 종합 진단 결과 (F-07) — 상권 판정 + 서울시 공식 지표 + Spot:ON 참고지표.
+ * STEP 03 종합 진단 결과 (F-07) — 서울시 공식 지표 + Spot:ON 참고지표.
  * 디자인의 "창업 위험도 점수·등급"은 만들지 않는다 (자체 종합 점수·등급 금지, docs/decisions.md)
  */
 export default function SummaryPage() {
@@ -59,9 +58,6 @@ export default function SummaryPage() {
           )}
 
           {/* 카드 묶음마다 오류 경계 — 하나가 깨져도 다른 지표는 계속 보인다 */}
-          <SectionErrorBoundary resetKey={search}>
-            <MarketCard market={risk.data.data.market} />
-          </SectionErrorBoundary>
           <SectionErrorBoundary resetKey={search}>
             <OfficialIndicators
               indicators={indicators}
