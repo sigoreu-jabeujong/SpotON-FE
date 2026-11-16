@@ -28,6 +28,7 @@ export default function StoreStatusCards({ activity, risk }: Props) {
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-4 gap-3 max-md:grid-cols-2 max-sm:grid-cols-1">
         <StatCard
+          hoverLift
           icon={Store}
           label={T.competitor}
           value={
@@ -49,16 +50,19 @@ export default function StoreStatusCards({ activity, risk }: Props) {
           }
         />
         <StatCard
+          hoverLift
           icon={CirclePlus}
           label={T.opened12m}
           value={formatCount(activity.recent_12m.opened, MESSAGES.units.store)}
         />
         <StatCard
+          hoverLift
           icon={CircleX}
           label={T.closed12m}
           value={formatCount(activity.recent_12m.closed, MESSAGES.units.store)}
         />
         <StatCard
+          hoverLift
           icon={Clock}
           label={T.avgPeriod}
           value={formatOperatingMonths(activity.avg_operating_months)}

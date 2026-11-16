@@ -15,6 +15,11 @@ type Props = {
   children?: ReactNode
   /** 강조하지 않는 중립 카드가 기본 (참고지표 등급 색 금지 원칙) */
   className?: string
+  /**
+   * 마우스를 올리면 살짝 떠오르기(hover-card) + 아이콘 원 한 톤 진하게.
+   * 누를 수 없는 카드라 포인터·눌림 없음, 동작 줄이기면 그림자·색만 (모션 예외 — STEP 02 점포 현황만)
+   */
+  hoverLift?: boolean
 }
 
 /** 숫자 카드 — 아이콘 원 + 라벨 + 큰 숫자 (디자인 "점포 현황" 카드 모양) */
@@ -26,15 +31,22 @@ export default function StatCard({
   footer,
   children,
   className,
+  hoverLift,
 }: Props) {
   return (
     <div
       className={cn(
         'flex items-start gap-4 rounded-control border border-gray-300 bg-gray-0 p-5',
+        hoverLift && 'group hover-card',
         className,
       )}
     >
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-500">
+      <span
+        className={cn(
+          'flex size-11 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-500',
+          hoverLift && 'motion-colors group-hover:bg-blue-500/15',
+        )}
+      >
         <Icon className="size-5" aria-hidden="true" />
       </span>
       <div className="min-w-0 flex-1">
