@@ -8,14 +8,16 @@ import { publicNumberText } from './populationDisplay'
 describe('population partial reference display', () => {
   it('shows source-specific values, scope and limitations without claiming people counts', () => {
     const html = renderToStaticMarkup(<PopulationReferenceView data={populationFixture.data} />)
-    expect(html).toContain('내국인 공개자료 주야간 비교 (부분)')
+    // 원천별 카드 3장 → 표 한 장(원천마다 한 줄), 소수 배수는 화면에서 뺐다 (비중 %로 충분)
+    expect(html).toContain('250m 격자 공개자료(부분)')
+    expect(html).toContain('내국인')
     expect(html).toContain('장기체류 외국인')
     expect(html).toContain('단기체류 외국인')
-    expect(html).toContain('2.00000배')
+    expect(html).not.toContain('2.00000배')
     expect(html).toContain('66.7%')
     expect(html).toContain('전체 인구를 대표하지 않아요')
     expect(html).toContain('인원수 아님')
-    expect(html).toContain('2026-11-07')
+    expect(html).toContain('2026. 11. 07.')
     expect(html).not.toContain('2.00000명')
   })
 
@@ -58,8 +60,8 @@ describe('population partial reference display', () => {
       .split('data-population-source="local"')[1]
       .split('data-population-source="long"')[0]
     expect(domestic).toContain('동일 구성이 없어')
-    expect(domestic).not.toContain('2.00000배')
-    expect(html.split('data-population-source="long"')[1]).toContain('2.00000배')
+    expect(domestic).not.toContain('66.7%')
+    expect(html.split('data-population-source="long"')[1]).toContain('66.7%')
   })
 
   it('reports same-month absence and source ambiguity without invented values', () => {

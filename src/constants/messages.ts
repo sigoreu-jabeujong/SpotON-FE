@@ -600,6 +600,118 @@ export const MESSAGES = {
     /** 화면 읽기 프로그램용: "7건 중 5건 표시" */
     shownCount: (shown: number, total: number) => `${total}건 중 ${shown}건 표시`,
   },
+  /** 상권 활동 아래 위치 참고자료 (추정매출·생활인구) — 화면용. 진단서는 LocationReferencePrint 그대로 */
+  reference: {
+    salesTitle: '인근 상권 추정매출',
+    demo: '예시 자료',
+    /** ⓘ 팝오버 — 카드 본문에서 옮긴 설명 (내용은 그대로, 위치만 이동) */
+    info: {
+      close: '설명 닫기',
+      salesTrigger: '인근 상권 추정매출 설명 보기',
+      salesTitle: '인근 상권 추정매출 설명',
+      populationTrigger: '생활인구 설명 보기',
+      populationTitle: '생활인구 설명',
+      analysisAsOf: (date: string) => `분석 기준일 ${date}`,
+      latestReference: '적재된 최신 공개자료를 별도 날짜의 참고값으로 표시해요.',
+      analysisPeriod: '선택한 분석 기간의 자료만 표시해요.',
+      areaUnit: '각 구역 단위의 수치이며 반경 비율로 나누지 않아요.',
+      weightedMedian:
+        '점포당 추정 매출은 상권별 점포당 평균에 점포 수를 반영한 추정 분포의 중간값이에요. 같은 분기의 상권·업종별 자료로 계산해요.',
+      pooledMean:
+        '점포당 추정 매출은 같은 분기 목록의 매출 합계를 같은 목록의 점포 수 합계로 나눠요.',
+      pooledFormula: (sales: string, stores: string) =>
+        `매출 합계 ${sales}원 ÷ 점포 수 합계 ${stores}개`,
+      topBasis: (names: string, sales: string, stores: string) =>
+        `점포당 추정 매출은 점포 수 상위 상권(${names})의 매출 합계 ${sales}원 ÷ 점포 수 합계 ${stores}개로 추정했어요.`,
+      topMarket: (name: string, sales: string, stores: string) =>
+        `${name}: 매출 ${sales}원 · 점포 ${stores}개`,
+      topFewer: (n: number) => `유효한 상권이 3곳보다 적어 ${n}곳의 자료를 사용했어요.`,
+      topExcluded: (n: number) => `매출과 점포 수를 함께 확인할 수 없는 ${n}개 항목은 제외했어요.`,
+      chartReference:
+        '아래 분포 그래프는 인근 상권별 점포당 평균에 점포 수를 반영한 추정 분포로, 위 숫자와 계산 방식이 달라 참고로 보여 줘요.',
+      weightedMean: (value: string) => `점포 수 가중평균(비교): ${value}`,
+      included: (listed: number, included: number) => `전체 ${listed}항목 중 ${included}항목 반영`,
+      excluded: (text: string) => `제외: ${text}`,
+      notObserved: '상권 단위 원자료 금액이에요. 개별 점포의 실제 매출을 관측한 분포는 아니에요.',
+      intersects: '선택 반경과 겹치는 상권도 함께 보여 주며, 이 자리 값을 대신하는 값은 아니에요.',
+      notAi:
+        '기존 AI 해석에 반영되는 값은 아니에요. 가맹·브랜드·면적 등 점포 조건으로 이 참고자료의 수치를 거르지 않아요.',
+      hourlyMean: '관측일 24시간 생활인구의 시간당 평균이에요.',
+      dayNightHours:
+        '주간 06~17시 · 야간 00~05시, 18~23시 (Spot:ON 기준). 동일 행정동·관측일·내국인 자료로 비교해요.',
+      estimate: '통계적 추정치이며 실제 방문객·고객 수나 창업의 유불리를 의미하지 않아요.',
+      boundary: '행정동 경계의 적용일은 확인 중이에요.',
+      boundarySource: '적용 공간: 서울시 행정동 경계 공개자료 (새 창)',
+      salesSourceLink: '서울시 상권분석서비스 추정매출 (새 창)',
+    },
+    salesHeadline: '점포당 추정 매출',
+    /** 큰 숫자 아래 한 줄 — 상권 수(곳 = 상권), 자료 분기, 추정치 성격 */
+    salesSummary: (markets: number, quarter: string) =>
+      `인근 상권 ${markets}곳 · ${quarter} · 추정치(실제 매출 아님)`,
+    salesSource: '출처: 서울시 상권분석서비스 추정매출 · 상권 단위',
+    marketsToggle: (n: number) => `상권별 자세히 보기 (${n}곳)`,
+    marketsCaption: '인근 상권별 점포당 추정 매출과 점포 수',
+    marketCols: { name: '상권', perStore: '점포당 매출', stores: '점포 수', note: '비고' },
+    /** 상권 표 비고 — 짧게 */
+    marketNote: {
+      no_data: '자료 없음',
+      different_quarter: '다른 분기',
+      excluded: '계산 제외',
+      /** 점포 수 상위 3개 상권 합산(#116) 기준 */
+      top: '반영',
+      notTop: '상위 3개 외',
+      mismatch: '자료 불일치',
+    },
+    /** 점포 수 상위 3개 상권 합산 추정매출 (#116) — 큰 숫자 아래 한 줄 */
+    topSummary: (n: number, quarter: string) =>
+      `점포 수 상위 ${n}개 상권 · ${quarter} · 추정치(실제 매출 아님)`,
+    topNoData: '같은 분기의 매출과 점포 수를 함께 확인할 수 있는 상권이 없어요.',
+    /** 다른 분기 값 — 대표값 방식(가중 중앙값이면 중간값, 아니면 평균) 그대로 */
+    otherQuarter: (quarter: string, value: string, median: boolean) =>
+      `${quarter} ${median ? '중간값' : '평균'} ${value}`,
+    quarter: (q: string) => `${q.slice(0, 4)}년 ${q.slice(4)}분기`,
+    noValue: '자료 없음',
+    populationTitle: '생활인구 (주간·야간)',
+    populationHeadline: '시간당 평균 생활인구',
+    /** 행정동 이름 옆 — 검색 위치를 포함하지 않고 반경과만 겹치는 행정동 */
+    intersectsArea: '반경과 겹치는 행정동',
+    observed: (date: string) => `관측일 ${date}`,
+    observedHours: (n: number) => `공개된 관측 시간 ${n}/24시간`,
+    day: '주간',
+    night: '야간',
+    /** 막대 아래 한 줄 — 서버 비중(%) 그대로 */
+    shares: (day: string, night: string) => `주간 ${day} · 야간 ${night}`,
+    dayNightMismatch: '비교 자료의 구역·관측일을 확인할 수 없어요.',
+    populationSource: '출처: 서울시 행정동 내국인 생활인구 · 행정동 단위 · 통계적 추정치',
+    gridToggle: '격자 단위 부분자료 보기',
+    /** 250m 격자 공개자료 (부분) 표 */
+    grid: {
+      basis: (analysis: string, observed: string, radius: number) =>
+        `250m 격자 공개자료(부분) · 분석 기준일 ${analysis} · 관측일 ${observed} · 반경 ${radius}m`,
+      caption: '250m 격자 공개자료 원천별 주간·야간 비중',
+      cols: { source: '구분', day: '주간 비중', night: '야간 비중', grids: '사용 격자' },
+      grids: (used: number, selected: number) => `${used} / ${selected}`,
+      note: '공개된 동일 구성만 비교한 참고값이며 전체 인구를 대표하지 않아요. 업종·브랜드·면적 조건으로 인구 자료를 거르지 않아요. 격자 적용일과 행정동별 합산 기준은 확인 중이에요.',
+      detailToggle: '자료 범위와 공개 원천값 상세',
+      sourceLink: (name: string) => `서울시 원천 자료: ${name} (새 창)`,
+      loading: '격자 단위 부분자료를 불러오고 있어요.',
+    },
+    /** 추정매출 분포 그래프 — 화면은 쉬운 말(의미는 같음: 가중치 = 점포 수) */
+    chart: {
+      title: '점포당 추정 매출 분포',
+      /** 큰 숫자가 상위 3개 상권 합산일 때 — 그래프는 상권별 분포 참고 */
+      referenceTitle: '상권별 점포당 매출 분포 (참고)',
+      basis: (stores: string, markets: number) => `점포 ${stores}개 · 상권 ${markets}곳 기준`,
+      yLabel: '점포 수 (개)',
+      groupLabel: '점포당 추정 매출 분포 그래프',
+      bin: (lower: string, upper: string, inclusive: boolean, count: string) =>
+        `${lower} 이상 ${upper} ${inclusive ? '이하' : '미만'}, 점포 수 ${count}개`,
+      median: (value: string) => `중간값 ${value}`,
+      axes: '가로: 점포당 추정 매출 · 세로: 점포 수',
+      selected: (lower: string, upper: string, count: string) =>
+        `선택 구간 ${lower} ~ ${upper} · 점포 수 ${count}개`,
+    },
+  },
   /** 단위·공통 글자 */
   units: {
     store: '개',

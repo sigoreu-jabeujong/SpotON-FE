@@ -14,7 +14,6 @@ import MetaLine from '../common/MetaLine'
 import SubTitle from '../common/SubTitle'
 import AnalysisSection from './AnalysisSection'
 import LocationReferenceSection from './population/LocationReferenceSection'
-import PopulationReferenceSection from './population/PopulationReferenceSection'
 import StoreStatusCards from './activity/StoreStatusCards'
 import PastViewNote from './nearby/PastViewNote'
 import { focusConditionFilter } from '../../utils/focusConditionFilter'
@@ -83,12 +82,6 @@ export default function ActivitySection() {
           </>
         )}
         <LocationReferenceSection params={params} />
-        <details>
-          <summary className="cursor-pointer text-caption text-gray-600">
-            250m 격자 공개자료 주야간 비교 (부분·별도 자료)
-          </summary>
-          <PopulationReferenceSection params={params} />
-        </details>
       </div>
     </AnalysisSection>
   )
