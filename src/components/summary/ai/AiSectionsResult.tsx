@@ -79,7 +79,7 @@ export default function AiSectionsResult({ report }: { report: AiSectionsReport 
           </div>
         ) : (
           <p className="text-body text-gray-600">
-            종합 해석을 불러오지 못했어요. 아래 수치와 기준을 확인해 주세요.
+            종합 해석을 불러오지 못했어요. 다른 해석과 분석 화면을 확인해 주세요.
           </p>
         )}
       </section>
