@@ -6,6 +6,16 @@ import type {
 } from '../../../types/locationReference'
 import SubTitle from '../../common/SubTitle'
 
+const quarter = (q: string | null) => (q ? `${q.slice(0, 4)}년 ${q.slice(4)}분기` : '자료 없음')
+const exclusion: Record<string, string> = {
+  sales_unavailable: '매출 자료 없음',
+  different_quarter: '다른 자료 분기',
+  store_row_missing: '점포 수 자료 없음',
+  store_mapping_conflict: '자료 정보 불일치',
+  zero_store_count: '점포 수 0개',
+  zero_store_count_with_sales: '점포 수 0개·매출 존재',
+}
+
 function unavailable(reason: string | null | undefined) {
   if (reason === 'no_spatial_overlap') return '이 위치나 반경과 겹치는 공개 구역이 없어요.'
   if (reason === 'no_data_in_analysis_period') return '선택한 분석 기간의 자료가 없어요.'
@@ -26,7 +36,9 @@ const periodRelation = (value: string | null) =>
       : '분석 기간 자료'
 function metric(value: ReferenceNumber | null | undefined) {
   // The exact decimal/string and source unit are server-owned, including huge KRW values.
-  return value?.display ? `${value.display}${value.rounded ? ' (표시 반올림)' : ''}` : '자료 없음'
+  return value?.display
+    ? `${value.display}${value.rounded && !value.display.includes('미만') ? ' (표시 반올림)' : ''}`
+    : '자료 없음'
 }
 
 function Frame({
@@ -75,15 +87,59 @@ export default function LocationReferenceView({
         {data.time_mode === 'latest_reference'
           ? '적재된 최신 공개자료를 별도 날짜의 참고값으로 표시해요.'
           : '선택한 분석 기간의 자료만 표시해요.'}{' '}
-        각 구역 단위의 수치이며 반경 비율로 나누거나 구역끼리 합산하지 않아요. 기존 AI 해석에
-        반영되는 값은 아니에요. 가맹·브랜드·면적 등 점포 조건으로 이 참고자료의 수치를 거르지
-        않아요.
+        각 구역 단위의 수치이며 반경 비율로 나누지 않아요. 점포당 참고평균은 같은 분기의 매출·점포
+        수 자료행을 합산해 계산해요. 기존 AI 해석에 반영되는 값은 아니에요. 가맹·브랜드·면적 등 점포
+        조건으로 이 참고자료의 수치를 거르지 않아요.
       </p>
       <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
         <Frame
           title="인근 상권 추정매출"
           notice="상권 단위 원자료 금액으로, 이 자리 점포의 실제 매출이 아니에요. 매출 집계 기간과 경계 적용 시점은 확인 중이며 월매출·분기매출로 환산하지 않아요."
         >
+          {data.sales.per_store_average && (
+            <div className="rounded-control border border-gray-200 p-4">
+              <p className="font-semibold">점포 1개당 평균 추정매출 · 참고</p>
+              <p className="text-xl font-bold break-all">
+                {metric(data.sales.per_store_average.metric)}
+              </p>
+              {data.sales.per_store_average.temporal_relation && (
+                <p className="text-caption">
+                  {periodRelation(data.sales.per_store_average.temporal_relation)}
+                </p>
+              )}
+              <p className="text-caption">
+                자료 분기 {quarter(data.sales.per_store_average.primary_quarter)} · 전체{' '}
+                {data.sales.per_store_average.listed_item_count}항목 중{' '}
+                {data.sales.per_store_average.included_item_count}항목 반영
+              </p>
+              {data.sales.per_store_average.metric && (
+                <p className="text-caption break-words">
+                  매출 합계 {data.sales.per_store_average.total_sales}원 ÷ 점포 수 합계{' '}
+                  {data.sales.per_store_average.total_store_count}개
+                </p>
+              )}
+              <p className="text-caption">
+                상권별 점포 수를 가중한 참고평균이에요. 겹치는 상권의 점포는 중복 포함될 수 있어요.
+                월매출로 환산하지 않아요.
+              </p>
+              <details>
+                <summary>다른 분기·제외 항목 보기</summary>
+                {data.sales.per_store_average.groups.map((g) => (
+                  <p key={g.source_quarter}>
+                    {quarter(g.source_quarter)}: {metric(g.metric)}
+                  </p>
+                ))}
+                <p>
+                  제외 항목 수:{' '}
+                  {Object.entries(data.sales.per_store_average.excluded_counts)
+                    .map(
+                      ([reason, count]) => `${exclusion[reason] ?? '자료 확인 필요'} ${count}항목`,
+                    )
+                    .join(' / ') || '0'}
+                </p>
+              </details>
+            </div>
+          )}
           {data.sales.items?.length ? (
             data.sales.items.map((item) => (
               <div
@@ -103,6 +159,27 @@ export default function LocationReferenceView({
                   {periodRelation(item.temporal_relation)}
                 </p>
                 <p className="text-xl font-bold break-all">{metric(item.metric)}</p>
+                {item.store_reference && (
+                  <p className="text-caption">
+                    자료상 전체 점포 수{' '}
+                    {item.store_reference.total_stores === null
+                      ? '자료 없음'
+                      : `${item.store_reference.total_stores}개`}{' '}
+                    · 점포당 {metric(item.per_store_metric)}
+                  </p>
+                )}
+                {item.average_contribution && (
+                  <p className="text-caption">
+                    {item.average_contribution.status === 'included'
+                      ? '대표평균 반영'
+                      : item.average_contribution.status === 'different_quarter'
+                        ? '다른 자료 분기'
+                        : '평균 계산 제외'}
+                    {item.average_contribution.reason &&
+                      item.average_contribution.status === 'excluded' &&
+                      ` · ${exclusion[item.average_contribution.reason] ?? '자료 확인 필요'}`}
+                  </p>
+                )}
                 {!item.metric && <p className="text-caption">{unavailable(item.reason)}</p>}
               </div>
             ))

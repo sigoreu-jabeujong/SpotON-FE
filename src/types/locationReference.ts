@@ -13,6 +13,9 @@ export type ReferenceNumber = {
   reason?: string | null
 }
 export type SalesReferenceItem = {
+  store_reference?: { total_stores: string | null; reason: string | null } | null
+  per_store_metric?: ReferenceNumber | null
+  average_contribution?: { status: string; reason: string | null } | null
   market_code: string
   market_name: string
   industry_code: string
@@ -57,7 +60,20 @@ export type LocationReference = {
   requested_as_of: string | null
   analysis_as_of: string
   time_mode: 'latest_reference' | 'analysis_period'
-  sales: ReferenceBlock<SalesReferenceItem>
+  sales: ReferenceBlock<SalesReferenceItem> & {
+    per_store_average?: {
+      status: ReferenceStatus
+      primary_quarter: string | null
+      temporal_relation?: 'same_period' | 'earlier_reference' | 'later_reference' | null
+      metric: ReferenceNumber | null
+      total_sales: string | null
+      total_store_count: string | null
+      listed_item_count: number
+      included_item_count: number
+      excluded_counts: Record<string, number>
+      groups: { source_quarter: string; metric: ReferenceNumber | null }[]
+    } | null
+  }
   living_population: ReferenceBlock<AdminReferenceItem>
   day_night: ReferenceBlock<DayNightReferenceItem>
 }
