@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react'
 import { MESSAGES } from '../../../constants/messages'
 import type { PopulationBlock, PopulationReference } from '../../../types/population'
 import { formatDate } from '../../../utils/format'
@@ -89,8 +90,12 @@ export default function PopulationReferenceView({
       )}
       <p className="text-micro text-gray-600">{G.note}</p>
       {!compact && data.status === 'ready' && (
-        <details className="text-micro text-gray-600 print:hidden">
-          <summary className="flex min-h-11 cursor-pointer items-center font-semibold focus-visible:outline-2">
+        <details className="group/src text-micro text-gray-600 print:hidden">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold focus-visible:outline-2 [&::-webkit-details-marker]:hidden">
+            <ChevronDown
+              className="size-3.5 shrink-0 group-open:rotate-180 motion-safe:transition-transform"
+              aria-hidden="true"
+            />
             {G.detailToggle}
           </summary>
           <ul className="flex flex-col gap-2">

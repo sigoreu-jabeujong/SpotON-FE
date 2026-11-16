@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { MESSAGES } from '../../../constants/messages'
 import { formatDate } from '../../../utils/format'
@@ -135,7 +136,7 @@ function SalesCard({ data }: { data: LocationReference }) {
           <p className="text-title leading-tight font-bold break-all text-gray-900">
             {metric(useWeightedMedian ? weighted?.median : average.metric)}
           </p>
-          <p className="mt-1 text-caption text-gray-600">
+          <p className="mt-1 text-caption break-keep text-gray-600">
             {R.salesSummary(average.included_item_count, quarter(average.primary_quarter))}
           </p>
           <SalesDistributionChart average={average} items={items} variant="screen" />
@@ -144,8 +145,12 @@ function SalesCard({ data }: { data: LocationReference }) {
         !items.length && <p role="status">{unavailable(data.sales.reason)}</p>
       )}
       {items.length > 0 && (
-        <details className="text-caption">
-          <summary className="flex min-h-11 cursor-pointer items-center font-semibold text-gray-900">
+        <details className="group text-caption">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold text-gray-900 focus-visible:outline-2 focus-visible:outline-blue-500 [&::-webkit-details-marker]:hidden">
+            <ChevronDown
+              className="size-4 shrink-0 text-gray-600 group-open:rotate-180 motion-safe:transition-transform"
+              aria-hidden="true"
+            />
             {R.marketsToggle(items.length)}
           </summary>
           <div className="overflow-x-auto">
@@ -355,8 +360,12 @@ function PopulationCard({ data, grid }: { data: LocationReference; grid?: ReactN
         {R.populationSource}
       </a>
       {grid && (
-        <details className="text-caption">
-          <summary className="flex min-h-11 cursor-pointer items-center font-semibold text-gray-900">
+        <details className="group text-caption">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold text-gray-900 focus-visible:outline-2 focus-visible:outline-blue-500 [&::-webkit-details-marker]:hidden">
+            <ChevronDown
+              className="size-4 shrink-0 text-gray-600 group-open:rotate-180 motion-safe:transition-transform"
+              aria-hidden="true"
+            />
             {R.gridToggle}
           </summary>
           {grid}
