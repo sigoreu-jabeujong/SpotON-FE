@@ -67,7 +67,7 @@ function SnapshotResult({
 }: {
   data: NonNullable<ReturnType<typeof useStoreSnapshot>['data']>
   periodLabel: string
-  /** 0건 문구 — 가맹 필터면 "분류 자료가 없어 0곳" (storeDisplay.franchiseEmptyMessage) */
+  /** 0건 문구 — 가맹 필터면 "분류 자료가 없어 0개" (storeDisplay.franchiseEmptyMessage) */
   emptyMessage: string
 }) {
   const count = (n: number) => formatCount(n, MESSAGES.units.store)

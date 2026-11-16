@@ -147,7 +147,7 @@ function FilterForm({
           ))}
         </Group>
 
-        {/* 프랜차이즈·개인 매장을 고르면 기준을 바로 보여준다 (개인 매장은 지금 자료로 거의 0곳) */}
+        {/* 프랜차이즈·개인 매장을 고르면 기준을 바로 보여준다 (개인 매장은 지금 자료로 거의 0개) */}
         {!BRAND_API_ENABLED && (
           <Group
             legend={T.franchise}

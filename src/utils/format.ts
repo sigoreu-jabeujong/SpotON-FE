@@ -42,7 +42,7 @@ export function formatPercent(value: Maybe<number>, digits = 1): string | null {
 
 const countFormatter = new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 0 })
 
-/** 점포 수 등 정수 → 천 단위 쉼표 ("1,234"). unit을 주면 뒤에 붙인다 ("38곳") */
+/** 점포 수 등 정수 → 천 단위 쉼표 ("1,234"). unit을 주면 뒤에 붙인다 ("38개") */
 export function formatCount(value: Maybe<number>, unit = ''): string | null {
   if (value === null || value === undefined || !Number.isFinite(value)) return null
   return `${countFormatter.format(value)}${unit}`

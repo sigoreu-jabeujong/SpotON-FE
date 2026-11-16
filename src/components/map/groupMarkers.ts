@@ -2,7 +2,7 @@ import type { NearbyMarker, StoreStatus } from '../../types/stores'
 import { storeKey } from '../../utils/storeKey'
 
 /**
- * 같은 좌표 점포 묶음 — 지도에서 보이는 방식만 바꾼다 (표·"조건에 맞는 점포 N곳"은 그대로).
+ * 같은 좌표 점포 묶음 — 지도에서 보이는 방식만 바꾼다 (표·"조건에 맞는 점포 N개"은 그대로).
  * 좌표는 응답 값 그대로 비교한다 (반올림·보정으로 위치를 바꾸지 않음).
  */
 export type MarkerGroup = {
