@@ -64,4 +64,12 @@ export function brandSelectionFor(scope: 'all' | 'chain') {
     : ({ brandScope: 'all', brandUnknown: 'include', brandEvidence: 'include_estimates' } as const)
 }
 
+/**
+ * 예전 링크의 브랜드 조건 → 지금 고를 수 있는 두 가지 중 하나로 정리.
+ * 비체인 조건(non_chain)은 전체로, 브랜드·체인이면 미확인 제외·추정 근거 포함으로, 전체면 미확인 포함·추정 근거 포함으로 맞춘다.
+ */
+export function normalizeBrandSelection(query: BrandSelection) {
+  return brandSelectionFor(query.brandScope === 'chain' ? 'chain' : 'all')
+}
+
 export const brandMode = BRAND_API_ENABLED

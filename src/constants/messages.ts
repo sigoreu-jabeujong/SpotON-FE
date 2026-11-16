@@ -21,9 +21,6 @@ export const MESSAGES = {
     unknownExcluded: '소속을 확인할 근거가 없는 기록은 결과에서 제외해요.',
     confirmedUnknown:
       '확인 근거만·미확인 포함 조건에서는 추정 기록도 필터상 미확인으로 포함돼요. 행의 추정 표시는 그대로 유지해요.',
-    legacyArea:
-      '예전 정보 없음 제외는 면적에만 옮겼어요. 브랜드 소속 미확인은 현재 포함돼요. 두 조건을 따로 선택할 수 있어요.',
-    excludeUnknownAction: '소속 미확인도 제외하기',
     mixedLegacy:
       '새 브랜드 조건을 우선하고 예전 가맹·정보 없음 조건은 적용하지 않았어요. 조회 조건을 확인해 주세요.',
     nonChainLimit:
@@ -36,9 +33,6 @@ export const MESSAGES = {
     emptyConfirmed:
       '이 조건에 쓸 확인 근거가 없어 0건이에요. 실제 점포나 비체인이 없다는 뜻은 아니에요.',
     emptyExcluded: '미확인 기록을 제외한 조회 결과가 0건이에요. 실제 체인이 없다는 뜻은 아니에요.',
-    legacyIndependent:
-      '예전 개인 매장 조건을 확인된 비체인 조건으로 바꿨어요. 현재 확인 근거가 없어 0건일 수 있어요.',
-    includeUnknownAction: '미확인도 포함해서 보기',
     /** 조회 조건 브랜드 소속 설명 팝오버 */
     filterInfoTrigger: '브랜드·체인 조건 설명 보기',
     filterInfoTitle: '브랜드·체인 조건 설명',

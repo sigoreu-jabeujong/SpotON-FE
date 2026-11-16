@@ -24,8 +24,7 @@ export type DiagnosisQuery = {
   brandScope?: BrandScope
   brandUnknown?: BrandUnknown
   brandEvidence?: BrandEvidence
-  brandUrlNotice?:
-    'legacy_independent' | 'legacy_area' | 'mixed_legacy' | 'invalid_brand' | 'unsupported_brand'
+  brandUrlNotice?: 'mixed_legacy' | 'invalid_brand' | 'unsupported_brand'
   /** 면적·프랜차이즈 "정보 없음" 점포 포함 여부 (기본 true) */
   includeUnknown: boolean
   /* ── /geocode 결과 (입력 화면에서 채움, URL: lat·lng·bk·floor·gu) ── */
