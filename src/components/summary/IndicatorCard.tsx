@@ -19,6 +19,8 @@ type Props = {
   empty: { status: DataStatus; text: string | null }
   /** 값 자리를 대신하는 그림 (예: 비율 지표 도넛 — 값·상태 글자를 그림 안에 포함) */
   visual?: ReactNode
+  /** 값 자리 최소 높이 (기본 min-h-12). 참고지표는 도넛 높이와 같게 맞춰 카드 줄이 가로로 맞는다 */
+  valueClassName?: string
   /** 값 아래 작은 설명 (분자/분모, 기간, 상권, 서울 평균 등) */
   details?: ReactNode
   /** 링크·복사 버튼처럼 카드 안에서 할 수 있는 일 */
@@ -48,6 +50,7 @@ export default function IndicatorCard({
   value,
   empty,
   visual,
+  valueClassName,
   details,
   actions,
   status,
@@ -70,7 +73,7 @@ export default function IndicatorCard({
         {title}
       </h3>
 
-      <div className="mt-3 flex min-h-12 items-center">
+      <div className={cn('mt-3 flex items-center', valueClassName ?? 'min-h-12')}>
         {visual ? (
           visual
         ) : value ? (
