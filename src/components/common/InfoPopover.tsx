@@ -12,12 +12,15 @@ export default function InfoPopover({
   title,
   closeLabel,
   className,
+  align = 'start',
   children,
 }: {
   triggerLabel: string
   title: string
   closeLabel: string
   className?: string
+  /** 768px 이상에서 팝오버를 버튼 왼쪽 끝(start)에 맞출지, 오른쪽 끝(end)에 맞출지 — 화면 오른쪽 끝 카드는 end */
+  align?: 'start' | 'end'
   children: ReactNode
 }) {
   const [open, setOpen] = useState(false)
@@ -71,7 +74,10 @@ export default function InfoPopover({
           role="dialog"
           aria-modal="false"
           aria-labelledby={`${id}-title`}
-          className="fixed top-28 right-4 left-4 z-40 block max-h-[65vh] overflow-y-auto rounded-card border border-gray-300 bg-gray-0 p-5 text-left font-normal shadow-card sm:absolute sm:top-full sm:right-auto sm:left-0 sm:mt-1 sm:w-92"
+          className={cn(
+            'fixed top-28 right-4 left-4 z-40 block max-h-[65vh] overflow-y-auto rounded-card border border-gray-300 bg-gray-0 p-5 text-left font-normal shadow-card sm:absolute sm:top-full sm:mt-1 sm:w-92',
+            align === 'end' ? 'sm:right-0 sm:left-auto' : 'sm:right-auto sm:left-0',
+          )}
         >
           <span className="mb-3 flex items-start justify-between gap-2">
             <span
