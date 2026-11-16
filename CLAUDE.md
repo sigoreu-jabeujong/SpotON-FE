@@ -1,4 +1,4 @@
-2026-11-17 현재 요청: AI 결과의 metrics 수치·출처 카드를 모두 제거한다. 접기·참고·인쇄로 대체하지 않으며 이점·유의점·해석 문단·계약 전 확인사항은 유지한다. BE OpenAI/gpt-4.1-mini 전환과 서버 근거 검증은 유지한다. 키는 FE·문서·로그에 넣지 않는다. BE docs/openai-report.md 참고.
+2026-11-17 현재 추가 승인: GPT-6.1 Sol/low가 데이터 근거로 직접 해석 문장을 작성한다. FE는 기존 응답 구조로 plain text를 표시하며 수치·출처 참고 카드는 계속 제거한다. 체크리스트/필수 한계를 유지한다. 생성 문장용 캐시 prefix ai-sections-v2와30분 보관, 서버80초/역할20초/FE90초를 적용한다. API 키는 서버에만 유지한다. BE docs/gpt-generated-interpretation.md 참고.
 
 2026-11-17 현재 사용자 승인: v2 AI 해석은 한 블록 안에 좌 이점·우 유의점, 아래 수치 해석/근거 카드와 기존 계약 전 확인사항 3개를 표시한다. 새 `/api/v2/risk/interpret/sections`는 수동 생성만 허용하고 자동 POST/재시도는 없다. GET baseline 토큰 및 주소 context2로 요청하고 역할 실패와 무관한 limitations를 항상 표시한다. 행정동 이름은 표시용 area_label만 쓰며 모델 입력에는 넣지 않는다. 보고서/PDF는 메모리 캐시를 재사용한다. 배경 GET 중 기존 결과/체크를 유지하고 기준이 바뀌면 새 해석을 안내한다. BE 선배포 확인 후 main을 공개하며 v1은 기존 해석을 유지한다. 이번 요청의 실제 Claude Code 검수와 정적 검사/빌드 결과를 docs/ai-three-section-implementation.md에 기록한다. 사용자 지시로 추가 테스트는 실행하지 않는다.
 
