@@ -384,7 +384,13 @@ export const MESSAGES = {
     closed12m: '최근 12개월 폐업 수',
     avgPeriod: '평균 영업 기간',
     /** BE 정의: 기준 시점에 영업하던 점포가 그 시점까지 경과한 개월의 평균 (폐업 점포 수명 아님) */
-    avgPeriodHint: '기준 시점까지 경과 기간 평균',
+    /** 평균 영업 기간 카드 제목 옆 ⓘ — 카드 본문에서 옮긴 정의 */
+    avgPeriodInfo: {
+      trigger: '평균 영업 기간 설명 보기',
+      title: '평균 영업 기간',
+      body: '기준 시점에 영업하던 점포가 기준 시점까지 영업한 기간(경과 기간)의 평균이에요. 폐업한 점포의 수명이 아니에요.',
+      close: '설명 닫기',
+    },
     periodLabel: (p: string) => `기간 ${p}`,
     loadingValue: '불러오는 중',
     failedValue: '불러오지 못했어요',
