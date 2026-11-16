@@ -32,7 +32,7 @@ export default function ReferenceIndicators({ indicators }: { indicators: RiskIn
 
   return (
     <IndicatorArea type="reference" title={T.referenceTitle} description={T.referenceDescription}>
-      <ul className="grid grid-cols-6 gap-3">
+      <ul className="grid grid-cols-6 gap-4">
         {cards.map((ind, i) => (
           <li key={ind.id} className={`${indicatorGridSpan(i, cards.length)} max-sm:col-span-full`}>
             <ReferenceCard ind={ind} />
@@ -56,7 +56,17 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
   const details = (seoulLine || fraction) && (
     <ul className="flex flex-col gap-0.5">
       {seoulLine && (
-        <li>{seoul ? T.seoulAvg(seoul) : indicatorReasonText(ind.seoul_avg_reason)}</li>
+        <li>
+          {seoul ? (
+            // 비교 값이 눈에 들어오게 숫자만 진하게
+            <>
+              {T.seoulAvgLabel}{' '}
+              <strong className="font-semibold text-gray-900 tabular-nums">{seoul}</strong>
+            </>
+          ) : (
+            indicatorReasonText(ind.seoul_avg_reason)
+          )}
+        </li>
       )}
       {fraction && <li>{T.fraction(ind.numerator as number, ind.denominator as number)}</li>}
     </ul>
@@ -72,8 +82,9 @@ function ReferenceCard({ ind }: { ind: MetricIndicator }) {
       // 값이 없으면 숫자(0) 대신 상태 아이콘과 사유만
       value={value}
       empty={{ status: ind.status, text: emptyText }}
-      // 숫자만 있는 카드도 도넛(size-26)과 같은 높이에서 세로 가운데 — 제목·본문·출처 줄이 가로로 맞는다
-      valueClassName="min-h-26"
+      // 숫자만 있는 카드도 도넛(size-28)과 같은 높이에서 가운데 — 제목·본문·출처 줄이 가로로 맞고, 넓은 카드에서 왼쪽에 몰리지 않는다
+      valueClassName="min-h-28 justify-center"
+      className="md:p-6"
       visual={
         donut ? (
           <RateDonut

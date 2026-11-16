@@ -355,6 +355,7 @@ export const MESSAGES = {
     market: (name: string) => `상권 ${name}`,
     quarter: (q: string) => q.replace(/^(\d{4})-Q(\d)$/, '$1년 $2분기'),
     seoulAvg: (v: string) => `서울 평균 ${v}`,
+    seoulAvgLabel: '서울 평균',
     officialRiskGuide: '공식 창업위험도는 서울시 상권분석서비스에서 확인할 수 있어요.',
     officialRiskLink: '서울시 상권분석서비스 열기',
     officialRiskNewWindow: '(새 창)',

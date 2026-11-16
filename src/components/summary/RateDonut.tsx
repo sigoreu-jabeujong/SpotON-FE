@@ -17,7 +17,7 @@ type Props = {
   text: string | null
   /** 값이 없을 때의 상태와 사유 (링 옆 글자) */
   empty: { status: DataStatus; text: string | null }
-  /** 서울 평균·분자/분모 같은 작은 설명 — 768px 이상은 도넛 오른쪽 세로로, 휴대폰은 도넛 아래 */
+  /** 서울 평균·분자/분모 같은 설명 — 도넛 오른쪽 세로로 (도넛과 한 묶음으로 카드 가운데) */
   details?: ReactNode
 }
 
@@ -37,23 +37,18 @@ export default function RateDonut({ percent, text, empty, details }: Props) {
   const [svg, shown] = useInViewOnce<SVGSVGElement>({ enabled: has, threshold: 0.4 })
   const dash = shown ? full : `0 ${CIRCUMFERENCE}`
   const reason = !has && empty.text
-  // 사유 글자 — 휴대폰은 도넛 바로 옆, 768px 이상은 오른쪽 설명 묶음 맨 위 (한쪽만 보이고 다른 쪽은 display:none)
-  const reasonText = (className: string) =>
-    reason && (
-      <p
-        className={cn(
-          'flex items-start gap-1.5 text-caption font-semibold break-keep text-gray-600',
-          className,
-        )}
-      >
-        <StatusIcon status={empty.status} className="mt-0.5 size-4 shrink-0" />
-        <span>{empty.text}</span>
-      </p>
-    )
+  // 사유 글자 — 오른쪽 설명 묶음 맨 위
+  const reasonText = reason && (
+    <p className="flex items-start gap-1.5 text-caption font-semibold break-keep text-gray-600">
+      <StatusIcon status={empty.status} className="mt-0.5 size-4 shrink-0" />
+      <span>{empty.text}</span>
+    </p>
+  )
   return (
-    <div className="flex items-center gap-5 max-md:flex-col max-md:items-start max-md:gap-2">
-      <div className="flex items-center gap-4">
-        <div className="relative size-26 shrink-0">
+    // 도넛 + 설명을 한 묶음으로 카드 가운데 — 넓은 카드에서 왼쪽에 몰려 오른쪽이 비지 않게
+    <div className="flex w-full items-center justify-center gap-6 lg:gap-10">
+      <div className="flex items-center">
+        <div className="relative size-28 shrink-0">
           <svg
             ref={svg}
             data-donut
@@ -93,11 +88,10 @@ export default function RateDonut({ percent, text, empty, details }: Props) {
             {has ? text : DATA_STATUS[empty.status].label}
           </p>
         </div>
-        {reasonText('md:hidden')}
       </div>
       {(reason || details) && (
-        <div className="flex min-w-0 flex-col gap-2 text-caption text-gray-600">
-          {reasonText('max-md:hidden')}
+        <div className="flex min-w-0 flex-col gap-2 text-caption break-keep text-gray-600 lg:text-body">
+          {reasonText}
           {details}
         </div>
       )}
