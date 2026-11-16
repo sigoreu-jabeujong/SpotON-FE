@@ -513,7 +513,7 @@ export default function LocationReferenceView({
       <div className="flex min-w-0 flex-col gap-6" data-testid="location-reference">
         {/* 긴 안내 문단은 각 카드 제목 옆 ⓘ 팝오버로 옮겼다 */}
         {isDemo && <p className="text-caption text-orange-700">{R.demo}</p>}
-        <div className="grid grid-cols-2 items-start gap-6 max-md:grid-cols-1">
+        <div className="grid grid-cols-2 items-stretch gap-6 max-md:grid-cols-1">
           <SalesCard data={data} category={category} />
           <PopulationCard data={data} grid={grid} />
         </div>

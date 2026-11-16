@@ -6,6 +6,7 @@ export function closedHistoryParams(q: DiagnosisQuery): LocationHistoryParams | 
   if (
     !q.buildingKey ||
     !q.address ||
+    !q.category ||
     q.lat === null ||
     q.lng === null ||
     q.detailUnverified ||
@@ -20,7 +21,7 @@ export function closedHistoryParams(q: DiagnosisQuery): LocationHistoryParams | 
     ...(q.floorUnit ? { floor_unit: q.floorUnit } : {}),
     scope: !q.floorUnit ? 'address' : q.floorUnit.includes('호') ? 'unit' : 'floor',
     identity_requirement: 'address_scope',
-    ...(q.category ? { category: q.category } : {}),
+    category: q.category,
   }
 }
 export function closedHistoryTitle(h?: StoreHistory, failed = false): string {

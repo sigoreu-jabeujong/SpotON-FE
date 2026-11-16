@@ -8,8 +8,10 @@ import type { ActivityInclude } from '../types/market'
 export function useMarketActivity(
   params: CommonQueryParams | null,
   include: ActivityInclude[] = [],
+  enabled = true,
 ) {
   return useQuery({
+    enabled,
     queryKey: queryKeys.marketActivity(params, include),
     queryFn: params ? () => getMarketActivity(params, include) : skipToken,
   })

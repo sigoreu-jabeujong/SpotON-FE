@@ -3,6 +3,8 @@ import { adaptAnalysisHistory } from './storeAdapters'
 import type { LocationHistoryParams, LocationHistoryResponse } from '../types/locationHistory'
 
 export async function getLocationHistory(params: LocationHistoryParams, signal?: AbortSignal) {
+  const category = params.category
+  if (!category) throw new Error('missing_location_history_category')
   const { data: context } = await apiPost<{
     context: string
     building_key: string
@@ -15,7 +17,7 @@ export async function getLocationHistory(params: LocationHistoryParams, signal?:
       building_key: params.building_key,
       lat: params.lat,
       lng: params.lng,
-      category: params.category ?? 'restaurant',
+      category,
     },
     { signal },
   )
@@ -30,7 +32,7 @@ export async function getLocationHistory(params: LocationHistoryParams, signal?:
     {
       context: context.context,
       ...(params.floor_unit ? { floor_unit: params.floor_unit } : {}),
-      ...(params.category ? { category: params.category } : {}),
+      category,
     },
     { signal },
   )
@@ -84,6 +86,14 @@ export async function getLocationHistory(params: LocationHistoryParams, signal?:
     throw new Error('invalid_location_history')
   return {
     ...response,
+    meta: {
+      ...response.meta,
+      ai_report_address_context: {
+        context: context.context,
+        ...(params.floor_unit ? { floor_unit: params.floor_unit } : {}),
+        category,
+      },
+    },
     data: {
       ...adapted,
       location: {

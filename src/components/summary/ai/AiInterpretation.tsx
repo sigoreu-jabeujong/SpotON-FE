@@ -21,6 +21,7 @@ import AiInfoPopover from './AiInfoPopover'
 import AiConditions from './AiConditions'
 import AiFailure from './AiFailure'
 import AiResultCard from './AiResultCard'
+import AiSectionsInterpretation from './AiSectionsInterpretation'
 
 const T = MESSAGES.ai
 
@@ -31,6 +32,7 @@ type Props = {
   history?: RiskInterpretHistory
   address: string
   meta?: ApiMeta | null
+  basisLoading?: boolean
 }
 
 /**
@@ -40,7 +42,15 @@ type Props = {
  * 지표 카드와 독립이라 실패해도 위쪽 지표는 그대로 남는다. 다시 시도는 사용자 버튼으로만.
  * 조건(필터·시점)이 바뀌면 부모가 key를 바꿔 이 컴포넌트를 새로 만든다 → 이전 결과·진행 중 요청 결과가 보이지 않는다.
  */
-export default function AiInterpretation({ params, history, address, meta }: Props) {
+export default function AiInterpretation(props: Props) {
+  return V2_API_ENABLED ? (
+    <AiSectionsInterpretation {...props} />
+  ) : (
+    <LegacyAiInterpretation {...props} />
+  )
+}
+
+function LegacyAiInterpretation({ params, history, address, meta }: Props) {
   const baselineReady = hasRiskBaseline(params, meta)
   const interpret = useRiskInterpret()
   const queryClient = useQueryClient()
