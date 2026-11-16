@@ -145,7 +145,7 @@ export function reportMatches(value: unknown, baseline: ReportBaseline): value i
 export async function postAiReport(body: ReportRequest, signal: AbortSignal) {
   const result = await apiPost<unknown>('/v2/risk/interpret/sections', body, {
     signal,
-    timeoutMs: 45000,
+    timeoutMs: 75000,
   })
   if (!reportMatches(result.data, body.baseline))
     throw new ApiRequestError(
