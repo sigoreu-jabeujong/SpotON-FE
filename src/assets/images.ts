@@ -5,7 +5,7 @@
  * 인쇄용 진단서(PDF)와 요약 이미지에는 큰 장식 그림을 쓰지 않는다.
  */
 import cityImage from './city-3d.webp'
-import homeGradient from './home-gradient.webp'
+import homeGlow from './home-glow.webp'
 import koreaMap from './korea-map.webp'
 import logoSymbol from './logo.webp'
 import robotImage from './robot.webp'
@@ -15,7 +15,10 @@ export const IMAGES: {
   logo: string | null
   /** ① 랜딩 오른쪽 3D 전국 지도 */
   landingMap: string | null
-  /** ① 랜딩 전국 지도 뒤(아래 레이어)에 까는 배경 그라데이션 */
+  /**
+   * ① 랜딩 전국 지도 뒤 가운데 파란 빛 — 궤도선·구슬을 지운 그림 (선·구슬은 LandingOrbit이 코드로 그린다).
+   * 예전 한 장짜리 그림(home-gradient.webp)은 원본으로 남겨 둔다
+   */
   landingGradient: string | null
   /** ② 입력 화면 아래쪽 배경 3D 건물·위치 핀 */
   inputBackground: string | null
@@ -26,7 +29,7 @@ export const IMAGES: {
 } = {
   logo: logoSymbol,
   landingMap: koreaMap,
-  landingGradient: homeGradient,
+  landingGradient: homeGlow,
   inputBackground: cityImage,
   resultHeader: cityImage,
   robot: robotImage,

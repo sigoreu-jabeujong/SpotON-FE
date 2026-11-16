@@ -26,7 +26,6 @@ export const SOURCES: Record<string, { name: string; url?: string }> = {
   },
   R7: { name: '소상공인시장진흥공단 상가정보' },
   R8: { name: '카카오 로컬·지도', url: 'https://apis.map.kakao.com' },
-  R9: { name: '공정거래위원회 가맹정보', url: 'https://www.data.go.kr/data/15143693/openapi.do' },
   R10: { name: '소상공인365·중소벤처기업부 보도자료' },
   R11: {
     name: '서울시 창업위험도 지표 정의',
@@ -62,15 +61,4 @@ export function parseSourceIds(source: string | readonly string[] | null | undef
  * 서비스가 실제로 쓰는 데이터 출처 (랜딩·하단 안내용). 사례 조사·문서 출처(R10·R11·R13 등)는 넣지 않는다.
  * 기관 로고 없이 이름만 글자로 보여준다.
  */
-export const SERVICE_SOURCE_IDS = [
-  'R5',
-  'R6',
-  'R1',
-  'R2',
-  'R15',
-  'R16',
-  'R3',
-  'R4',
-  'R9',
-  'R8',
-] as const
+export const SERVICE_SOURCE_IDS = ['R5', 'R6', 'R1', 'R2', 'R15', 'R16', 'R3', 'R4', 'R8'] as const

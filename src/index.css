@@ -339,6 +339,475 @@ html {
   --shadow-card: 0 4px 24px rgb(13 80 215 / 0.06), 0 1px 3px rgb(26 26 26 / 0.04);
 }
 
+/*
+ * 랜딩 지도 뒤 궤도 구슬 공전 (LandingOrbit) — 사용자 요청으로 "5초 넘는 자동 반복 금지"의 예외(장식, docs/decisions.md).
+ * 바깥 궤도 타원을 같은 호 길이 간격 72점으로 나눈 위치(orbit-move, 궤도 상자 기준 %)와
+ * 그 자리의 바깥 방향 각도(orbit-turn)를 같은 시간으로 돈다 — transform만 바뀌어 레이아웃을 다시 계산하지 않는다.
+ * 구슬마다 한 바퀴 시간(--orbit-time)·시작 위치(음수 --orbit-delay)가 다르다. 동작 줄이기면 아예 걸지 않아
+ * 원래 그림과 같은 자리에 멈춰 있고, 탭이 안 보이면 브라우저가 CSS 애니메이션을 멈춘다
+ */
+@keyframes orbit-move {
+  0% {
+    transform: translate(96.156%, 48.432%);
+  }
+  1.3889% {
+    transform: translate(95.688%, 54.266%);
+  }
+  2.7778% {
+    transform: translate(94.411%, 59.61%);
+  }
+  4.1667% {
+    transform: translate(92.563%, 64.305%);
+  }
+  5.5556% {
+    transform: translate(90.353%, 68.352%);
+  }
+  6.9444% {
+    transform: translate(87.908%, 71.842%);
+  }
+  8.3333% {
+    transform: translate(85.298%, 74.872%);
+  }
+  9.7222% {
+    transform: translate(82.579%, 77.5%);
+  }
+  11.1111% {
+    transform: translate(79.769%, 79.793%);
+  }
+  12.5% {
+    transform: translate(76.908%, 81.773%);
+  }
+  13.8889% {
+    transform: translate(74.006%, 83.482%);
+  }
+  15.2778% {
+    transform: translate(71.058%, 84.95%);
+  }
+  16.6667% {
+    transform: translate(68.09%, 86.187%);
+  }
+  18.0556% {
+    transform: translate(65.099%, 87.213%);
+  }
+  19.4444% {
+    transform: translate(62.092%, 88.039%);
+  }
+  20.8333% {
+    transform: translate(59.071%, 88.673%);
+  }
+  22.2222% {
+    transform: translate(56.037%, 89.121%);
+  }
+  23.6111% {
+    transform: translate(53.006%, 89.388%);
+  }
+  25% {
+    transform: translate(49.976%, 89.476%);
+  }
+  26.3889% {
+    transform: translate(46.931%, 89.387%);
+  }
+  27.7778% {
+    transform: translate(43.9%, 89.12%);
+  }
+  29.1667% {
+    transform: translate(40.867%, 88.67%);
+  }
+  30.5556% {
+    transform: translate(37.846%, 88.035%);
+  }
+  31.9444% {
+    transform: translate(34.839%, 87.209%);
+  }
+  33.3333% {
+    transform: translate(31.848%, 86.182%);
+  }
+  34.7222% {
+    transform: translate(28.881%, 84.944%);
+  }
+  36.1111% {
+    transform: translate(25.933%, 83.475%);
+  }
+  37.5% {
+    transform: translate(23.031%, 81.766%);
+  }
+  38.8889% {
+    transform: translate(20.172%, 79.784%);
+  }
+  40.2778% {
+    transform: translate(17.362%, 77.491%);
+  }
+  41.6667% {
+    transform: translate(14.644%, 74.862%);
+  }
+  43.0556% {
+    transform: translate(12.035%, 71.832%);
+  }
+  44.4444% {
+    transform: translate(9.591%, 68.341%);
+  }
+  45.8333% {
+    transform: translate(7.383%, 64.293%);
+  }
+  47.2222% {
+    transform: translate(5.537%, 59.598%);
+  }
+  48.6111% {
+    transform: translate(4.262%, 54.253%);
+  }
+  50% {
+    transform: translate(3.795%, 48.432%);
+  }
+  51.3889% {
+    transform: translate(4.264%, 42.597%);
+  }
+  52.7778% {
+    transform: translate(5.541%, 37.253%);
+  }
+  54.1667% {
+    transform: translate(7.388%, 32.558%);
+  }
+  55.5556% {
+    transform: translate(9.598%, 28.511%);
+  }
+  56.9444% {
+    transform: translate(12.043%, 25.021%);
+  }
+  58.3333% {
+    transform: translate(14.653%, 21.991%);
+  }
+  59.7222% {
+    transform: translate(17.372%, 19.363%);
+  }
+  61.1111% {
+    transform: translate(20.183%, 17.071%);
+  }
+  62.5% {
+    transform: translate(23.043%, 15.09%);
+  }
+  63.8889% {
+    transform: translate(25.945%, 13.381%);
+  }
+  65.2778% {
+    transform: translate(28.894%, 11.913%);
+  }
+  66.6667% {
+    transform: translate(31.862%, 10.676%);
+  }
+  68.0556% {
+    transform: translate(34.852%, 9.65%);
+  }
+  69.4444% {
+    transform: translate(37.86%, 8.824%);
+  }
+  70.8333% {
+    transform: translate(40.881%, 8.19%);
+  }
+  72.2222% {
+    transform: translate(43.914%, 7.742%);
+  }
+  73.6111% {
+    transform: translate(46.946%, 7.475%);
+  }
+  75% {
+    transform: translate(49.976%, 7.387%);
+  }
+  76.3889% {
+    transform: translate(53.02%, 7.476%);
+  }
+  77.7778% {
+    transform: translate(56.051%, 7.743%);
+  }
+  79.1667% {
+    transform: translate(59.085%, 8.193%);
+  }
+  80.5556% {
+    transform: translate(62.106%, 8.828%);
+  }
+  81.9444% {
+    transform: translate(65.113%, 9.654%);
+  }
+  83.3333% {
+    transform: translate(68.103%, 10.681%);
+  }
+  84.7222% {
+    transform: translate(71.071%, 11.919%);
+  }
+  86.1111% {
+    transform: translate(74.018%, 13.388%);
+  }
+  87.5% {
+    transform: translate(76.92%, 15.097%);
+  }
+  88.8889% {
+    transform: translate(79.78%, 17.079%);
+  }
+  90.2778% {
+    transform: translate(82.589%, 19.372%);
+  }
+  91.6667% {
+    transform: translate(85.308%, 22.001%);
+  }
+  93.0556% {
+    transform: translate(87.916%, 25.031%);
+  }
+  94.4444% {
+    transform: translate(90.36%, 28.523%);
+  }
+  95.8333% {
+    transform: translate(92.569%, 32.57%);
+  }
+  97.2222% {
+    transform: translate(94.415%, 37.265%);
+  }
+  98.6111% {
+    transform: translate(95.69%, 42.61%);
+  }
+  100% {
+    transform: translate(96.156%, 48.432%);
+  }
+}
+@keyframes orbit-turn {
+  0% {
+    transform: rotate(0deg);
+  }
+  1.3889% {
+    transform: rotate(17.47deg);
+  }
+  2.7778% {
+    transform: rotate(31.81deg);
+  }
+  4.1667% {
+    transform: rotate(42.58deg);
+  }
+  5.5556% {
+    transform: rotate(50.57deg);
+  }
+  6.9444% {
+    transform: rotate(56.69deg);
+  }
+  8.3333% {
+    transform: rotate(61.55deg);
+  }
+  9.7222% {
+    transform: rotate(65.54deg);
+  }
+  11.1111% {
+    transform: rotate(68.93deg);
+  }
+  12.5% {
+    transform: rotate(71.86deg);
+  }
+  13.8889% {
+    transform: rotate(74.46deg);
+  }
+  15.2778% {
+    transform: rotate(76.82deg);
+  }
+  16.6667% {
+    transform: rotate(78.99deg);
+  }
+  18.0556% {
+    transform: rotate(81.01deg);
+  }
+  19.4444% {
+    transform: rotate(82.93deg);
+  }
+  20.8333% {
+    transform: rotate(84.76deg);
+  }
+  22.2222% {
+    transform: rotate(86.54deg);
+  }
+  23.6111% {
+    transform: rotate(88.28deg);
+  }
+  25% {
+    transform: rotate(90deg);
+  }
+  26.3889% {
+    transform: rotate(91.73deg);
+  }
+  27.7778% {
+    transform: rotate(93.47deg);
+  }
+  29.1667% {
+    transform: rotate(95.25deg);
+  }
+  30.5556% {
+    transform: rotate(97.08deg);
+  }
+  31.9444% {
+    transform: rotate(99deg);
+  }
+  33.3333% {
+    transform: rotate(101.02deg);
+  }
+  34.7222% {
+    transform: rotate(103.19deg);
+  }
+  36.1111% {
+    transform: rotate(105.55deg);
+  }
+  37.5% {
+    transform: rotate(108.15deg);
+  }
+  38.8889% {
+    transform: rotate(111.09deg);
+  }
+  40.2778% {
+    transform: rotate(114.48deg);
+  }
+  41.6667% {
+    transform: rotate(118.47deg);
+  }
+  43.0556% {
+    transform: rotate(123.33deg);
+  }
+  44.4444% {
+    transform: rotate(129.45deg);
+  }
+  45.8333% {
+    transform: rotate(137.45deg);
+  }
+  47.2222% {
+    transform: rotate(148.22deg);
+  }
+  48.6111% {
+    transform: rotate(162.57deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  51.3889% {
+    transform: rotate(197.47deg);
+  }
+  52.7778% {
+    transform: rotate(211.81deg);
+  }
+  54.1667% {
+    transform: rotate(222.58deg);
+  }
+  55.5556% {
+    transform: rotate(230.57deg);
+  }
+  56.9444% {
+    transform: rotate(236.69deg);
+  }
+  58.3333% {
+    transform: rotate(241.55deg);
+  }
+  59.7222% {
+    transform: rotate(245.54deg);
+  }
+  61.1111% {
+    transform: rotate(248.93deg);
+  }
+  62.5% {
+    transform: rotate(251.86deg);
+  }
+  63.8889% {
+    transform: rotate(254.46deg);
+  }
+  65.2778% {
+    transform: rotate(256.82deg);
+  }
+  66.6667% {
+    transform: rotate(258.99deg);
+  }
+  68.0556% {
+    transform: rotate(261.01deg);
+  }
+  69.4444% {
+    transform: rotate(262.93deg);
+  }
+  70.8333% {
+    transform: rotate(264.76deg);
+  }
+  72.2222% {
+    transform: rotate(266.54deg);
+  }
+  73.6111% {
+    transform: rotate(268.28deg);
+  }
+  75% {
+    transform: rotate(270deg);
+  }
+  76.3889% {
+    transform: rotate(271.73deg);
+  }
+  77.7778% {
+    transform: rotate(273.47deg);
+  }
+  79.1667% {
+    transform: rotate(275.25deg);
+  }
+  80.5556% {
+    transform: rotate(277.08deg);
+  }
+  81.9444% {
+    transform: rotate(279deg);
+  }
+  83.3333% {
+    transform: rotate(281.02deg);
+  }
+  84.7222% {
+    transform: rotate(283.19deg);
+  }
+  86.1111% {
+    transform: rotate(285.55deg);
+  }
+  87.5% {
+    transform: rotate(288.15deg);
+  }
+  88.8889% {
+    transform: rotate(291.09deg);
+  }
+  90.2778% {
+    transform: rotate(294.48deg);
+  }
+  91.6667% {
+    transform: rotate(298.47deg);
+  }
+  93.0556% {
+    transform: rotate(303.33deg);
+  }
+  94.4444% {
+    transform: rotate(309.45deg);
+  }
+  95.8333% {
+    transform: rotate(317.45deg);
+  }
+  97.2222% {
+    transform: rotate(328.22deg);
+  }
+  98.6111% {
+    transform: rotate(342.57deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+[data-landing-orbit] {
+  --orbit-slow: 1;
+}
+/* 휴대폰은 화면이 작아 더 천천히 (1.5배) */
+@media (max-width: 767px) {
+  [data-landing-orbit] {
+    --orbit-slow: 1.5;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-orbit-holder] {
+    animation: orbit-move var(--orbit-time) linear var(--orbit-delay) infinite;
+    will-change: transform;
+  }
+  [data-orbit-bead] {
+    animation: orbit-turn var(--orbit-time) linear var(--orbit-delay) infinite;
+    will-change: transform;
+  }
+}
+
 /* 동작 줄이기 설정: 남은 애니메이션·전환도 사실상 즉시 끝나게 (스피너·반짝임·떠 있기 포함) */
 @media (prefers-reduced-motion: reduce) {
   *,

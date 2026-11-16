@@ -47,7 +47,7 @@ export default function HistorySection() {
                 {h.location?.location_coverage === 'partial' && <p>{closedHistoryNotice(h)}</p>}
               </div>
             )}
-            {h.total > 0 && <HistoryTable stores={h.stores} />}
+            {h.total > 0 && <HistoryTable asOf={meta?.as_of} stores={h.stores} />}
             <MetaLine
               source={meta?.source}
               sourceNames

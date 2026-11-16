@@ -41,10 +41,9 @@ export default function LoadingSkeleton({
         </div>
       )}
       {variant === 'chart' && <SkeletonBlock className="h-64 rounded-control" />}
-      {/* 종합 진단: 상권 판정(120) · 공식 영역(387) · 참고 영역(635) — 실제 화면(1440, 목업)에서 잰 높이 */}
+      {/* 종합 진단: 공식 영역(387) · 참고 영역(635) — 상권 판정 영역은 제거 */}
       {variant === 'summary' && (
         <div className="flex flex-col gap-10">
-          <SkeletonBlock className="h-[120px] rounded-card" />
           <SkeletonBlock className="h-[387px] rounded-card" />
           <SkeletonBlock className="h-[635px] rounded-card" />
         </div>

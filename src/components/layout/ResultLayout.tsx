@@ -11,9 +11,6 @@ import ResultFooter from './ResultFooter'
 import ResultHeader from './ResultHeader'
 import SkipLink from '../common/SkipLink'
 import ResultSidebar from './ResultSidebar'
-import BrandStatusNotice, { BrandResultBoundary } from '../common/BrandStatusNotice'
-import { BRAND_API_ENABLED } from '../../api/analysisProfile'
-import InfoBox from '../common/InfoBox'
 
 const SECTION_IDS = ANALYSIS_SECTIONS.map((s) => s.id)
 
@@ -36,27 +33,12 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
  */
 function ResultLayoutContent() {
   const { pathname } = useLocation()
-  const { isReady, search, query } = useDiagnosisQuery()
-  const baseline = useResultBaseline(
-    BRAND_API_ENABLED || query.brandUrlNotice !== 'unsupported_brand',
-  )
+  const { isReady, search } = useDiagnosisQuery()
+  const baseline = useResultBaseline(true)
   const activeSection = useActiveSection(SECTION_IDS, pathname === ROUTES.analysis)
   usePageTitle(titleOf(pathname))
 
   if (!isReady) return <Navigate to={{ pathname: ROUTES.input, search }} replace />
-  if (!BRAND_API_ENABLED && query.brandUrlNotice === 'unsupported_brand')
-    return (
-      <main className="p-6">
-        <InfoBox title={MESSAGES.brand.title} description={MESSAGES.brand.unsupportedUrl} />
-        <Link
-          className="mt-3 inline-flex min-h-11 items-center underline"
-          to={{ pathname: ROUTES.input, search }}
-        >
-          {MESSAGES.brand.resetConditions}
-        </Link>
-      </main>
-    )
-
   const meta = PAGE_META[pathname] ?? MESSAGES.resultPages.analysis
 
   return (
@@ -89,12 +71,7 @@ function ResultLayoutContent() {
         >
           <div className="max-w-[1080px]">
             {/* STEP 02·03은 필터 기준 안내를 이 상자에 합쳐 한 번만 보여 준다 */}
-            <BrandStatusNotice
-              withFilterNotice={pathname === ROUTES.analysis || pathname === ROUTES.summary}
-            />
-            <BrandResultBoundary>
-              <Outlet />
-            </BrandResultBoundary>
+            <Outlet />
           </div>
         </main>
         <ResultFooter baseline={baseline} />
