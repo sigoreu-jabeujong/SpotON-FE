@@ -357,38 +357,43 @@ function PopulationCard({ data, grid }: { data: LocationReference; grid?: ReactN
           p.population_scope === d.population_scope,
       ),
   )
+  const populationInfo = (
+    <span className="print:hidden">
+      <InfoPopover
+        triggerLabel={I.populationTrigger}
+        title={I.populationTitle}
+        closeLabel={I.close}
+      >
+        <Line>{I.hourlyMean}</Line>
+        <Line>{I.dayNightHours}</Line>
+        <Line>{I.estimate}</Line>
+        {people.map((item) => (
+          <Line key={item.area_ref}>
+            {item.area_name} · {periodRelation(item.temporal_relation)}
+          </Line>
+        ))}
+        <Line>{I.boundary}</Line>
+        <a
+          className="inline-flex min-h-11 items-center underline"
+          href="https://data.seoul.go.kr/dataList/OA-22160/S/1/datasetView.do"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {I.boundarySource}
+        </a>
+        <a
+          className="inline-flex min-h-11 items-center underline"
+          href="https://data.seoul.go.kr/dataList/OA-23016/S/1/datasetView.do"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {R.populationSource}
+        </a>
+      </InfoPopover>
+    </span>
+  )
   return (
-    <Card
-      id="population"
-      title={
-        <>
-          {R.populationTitle}
-          <InfoPopover
-            triggerLabel={I.populationTrigger}
-            title={I.populationTitle}
-            closeLabel={I.close}
-          >
-            <Line>{I.hourlyMean}</Line>
-            <Line>{I.dayNightHours}</Line>
-            <Line>{I.estimate}</Line>
-            {people.map((item) => (
-              <Line key={item.area_ref}>
-                {item.area_name} · {periodRelation(item.temporal_relation)}
-              </Line>
-            ))}
-            <Line>{I.boundary}</Line>
-            <a
-              className="inline-flex min-h-11 items-center underline"
-              href="https://data.seoul.go.kr/dataList/OA-22160/S/1/datasetView.do"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {I.boundarySource}
-            </a>
-          </InfoPopover>
-        </>
-      }
-    >
+    <Card id="population" title={R.populationTitle}>
       {people.length ? (
         people.map((item) => {
           const pair = dayNight.find(
@@ -406,7 +411,10 @@ function PopulationCard({ data, grid }: { data: LocationReference; grid?: ReactN
                 {R.observed(formatDate(item.observation_date) ?? item.observation_date)}
               </p>
               <div>
-                <p className="text-caption font-semibold text-gray-600">{R.populationHeadline}</p>
+                <p className="flex items-center gap-1 text-caption font-semibold text-gray-600">
+                  {R.populationHeadline}
+                  {populationInfo}
+                </p>
                 <p className="text-title leading-tight font-bold break-all text-gray-900">
                   {metric(item.mean_24h)}
                 </p>
@@ -430,14 +438,6 @@ function PopulationCard({ data, grid }: { data: LocationReference; grid?: ReactN
       {!dayNight.length && people.length > 0 && (
         <p className="text-caption text-gray-600">{unavailable(data.day_night.reason)}</p>
       )}
-      <a
-        className="text-caption text-gray-600 underline"
-        href="https://data.seoul.go.kr/dataList/OA-23016/S/1/datasetView.do"
-        target="_blank"
-        rel="noreferrer"
-      >
-        {R.populationSource}
-      </a>
       {grid && (
         <details className="group text-caption">
           <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold text-gray-900 focus-visible:outline-2 focus-visible:outline-blue-500 [&::-webkit-details-marker]:hidden">
