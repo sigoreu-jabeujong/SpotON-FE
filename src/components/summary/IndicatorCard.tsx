@@ -17,12 +17,19 @@ type Props = {
   value: string | null
   /** 값이 없을 때 값 자리에 쓸 상태와 문장 (사유 또는 안내) */
   empty: { status: DataStatus; text: string | null }
+  /** 값 자리를 대신하는 그림 (예: 비율 지표 도넛 — 값·상태 글자를 그림 안에 포함) */
+  visual?: ReactNode
   /** 값 아래 작은 설명 (분자/분모, 기간, 상권, 서울 평균 등) */
   details?: ReactNode
   /** 링크·복사 버튼처럼 카드 안에서 할 수 있는 일 */
   actions?: ReactNode
   /** 카드 아래쪽 상태 라벨 */
   status: DataStatus
+  /**
+   * "확인된 사실"(fact) 라벨은 숨긴다 — 참고지표 카드용. 판단 보류·정보 없음·확인 중처럼
+   * 확인되지 않은 상태 라벨은 그대로 보인다 (화면 원칙)
+   */
+  hideFactLabel?: boolean
   /** 맨 아래 출처·기준 줄 */
   source: ReactNode
   className?: string
@@ -40,12 +47,15 @@ export default function IndicatorCard({
   title,
   value,
   empty,
+  visual,
   details,
   actions,
   status,
+  hideFactLabel,
   source,
   className,
 }: Props) {
+  const showStatus = !(hideFactLabel && status === 'fact')
   return (
     <article
       id={indicatorAnchorId(id)}
@@ -61,7 +71,9 @@ export default function IndicatorCard({
       </h3>
 
       <div className="mt-3 flex min-h-12 items-center">
-        {value ? (
+        {visual ? (
+          visual
+        ) : value ? (
           <p className="text-title leading-tight font-bold text-gray-900 tabular-nums">{value}</p>
         ) : (
           <p className="flex items-start gap-2 text-body font-semibold text-gray-600">
@@ -75,9 +87,11 @@ export default function IndicatorCard({
       {actions && <div className="mt-3">{actions}</div>}
 
       <div className="mt-auto flex flex-col gap-3 pt-4">
-        <div>
-          <StatusLabel status={status} />
-        </div>
+        {showStatus && (
+          <div>
+            <StatusLabel status={status} />
+          </div>
+        )}
         <div className="border-t border-gray-300 pt-3">{source}</div>
       </div>
     </article>
