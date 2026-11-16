@@ -1,3 +1,4 @@
+import AddressVerification from '../common/AddressVerification'
 import { Link, Navigate, Outlet, useLocation } from 'react-router'
 import { MESSAGES } from '../../constants/messages'
 import { ANALYSIS_SECTIONS, RESULT_STEPS, ROUTES } from '../../constants/routes'
@@ -33,7 +34,7 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
  * 결과 화면(STEP 02~04) 공통 틀: 왼쪽 사이드바 + 머리 + 본문 + 하단 안내
  * 주소·업종·좌표·건물 키가 없으면 입력 화면으로 돌려보낸다 (데스크톱 1440 기준)
  */
-export default function ResultLayout() {
+function ResultLayoutContent() {
   const { pathname } = useLocation()
   const { isReady, search, query } = useDiagnosisQuery()
   const baseline = useResultBaseline(
@@ -99,5 +100,13 @@ export default function ResultLayout() {
         <ResultFooter baseline={baseline} />
       </div>
     </div>
+  )
+}
+
+export default function ResultLayout() {
+  return (
+    <AddressVerification>
+      <ResultLayoutContent />
+    </AddressVerification>
   )
 }

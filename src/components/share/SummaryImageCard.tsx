@@ -1,3 +1,4 @@
+import { diagnosisAddress } from '../../utils/diagnosisAddress'
 import { BRAND_API_ENABLED } from '../../api/analysisProfile'
 import { brandConditionSummary } from '../../utils/brands'
 import { forwardRef, type CSSProperties } from 'react'
@@ -114,7 +115,7 @@ const SummaryImageCard = forwardRef<HTMLDivElement, { data: Data }>(function Sum
       <div>
         <div style={{ fontSize: 30, color: C.blue, fontWeight: 700 }}>{T.image.heading}</div>
         <div style={{ fontSize: 46, fontWeight: 800, marginTop: 12, lineHeight: 1.3 }}>
-          {query.address}
+          {diagnosisAddress(query)}
         </div>
         <div style={{ fontSize: 30, color: C.gray600, marginTop: 14 }}>
           {T.image.conditions(

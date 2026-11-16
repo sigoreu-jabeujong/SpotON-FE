@@ -1,3 +1,4 @@
+import type { LocationRelation } from './addressDetail'
 import type { StoreBrand } from './brands'
 import type { Category, SubCategory } from '../constants/diagnosis'
 
@@ -52,6 +53,7 @@ export type OperatingPeriodReason =
  * null은 키 생략이 아니라 "값 없음" — 화면은 0이나 빈칸 대신 "정보 없음"·사유를 보여준다.
  */
 export type HistoryStore = {
+  location_relation?: LocationRelation | null
   source: StoreSource
   license_no: string
   /** 상호. 없으면 null */

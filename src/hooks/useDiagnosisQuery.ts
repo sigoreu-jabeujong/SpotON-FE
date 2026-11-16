@@ -82,6 +82,8 @@ export function parseDiagnosisQuery(
     !params.has('areaUnknown') || ['true', 'false'].includes(single('areaUnknown') ?? '')
   return {
     address: params.get('address') ?? '',
+    detailText: params.get('detail') ?? undefined,
+    detailUnverified: params.get('detailMode') === 'unverified',
     category: isCategory(category) ? category : null,
     subCategories:
       category === 'restaurant' ? (params.get('sub') ?? '').split(',').filter(isSub) : [],
@@ -128,6 +130,8 @@ export function toDiagnosisSearch(
 ): string {
   const p = new URLSearchParams()
   if (q.address) p.set('address', q.address)
+  if (q.detailText) p.set('detail', q.detailText)
+  if (q.detailUnverified) p.set('detailMode', 'unverified')
   if (q.category) p.set('category', q.category)
   if (q.lat !== null) p.set('lat', String(q.lat))
   if (q.lng !== null) p.set('lng', String(q.lng))
