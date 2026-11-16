@@ -1,4 +1,4 @@
-2026-11-17 현재 추가 승인: GPT-6.1 Sol/low가 데이터 근거로 직접 해석 문장을 작성한다. FE는 기존 응답 구조로 plain text를 표시하며 수치·출처 참고 카드는 계속 제거한다. 체크리스트/필수 한계를 유지한다. 생성 문장용 캐시 prefix ai-sections-v2와30분 보관, 서버80초/역할20초/FE90초를 적용한다. API 키는 서버에만 유지한다. BE docs/gpt-generated-interpretation.md 참고.
+2026-11-17 현재 요청: 유의점은 불리한 관측 신호이며 자료 한계/면책과 구분한다. 수치 해석 본문은 수치와 조건부 상권 특성/운영상 시사점에 집중한다. 기존 limitations/notice·자료 범위/시점/현장 확인 해설은 수치로 본 해석 제목 옆 InfoPopover에 넣고 클릭할 때만 표시한다. 유의점 카드의 limitations/하단 notice 반복은 제거하며 계약 전 확인사항3개는 유지한다. 인쇄에는 팝오버를 숨긴다. 캐시prefix ai-sections-v3/30분, 서버80초/FE90초·모델/키는 유지한다. BE docs/actionable-interpretation.md 참고.
 
 2026-11-17 현재 사용자 승인: v2 AI 해석은 한 블록 안에 좌 이점·우 유의점, 아래 수치 해석/근거 카드와 기존 계약 전 확인사항 3개를 표시한다. 새 `/api/v2/risk/interpret/sections`는 수동 생성만 허용하고 자동 POST/재시도는 없다. GET baseline 토큰 및 주소 context2로 요청하고 역할 실패와 무관한 limitations를 항상 표시한다. 행정동 이름은 표시용 area_label만 쓰며 모델 입력에는 넣지 않는다. 보고서/PDF는 메모리 캐시를 재사용한다. 배경 GET 중 기존 결과/체크를 유지하고 기준이 바뀌면 새 해석을 안내한다. BE 선배포 확인 후 main을 공개하며 v1은 기존 해석을 유지한다. 이번 요청의 실제 Claude Code 검수와 정적 검사/빌드 결과를 docs/ai-three-section-implementation.md에 기록한다. 사용자 지시로 추가 테스트는 실행하지 않는다.
 
