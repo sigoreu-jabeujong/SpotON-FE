@@ -98,16 +98,17 @@ describe('actual administrative references', () => {
     }
     const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
     expect(html).toContain('점포당 평균 추정 매출')
-    expect(html.indexOf('20원')).toBeLessThan(html.indexOf('900원'))
-    expect(html).toContain('개별 가게 매출의 중앙값은 아니에요')
-    expect(html).toContain('비교 항목이 4개 미만')
+    expect(html).toContain('900원')
+    expect(html).not.toContain('20원')
+    expect(html).toContain('같은 목록의 점포 수 합계')
+    expect(html).not.toContain('중앙값 기준')
     expect(html).not.toContain('사분위 범위')
     expect(html).not.toContain('항목 간 분산:')
-    expect(html).toContain('점포 수 가중평균(비교)')
+    expect(html).toContain('전체 점포 수를 반영한 점포당 평균')
     data.sales.per_store_average.distribution!.sample_count = 4
     data.sales.per_store_average.distribution!.limited_reference_count = false
     const four = renderToStaticMarkup(<LocationReferenceView data={data} />)
-    expect(four).toContain('분포를 표시할 자료가 없어요')
+    expect(four).toContain('그래프를 표시할 자료가 없어요')
   })
   it('shows the server weighted average, calculation basis and excluded reasons', () => {
     const data = fixture()
@@ -185,35 +186,33 @@ describe('actual administrative references', () => {
     expect(card).toContain('관측일 24시간 생활인구의 시간당 평균이에요.')
     expect(card).toContain('출처: 서울시 행정동 내국인 생활인구')
   })
-  it('renders the real graph through the shared view with the server median as the main amount', () => {
+  it('renders common-denominator bars and the pooled mean instead of a median', () => {
     const data = fixture()
-    data.sales.items = ['10', '20', '30', '100'].map((value, index) => ({
+    const values = ['10', '20', '30', '100']
+    data.sales.items = values.map((value, index) => ({
       ...data.sales.items[0],
       market_code: `311000${index}`,
-      per_store_metric: {
-        ...number(`${value}원/점포`, value),
-        unit: 'KRW_source_reported_per_store',
-      },
+      metric: { ...number(`${value}원`, value), unit: 'KRW_source_reported' },
       average_contribution: { status: 'included', reason: null },
     }))
-    const metric = (value: string) => ({
-      ...number(`${value}원/점포`, value),
-      unit: 'KRW_source_reported_per_store',
-    })
+    const contributions = ['2.5', '5', '7.5', '25'].map((value, index) => ({
+      market_code: `311000${index}`,
+      industry_code: 'CS100010',
+      source_quarter: '20254',
+      metric: {
+        ...number(`${value}원/점포`, value),
+        unit: 'KRW_source_reported_per_store',
+        numerator: values[index],
+        denominator: '4',
+      },
+    }))
     data.sales.per_store_average = {
       status: 'ready',
       primary_quarter: '20254',
-      metric: metric('40'),
-      representative_method: 'median_of_reference_per_store_ratios_v1',
-      distribution: {
-        sample_count: 4,
-        limited_reference_count: false,
-        median: metric('25'),
-        q1: metric('15'),
-        q3: metric('65'),
-        iqr: metric('50'),
-        variance: { value: '1250', unit: 'KRW_source_reported_per_store_squared' },
-      },
+      representative_method: 'pooled_sales_over_total_stores_v1',
+      graph_basis: 'each_sales_over_group_total_stores_v1',
+      metric: { ...number('40원/점포', '40'), unit: 'KRW_source_reported_per_store' },
+      contributions,
       total_sales: '160',
       total_store_count: '4',
       listed_item_count: 4,
@@ -222,29 +221,26 @@ describe('actual administrative references', () => {
       groups: [],
     }
     const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
-    expect(html).toContain('매출 분산 그래프')
-    expect(html).toContain('25원')
-    expect(html).toContain('중앙값 기준')
+    expect(html).toContain('평균 추정 매출 그래프')
+    expect(html).toContain('전체 평균 40원')
+    expect(html).not.toContain('중앙값')
     expect(html).not.toContain('/점포')
   })
-  it('never labels a weighted fallback as a median when the new response lacks its distribution', () => {
+  it('keeps missing pooled values absent rather than falling back to median statistics', () => {
     const data = fixture()
     data.sales.per_store_average = {
       status: 'no_data',
       primary_quarter: '20254',
-      metric: number('250,000원/점포', '250000'),
-      representative_method: 'median_of_reference_per_store_ratios_v1',
-      distribution: null,
-      total_sales: '1000000',
-      total_store_count: '4',
+      metric: null,
+      total_sales: null,
+      total_store_count: null,
       listed_item_count: 1,
       included_item_count: 0,
       excluded_counts: {},
       groups: [],
     }
     const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
-    expect(html).toContain('중앙값 기준')
     expect(html).toContain('자료 없음')
-    expect(html).not.toContain('250,000원')
+    expect(html).not.toContain('중앙값 기준')
   })
 })
