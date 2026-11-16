@@ -1,5 +1,6 @@
 import type { ApiMeta, ApiResponse } from '../types/api'
 import { API_MESSAGES } from '../constants/apiMessages'
+import { isDatabaseRead, withDatabaseReadSlot } from './databaseReadQueue'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 /** API 경로 접두사 (BE 작업계획서와 공통 기준) */
@@ -91,6 +92,27 @@ async function request<T>(
     if (mock) return unwrap(mock.body, mock.status)
   }
 
+  if ((!init?.method || init.method === 'GET') && isDatabaseRead(path)) {
+    try {
+      return await withDatabaseReadSlot(
+        () => networkRequest<T>(path, init, timeoutMs),
+        init?.signal ?? undefined,
+      )
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        throw new ApiRequestError('TIMEOUT', '응답이 너무 오래 걸려요', null)
+      }
+      throw error
+    }
+  }
+  return networkRequest<T>(path, init, timeoutMs)
+}
+
+async function networkRequest<T>(
+  path: string,
+  init: RequestInit | undefined,
+  timeoutMs: number,
+): Promise<ApiResult<T>> {
   const controller = new AbortController()
   const cancel = () => controller.abort()
   init?.signal?.addEventListener('abort', cancel, { once: true })
