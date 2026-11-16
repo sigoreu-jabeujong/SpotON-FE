@@ -4,4 +4,6 @@
 export const PROJECT_LINKS = {
   /** 프론트엔드 소스 코드 저장소 */
   repository: 'https://github.com/sigoreu-jabeujong/SpotON-FE',
+  /** 백엔드 소스 코드 저장소 */
+  backendRepository: 'https://github.com/sigoreu-jabeujong/SpotON-BE',
 } as const
