@@ -73,6 +73,45 @@ function fixture(): LocationReference {
 }
 
 describe('actual administrative references', () => {
+  it('selects the reference median and labels the weighted mean as comparison only', () => {
+    const data = fixture()
+    data.sales.per_store_average = {
+      status: 'ready',
+      primary_quarter: '20254',
+      representative_method: 'median_of_reference_per_store_ratios_v1',
+      metric: number('900원/점포', '900'),
+      total_sales: '9000',
+      total_store_count: '10',
+      listed_item_count: 3,
+      included_item_count: 3,
+      excluded_counts: {},
+      groups: [],
+      distribution: {
+        sample_count: 3,
+        limited_reference_count: true,
+        median: number('20원/점포', '20'),
+        q1: number('10원/점포', '10'),
+        q3: number('900원/점포', '900'),
+        iqr: number('890원/점포', '890'),
+        variance: { value: '174200', unit: 'KRW_source_reported_per_store_squared' },
+      },
+    }
+    const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    expect(html).toContain('상권·업종별 점포당 추정매출 중앙값')
+    expect(html.indexOf('20원/점포')).toBeLessThan(html.indexOf('900원/점포'))
+    expect(html).toContain('개별 가게 매출의 중앙값은 아니에요')
+    expect(html).toContain('비교 항목이 4개 미만')
+    expect(html).not.toContain('사분위 범위')
+    expect(html).not.toContain('항목 간 분산:')
+    expect(html).toContain('점포 수 가중평균(비교)')
+    data.sales.per_store_average.distribution!.sample_count = 4
+    data.sales.per_store_average.distribution!.limited_reference_count = false
+    const four = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    expect(four).toContain('사분위 범위')
+    expect(four).toContain('항목 간 분산:')
+    expect(four).toContain('4개 항목 수로 나눈 기술통계')
+    expect(four).toContain('(원자료 원/점포)²')
+  })
   it('shows the server weighted average, calculation basis and excluded reasons', () => {
     const data = fixture()
     data.sales.per_store_average = {
