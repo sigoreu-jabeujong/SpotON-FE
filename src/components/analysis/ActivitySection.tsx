@@ -78,7 +78,7 @@ export default function ActivitySection() {
             </div>
           </>
         )}
-        <LocationReferenceSection params={params} />
+        <LocationReferenceSection params={params} lively />
       </div>
     </AnalysisSection>
   )
