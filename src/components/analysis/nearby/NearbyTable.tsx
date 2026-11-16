@@ -1,5 +1,5 @@
 import { MapPin } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { CURRENT_STATUS_LABEL, SUB_CATEGORY_LABEL } from '../../../constants/labels'
 import { MESSAGES } from '../../../constants/messages'
 import { useShowMore } from '../../../hooks/useShowMore'
@@ -8,6 +8,7 @@ import { cn } from '../../../utils/cn'
 import { formatArea, formatCount, formatDate } from '../../../utils/format'
 import { storeName, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
+import { sortStores, type StoreSort } from '../../../utils/storeSort'
 import Badge, { type BadgeTone } from '../../common/Badge'
 import FranchiseNote from '../../common/FranchiseNote'
 import SubCategoryNote from '../../common/SubCategoryNote'
@@ -31,24 +32,45 @@ type Props = {
   onSelect: (id: string) => void
 }
 
-/** 주변 점포 표 — API 순서 그대로, 처음 5개 + 더보기 */
+/** 주변 점포 표 — 가까운 순(API 순서 그대로) / 영업 기간 순, 처음 5개 + 더보기 */
 export default function NearbyTable({ markers, selectedId, onSelect }: Props) {
-  const { visible, shown, total, hasMore, showMore } = useShowMore(markers)
-  // API 순서가 가까운 순인지 확인만 한다 (값을 바꾸거나 다시 정렬하지 않음)
-  const nearestFirst = useMemo(
-    () =>
-      markers.every(
-        (m, i) =>
-          m.distance_m !== null &&
-          (i === 0 ||
-            (markers[i - 1].distance_m !== null && markers[i - 1].distance_m! <= m.distance_m)),
-      ),
-    [markers],
-  )
+  const [sort, setSort] = useState<StoreSort>('nearest')
+  // 순서만 바꾼다 (서버 operating_months 그대로 — 새 계산 없음). 정렬을 바꾸면 더보기는 처음 5개부터
+  const rows = useMemo(() => sortStores(markers, sort), [markers, sort])
+  const { visible, shown, total, hasMore, showMore } = useShowMore(rows)
 
   return (
     <div>
-      {nearestFirst && <p className="mb-2 text-right text-micro text-gray-600">{T.sortNearest}</p>}
+      <div className="mb-2 flex justify-end">
+        <div
+          role="group"
+          aria-label={T.sortGroup}
+          className="flex gap-1 rounded-control bg-gray-100 p-1"
+        >
+          {(
+            [
+              ['nearest', T.sortNearest],
+              ['period', T.sortPeriod],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={sort === id}
+              aria-controls={TABLE_ID}
+              onClick={() => setSort(id)}
+              className={cn(
+                'h-8 rounded-lg px-3 text-micro font-semibold motion-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 max-md:h-11',
+                sort === id
+                  ? 'bg-gray-0 text-blue-700 shadow-[0_1px_3px_rgb(16_24_40/0.12)] ring-1 ring-blue-500/40'
+                  : 'text-gray-900 hover:bg-gray-0/70',
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
       {/* 휴대폰: 표를 가로로 밀어 볼 수 있게 (이때 머리글 고정은 끈다). relative는 칸 속 sr-only 글자가 상자 밖 화면 폭을 넓히지 않게. 데스크톱은 그대로 */}
       <div className="overflow-clip rounded-card border border-gray-300 bg-gray-0 max-md:relative max-md:overflow-x-auto">
         <table

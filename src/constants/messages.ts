@@ -313,6 +313,9 @@ export const MESSAGES = {
     legendMixed: '상태 섞임',
     legendCluster: '큰 원: 가까운 점포 묶음 (누르면 확대)',
     sortNearest: '가까운 순',
+    sortPeriod: '영업 기간 순',
+    /** 점포 상세 조회 표 정렬 버튼 묶음 이름 (화면 읽기용) */
+    sortGroup: '점포 상세 조회 표 정렬',
     caption: '반경 안 같은 업종 점포 목록. 점포명을 누르면 지도에서 위치를 보여줘요',
     columns: {
       no: '번호',
