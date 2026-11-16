@@ -816,6 +816,14 @@ html {
   }
 }
 
+/* STEP 03 서울 평균 비교 막대 — 인쇄에서는 채움 전환 없이 처음부터 최종 길이 (SeoulCompare) */
+@media print {
+  [data-bar-fill] {
+    transform: var(--bar-full) !important;
+    transition: none !important;
+  }
+}
+
 /* 동작 줄이기 설정: 남은 애니메이션·전환도 사실상 즉시 끝나게 (스피너·반짝임·떠 있기 포함) */
 @media (prefers-reduced-motion: reduce) {
   *,
