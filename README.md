@@ -7,7 +7,7 @@
 계약하려는 주소 하나로 그 자리를 거쳐 간 점포의 이력과 주변 같은 업종의 생존 기록을 근거와 함께 보여주는<br>
 **공공데이터 기반 창업 입지 진단 웹서비스**
 
-[🌐 서비스 바로가기](https://spot-on-fe.vercel.app) · [⚙️ 백엔드 저장소](https://github.com/sigoreu-jabeujong/SpotON-BE) · [📚 문서 모음](docs/README.md)
+[🌐 서비스 바로가기](https://spot-on-fe-two.vercel.app) · [⚙️ 백엔드 저장소](https://github.com/sigoreu-jabeujong/SpotON-BE) · [📚 문서 모음](docs/README.md)
 
 ![React](https://img.shields.io/badge/React_19-20232A?logo=react&logoColor=61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
@@ -105,7 +105,7 @@ flowchart LR
 
 | 구분 | 주소 | 비고 |
 |---|---|---|
-| 프론트엔드 | https://spot-on-fe.vercel.app | `main`에 머지되면 자동 배포 |
+| 프론트엔드 | https://spot-on-fe-two.vercel.app | `main`에 머지되면 자동 배포 |
 | 백엔드 | https://spoton-be-free.onrender.com | 무료 서버라 쉬고 있으면 첫 접속에 약 30초 걸려요 |
 
 - 모든 응답은 `{ data, meta, error }` 형식이고, `meta`에 출처·기준일·공간 단위가 담겨요 → [API 계약](docs/api-contract.md)

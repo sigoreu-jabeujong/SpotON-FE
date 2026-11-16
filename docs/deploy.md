@@ -1,5 +1,7 @@
 # 배포 안내 (SpotON-FE)
 
+2026-11-17 사용자 요청으로 운영 주소를 **https://spot-on-fe-two.vercel.app**로 변경한다. 입력 화면은 https://spot-on-fe-two.vercel.app/diagnose 이다. 두 경로의 HTTP 200과 백엔드 health의 새 Origin 허용을 확인했다. 공유 이미지 절대 주소와 README를 새 주소에 맞추며, 재배포 성공 여부는 실제 배포 기록으로 구분한다. 이전 프로젝트의 배포 제한 기록은 새 프로젝트의 배포 결과와 구분한다.
+
 2026-11-16 FE #73 공개자료 비교는 사용자 승인으로 배포한다. BE #180의 새 경로를 Render에서 먼저 확인하고 FE develop→main release PR로 Vercel production을 반영한다. Production Branch=main, production=v2/preview=v1과 기존 공개키/환경을 유지하며 새 리소스를 만들지 않는다. 실제 commit·배포 ID·운영 브라우저 결과는 해당 PR 실행 기록을 따른다.
 
 2026-11-15 운영 v2 전환 완료. BE PR154의 성능 보완/0012·publication·조회 권한 검증 뒤 FE PR62를 공개 활성화했다. Production=v2, Preview/development=v1, 일반 로컬 기본v1이다. 공개 필터·실제 AI·보고서·모바일390/360·키보드·오류/취소를 확인했다. [운영 실행·검수·복구 기록](https://github.com/sigoreu-jabeujong/SpotON-BE/blob/develop/docs/designs/production-chain-v2-rollout.md)을 따른다. 아래 과거 진행/승인 대기 문구는 이 전환에 관해 완료된 이력이다.
@@ -59,7 +61,7 @@ npm run preview -- --port 5180           # (선택) 배포 결과물을 로컬�
 ## 4. 배포 후 할 일
 
 - [ ] **카카오 개발자 콘솔** → 앱 → 플랫폼 → Web에 배포 도메인(예: `https://spoton.예시.kr`) 추가 — 안 하면 지도 자리에 "지도를 불러오지 못했어요"만 보인다
-- [x] **og:image 절대 주소**: `index.html`의 `og:image`·`twitter:image` = `https://spot-on-fe.vercel.app/og-image.png` (배포 주소가 바뀌면 이 두 줄도 바꾸고 다시 빌드 — 상대 경로면 일부 메신저 공유 미리보기에 그림이 안 나옴)
+- [x] **og:image 절대 주소**: `index.html`의 `og:image`·`twitter:image` = `https://spot-on-fe-two.vercel.app/og-image.png` (배포 주소가 바뀌면 이 두 줄도 바꾸고 다시 빌드 — 상대 경로면 일부 메신저 공유 미리보기에 그림이 안 나옴)
 - [ ] **BE `CORS_ORIGINS`에 FE 도메인 추가** (BE 담당 — 쉼표 목록, 예: `https://spoton.예시.kr`). 빠지면 모든 API가 "서버에 연결할 수 없어요"로 보인다
 - [x] **`src/constants/links.ts` 저장소 주소**: 최종 제출이 GitHub로 바뀌어(2026-11-15) 현재 GitHub 주소를 그대로 쓴다
 - [ ] 배포 주소에서 확인: 주소 검색 → STEP 02~04, 결과 화면에서 새로고침, PDF 인쇄·요약 이미지 저장, 화면에 "시연 데이터" 표시가 없는지
@@ -67,7 +69,7 @@ npm run preview -- --port 5180           # (선택) 배포 결과물을 로컬�
 
 ## 5. Vercel (미리보기 배포)
 
-- 배포 주소: **https://spot-on-fe.vercel.app**
+- 배포 주소: **https://spot-on-fe-two.vercel.app**
 - Production Branch = **`main`** (2026-11-15 `develop`에서 변경) — 작업은 develop에 머지하고, 공개 사이트에 반영할 때 develop → main PR을 머지하면 자동으로 다시 빌드·배포된다. develop·PR에는 미리보기 주소가 달린다 (Preview는 v1·BE 미연결)
 - 빌드: Vercel이 `npm install` → `npm run build` → `dist/`를 올린다 (Vite 기본 설정 인식)
 - **새로고침 404 방지 `vercel.json`**: 실제 파일이 없는 모든 경로를 `/index.html`로 돌려준다 (`/assets/…`·`/og-image.png`·`/favicon.png` 같은 실제 파일은 Vercel이 먼저 그대로 내보낸다)
@@ -85,11 +87,11 @@ npm run preview -- --port 5180           # (선택) 배포 결과물을 로컬�
 | `VITE_KAKAO_JS_KEY` | 카카오맵 JavaScript 키 | 그대로 |
 
 - `VITE_` 값은 **빌드할 때** 들어가므로, 바꾼 뒤에는 Vercel에서 다시 배포(Redeploy)해야 반영된다
-- 카카오 개발자 콘솔 JavaScript SDK 도메인에 `https://spot-on-fe.vercel.app` **등록 완료** (지도 표시 확인됨)
+- 카카오 개발자 콘솔 JavaScript SDK의 이전 주소 등록은 완료된 이력이다. 새 주소 `https://spot-on-fe-two.vercel.app`의 등록·지도 표시는 별도 확인한다.
 
 **BE 배포 후 할 일**
 - [x] Vercel Production 환경변수 `VITE_USE_MOCK=false`, `VITE_API_BASE_URL=<BE 주소>`로 바꾸고 Redeploy (Render BE는 6장)
-- [ ] BE `CORS_ORIGINS`에 `https://spot-on-fe.vercel.app` 추가 (BE 담당)
+- [x] BE가 `https://spot-on-fe-two.vercel.app` Origin을 허용함을 health 응답 헤더로 확인 (2026-11-17)
 - [ ] 배포 주소에서 4장 확인 항목(주소 검색 → STEP 02~04, 새로고침, "시연 데이터" 표시 없음) 다시 확인
 
 ## 6. Render BE 연결
@@ -103,7 +105,7 @@ BE가 Render 무료 플랜에 올라가 있고, Vercel 운영 주소가 이 BE�
 
 | 환경 | `VITE_USE_MOCK` | `VITE_API_BASE_URL` | 결과 |
 |---|---|---|---|
-| **Production** (https://spot-on-fe.vercel.app, develop) | `false` | `https://spoton-be-free.onrender.com` (Config) | 실제 BE 연결 |
+| **Production** (https://spot-on-fe-two.vercel.app, main) | `false` | `https://spoton-be-free.onrender.com` (Config) | 실제 BE 연결 |
 | **Preview** (PR 미리보기) | 미설정 → 목업 | 미설정 | BE에 연결하지 않는다 — BE CORS가 운영 도메인만 허용하고, 미리보기 주소는 PR마다 달라 넣을 수 없다 |
 
 **설정을 바꿀 때 순서**
@@ -114,7 +116,7 @@ BE가 Render 무료 플랜에 올라가 있고, Vercel 운영 주소가 이 BE�
 5. 배포 주소에서 주소 검색 → STEP 02~04 → 새로고침을 확인하고, "시연 데이터" 배지가 없는지 본다
 
 **CORS (BE 담당)**
-- BE `CORS_ORIGINS`에 운영 도메인 `https://spot-on-fe.vercel.app`(과 로컬 확인용 주소)이 들어 있어야 한다. 도메인이 바뀌면 BE에 추가를 요청하고 BE를 재배포한다
+- BE `CORS_ORIGINS`에 운영 도메인 `https://spot-on-fe-two.vercel.app`(과 로컬 확인용 주소)이 들어 있어야 한다. 도메인이 바뀌면 BE의 새 Origin 허용 여부를 확인한다.
 - 실제 BE 확인은 운영 주소(develop 배포)나 로컬에서 한다
 
 **알아둘 것**
