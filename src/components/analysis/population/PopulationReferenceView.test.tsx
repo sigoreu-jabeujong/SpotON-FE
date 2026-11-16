@@ -17,7 +17,7 @@ describe('population partial reference display', () => {
     expect(html).toContain('66.7%')
     expect(html).toContain('전체 인구를 대표하지 않아요')
     expect(html).toContain('인원수 아님')
-    expect(html).toContain('2026-11-07')
+    expect(html).toContain('2026. 11. 07.')
     expect(html).not.toContain('2.00000명')
   })
 

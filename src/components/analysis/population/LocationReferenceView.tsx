@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { MESSAGES } from '../../../constants/messages'
+import { formatDate } from '../../../utils/format'
 import type {
   DayNightReferenceItem,
   LocationReference,
@@ -83,7 +84,7 @@ function SalesCard({ data }: { data: LocationReference }) {
           {R.salesTitle}
           <InfoPopover triggerLabel={I.salesTrigger} title={I.salesTitle} closeLabel={I.close}>
             <Line>
-              {I.analysisAsOf(data.analysis_as_of)} ·{' '}
+              {I.analysisAsOf(formatDate(data.analysis_as_of) ?? data.analysis_as_of)} ·{' '}
               {data.time_mode === 'latest_reference' ? I.latestReference : I.analysisPeriod}
             </Line>
             <Line>{I.areaUnit}</Line>
@@ -194,6 +195,7 @@ function SalesCard({ data }: { data: LocationReference }) {
               {R.otherQuarter(
                 quarter(g.source_quarter),
                 metric(useWeightedMedian ? g.store_weighted_distribution?.median : g.metric),
+                useWeightedMedian,
               )}
             </p>
           ))}
@@ -317,7 +319,7 @@ function PopulationCard({ data, grid }: { data: LocationReference; grid?: ReactN
               <p className="text-caption text-gray-600">
                 <span className="font-semibold text-gray-900">{item.area_name}</span>
                 {item.spatial_relation !== 'contains_point' && ` · ${R.intersectsArea}`} ·{' '}
-                {R.observed(item.observation_date)}
+                {R.observed(formatDate(item.observation_date) ?? item.observation_date)}
               </p>
               <div>
                 <p className="text-caption font-semibold text-gray-600">{R.populationHeadline}</p>

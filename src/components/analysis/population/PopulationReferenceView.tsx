@@ -1,5 +1,6 @@
 import { MESSAGES } from '../../../constants/messages'
 import type { PopulationBlock, PopulationReference } from '../../../types/population'
+import { formatDate } from '../../../utils/format'
 import { publicNumberText } from './populationDisplay'
 
 const G = MESSAGES.reference.grid
@@ -37,7 +38,11 @@ export default function PopulationReferenceView({
     <section aria-label="공개자료 주야간 비교" className="flex min-w-0 flex-col gap-2 text-caption">
       <p className="text-gray-600">
         {isDemo && <span className="text-orange-700">시연용 가상 자료 · </span>}
-        {G.basis(data.analysis_date, data.observation_date ?? '자료 없음', data.scope.radius_m)}
+        {G.basis(
+          formatDate(data.analysis_date) ?? data.analysis_date,
+          formatDate(data.observation_date) ?? '자료 없음',
+          data.scope.radius_m,
+        )}
       </p>
       {data.status !== 'ready' ? (
         <p role="status" className="text-gray-600">

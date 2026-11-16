@@ -649,7 +649,9 @@ export const MESSAGES = {
       different_quarter: '다른 분기',
       excluded: '계산 제외',
     },
-    otherQuarter: (quarter: string, value: string) => `${quarter} 중간값 ${value}`,
+    /** 다른 분기 값 — 대표값 방식(가중 중앙값이면 중간값, 아니면 평균) 그대로 */
+    otherQuarter: (quarter: string, value: string, median: boolean) =>
+      `${quarter} ${median ? '중간값' : '평균'} ${value}`,
     quarter: (q: string) => `${q.slice(0, 4)}년 ${q.slice(4)}분기`,
     noValue: '자료 없음',
     populationTitle: '생활인구 (주간·야간)',
