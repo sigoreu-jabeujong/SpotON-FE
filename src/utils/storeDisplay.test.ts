@@ -27,8 +27,8 @@ describe('storeName — 상호', () => {
 })
 
 describe('storeOpenDate — 개업일', () => {
-  it('날짜 → YYYY.MM.DD', () => {
-    expect(storeOpenDate(historyStore({ open_date: '2020-03-05' })).text).toBe('2020.03.05')
+  it('날짜 → "2020. 03. 05."', () => {
+    expect(storeOpenDate(historyStore({ open_date: '2020-03-05' })).text).toBe('2020. 03. 05.')
   })
 
   it('null + 원본 없음 → "정보 없음"', () => {
@@ -49,7 +49,7 @@ describe('storeOpenDate — 개업일', () => {
 describe('storeCloseDate — 폐업일', () => {
   it('날짜가 있으면 날짜', () => {
     const r = storeCloseDate(historyStore({ close_date: '2023-12-31' }), 'closed')
-    expect(r).toEqual({ text: '2023.12.31', missing: false })
+    expect(r).toEqual({ text: '2023. 12. 31.', missing: false })
   })
 
   it('영업 중·기타라 폐업일이 없으면 null ("—" 표시용)', () => {

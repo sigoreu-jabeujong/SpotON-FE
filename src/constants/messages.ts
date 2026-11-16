@@ -1,5 +1,7 @@
 import { BRAND_API_ENABLED } from '../api/analysisProfile'
 import { API_MESSAGES } from './apiMessages'
+import { formatDate } from '../utils/format'
+import { MIN_AS_OF } from './diagnosis'
 /** 화면에 보이는 안내·오류·면책 문구 (한곳에서 관리) */
 const BRAND = 'Spot:ON'
 const withBrand = (name: string) => `${name} | ${BRAND}`
@@ -187,16 +189,16 @@ export const MESSAGES = {
       filterFranchise: (year: number | null) =>
         `프랜차이즈(추정) 조건은 ${year ? `${year}년 ` : ''}브랜드 목록과 상호가 같은 점포만 골라 계산해요. 실제 가맹계약이나 개업 당시 소속 기준이 아니고, 분류가 확인되지 않은 점포는 빠져요.`,
       filterIndependent:
-        '개인 매장 조건은 기존 분류 자료에서 개인 매장으로 확인된 점포만 골라요. 이 자료가 적어 0곳으로 보일 수 있고, 개인 매장이 없다는 뜻은 아니에요.',
+        '개인 매장 조건은 기존 분류 자료에서 개인 매장으로 확인된 점포만 골라요. 이 자료가 적어 0개로 보일 수 있고, 개인 매장이 없다는 뜻은 아니에요.',
       /** 가맹 필터 + 0건일 때 빈 결과 문구 */
       emptyFranchise:
-        '브랜드 목록과 상호가 일치한 점포가 없어 0곳으로 보여요. 프랜차이즈 점포가 없다는 뜻은 아니에요.',
+        '브랜드 목록과 상호가 일치한 점포가 없어 0개로 보여요. 프랜차이즈 점포가 없다는 뜻은 아니에요.',
       emptyIndependent:
-        '개인 매장 분류 자료가 아직 없어 0곳으로 보여요. 이 조건의 점포가 없다는 뜻은 아니에요.',
+        '개인 매장 분류 자료가 아직 없어 0개로 보여요. 이 조건의 점포가 없다는 뜻은 아니에요.',
       /** 조회 조건의 가맹 선택지 옆 짧은 도움말 */
       optionHint: {
         franchise: '브랜드 목록 상호 일치 기준 · 분류 미확인 점포 제외',
-        independent: '기존 분류 자료가 있는 점포만 · 0곳으로 보일 수 있어요',
+        independent: '기존 분류 자료가 있는 점포만 · 0개로 보일 수 있어요',
       },
       /** 표 아래 프랜차이즈(추정) 안내 — 기존 가맹 화면(v1)에서만. 브랜드·체인(v2)은 표의 '(추정)' 표시와 행별 근거 도움말로 알린다 */
       note: (year: number | null) =>
@@ -233,8 +235,6 @@ export const MESSAGES = {
       openDate: '개업일',
       closeDate: '폐업일',
       period: '영업 기간',
-      status: '상태',
-      location: '위치',
       franchise: BRAND_API_ENABLED ? '브랜드·체인' : '프랜차이즈',
     },
     noCloseDate: '폐업일 없음',
@@ -295,7 +295,7 @@ export const MESSAGES = {
     tableTitle: '점포 상세 조회',
     mapBadge: (radius: number, asOf: string | null) =>
       `반경 ${radius.toLocaleString('ko-KR')}m${asOf ? ` · 기준일 ${asOf}` : ''}`,
-    total: (count: number) => `조건에 맞는 점포 ${count.toLocaleString('ko-KR')}곳`,
+    total: (count: number) => `조건에 맞는 점포 ${count.toLocaleString('ko-KR')}개`,
     /**
      * excluded_no_coord는 반경 안 수가 아니라 서울 전체 같은 조건(업종·시점·면적·가맹) 기준 (BE 제안 표현).
      * 반경 점포 수와 합치지 않는다 — 화면·진단서 같은 문구
@@ -305,12 +305,15 @@ export const MESSAGES = {
     legendTitle: '최신 데이터 기준 상태',
     legendRadius: '진단 위치 반경',
     /** 같은 좌표 점포 묶음 (지도에서 보이는 방식만 — 점포 수·표는 그대로) */
-    groupTitle: (n: number) => `같은 위치 점포 ${n.toLocaleString('ko-KR')}곳`,
+    groupTitle: (n: number) => `같은 위치 점포 ${n.toLocaleString('ko-KR')}개`,
     groupHint: '점포를 고르면 아래 표에서도 함께 표시돼요',
     legendGroup: '숫자: 같은 위치 점포 수',
     legendMixed: '상태 섞임',
     legendCluster: '큰 원: 가까운 점포 묶음 (누르면 확대)',
     sortNearest: '가까운 순',
+    sortPeriod: '영업 기간 순',
+    /** 점포 상세 조회 표 정렬 버튼 묶음 이름 (화면 읽기용) */
+    sortGroup: '점포 상세 조회 표 정렬',
     caption: '반경 안 같은 업종 점포 목록. 점포명을 누르면 지도에서 위치를 보여줘요',
     columns: {
       no: '번호',
@@ -345,6 +348,8 @@ export const MESSAGES = {
   /** STEP 02 ② 안의 시점 조회 (F-05) */
   snapshot: {
     title: '시점 조회',
+    /** 제목 옆 작은 칩 — 조회한 기준 시점 (예: "2025. 11. 기준") */
+    asOfChip: (date: string) => `${date} 기준`,
     guide:
       '과거 시점을 고르면 그때 영업하던 점포가 최신 데이터 기준으로 어떻게 됐는지 볼 수 있어요',
     quickTitle: '빠른 선택',
@@ -395,7 +400,7 @@ export const MESSAGES = {
     /** meta.yearly_comparison_basis = same_month_day_ytd 일 때 — 연간 전체가 아님을 안내 */
     trendYtd: (monthDay: string) =>
       `매년 1월 1일부터 ${monthDay}까지 같은 기간끼리 비교한 값이에요`,
-    trendUnit: (n: number) => `${n.toLocaleString('ko-KR')}곳`,
+    trendUnit: (n: number) => `${n.toLocaleString('ko-KR')}개`,
     salesTitle: '인근 상권 추정매출',
     salesNotice: '상권 단위 추정치로, 이 자리 점포의 실제 매출이 아니에요',
     salesQuarter: (q: string) => `${q.replace('-Q', '년 ')}분기`,
@@ -437,7 +442,7 @@ export const MESSAGES = {
     referenceDescription:
       '공공데이터로 Spot:ON이 계산한 참고 값이에요. 공식 지표와 기간·공간 단위가 달라 직접 비교할 수 없어요.',
     fraction: (num: number, den: number) =>
-      `${den.toLocaleString('ko-KR')}곳 중 ${num.toLocaleString('ko-KR')}곳`,
+      `${den.toLocaleString('ko-KR')}개 중 ${num.toLocaleString('ko-KR')}개`,
     market: (name: string) => `상권 ${name}`,
     quarter: (q: string) => q.replace(/^(\d{4})-Q(\d)$/, '$1년 $2분기'),
     seoulAvg: (v: string) => `서울 평균 ${v}`,
@@ -567,7 +572,7 @@ export const MESSAGES = {
     infoMissing: '정보 없음',
     livingSummary: (people: string, estimate: string, date: string, missing: number) =>
       `${people} (${estimate}, ${date}, 결측 격자 ${missing}개)`,
-    sample: (n: number) => `표본 ${n.toLocaleString('ko-KR')}곳`,
+    sample: (n: number) => `표본 ${n.toLocaleString('ko-KR')}개`,
     seoulAvg: (v: string) => `서울 평균 ${v}`,
     sources: (names: string) => `출처: ${names}`,
   },
@@ -596,7 +601,7 @@ export const MESSAGES = {
   },
   /** 단위·공통 글자 */
   units: {
-    store: '곳',
+    store: '개',
   },
   common: {
     retry: '다시 시도',
@@ -805,7 +810,7 @@ export function getErrorMessage(code: string | null | undefined): string {
 
 /**
  * AS_OF_OUT_OF_RANGE 오류면 error.detail의 min_month·max_month로
- * "선택할 수 있는 기간은 YYYY.MM ~ YYYY.MM이에요"를 만든다. 다른 오류·detail 없음이면 null
+ * "선택할 수 있는 기간은 YYYY. MM. ~ YYYY. MM.이에요"를 만든다. 다른 오류·detail 없음이면 null
  */
 export function getAsOfRangeMessage(
   error: unknown,
@@ -813,14 +818,15 @@ export function getAsOfRangeMessage(
 ): string | null {
   if (typeof error !== 'object' || error === null) return null
   if (!('code' in error) || error.code !== 'AS_OF_OUT_OF_RANGE') return null
-  const dot = (ym: string) => ym.replace('-', '.')
+  const dot = (ym: string) => formatDate(ym) ?? ym
   const detail = 'detail' in error ? error.detail : null
   const min =
     typeof detail === 'object' && detail && 'min_month' in detail ? detail.min_month : null
   const max =
     typeof detail === 'object' && detail && 'max_month' in detail ? detail.max_month : null
+  // 화면에서 고를 수 있는 시작은 2010-01부터 (MIN_AS_OF) — 서버가 더 이른 달을 주어도 같은 범위로 안내
   if (typeof min === 'string' && typeof max === 'string')
-    return MESSAGES.filter.asOfRange(dot(min), dot(max))
+    return MESSAGES.filter.asOfRange(dot(min < MIN_AS_OF ? MIN_AS_OF : min), dot(max))
   // 지금 BE는 error.detail을 보내지 않는다 → 같은 업종 조건의 data-range 응답으로 범위를 안내
   if (range?.min_month) return MESSAGES.filter.asOfRange(dot(range.min_month), dot(range.max_month))
   return ERROR_MESSAGES.AS_OF_OUT_OF_RANGE

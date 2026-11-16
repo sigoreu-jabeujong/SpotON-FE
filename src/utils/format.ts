@@ -7,12 +7,18 @@ import type { ApiMeta } from '../types/api'
 
 type Maybe<T> = T | null | undefined
 
-/** YYYY-MM-DD → YYYY.MM.DD (YYYY-MM → YYYY.MM) */
+/** 연·월(·일) → 국립국어원 날짜 표기 "2026. 11. 08." / "2026. 11." (띄어쓰기 + 끝에 점) */
+function dotDate(year: string | number, month: string | number, day?: string | number): string {
+  const pad = (n: string | number) => String(n).padStart(2, '0')
+  return day === undefined ? `${year}. ${pad(month)}.` : `${year}. ${pad(month)}. ${pad(day)}.`
+}
+
+/** YYYY-MM-DD → "2026. 11. 08." (YYYY-MM → "2026. 11.") — 화면·진단서·요약 이미지 날짜는 모두 이 표기 */
 export function formatDate(value: Maybe<string>): string | null {
   if (!value) return null
   const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?/.exec(value)
   if (!m) return value
-  return m[3] ? `${m[1]}.${m[2]}.${m[3]}` : `${m[1]}.${m[2]}`
+  return dotDate(m[1], m[2], m[3])
 }
 
 /** operating_months(정수, 개월) → "n년 m개월" (0년이면 "m개월", 0개월이면 "n년") */
@@ -36,7 +42,7 @@ export function formatPercent(value: Maybe<number>, digits = 1): string | null {
 
 const countFormatter = new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 0 })
 
-/** 점포 수 등 정수 → 천 단위 쉼표 ("1,234"). unit을 주면 뒤에 붙인다 ("38곳") */
+/** 점포 수 등 정수 → 천 단위 쉼표 ("1,234"). unit을 주면 뒤에 붙인다 ("38개") */
 export function formatCount(value: Maybe<number>, unit = ''): string | null {
   if (value === null || value === undefined || !Number.isFinite(value)) return null
   return `${countFormatter.format(value)}${unit}`
@@ -56,7 +62,7 @@ export function formatSpace(space: Maybe<string>): string | null {
   return names[space] ?? space
 }
 
-/** meta → "데이터 기준일 YYYY.MM.DD (수집 YYYY.MM.DD)". 기준일이 없으면 null */
+/** meta → "데이터 기준일 YYYY. MM. DD. (수집 YYYY. MM. DD.)". 기준일이 없으면 null */
 export function formatDataBaseline(meta: Maybe<ApiMeta>): string | null {
   const updated = formatDate(meta?.data_updated_at)
   if (!updated) return null
@@ -83,15 +89,14 @@ export function formatYearMonthKo(value: Maybe<string>): string | null {
 function shiftIsoDate(iso: string, days: number): string {
   const [y, m, d] = iso.split('-').map(Number)
   const t = new Date(Date.UTC(y, m - 1, d + days))
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${t.getUTCFullYear()}.${pad(t.getUTCMonth() + 1)}.${pad(t.getUTCDate())}`
+  return dotDate(t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate())
 }
 
 /**
  * 서버 기간 문자열을 사람이 읽는 모양으로 (값을 계산하지 않고 표기만 바꿈)
- * - BE 구간 표기 "(2025-11-08, 2026-11-08]" (시작일 제외·종료일 포함) → "2025.11.09 ~ 2026.11.08"
+ * - BE 구간 표기 "(2025-11-08, 2026-11-08]" (시작일 제외·종료일 포함) → "2025. 11. 09. ~ 2026. 11. 08."
  *   제외 경계 "("는 다음 날, ")"는 전날로 바꿔 양 끝을 포함한 날짜로 보여준다 (docs/decisions.md)
- * - "2025-11~2026-10" → "2025.11 ~ 2026.10", "2026-Q2" → "2026년 2분기"
+ * - "2025-11~2026-10" → "2025. 11. ~ 2026. 10.", "2026-Q2" → "2026년 2분기"
  */
 export function formatPeriod(value: Maybe<string>): string | null {
   if (!value) return null
@@ -106,7 +111,7 @@ export function formatPeriod(value: Maybe<string>): string | null {
   }
   return value
     .split('~')
-    .map((part) => part.trim().replace(/-/g, '.'))
+    .map((part) => formatDate(part.trim()) ?? part.trim())
     .join(' ~ ')
 }
 
@@ -117,8 +122,8 @@ export function formatKrwApprox(won: Maybe<number>): string | null {
   return `약 ${countFormatter.format(Math.round(won / 1e4))}만 원`
 }
 
-/** ISO 시각 "2026-11-09T14:02:11+09:00" → "2026.11.09 14:02" (서버가 준 시각 글자 그대로, 시간대 변환 없음) */
+/** ISO 시각 "2026-11-09T14:02:11+09:00" → "2026. 11. 09. 14:02" (서버가 준 시각 글자 그대로, 시간대 변환 없음) */
 export function formatDateTime(value: Maybe<string>): string | null {
   const m = value ? /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value) : null
-  return m ? `${m[1]}.${m[2]}.${m[3]} ${m[4]}:${m[5]}` : (value ?? null)
+  return m ? `${dotDate(m[1], m[2], m[3])} ${m[4]}:${m[5]}` : (value ?? null)
 }

@@ -4,7 +4,7 @@ import { cn } from '../../utils/cn'
 
 type Props = {
   label: string
-  /** 형식 변환까지 끝난 서버 값 (예: "12곳"). 없으면 "—" (children을 주면 무시) */
+  /** 형식 변환까지 끝난 서버 값 (예: "12개"). 없으면 "—" (children을 주면 무시) */
   value?: string | null
   icon: LucideIcon
   /** 라벨 옆 작은 표식 (예: "Spot:ON 참고지표" 라벨) */

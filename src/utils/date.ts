@@ -28,6 +28,19 @@ export function parseYearMonth(
 }
 
 /**
+ * 서버 시점 범위의 시작을 floor(기본 2010-01)로 자른다. 끝(max_month)은 서버 값 그대로.
+ * 시작이 없으면(과거 자료 없음) 그대로 null, 끝이 floor보다 이르면 고를 과거 달이 없으므로 null
+ */
+export function clampMonthRange<T extends { min_month: string | null; max_month: string }>(
+  range: T,
+  floor: string,
+): T {
+  if (range.min_month === null) return range
+  if (range.max_month < floor) return { ...range, min_month: null }
+  return range.min_month < floor ? { ...range, min_month: floor } : range
+}
+
+/**
  * min ≤ ym ≤ max 인지 ("YYYY-MM"은 글자 순서 = 시간 순서).
  * min이 null(유효 표본 없음)이면 고를 수 있는 과거 월이 없으므로 항상 false
  */

@@ -1,32 +1,20 @@
 import { useMemo } from 'react'
-import {
-  LOCATION_MATCH_LABEL,
-  STORE_STATUS_LABEL,
-  SUB_CATEGORY_LABEL,
-} from '../../../constants/labels'
+import { SUB_CATEGORY_LABEL } from '../../../constants/labels'
 import { MESSAGES } from '../../../constants/messages'
 import { useShowMore } from '../../../hooks/useShowMore'
-import type { HistoryStore, LocationMatch, StoreStatus } from '../../../types/stores'
+import type { HistoryStore } from '../../../types/stores'
 import { cn } from '../../../utils/cn'
 import { sortHistoryRecentFirst } from '../../../utils/history'
 import { storeCloseDate, storeName, storeOpenDate, storePeriod } from '../../../utils/storeDisplay'
 import { storeKey } from '../../../utils/storeKey'
-import Badge, { type BadgeTone } from '../../common/Badge'
 import FranchiseNote from '../../common/FranchiseNote'
 import StoreFranchiseCell from '../../common/StoreFranchiseCell'
 import ShowMoreButton from '../../common/ShowMoreButton'
-import StatusLabel from '../../common/StatusLabel'
 
 const T = MESSAGES.history
 const TABLE_ID = 'history-table'
 /** 값이 없을 때(정보 없음·확인 필요) — 흐린 글씨로 실제 값과 구분 */
 const missingClass = 'text-gray-600'
-
-const STATUS_TONE: Record<StoreStatus, BadgeTone> = {
-  open: 'green',
-  closed: 'gray',
-  other: 'orange',
-}
 
 type Props = { stores: HistoryStore[] }
 
@@ -113,14 +101,6 @@ export default function HistoryTable({ stores }: Props) {
                     )}
                   </td>
                   <td className="px-3 py-4">
-                    <Badge tone={STATUS_TONE[s.store_status]}>
-                      {STORE_STATUS_LABEL[s.store_status]}
-                    </Badge>
-                  </td>
-                  <td className="px-3 py-4">
-                    <LocationCell match={s.location_match} />
-                  </td>
-                  <td className="px-3 py-4">
                     <StoreFranchiseCell store={s} />
                   </td>
                 </tr>
@@ -138,11 +118,4 @@ export default function HistoryTable({ stores }: Props) {
       )}
     </div>
   )
-}
-
-/** 위치 일치 — 미확인은 상태 라벨로 누락 없이 표시 */
-function LocationCell({ match }: { match: LocationMatch | null }) {
-  if (match === null) return <StatusLabel status="unknown" />
-  if (match === 'unverified') return <StatusLabel status="location_unverified" />
-  return <Badge tone={match === 'same_spot' ? 'blue' : 'gray'}>{LOCATION_MATCH_LABEL[match]}</Badge>
 }

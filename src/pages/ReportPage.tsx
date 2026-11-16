@@ -23,13 +23,7 @@ import {
   RESTAURANT_SUB_CATEGORIES,
   FACILITY_SIZE_OPTIONS,
 } from '../constants/diagnosis'
-import {
-  INDICATOR_NAME,
-  INDICATOR_TYPE,
-  LOCATION_MATCH_LABEL,
-  STORE_STATUS_LABEL,
-  SUB_CATEGORY_LABEL,
-} from '../constants/labels'
+import { INDICATOR_NAME, INDICATOR_TYPE, SUB_CATEGORY_LABEL } from '../constants/labels'
 import { MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes'
 import { parseSourceIds, SOURCES } from '../constants/sources'
@@ -316,12 +310,6 @@ function HistoryBlock({ data }: { data: Data }) {
                   <Td>
                     {period.text}
                     {period.reason && <span className="block text-gray-600">{period.reason}</span>}
-                  </Td>
-                  <Td>{STORE_STATUS_LABEL[s.store_status]}</Td>
-                  <Td>
-                    {s.location_match
-                      ? LOCATION_MATCH_LABEL[s.location_match]
-                      : MESSAGES.store.missingValue}
                   </Td>
                   <Td>{storeFranchise(s).label}</Td>
                 </tr>
