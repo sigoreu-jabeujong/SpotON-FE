@@ -808,6 +808,14 @@ html {
   }
 }
 
+/* STEP 03 참고지표 도넛 — 인쇄(진단서 PDF)에서는 채움 전환 없이 처음부터 최종 값 (RateDonut) */
+@media print {
+  [data-donut-fill] {
+    stroke-dasharray: var(--donut-full) !important;
+    transition: none !important;
+  }
+}
+
 /* 동작 줄이기 설정: 남은 애니메이션·전환도 사실상 즉시 끝나게 (스피너·반짝임·떠 있기 포함) */
 @media (prefers-reduced-motion: reduce) {
   *,

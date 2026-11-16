@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { DataStatus } from '../../constants/labels'
 import { DATA_STATUS } from '../../constants/labels'
 import { cn } from '../../utils/cn'
@@ -8,6 +8,16 @@ import { StatusIcon } from '../common/StatusLabel'
 const R = 42
 const STROKE = 10
 const CIRCUMFERENCE = 2 * Math.PI * R
+
+/**
+ * 채움 애니메이션을 하지 않고 처음부터 최종 값으로 그릴 때 — 서버 렌더·테스트(IntersectionObserver 없음),
+ * 동작 줄이기, 인쇄 중. (인쇄는 index.css @media print 규칙으로도 최종 값을 강제한다)
+ */
+function fillAtOnce(): boolean {
+  if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') return true
+  const media = (q: string) => window.matchMedia?.(q).matches ?? false
+  return media('(prefers-reduced-motion: reduce)') || media('print')
+}
 
 type Props = {
   /** 서버가 준 비율 값(%) 그대로 — 없으면(판단 보류·자료 없음) null */
@@ -24,10 +34,31 @@ type Props = {
  * 비율 지표 도넛 — 서버 % 값을 0~100 눈금에 그대로 채운다 (계산·반올림 없음).
  * 값이 없으면 숫자를 채우지 않고 빈 회색 링 + 상태 글자("판단 보류" 등)와 사유.
  * 그림은 aria-hidden, 값·상태는 글자로 읽힌다.
+ * 파란 링은 화면에 처음 보일 때 한 번만 0에서 값까지 차오른다(약 0.8초, 결과 화면 등장 애니메이션 예외 — docs/decisions.md).
+ * 가운데 숫자는 처음부터 최종 값(카운트업 없음), 값 없음(회색 링)은 움직이지 않는다.
  */
 export default function RateDonut({ percent, text, empty, details }: Props) {
   const has = percent !== null && text !== null
   const filled = has ? (Math.min(100, Math.max(0, percent)) / 100) * CIRCUMFERENCE : 0
+  const full = `${filled} ${CIRCUMFERENCE}`
+  // 화면에 들어오면 true — 그 전에는 링을 0으로 두었다가 전환으로 차오른다 (한 번만, 다시 0으로 돌아가지 않음)
+  const [shown, setShown] = useState(fillAtOnce)
+  const svg = useRef<SVGSVGElement>(null)
+  useEffect(() => {
+    if (shown || !has || !svg.current) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setShown(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.4 },
+    )
+    observer.observe(svg.current)
+    return () => observer.disconnect()
+  }, [shown, has])
+  const dash = shown ? full : `0 ${CIRCUMFERENCE}`
   const reason = !has && empty.text
   // 사유 글자 — 휴대폰은 도넛 바로 옆, 768px 이상은 오른쪽 설명 묶음 맨 위 (한쪽만 보이고 다른 쪽은 display:none)
   const reasonText = (className: string) =>
@@ -46,7 +77,13 @@ export default function RateDonut({ percent, text, empty, details }: Props) {
     <div className="flex items-center gap-5 max-md:flex-col max-md:items-start max-md:gap-2">
       <div className="flex items-center gap-4">
         <div className="relative size-26 shrink-0">
-          <svg data-donut viewBox="0 0 100 100" className="size-full -rotate-90" aria-hidden="true">
+          <svg
+            ref={svg}
+            data-donut
+            viewBox="0 0 100 100"
+            className="size-full -rotate-90"
+            aria-hidden="true"
+          >
             <circle
               cx="50"
               cy="50"
@@ -57,14 +94,16 @@ export default function RateDonut({ percent, text, empty, details }: Props) {
             />
             {has && (
               <circle
+                data-donut-fill
                 cx="50"
                 cy="50"
                 r={R}
                 fill="none"
                 strokeWidth={STROKE}
                 strokeLinecap={filled > 0 ? 'round' : 'butt'}
-                strokeDasharray={`${filled} ${CIRCUMFERENCE}`}
-                className="stroke-blue-500"
+                // 표시 변환만 — 서버 % 값을 눈금에 그대로 (인쇄는 --donut-full로 최종 값)
+                style={{ strokeDasharray: dash, '--donut-full': full } as CSSProperties}
+                className="stroke-blue-500 transition-[stroke-dasharray] duration-800 ease-(--ease-out-soft)"
               />
             )}
           </svg>
