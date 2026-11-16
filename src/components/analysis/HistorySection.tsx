@@ -15,51 +15,19 @@ import AnalysisSection from './AnalysisSection'
 import HistoryTable from './history/HistoryTable'
 
 export default function HistorySection() {
-  const { query, search, updateQuery } = useDiagnosisQuery()
+  const { query, search } = useDiagnosisQuery()
   const params = closedHistoryParams(query)
   const history = useLocationHistory(params)
   const h = history.data?.data
   const meta = history.data?.meta
   return (
     <AnalysisSection id="history">
-      <div className="mb-4 flex flex-wrap gap-4 text-caption">
-        <label className="flex w-full max-w-full min-w-0 flex-col gap-2 sm:w-auto">
-          이력 비교 범위{' '}
-          <select
-            aria-label="이력 비교 범위"
-            value={query.historyScope ?? (query.floorUnit?.includes('호') ? 'unit' : 'floor')}
-            onChange={(e) => updateQuery({ historyScope: e.target.value as 'floor' | 'unit' })}
-            className="w-full max-w-full min-w-0 rounded border p-2"
-          >
-            <option value="floor">같은 층</option>
-            <option value="unit" disabled={!query.floorUnit?.includes('호')}>
-              같은 층·호수
-            </option>
-          </select>
-        </label>
-        <label className="flex w-full max-w-full min-w-0 flex-col gap-2 sm:w-auto">
-          주소 확인 기준{' '}
-          <select
-            aria-label="주소 확인 기준"
-            value={query.historyIdentity ?? 'address_scope'}
-            onChange={(e) =>
-              updateQuery({
-                historyIdentity: e.target.value as 'address_scope' | 'verified_building',
-              })
-            }
-            className="w-full max-w-full min-w-0 rounded border p-2"
-          >
-            <option value="address_scope">같은 지번 주소 범위 (참고)</option>
-            <option value="verified_building">검증된 같은 건물·동</option>
-          </select>
-        </label>
-      </div>
       {!params ? (
         <div className="space-y-2">
           <p>{closedHistoryTitle()}</p>
           <p>{closedHistoryNotice()}</p>
           <Link className="underline" to={{ pathname: ROUTES.input, search }}>
-            층·호수 입력하기
+            주소 확인하기
           </Link>
         </div>
       ) : history.isPending ? (
@@ -69,10 +37,16 @@ export default function HistorySection() {
       ) : (
         h && (
           <div className="flex flex-col gap-4">
-            <p className="text-subtitle font-bold" role="status">
-              {closedHistoryTitle(h)}
-            </p>
-            <p className="text-caption text-gray-600">{closedHistoryNotice(h)}</p>
+            {h.total === 0 && (
+              <div role="status">
+                <p>
+                  {h.location?.result_status === 'pending_identity'
+                    ? '주소를 확인한 뒤 다시 조회해 주세요.'
+                    : '조건에 맞는 점포 이력이 조회되지 않았어요.'}
+                </p>
+                {h.location?.location_coverage === 'partial' && <p>{closedHistoryNotice(h)}</p>}
+              </div>
+            )}
             {h.total > 0 && <HistoryTable stores={h.stores} />}
             <MetaLine
               source={meta?.source}

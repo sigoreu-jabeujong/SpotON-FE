@@ -4,22 +4,29 @@ import { closedHistoryParams } from './closedHistory'
 
 const q = (floor: string) =>
   parseDiagnosisQuery(
-    new URLSearchParams({ bk: '마포구-서교동-490-0', floor, category: 'cafe' }),
+    new URLSearchParams({
+      bk: '마포구-서교동-490-0',
+      address: '서울 마포구 양화로 45',
+      lat: '37.55',
+      lng: '126.92',
+      floor,
+      category: 'cafe',
+    }),
     'v2',
   )
-describe('closed location selection', () => {
-  it('requires an explicit floor and never infers one from a unit', () => {
+describe('automatic location selection', () => {
+  it('allows address-only lookup but never infers a floor from a unit', () => {
     expect(closedHistoryParams(q('201호'))).toBeNull()
-    expect(closedHistoryParams(q(''))).toBeNull()
+    expect(closedHistoryParams(q(''))?.scope).toBe('address')
     expect(closedHistoryParams({ ...q('2층'), detailUnverified: true })).toBeNull()
   })
-  it('defaults to exact unit and only widens with explicit selection', () => {
+  it('uses the entered detail and ignores removed scope controls', () => {
     expect(closedHistoryParams(q('2층 201호'))?.scope).toBe('unit')
     expect(closedHistoryParams(q('2층'))?.scope).toBe('floor')
-    expect(closedHistoryParams({ ...q('2층 201호'), historyScope: 'floor' })?.scope).toBe('floor')
-    expect(closedHistoryParams({ ...q('2층'), historyScope: 'unit' })).toBeNull()
+    expect(closedHistoryParams({ ...q('2층 201호'), historyScope: 'floor' })?.scope).toBe('unit')
+    expect(closedHistoryParams({ ...q('2층'), historyScope: 'unit' })?.scope).toBe('floor')
   })
-  it('round trips scope and building evidence without changing address details', () => {
+  it('restores old URLs using the current automatic policy', () => {
     const initial = {
       ...q('2층 201호'),
       historyScope: 'floor' as const,
@@ -30,5 +37,6 @@ describe('closed location selection', () => {
       'v2',
     )
     expect(closedHistoryParams(restored)).toEqual(closedHistoryParams(initial))
+    expect(closedHistoryParams(restored)?.identity_requirement).toBe('address_scope')
   })
 })

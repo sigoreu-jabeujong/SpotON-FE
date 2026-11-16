@@ -2,10 +2,10 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { locationReferenceFixture } from '../../../api/mocks/locationReference'
 import LocationReferenceView from './LocationReferenceView'
-import LocationReferencePrint from './LocationReferencePrint'
 
 describe('restaurant market aggregates', () => {
-  for (const Component of [LocationReferenceView, LocationReferencePrint]) {
+  // 화면 그대로 PDF도 같은 LocationReferenceView를 쓴다 (예전 인쇄 전용 컴포넌트는 제거)
+  for (const Component of [LocationReferenceView]) {
     it(`${Component.name} renders three distinct market cards and the pooled estimate`, () => {
       const data = locationReferenceFixture()
       const html = renderToStaticMarkup(<Component category="restaurant" data={data} />)
@@ -18,6 +18,8 @@ describe('restaurant market aggregates', () => {
       expect(html).toContain('선택 업종: 한식 · 중식 · 일식 · 양식 합산')
       expect(html).toContain('나머지 상권 보기 (1곳)')
       expect(html).toContain('업종별 원자료')
+      expect(html).toContain('음식점 추정매출 자료 안내')
+      expect(html).toContain('분석 기준일 2025-11-30')
       expect(html).not.toContain('/점포')
     })
   }

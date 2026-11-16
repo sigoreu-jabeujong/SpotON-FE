@@ -10,6 +10,7 @@ const MAX_CANDIDATES = 5
 type Props = {
   candidates: GeocodeCandidate[]
   detail?: string
+  disabled?: boolean
   onSelect: (candidate: GeocodeCandidate) => void
 }
 
@@ -17,7 +18,7 @@ type Props = {
  * 주소 후보가 여러 개일 때 고르는 목록 — 앱의 선택 목록처럼 한 장의 흰 상자 안에 행을 나눠 보여준다.
  * 키보드: Tab·Enter·Space(기존 그대로) + 위·아래 화살표로 후보 사이 이동. 초점이 간 행은 파란 배경·테두리로 또렷하게
  */
-export default function CandidateList({ candidates, detail, onSelect }: Props) {
+export default function CandidateList({ candidates, detail, disabled = false, onSelect }: Props) {
   const listRef = useRef<HTMLUListElement>(null)
   const firstRef = useRef<HTMLButtonElement>(null)
 
@@ -66,6 +67,7 @@ export default function CandidateList({ candidates, detail, onSelect }: Props) {
             <button
               ref={i === 0 ? firstRef : undefined}
               type="button"
+              disabled={disabled}
               onClick={() => onSelect(c)}
               className="group flex min-h-14 w-full items-center gap-3 px-4 py-3 text-left motion-colors hover:bg-blue-100 focus-visible:bg-blue-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500"
             >
