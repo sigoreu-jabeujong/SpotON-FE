@@ -3,6 +3,7 @@ import type {
   LocationReference,
   ReferenceNumber,
 } from '../../../types/locationReference'
+import InfoPopover from '../../common/InfoPopover'
 
 const labels: Record<string, string> = {
   CS100001: '한식',
@@ -125,7 +126,33 @@ export default function RestaurantSales({ data }: { data: LocationReference }) {
   return (
     <div className="flex min-w-0 flex-col gap-3" data-testid="restaurant-sales">
       <div data-testid="top-markets-estimate">
-        <p className="text-caption font-semibold text-gray-600">점포당 추정 매출</p>
+        <p className="flex items-center gap-1 text-caption font-semibold text-gray-600">
+          점포당 추정 매출
+          <span className="print:hidden">
+            <InfoPopover
+              triggerLabel="음식점 추정매출 자료 안내"
+              title="음식점 추정매출 자료 안내"
+              closeLabel="닫기"
+            >
+              <span className="block">
+                같은 분기의 선택 업종 매출과 점포 수를 상권별로 합산한 참고값이에요.
+              </span>
+              <span className="block">이 자리 점포의 실제 매출이 아니에요.</span>
+              <span className="block">
+                가맹·브랜드·면적 조건으로 이 참고자료의 수치를 거르지 않아요. 기존 AI 해석에
+                반영되는 값은 아니에요.
+              </span>
+            </InfoPopover>
+          </span>
+        </p>
+        <p className="text-caption text-gray-600">
+          분석 기준일 {data.analysis_as_of}
+          {group?.items[0]?.temporal_relation === 'later_reference'
+            ? ' · 분석 기준 이후 참고자료'
+            : group?.items[0]?.temporal_relation === 'earlier_reference'
+              ? ' · 분석 기준 이전 참고자료'
+              : ''}
+        </p>
         <p className="text-title font-bold break-all">{amount(top?.metric)}</p>
         {top?.metric && (
           <>
