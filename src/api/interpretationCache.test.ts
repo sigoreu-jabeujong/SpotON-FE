@@ -8,9 +8,7 @@ const params: CommonQueryParams = {
   category: 'cafe',
   radius: 500,
   area: 'all',
-  franchise: 'all',
   include_unknown_area: true,
-  include_unknown_franchise: true,
 }
 const history = { building_key: 'test-building', floor_unit: '2층 201호' }
 const key = (p = params, h = history, address = '선택한 주소') =>
@@ -21,9 +19,7 @@ describe('해석과 진단서 캐시의 조건 구분', () => {
     { radius: 300 },
     { as_of: '2025-11' },
     { area: 'lt33' },
-    { franchise: 'franchise' },
     { include_unknown_area: false },
-    { include_unknown_franchise: false },
     { category: 'restaurant', sub_category: ['korean'] },
     { lat: 37.56 },
   ] satisfies Partial<CommonQueryParams>[])(

@@ -19,7 +19,6 @@ function query(over: Partial<DiagnosisQuery> = {}): DiagnosisQuery {
     radius: 500,
     asOf: null,
     area: 'all',
-    franchise: 'all',
     includeUnknown: true,
     lat: coords.lat,
     lng: coords.lng,
@@ -30,27 +29,13 @@ function query(over: Partial<DiagnosisQuery> = {}): DiagnosisQuery {
   }
 }
 
-describe('toCommonQueryParams — 정보 없음 포함 플래그', () => {
-  it('legacy include_unknown은 보내지 않고 면적·가맹을 따로', () => {
-    const p = toCommonQueryParams(query(), coords)
-    expect(p).not.toHaveProperty('include_unknown')
-    expect(p).toMatchObject({ include_unknown_area: true, include_unknown_franchise: true })
-  })
-
-  it('가맹 필터 "전체"면 체크박스 값을 그대로', () => {
-    const p = toCommonQueryParams(query({ includeUnknown: false }), coords)
-    expect(p).toMatchObject({ include_unknown_area: false, include_unknown_franchise: false })
-  })
-
-  it.each(['franchise', 'independent'] as const)(
-    '가맹 필터 %s → include_unknown_franchise=false (면적은 체크박스 그대로)',
-    (franchise) => {
-      const p = toCommonQueryParams(query({ franchise, includeUnknown: true }), coords)
-      expect(p).toMatchObject({
-        franchise,
-        include_unknown_area: true,
-        include_unknown_franchise: false,
-      })
+describe('면적 정보 없음 포함', () => {
+  it.each([true, false])(
+    '면적 조건 %s를 그대로 전달하고 소속 필터는 보내지 않는다',
+    (includeUnknown) => {
+      const p = toCommonQueryParams(query({ includeUnknown }), coords)!
+      expect(p.include_unknown_area).toBe(includeUnknown)
+      expect(Object.keys(p).some((k) => /brand|franchise|operation_type/.test(k))).toBe(false)
     },
   )
 })

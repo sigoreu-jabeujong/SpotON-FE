@@ -5,7 +5,7 @@ import { MESSAGES } from '../../constants/messages'
 import type { NearbyMarker } from '../../types/stores'
 import { cn } from '../../utils/cn'
 import { formatDate } from '../../utils/format'
-import { storeFranchise, storeName, storePeriodLine } from '../../utils/storeDisplay'
+import { storeName, storePeriodLine } from '../../utils/storeDisplay'
 import { storeKey } from '../../utils/storeKey'
 import LoadingState from '../common/LoadingState'
 import { CLUSTER_MIN_GROUPS, findGroupOf, groupMarkers, type MarkerGroup } from './groupMarkers'
@@ -23,6 +23,7 @@ import { tokenColor } from '../../utils/tokenColor'
 const T = MESSAGES.nearby
 
 type Props = {
+  asOf?: string | null
   center: { lat: number; lng: number }
   /** 반경(m) — 서버 radius_m */
   radiusM: number
@@ -62,6 +63,7 @@ const CLUSTER_STYLE: Partial<CSSStyleDeclaration> = {
  * - 점포 식별은 storeKey(source, license_no) — 표 선택과 같은 값
  */
 export default function NearbyMap({
+  asOf,
   center,
   radiusM,
   markers,
@@ -245,8 +247,8 @@ export default function NearbyMap({
       position: pos,
       content:
         group.stores.length === 1 && selected
-          ? makeInfoElement(selected, close)
-          : makeGroupInfoElement(group, selectedId, (id) => onSelectRef.current(id), close),
+          ? makeInfoElement(selected, close, asOf)
+          : makeGroupInfoElement(group, selectedId, (id) => onSelectRef.current(id), close, asOf),
       yAnchor: 1.12,
       clickable: true,
       zIndex: 40,
@@ -271,7 +273,7 @@ export default function NearbyMap({
       highlightRef.current = null
       infoRef.current = null
     }
-  }, [sdk, groups, activeKey, selectedId])
+  }, [sdk, groups, activeKey, selectedId, asOf])
 
   return (
     <div className="relative h-[420px] overflow-hidden rounded-card border border-gray-300 bg-gray-100">
@@ -374,15 +376,14 @@ function makeInfoBox(title: string, onClose: () => void): HTMLElement {
 }
 
 /** 점포 한 곳의 상세 줄 */
-function makeDetailList(m: NearbyMarker): HTMLElement {
+function makeDetailList(m: NearbyMarker, asOf?: string | null): HTMLElement {
   const rows: [string, string][] = [
     [T.info.category, SUB_CATEGORY_LABEL[m.sub_category]],
     [T.info.openDate, formatDate(m.open_date) ?? '—'],
     // 0은 "0개월", 미산정은 "정보 없음 (사유)"
     [T.info.period, storePeriodLine(m)],
     [T.info.status, CURRENT_STATUS_LABEL[m.current_status]],
-    // 표와 같은 근거 문구 (예: 프랜차이즈(추정) · 2025년 브랜드 목록과 상호 일치 · 실제 계약·과거 소속 아님)
-    [T.info.franchise, franchiseLine(m)],
+    ['기준 시점', formatDate(asOf) ?? MESSAGES.store.missingValue],
   ]
   const dl = document.createElement('dl')
   dl.className = 'mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5'
@@ -397,14 +398,14 @@ function makeDetailList(m: NearbyMarker): HTMLElement {
   return dl
 }
 
-function makeInfoElement(m: NearbyMarker, onClose: () => void): HTMLElement {
+function makeInfoElement(m: NearbyMarker, onClose: () => void, asOf?: string | null): HTMLElement {
   const box = makeInfoBox(storeName(m).text, onClose)
-  box.appendChild(makeDetailList(m))
+  box.appendChild(makeDetailList(m, asOf))
   return box
 }
 
 /**
- * 같은 위치 여러 점포 — 목록(상호·상태·프랜차이즈)에서 하나를 고르면 표 선택과 같은 값(storeKey)으로 동기화.
+ * 같은 위치 여러 점포 — 목록(상호·상태)에서 하나를 고르면 표 선택과 같은 값(storeKey)으로 동기화.
  * 고른 점포는 목록에서 강조하고 아래에 상세를 보여준다.
  */
 function makeGroupInfoElement(
@@ -412,6 +413,7 @@ function makeGroupInfoElement(
   selectedId: string | null,
   onPick: (id: string) => void,
   onClose: () => void,
+  asOf?: string | null,
 ): HTMLElement {
   const box = makeInfoBox(T.groupTitle(g.stores.length), onClose)
   const hint = document.createElement('p')
@@ -441,18 +443,13 @@ function makeGroupInfoElement(
     name.textContent = storeName(s).text
     const meta = document.createElement('span')
     meta.className = 'block text-micro font-normal text-gray-600'
-    meta.textContent = `${CURRENT_STATUS_LABEL[s.current_status]} · ${storeFranchise(s).label}`
+    meta.textContent = CURRENT_STATUS_LABEL[s.current_status]
     b.append(name, meta)
     b.addEventListener('click', () => onPick(id))
     li.appendChild(b)
     list.appendChild(li)
   }
   box.appendChild(list)
-  if (selected) box.appendChild(makeDetailList(selected))
+  if (selected) box.appendChild(makeDetailList(selected, asOf))
   return box
-}
-
-function franchiseLine(m: NearbyMarker): string {
-  const f = storeFranchise(m)
-  return f.help ? `${f.label} (${f.help})` : f.label
 }
