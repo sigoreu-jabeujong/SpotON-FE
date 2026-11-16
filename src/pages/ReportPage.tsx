@@ -336,8 +336,8 @@ function HistoryBlock({ data }: { data: Data }) {
           </tbody>
         </table>
       )}
-      {/* 화면 표와 같은 가맹 근거 안내 — 진단서에 실린 행에 추정이 있을 때만 */}
-      {franchiseEstimateYear(rows.slice(0, HISTORY_ROWS)) !== undefined && (
+      {/* 화면 표와 같은 가맹 근거 안내 — 진단서에 실린 행에 추정이 있을 때만 (브랜드·체인 v2에서는 화면처럼 빼고, 표의 (추정) 표시만) */}
+      {!BRAND_API_ENABLED && franchiseEstimateYear(rows.slice(0, HISTORY_ROWS)) !== undefined && (
         <p className="mt-1 text-gray-600">
           {MESSAGES.store.franchise.note(
             franchiseEstimateYear(rows.slice(0, HISTORY_ROWS)) ?? null,
@@ -547,7 +547,7 @@ function IndicatorsBlock({ indicators, data }: { indicators: RiskIndicator[]; da
       {(BRAND_API_ENABLED || data.query.franchise !== 'all') && (
         <p className="mb-1 text-gray-600">
           {BRAND_API_ENABLED
-            ? brandFilterNotice(data.query, data.risk.data?.meta)
+            ? brandFilterNotice(data.risk.data?.meta)
             : data.query.franchise === 'independent'
               ? MESSAGES.store.franchise.filterIndependent
               : MESSAGES.store.franchise.filterFranchise(
