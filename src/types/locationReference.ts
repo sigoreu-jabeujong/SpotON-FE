@@ -56,6 +56,15 @@ export type DayNightReferenceItem = {
   provenance_ref: string
 }
 type ReferenceBlock<T> = { status: ReferenceStatus; reason: string | null; items: T[] }
+export type SalesDistribution = {
+  sample_count: number
+  limited_reference_count: boolean
+  median: ReferenceNumber
+  q1: ReferenceNumber
+  q3: ReferenceNumber
+  iqr: ReferenceNumber
+  variance: { value: string; unit: string }
+}
 export type LocationReference = {
   requested_as_of: string | null
   analysis_as_of: string
@@ -66,12 +75,18 @@ export type LocationReference = {
       primary_quarter: string | null
       temporal_relation?: 'same_period' | 'earlier_reference' | 'later_reference' | null
       metric: ReferenceNumber | null
+      distribution?: SalesDistribution | null
+      representative_method?: string
       total_sales: string | null
       total_store_count: string | null
       listed_item_count: number
       included_item_count: number
       excluded_counts: Record<string, number>
-      groups: { source_quarter: string; metric: ReferenceNumber | null }[]
+      groups: {
+        source_quarter: string
+        metric: ReferenceNumber | null
+        distribution?: SalesDistribution | null
+      }[]
     } | null
   }
   living_population: ReferenceBlock<AdminReferenceItem>
