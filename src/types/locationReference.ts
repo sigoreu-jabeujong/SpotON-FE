@@ -1,0 +1,63 @@
+import type { PopulationParams } from './population'
+
+export type LocationParams = PopulationParams & {
+  time_mode?: 'latest_reference' | 'analysis_period'
+}
+export type ReferenceStatus = 'ready' | 'partial' | 'no_data' | 'pending' | 'not_supported'
+export type ReferenceNumber = {
+  value: string | null
+  display: string | null
+  unit: string
+  rounded: boolean
+  exact_zero: boolean
+  reason?: string | null
+}
+export type SalesReferenceItem = {
+  market_code: string
+  market_name: string
+  industry_code: string
+  industry_name: string
+  spatial_relation: 'contains_point' | 'intersects_radius'
+  source_quarter: string | null
+  temporal_relation: 'same_period' | 'earlier_reference' | 'later_reference' | null
+  metric: ReferenceNumber | null
+  status: 'ready' | 'no_data'
+  reason: string | null
+}
+export type AdminReferenceItem = {
+  area_ref: string
+  area_name: string
+  spatial_relation: 'contains_point' | 'intersects_radius'
+  observation_date: string
+  source_month: string
+  temporal_relation: 'same_period' | 'earlier_reference' | 'later_reference'
+  population_scope: 'local'
+  mean_24h: ReferenceNumber | null
+  status: 'ready' | 'no_data'
+  reason: string | null
+  observed_hours: number
+  source_hours: number
+  provenance_ref: string
+}
+export type DayNightReferenceItem = {
+  area_ref: string
+  observation_date: string
+  population_scope: 'local'
+  mean_day: ReferenceNumber | null
+  mean_night: ReferenceNumber | null
+  day_night_ratio: ReferenceNumber | null
+  day_share_pct: ReferenceNumber | null
+  night_share_pct: ReferenceNumber | null
+  status: 'ready' | 'partial' | 'no_data'
+  reason: string | null
+  provenance_ref: string
+}
+type ReferenceBlock<T> = { status: ReferenceStatus; reason: string | null; items: T[] }
+export type LocationReference = {
+  requested_as_of: string | null
+  analysis_as_of: string
+  time_mode: 'latest_reference' | 'analysis_period'
+  sales: ReferenceBlock<SalesReferenceItem>
+  living_population: ReferenceBlock<AdminReferenceItem>
+  day_night: ReferenceBlock<DayNightReferenceItem>
+}

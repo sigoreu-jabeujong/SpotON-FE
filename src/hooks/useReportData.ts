@@ -6,7 +6,7 @@ import {
 } from '../api/params'
 import { getCoordinates, useDiagnosisQuery } from './useDiagnosisQuery'
 import { useMarketActivity } from './useMarketActivity'
-import { usePopulationReference } from './usePopulationReference'
+import { useLocationReference } from './useLocationReference'
 import { useCachedInterpretation, useRisk } from './useRisk'
 import { useNearbyStores, useStoreHistory, useStoreSnapshot } from './useStores'
 import { BRAND_API_ENABLED } from '../api/analysisProfile'
@@ -28,7 +28,7 @@ export function useReportData(includePopulation = false) {
   const activity = useMarketActivity(params, ACTIVITY_INCLUDE)
   const risk = useRisk(params)
   const populationEnabled = includePopulation && params !== null
-  const population = usePopulationReference(populationEnabled ? params : null)
+  const locationReference = useLocationReference(populationEnabled ? params : null)
   const ai = useCachedInterpretation(
     params,
     toInterpretHistory(query),
@@ -45,10 +45,10 @@ export function useReportData(includePopulation = false) {
     snapshot,
     activity,
     risk,
-    population,
     populationEnabled,
+    locationReference,
     /** Keep core results visible; the print button waits for the optional comparison too. */
-    captureLoading: loading || (populationEnabled && population.isFetching),
+    captureLoading: loading || (populationEnabled && locationReference.isFetching),
     ai:
       ai.data &&
       (!BRAND_API_ENABLED ||
