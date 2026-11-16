@@ -619,6 +619,31 @@ export const MESSAGES = {
     otherQuarter: (quarter: string, value: string) => `${quarter} 중간값 ${value}`,
     quarter: (q: string) => `${q.slice(0, 4)}년 ${q.slice(4)}분기`,
     noValue: '자료 없음',
+    populationTitle: '생활인구 (주간·야간)',
+    populationHeadline: '시간당 평균 생활인구',
+    /** 행정동 이름 옆 — 검색 위치를 포함하지 않고 반경과만 겹치는 행정동 */
+    intersectsArea: '반경과 겹치는 행정동',
+    observed: (date: string) => `관측일 ${date}`,
+    observedHours: (n: number) => `공개된 관측 시간 ${n}/24시간`,
+    day: '주간',
+    night: '야간',
+    /** 막대 아래 한 줄 — 서버 비중(%) 그대로 */
+    shares: (day: string, night: string) => `주간 ${day} · 야간 ${night}`,
+    dayNightMismatch: '비교 자료의 구역·관측일을 확인할 수 없어요.',
+    populationSource: '출처: 서울시 행정동 내국인 생활인구 · 행정동 단위 · 통계적 추정치',
+    gridToggle: '격자 단위 부분자료 보기',
+    /** 250m 격자 공개자료 (부분) 표 */
+    grid: {
+      basis: (analysis: string, observed: string, radius: number) =>
+        `250m 격자 공개자료(부분) · 분석 기준일 ${analysis} · 관측일 ${observed} · 반경 ${radius}m`,
+      caption: '250m 격자 공개자료 원천별 주간·야간 비중',
+      cols: { source: '구분', day: '주간 비중', night: '야간 비중', grids: '사용 격자' },
+      grids: (used: number, selected: number) => `${used} / ${selected}`,
+      note: '공개된 동일 구성만 비교한 참고값이며 전체 인구를 대표하지 않아요. 업종·브랜드·면적 조건으로 인구 자료를 거르지 않아요. 격자 적용일과 행정동별 합산 기준은 확인 중이에요.',
+      detailToggle: '자료 범위와 공개 원천값 상세',
+      sourceLink: (name: string) => `서울시 원천 자료: ${name} (새 창)`,
+      loading: '격자 단위 부분자료를 불러오고 있어요.',
+    },
     /** 추정매출 분포 그래프 — 화면은 쉬운 말(의미는 같음: 가중치 = 점포 수) */
     chart: {
       title: '점포당 추정 매출 분포',
