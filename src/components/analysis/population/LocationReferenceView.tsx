@@ -48,12 +48,32 @@ function metric(value: ReferenceNumber | null | undefined) {
 }
 
 /** 상권 표 비고 — 반복 설명 대신 짧은 표시 (반영 대상은 비움) */
-function marketNote(item: SalesReferenceItem) {
+type TopMarkets = NonNullable<LocationReference['sales']['top_markets_estimate']>
+
+function marketNote(
+  item: SalesReferenceItem,
+  items: SalesReferenceItem[],
+  top?: TopMarkets | null,
+) {
   if (!item.metric || item.status === 'no_data') return R.marketNote.no_data
   const status = item.average_contribution?.status
   if (status === 'different_quarter') return R.marketNote.different_quarter
   if (status === 'excluded') return R.marketNote.excluded
-  return ''
+  if (!top) return ''
+  // 같은 상권 코드·분기인데 이름이 다른 자료가 있으면 산정에서 빠진다 (#116 기준 그대로)
+  const mismatch = items.some(
+    (other) =>
+      other.market_code === item.market_code &&
+      other.source_quarter === item.source_quarter &&
+      other.per_store_metric &&
+      other.market_name !== item.market_name,
+  )
+  if (mismatch) return R.marketNote.mismatch
+  return top.markets.some(
+    (m) => m.market_code === item.market_code && m.industry_codes.includes(item.industry_code),
+  )
+    ? R.marketNote.top
+    : R.marketNote.notTop
 }
 
 function Card({ id, title, children }: { id: string; title: ReactNode; children: ReactNode }) {
@@ -74,6 +94,9 @@ function SalesCard({ data }: { data: LocationReference }) {
   const weighted = average?.store_weighted_distribution
   const useWeightedMedian = average?.representative_method === 'store_weighted_median_v1'
   const items = data.sales.items ?? []
+  // 점포 수 상위 3개 상권 합산(#116)이 응답에 있으면 그 값을 큰 숫자로 (분포 그래프는 상권별 참고)
+  const hasTop = 'top_markets_estimate' in data.sales
+  const top = data.sales.top_markets_estimate
   const otherGroups = (average?.groups ?? []).filter(
     (g) => g.source_quarter !== average?.primary_quarter,
   )
@@ -89,7 +112,30 @@ function SalesCard({ data }: { data: LocationReference }) {
               {data.time_mode === 'latest_reference' ? I.latestReference : I.analysisPeriod}
             </Line>
             <Line>{I.areaUnit}</Line>
-            {average && (
+            {top?.metric && (
+              <>
+                <Line>
+                  {I.topBasis(
+                    top.markets.map((m) => m.market_name).join(' · '),
+                    top.total_sales ?? '',
+                    top.total_store_count ?? '',
+                  )}
+                </Line>
+                {top.markets.map((m) => (
+                  <Line key={m.market_code}>
+                    {I.topMarket(m.market_name, m.total_sales, m.total_store_count)}
+                  </Line>
+                ))}
+                {top.selected_market_count < 3 && (
+                  <Line>{I.topFewer(top.selected_market_count)}</Line>
+                )}
+                {top.excluded_item_count > 0 && (
+                  <Line>{I.topExcluded(top.excluded_item_count)}</Line>
+                )}
+                {average && <Line>{I.chartReference}</Line>}
+              </>
+            )}
+            {average && !hasTop && (
               <>
                 <Line>
                   {useWeightedMedian ? I.weightedMedian : I.pooledMean}
@@ -130,7 +176,27 @@ function SalesCard({ data }: { data: LocationReference }) {
         </>
       }
     >
-      {average ? (
+      {hasTop ? (
+        <div>
+          <p className="text-caption font-semibold text-gray-600">{R.salesHeadline}</p>
+          <p className="text-title leading-tight font-bold break-all text-gray-900">
+            {metric(top?.metric)}
+          </p>
+          <p className="mt-1 text-caption break-keep text-gray-600">
+            {top?.metric
+              ? R.topSummary(top.selected_market_count, quarter(top.source_quarter))
+              : R.topNoData}
+          </p>
+          {average && (
+            <SalesDistributionChart
+              average={average}
+              items={items}
+              variant="screen"
+              title={R.chart.referenceTitle}
+            />
+          )}
+        </div>
+      ) : average ? (
         <div>
           <p className="text-caption font-semibold text-gray-600">{R.salesHeadline}</p>
           <p className="text-title leading-tight font-bold break-all text-gray-900">
@@ -189,7 +255,7 @@ function SalesCard({ data }: { data: LocationReference }) {
                         ? `${item.store_reference.total_stores}개`
                         : '—'}
                     </td>
-                    <td className="py-2 text-gray-600">{marketNote(item)}</td>
+                    <td className="py-2 text-gray-600">{marketNote(item, items, top)}</td>
                   </tr>
                 ))}
               </tbody>

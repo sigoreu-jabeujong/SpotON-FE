@@ -621,6 +621,14 @@ export const MESSAGES = {
         '점포당 추정 매출은 같은 분기 목록의 매출 합계를 같은 목록의 점포 수 합계로 나눠요.',
       pooledFormula: (sales: string, stores: string) =>
         `매출 합계 ${sales}원 ÷ 점포 수 합계 ${stores}개`,
+      topBasis: (names: string, sales: string, stores: string) =>
+        `점포당 추정 매출은 점포 수 상위 상권(${names})의 매출 합계 ${sales}원 ÷ 점포 수 합계 ${stores}개로 추정했어요.`,
+      topMarket: (name: string, sales: string, stores: string) =>
+        `${name}: 매출 ${sales}원 · 점포 ${stores}개`,
+      topFewer: (n: number) => `유효한 상권이 3곳보다 적어 ${n}곳의 자료를 사용했어요.`,
+      topExcluded: (n: number) => `매출과 점포 수를 함께 확인할 수 없는 ${n}개 항목은 제외했어요.`,
+      chartReference:
+        '아래 분포 그래프는 인근 상권별 점포당 평균에 점포 수를 반영한 추정 분포로, 위 숫자와 계산 방식이 달라 참고로 보여 줘요.',
       weightedMean: (value: string) => `점포 수 가중평균(비교): ${value}`,
       included: (listed: number, included: number) => `전체 ${listed}항목 중 ${included}항목 반영`,
       excluded: (text: string) => `제외: ${text}`,
@@ -649,7 +657,15 @@ export const MESSAGES = {
       no_data: '자료 없음',
       different_quarter: '다른 분기',
       excluded: '계산 제외',
+      /** 점포 수 상위 3개 상권 합산(#116) 기준 */
+      top: '반영',
+      notTop: '상위 3개 외',
+      mismatch: '자료 불일치',
     },
+    /** 점포 수 상위 3개 상권 합산 추정매출 (#116) — 큰 숫자 아래 한 줄 */
+    topSummary: (n: number, quarter: string) =>
+      `점포 수 상위 ${n}개 상권 · ${quarter} · 추정치(실제 매출 아님)`,
+    topNoData: '같은 분기의 매출과 점포 수를 함께 확인할 수 있는 상권이 없어요.',
     /** 다른 분기 값 — 대표값 방식(가중 중앙값이면 중간값, 아니면 평균) 그대로 */
     otherQuarter: (quarter: string, value: string, median: boolean) =>
       `${quarter} ${median ? '중간값' : '평균'} ${value}`,
@@ -683,6 +699,8 @@ export const MESSAGES = {
     /** 추정매출 분포 그래프 — 화면은 쉬운 말(의미는 같음: 가중치 = 점포 수) */
     chart: {
       title: '점포당 추정 매출 분포',
+      /** 큰 숫자가 상위 3개 상권 합산일 때 — 그래프는 상권별 분포 참고 */
+      referenceTitle: '상권별 점포당 매출 분포 (참고)',
       basis: (stores: string, markets: number) => `점포 ${stores}개 · 상권 ${markets}곳 기준`,
       yLabel: '점포 수 (개)',
       groupLabel: '점포당 추정 매출 분포 그래프',

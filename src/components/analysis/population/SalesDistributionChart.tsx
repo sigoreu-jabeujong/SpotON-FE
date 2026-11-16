@@ -24,10 +24,13 @@ export default function SalesDistributionChart({
   average,
   items,
   variant = 'print',
+  title,
 }: {
   average: Average
   items: SalesReferenceItem[]
   variant?: 'print' | 'screen'
+  /** 화면 그래프 제목을 바꿀 때 (예: 큰 숫자와 계산 방식이 다른 참고 분포) */
+  title?: string
 }) {
   const screen = variant === 'screen'
   const C = MESSAGES.reference.chart
@@ -94,7 +97,7 @@ export default function SalesDistributionChart({
   return (
     <figure className="mt-4 min-w-0 border-t border-gray-300 pt-4" aria-labelledby={`${id}-title`}>
       <figcaption className="font-semibold" id={`${id}-title`}>
-        {screen ? C.title : '점포 수 기준 매출 분포'}
+        {screen ? (title ?? C.title) : '점포 수 기준 매출 분포'}
       </figcaption>
       {screen ? (
         <p className="mt-1 text-caption text-gray-600">

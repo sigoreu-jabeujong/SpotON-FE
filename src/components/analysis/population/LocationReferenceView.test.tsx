@@ -282,3 +282,68 @@ describe('결과 화면 위치 참고자료 — 핵심 숫자 + 한 줄', () => 
     expect(html).not.toContain('가중 중앙값')
   })
 })
+
+describe('점포 수 상위 3개 상권 합산 추정매출 (#116)이 있을 때', () => {
+  function withTop(data: LocationReference, metricValue: string | null) {
+    data.sales.top_markets_estimate = {
+      method: 'top3_markets_by_store_count_v1',
+      source_quarter: '20254',
+      status: metricValue ? 'ready' : 'no_data',
+      reason: null,
+      eligible_market_count: 2,
+      selected_market_count: metricValue ? 1 : 0,
+      excluded_item_count: metricValue ? 1 : 0,
+      total_sales: metricValue ? '9007199254740993' : null,
+      total_store_count: metricValue ? '82' : null,
+      metric: metricValue ? perStore(metricValue) : null,
+      markets: metricValue
+        ? [
+            {
+              market_code: '3110000',
+              market_name: '합성상권',
+              total_sales: '9007199254740993',
+              total_store_count: '82',
+              industry_codes: ['CS100010'],
+              metric: perStore(metricValue),
+            },
+          ]
+        : [],
+    }
+    return data
+  }
+
+  it('상위 상권 합산 값을 큰 숫자로, 한 줄은 상위 상권 수·분기·추정치', () => {
+    const html = renderToStaticMarkup(
+      <LocationReferenceView data={withTop(withAverage(fixture()), '37962042')} />,
+    )
+    expect(html).toContain('37,962,042원')
+    expect(html).toContain('점포 수 상위 1개 상권 · 2025년 4분기 · 추정치(실제 매출 아님)')
+    // 평균 방식 한 줄은 쓰지 않는다 (같은 뜻 문장 1회)
+    expect(html).not.toContain('인근 상권 1곳 ·')
+    expect(html.match(/추정치\(실제 매출 아님\)/g)).toHaveLength(1)
+  })
+
+  it('상권별 표 비고: 반영·상위 3개 외·다른 분기·자료 없음', () => {
+    const data = withTop(withAverage(fixture()), '37962042')
+    data.sales.items.push({
+      ...data.sales.items[0],
+      market_code: '3110009',
+      market_name: '하위상권',
+      store_reference: { total_stores: '5', reason: null },
+    })
+    const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    const table = html.slice(html.indexOf('<details'), html.indexOf('</details>'))
+    expect(table).toMatch(/합성상권.*반영/)
+    expect(table).toMatch(/하위상권.*상위 3개 외/)
+    expect(table).toContain('다른 분기')
+    expect(table).toContain('자료 없음')
+  })
+
+  it('상위 상권 값이 없으면 숫자 대신 자료 없음과 사유 한 줄', () => {
+    const html = renderToStaticMarkup(
+      <LocationReferenceView data={withTop(withAverage(fixture()), null)} />,
+    )
+    expect(html).toContain('같은 분기의 매출과 점포 수를 함께 확인할 수 있는 상권이 없어요.')
+    expect(html).not.toContain('250,000원')
+  })
+})
