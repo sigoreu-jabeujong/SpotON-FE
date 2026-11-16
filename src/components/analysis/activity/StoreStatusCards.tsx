@@ -4,7 +4,6 @@ import { MESSAGES } from '../../../constants/messages'
 import type { MarketActivity } from '../../../types/market'
 import type { MetricIndicator, Risk } from '../../../types/risk'
 import { formatCount, formatOperatingMonths, formatPeriod } from '../../../utils/format'
-import IndicatorTypeLabel from '../../common/IndicatorTypeLabel'
 import MetaLine from '../../common/MetaLine'
 import StatCard from '../../common/StatCard'
 import StatusLabel from '../../common/StatusLabel'
@@ -32,7 +31,6 @@ export default function StoreStatusCards({ activity, risk }: Props) {
         <StatCard
           icon={Store}
           label={T.competitor}
-          badge={<IndicatorTypeLabel type="reference" />}
           value={
             risk.isPending
               ? T.loadingValue
