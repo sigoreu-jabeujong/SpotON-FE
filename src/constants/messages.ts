@@ -839,7 +839,18 @@ export const MESSAGES = {
     franchise: (label: string) => `프랜차이즈 ${label}`,
     excludeUnknown: '정보 없음 점포 제외',
     edit: '조건 바꾸기',
-    editHint: '입력 화면으로 이동해요. 지금 주소와 업종은 그대로 채워져 있어요',
+  },
+  /** 결과 화면 "조건 바꾸기" 팝업 — 주소는 바꾸지 않고, 나머지 조건을 바꿔 같은 화면에서 다시 조회 */
+  conditionDialog: {
+    title: '조건 바꾸기',
+    description: '바꾼 조건은 지도·시점 조회·상권 활동·종합 진단에 함께 적용돼요.',
+    address: '주소',
+    otherAddress: '다른 주소로 진단하기',
+    category: '업종',
+    submit: '다시 조회',
+    cancel: '취소',
+    close: '조건 바꾸기 닫기',
+    unchanged: '바뀐 조건이 없어요',
   },
   layout: {
     ageNotice: '만 18세 이상 예비창업자를 대상으로 해요.',
