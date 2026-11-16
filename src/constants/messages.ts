@@ -1,6 +1,7 @@
 import { BRAND_API_ENABLED } from '../api/analysisProfile'
 import { API_MESSAGES } from './apiMessages'
 import { formatDate } from '../utils/format'
+import { MIN_AS_OF } from './diagnosis'
 /** 화면에 보이는 안내·오류·면책 문구 (한곳에서 관리) */
 const BRAND = 'Spot:ON'
 const withBrand = (name: string) => `${name} | ${BRAND}`
@@ -820,8 +821,9 @@ export function getAsOfRangeMessage(
     typeof detail === 'object' && detail && 'min_month' in detail ? detail.min_month : null
   const max =
     typeof detail === 'object' && detail && 'max_month' in detail ? detail.max_month : null
+  // 화면에서 고를 수 있는 시작은 2010-01부터 (MIN_AS_OF) — 서버가 더 이른 달을 주어도 같은 범위로 안내
   if (typeof min === 'string' && typeof max === 'string')
-    return MESSAGES.filter.asOfRange(dot(min), dot(max))
+    return MESSAGES.filter.asOfRange(dot(min < MIN_AS_OF ? MIN_AS_OF : min), dot(max))
   // 지금 BE는 error.detail을 보내지 않는다 → 같은 업종 조건의 data-range 응답으로 범위를 안내
   if (range?.min_month) return MESSAGES.filter.asOfRange(dot(range.min_month), dot(range.max_month))
   return ERROR_MESSAGES.AS_OF_OUT_OF_RANGE

@@ -60,6 +60,9 @@ export const FRANCHISE_OPTIONS = [
 ] as const
 export type FranchiseFilter = (typeof FRANCHISE_OPTIONS)[number]['id']
 
+/** 기준 시점으로 고를 수 있는 가장 이른 달 — 서버 범위가 더 이르더라도 여기서 자른다 (화면 선택지·예전 링크 공통) */
+export const MIN_AS_OF = '2010-01'
+
 export const BRAND_SCOPE_OPTIONS = [
   { id: 'all', label: '전체' },
   { id: 'chain', label: '브랜드·체인' },

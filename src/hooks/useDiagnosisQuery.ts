@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router'
 import {
   CATEGORIES,
   DEFAULT_AREA,
+  MIN_AS_OF,
   DEFAULT_INCLUDE_UNKNOWN,
   DEFAULT_RADIUS,
   FACILITY_SIZE_OPTIONS,
@@ -85,7 +86,8 @@ export function parseDiagnosisQuery(
     subCategories:
       category === 'restaurant' ? (params.get('sub') ?? '').split(',').filter(isSub) : [],
     radius: isRadius(radius) ? radius : DEFAULT_RADIUS,
-    asOf: isYearMonth(asOf) ? asOf : null,
+    // 2010년(MIN_AS_OF)보다 이른 예전 링크는 고를 수 있는 가장 이른 달로 맞춘다 (오류 화면 대신)
+    asOf: isYearMonth(asOf) ? (asOf < MIN_AS_OF ? MIN_AS_OF : asOf) : null,
     area: isFacility(area) ? area : DEFAULT_AREA,
     franchise: isFranchise(franchise) ? franchise : 'all',
     // 기본값(true)일 때는 URL에 남기지 않으므로 'false'일 때만 false
