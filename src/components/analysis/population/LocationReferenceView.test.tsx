@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import type { LocationReference, ReferenceNumber } from '../../../types/locationReference'
 import LocationReferenceView from './LocationReferenceView'
 
-/** 결과 화면용 참고자료 (진단서용 LocationReferencePrint는 LocationReferencePrint.test.tsx) */
+/** 결과 화면용 참고자료 (화면 그대로 PDF도 같은 컴포넌트) */
 function number(
   display: string,
   value = '12.34',
