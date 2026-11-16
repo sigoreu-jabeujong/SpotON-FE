@@ -93,7 +93,7 @@ export default function PopulationReferenceView({
         <details className="group/src text-micro text-gray-600 print:hidden">
           <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold focus-visible:outline-2 [&::-webkit-details-marker]:hidden">
             <ChevronDown
-              className="size-3.5 shrink-0 group-open:rotate-180 motion-safe:transition-transform"
+              className="size-3.5 shrink-0 group-open/src:rotate-180 motion-safe:transition-transform"
               aria-hidden="true"
             />
             {G.detailToggle}
