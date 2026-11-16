@@ -3,6 +3,7 @@ import { MESSAGES } from '../../constants/messages'
 import { useDiagnosisQuery } from '../../hooks/useDiagnosisQuery'
 import { useSupportLinks } from '../../hooks/useSupportLinks'
 import type { SupportLink } from '../../types/support'
+import { linkPhone, telHref } from '../../utils/phone'
 import Badge from '../common/Badge'
 import EmptyState from '../common/EmptyState'
 import ErrorState from '../common/ErrorState'
@@ -84,35 +85,52 @@ function LinkGroup({
         <EmptyState message={T.linksEmpty} description={null} />
       ) : (
         <ul className="flex flex-col gap-3">
-          {links.map((l) => (
-            <li
-              key={l.id}
-              // 블록 하나 = 기관명 · 제목 · 바로가기 (크게, 넉넉한 간격)
-              className="flex items-center justify-between gap-4 rounded-card border border-gray-300 bg-gray-0 px-5 py-5 max-sm:flex-col max-sm:items-start"
-            >
-              <div className="min-w-0">
-                {l.id === districtId && (
-                  <Badge tone="blue" className="mb-1.5">
-                    {T.districtBadge}
-                  </Badge>
-                )}
-                <p className="text-caption font-semibold text-blue-700">{l.org_name}</p>
-                <p className="mt-0.5 text-subtitle font-bold break-keep text-gray-900">{l.title}</p>
-              </div>
-              <a
-                href={l.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-blue-500 px-4 text-caption font-semibold text-blue-700 motion-colors hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          {links.map((l) => {
+            // 전화번호가 있으면 블록 안에 크게 (tel: 링크) — 이때 연락처 안내 링크는 뺀다
+            const phone = linkPhone(l)
+            return (
+              <li
+                key={l.id}
+                // 블록 하나 = 기관명 · 제목 · 바로가기 (크게, 넉넉한 간격)
+                className="flex items-center justify-between gap-4 rounded-card border border-gray-300 bg-gray-0 px-5 py-5 max-sm:flex-col max-sm:items-start"
               >
-                {T.linkGo}
-                <span className="sr-only">
-                  {l.org_name} {T.newWindow}
-                </span>
-                <ExternalLink className="size-4 arrow-nudge" aria-hidden="true" />
-              </a>
-            </li>
-          ))}
+                <div className="min-w-0">
+                  {l.id === districtId && (
+                    <Badge tone="blue" className="mb-1.5">
+                      {T.districtBadge}
+                    </Badge>
+                  )}
+                  <p className="text-caption font-semibold text-blue-700">{l.org_name}</p>
+                  <p className="mt-0.5 text-subtitle font-bold break-keep text-gray-900">
+                    {l.title}
+                  </p>
+                </div>
+                {phone ? (
+                  <a
+                    href={telHref(phone)}
+                    className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full bg-blue-100 px-4 text-subtitle font-bold whitespace-nowrap text-blue-700 tabular-nums motion-colors hover:bg-blue-500/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                  >
+                    <span aria-hidden="true">☎</span>
+                    <span className="sr-only">{T.phoneLabel(l.org_name)}</span>
+                    {phone}
+                  </a>
+                ) : (
+                  <a
+                    href={l.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-blue-500 px-4 text-caption font-semibold text-blue-700 motion-colors hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                  >
+                    {T.linkGo}
+                    <span className="sr-only">
+                      {l.org_name} {T.newWindow}
+                    </span>
+                    <ExternalLink className="size-4 arrow-nudge" aria-hidden="true" />
+                  </a>
+                )}
+              </li>
+            )
+          })}
         </ul>
       )}
     </section>

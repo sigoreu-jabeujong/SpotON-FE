@@ -504,6 +504,8 @@ export const MESSAGES = {
     linksEmpty: '안내할 기관 링크가 아직 없어요',
     /** 기관 블록의 외부 링크 버튼 */
     linkGo: '바로가기',
+    /** 블록 안 전화번호 링크 (화면 읽기용 앞말) */
+    phoneLabel: (org: string) => `${org} 전화`,
     /** 구 지정 시 서버가 맨 앞에 둔 관할 센터 (가까운 순·맞춤 추천 아님) */
     districtBadge: '관할 지역센터 연락처',
     linksNotice:
