@@ -1,15 +1,19 @@
-import type { ReactElement } from 'react'
+﻿import type { ReactElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it } from 'vitest'
 import type { MarketActivity } from '../../../types/market'
 import StoreStatusCards from './StoreStatusCards'
 
-function activity(by: MarketActivity['by_sub_category']): MarketActivity {
+function activity(
+  by: MarketActivity['by_sub_category'],
+  months: number | null = 83,
+): MarketActivity {
   return {
     recent_12m: { period: '(2025-11-08, 2026-11-08]', opened: 7, closed: 9 },
     yearly_trend: [],
     by_sub_category: by,
+    avg_operating_months: months,
     sales: null,
     living_pop: null,
     flags: { missing: [] },
@@ -39,20 +43,32 @@ describe('점포 현황 — 평균 영업 기간 카드', () => {
     expect(card).toContain('평균 영업 기간 설명 보기')
   })
 
-  it('음식점 세부 업종이 여러 개면 서버 값을 업종별로 따로 (FE에서 평균 내지 않음)', () => {
+  it('음식점 세부 업종이 여러 개면 서버의 통합 평균 하나만 표시한다', () => {
     const html = render(
       <StoreStatusCards
-        activity={activity([
-          { sub_category: 'korean', open_count: 135, avg_operating_months: 140 },
-          { sub_category: 'japanese', open_count: 49, avg_operating_months: 62 },
-          { sub_category: 'western', open_count: 32, avg_operating_months: 94 },
-        ])}
+        activity={activity(
+          [
+            { sub_category: 'korean', open_count: 135, avg_operating_months: 140 },
+            { sub_category: 'japanese', open_count: 49, avg_operating_months: 62 },
+            { sub_category: 'western', open_count: 32, avg_operating_months: 94 },
+          ],
+          115,
+        )}
         risk={risk}
       />,
     )
     const card = avgCard(html)
+    expect(card).toContain('9년 7개월')
     for (const text of ['한식', '11년 8개월', '일식', '5년 2개월', '양식', '7년 10개월'])
-      expect(card).toContain(text)
+      expect(card).not.toContain(text)
+  })
+
+  it.each([
+    [0, '0개월'],
+    [null, '—'],
+  ] as const)('통합 평균 %s를 표시한다', (months, text) => {
+    const html = render(<StoreStatusCards activity={activity([], months)} risk={risk} />)
+    expect(avgCard(html)).toContain(text)
   })
 
   it('동종업체 수 카드에 Spot:ON 참고지표 배지가 없다', () => {
