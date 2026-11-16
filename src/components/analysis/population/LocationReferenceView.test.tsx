@@ -134,7 +134,9 @@ function withAverage(data: LocationReference) {
 
 describe('결과 화면 위치 참고자료 — 핵심 숫자 + 한 줄', () => {
   it('추정매출: 큰 숫자, 상권 수·분기·추정치 한 줄, 서버 금액 글자 그대로', () => {
-    const html = renderToStaticMarkup(<LocationReferenceView data={withAverage(fixture())} />)
+    const html = renderToStaticMarkup(
+      <LocationReferenceView category="cafe" data={withAverage(fixture())} />,
+    )
     expect(html).toContain('점포당 추정 매출')
     expect(html).toContain('250,000원')
     expect(html).toContain('인근 상권 1곳 · 2025년 4분기 · 추정치(실제 매출 아님)')
@@ -144,7 +146,9 @@ describe('결과 화면 위치 참고자료 — 핵심 숫자 + 한 줄', () => 
   })
 
   it('상권별은 접힌 표 — 자료 없음·다른 분기는 짧게, 반복 문구 없음', () => {
-    const html = renderToStaticMarkup(<LocationReferenceView data={withAverage(fixture())} />)
+    const html = renderToStaticMarkup(
+      <LocationReferenceView category="cafe" data={withAverage(fixture())} />,
+    )
     expect(html).toContain('상권별 자세히 보기 (3곳)')
     const table = html.slice(html.indexOf('<details'), html.indexOf('</details>'))
     expect(table).toContain('다른분기상권')
@@ -163,7 +167,9 @@ describe('결과 화면 위치 참고자료 — 핵심 숫자 + 한 줄', () => 
   })
 
   it('긴 안내 문단은 화면 본문에서 빠지고 (ⓘ 팝오버로), 같은 문장이 두 번 나오지 않는다', () => {
-    const html = renderToStaticMarkup(<LocationReferenceView data={withAverage(fixture())} />)
+    const html = renderToStaticMarkup(
+      <LocationReferenceView category="cafe" data={withAverage(fixture())} />,
+    )
     for (const moved of [
       '반경 비율로 나누지 않아요',
       '기존 AI 해석에 반영되는 값은 아니에요',
@@ -177,7 +183,7 @@ describe('결과 화면 위치 참고자료 — 핵심 숫자 + 한 줄', () => 
   })
 
   it('생활인구 카드: 행정동·관측일(새 날짜 표기), 큰 숫자, 주간·야간 막대와 비중 한 줄, 소수 배수 없음', () => {
-    const html = renderToStaticMarkup(<LocationReferenceView data={fixture()} />)
+    const html = renderToStaticMarkup(<LocationReferenceView category="cafe" data={fixture()} />)
     expect(html).toContain('생활인구 (주간·야간)')
     expect(html).toContain('합성동')
     expect(html).toContain('관측일 2026. 10. 31.')
@@ -194,7 +200,7 @@ describe('결과 화면 위치 참고자료 — 핵심 숫자 + 한 줄', () => 
   it('다른 날짜·원천의 주야간 비교는 이 행정동에 붙이지 않는다', () => {
     const data = fixture()
     data.day_night.items[0].observation_date = '2026-10-30'
-    const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    const html = renderToStaticMarkup(<LocationReferenceView category="cafe" data={data} />)
     expect(html).toContain('비교 자료의 구역·관측일을 확인할 수 없어요')
     expect(html).not.toContain('21,879.6명')
     expect(html).not.toContain('주간 50.8%')
@@ -205,14 +211,14 @@ describe('결과 화면 위치 참고자료 — 핵심 숫자 + 한 줄', () => 
     data.living_population.items[0].mean_24h = null
     data.living_population.items[0].reason = 'no_complete_day'
     data.living_population.items[0].observed_hours = 20
-    const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    const html = renderToStaticMarkup(<LocationReferenceView category="cafe" data={data} />)
     expect(html).toContain('비공개 값 또는 누락 시간')
     expect(html).toContain('공개된 관측 시간 20/24시간')
   })
 
   it('격자 부분자료는 같은 카드 맨 아래 접힌 영역 안에', () => {
     const html = renderToStaticMarkup(
-      <LocationReferenceView data={fixture()} grid={<p>격자표</p>} />,
+      <LocationReferenceView category="cafe" data={fixture()} grid={<p>격자표</p>} />,
     )
     const card = html.slice(html.indexOf('data-card="population"'))
     expect(card).toContain('격자 단위 부분자료 보기')
@@ -273,7 +279,7 @@ describe('결과 화면 위치 참고자료 — 핵심 숫자 + 한 줄', () => 
         ],
       },
     }
-    const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    const html = renderToStaticMarkup(<LocationReferenceView category="cafe" data={data} />)
     expect(html).toContain('점포당 추정 매출 분포')
     expect(html).toContain('중간값 100원')
     expect(html).toContain('점포 수 (개)')
@@ -314,7 +320,7 @@ describe('점포 수 상위 3개 상권 합산 추정매출 (#116)이 있을 때
 
   it('상위 상권 합산 값을 큰 숫자로, 한 줄은 상위 상권 수·분기·추정치', () => {
     const html = renderToStaticMarkup(
-      <LocationReferenceView data={withTop(withAverage(fixture()), '37962042')} />,
+      <LocationReferenceView category="cafe" data={withTop(withAverage(fixture()), '37962042')} />,
     )
     expect(html).toContain('37,962,042원')
     expect(html).toContain('점포 수 상위 1개 상권 · 2025년 4분기 · 추정치(실제 매출 아님)')
@@ -331,7 +337,7 @@ describe('점포 수 상위 3개 상권 합산 추정매출 (#116)이 있을 때
       market_name: '하위상권',
       store_reference: { total_stores: '5', reason: null },
     })
-    const html = renderToStaticMarkup(<LocationReferenceView data={data} />)
+    const html = renderToStaticMarkup(<LocationReferenceView category="cafe" data={data} />)
     const table = html.slice(html.indexOf('<details'), html.indexOf('</details>'))
     expect(table).toMatch(/합성상권.*반영/)
     expect(table).toMatch(/하위상권.*상위 3개 외/)
@@ -341,7 +347,7 @@ describe('점포 수 상위 3개 상권 합산 추정매출 (#116)이 있을 때
 
   it('상위 상권 값이 없으면 숫자 대신 자료 없음과 사유 한 줄', () => {
     const html = renderToStaticMarkup(
-      <LocationReferenceView data={withTop(withAverage(fixture()), null)} />,
+      <LocationReferenceView category="cafe" data={withTop(withAverage(fixture()), null)} />,
     )
     expect(html).toContain('같은 분기의 매출과 점포 수를 함께 확인할 수 있는 상권이 없어요.')
     expect(html).not.toContain('250,000원')

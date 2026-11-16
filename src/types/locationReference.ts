@@ -90,11 +90,41 @@ export type StoreWeightedDistribution = {
     upper_inclusive: boolean
   }[]
 }
+export type AggregatedMarket = {
+  market_code: string
+  market_name: string | null
+  market_type: string
+  spatial_relation: 'contains_point' | 'intersects_radius'
+  source_quarter: string | null
+  temporal_relation: string | null
+  status: 'ready' | 'partial' | 'no_data'
+  reason: string | null
+  included_industry_codes: string[]
+  unavailable_industries: { industry_code: string; source_quarter: string | null; reason: string }[]
+  included_item_keys: { market_code: string; industry_code: string; source_quarter: string }[]
+  total_sales: string | null
+  total_store_count: string | null
+  per_store_metric: ReferenceNumber | null
+  rank: number | null
+  selected_for_estimate: boolean
+}
+export type MarketAggregation = {
+  rule_version: 'restaurant_market_rollup_v1'
+  category: 'restaurant'
+  source_quarter: string | null
+  requested_industries: { industry_code: string; industry_name: string }[]
+  status: ReferenceStatus
+  reason: string | null
+  eligible_market_count: number
+  selected_market_codes: string[]
+  items: AggregatedMarket[]
+}
 export type LocationReference = {
   requested_as_of: string | null
   analysis_as_of: string
   time_mode: 'latest_reference' | 'analysis_period'
   sales: ReferenceBlock<SalesReferenceItem> & {
+    market_aggregation?: MarketAggregation | null
     top_markets_estimate?: {
       method: 'top3_markets_by_store_count_v1'
       source_quarter: string | null

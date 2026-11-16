@@ -7,6 +7,7 @@ import { nearbyStoresMock, storeSnapshotMock } from './nearby'
 import { storeHistoryMock } from './stores'
 import { supportLinksMock } from './support'
 import { populationMock } from './population'
+import { locationReferenceMock } from './locationReference'
 
 /**
  * 목업 응답 등록소. VITE_USE_MOCK=true 일 때 실제 서버 대신 사용한다.
@@ -35,6 +36,7 @@ const mockRoutes: Record<string, MockHandler> = {
   '/risk/interpret': riskInterpretMock,
   '/support-links': supportLinksMock,
   '/v2/population-reference': populationMock,
+  '/v2/location-reference': locationReferenceMock,
 }
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
