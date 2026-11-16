@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { DataStatus } from '../../constants/labels'
 import { DATA_STATUS } from '../../constants/labels'
+import { useInViewOnce } from '../../hooks/useInViewOnce'
 import { cn } from '../../utils/cn'
 import { StatusIcon } from '../common/StatusLabel'
 
@@ -8,16 +9,6 @@ import { StatusIcon } from '../common/StatusLabel'
 const R = 42
 const STROKE = 10
 const CIRCUMFERENCE = 2 * Math.PI * R
-
-/**
- * 채움 애니메이션을 하지 않고 처음부터 최종 값으로 그릴 때 — 서버 렌더·테스트(IntersectionObserver 없음),
- * 동작 줄이기, 인쇄 중. (인쇄는 index.css @media print 규칙으로도 최종 값을 강제한다)
- */
-function fillAtOnce(): boolean {
-  if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') return true
-  const media = (q: string) => window.matchMedia?.(q).matches ?? false
-  return media('(prefers-reduced-motion: reduce)') || media('print')
-}
 
 type Props = {
   /** 서버가 준 비율 값(%) 그대로 — 없으면(판단 보류·자료 없음) null */
@@ -41,23 +32,9 @@ export default function RateDonut({ percent, text, empty, details }: Props) {
   const has = percent !== null && text !== null
   const filled = has ? (Math.min(100, Math.max(0, percent)) / 100) * CIRCUMFERENCE : 0
   const full = `${filled} ${CIRCUMFERENCE}`
-  // 화면에 들어오면 true — 그 전에는 링을 0으로 두었다가 전환으로 차오른다 (한 번만, 다시 0으로 돌아가지 않음)
-  const [shown, setShown] = useState(fillAtOnce)
-  const svg = useRef<SVGSVGElement>(null)
-  useEffect(() => {
-    if (shown || !has || !svg.current) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setShown(true)
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.4 },
-    )
-    observer.observe(svg.current)
-    return () => observer.disconnect()
-  }, [shown, has])
+  // 화면에 들어오면 true — 그 전에는 링을 0으로 두었다가 전환으로 차오른다 (한 번만, 다시 0으로 돌아가지 않음).
+  // 서버 렌더·동작 줄이기·인쇄면 처음부터 true
+  const [svg, shown] = useInViewOnce<SVGSVGElement>({ enabled: has, threshold: 0.4 })
   const dash = shown ? full : `0 ${CIRCUMFERENCE}`
   const reason = !has && empty.text
   // 사유 글자 — 휴대폰은 도넛 바로 옆, 768px 이상은 오른쪽 설명 묶음 맨 위 (한쪽만 보이고 다른 쪽은 display:none)
