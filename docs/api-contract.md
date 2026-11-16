@@ -586,4 +586,3 @@ FE 전용 오류 (`src/api/client.ts`): `TIMEOUT`(15초 초과), `NETWORK_ERROR`
 | 기준일 필드명 | `meta.as_of` | 언급 없음 | `as_of` (FE 타입의 `effective_as_of`는 다음 작업에서 정리) | 확인 대기 |
 | 명세서 버전 | PDF는 v1.1 | "API 명세서 v1.2가 FE↔BE 계약" | v1.2 PDF를 받으면 이 문서를 갱신 | 확인 대기 |
 2026-11-16 FE #76/BE #184는 [공개 부분자료 AI 계약](population-ai.md)을 추가합니다. 기존 v2 요청을 유지하고 응답의 optional population_reference·새 근거ID·promptv2를 호환 처리합니다. 구promptv1은 필드없음 계약을 유지합니다. 전체 인구/Risk pending은 그대로입니다.
-
