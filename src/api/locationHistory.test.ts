@@ -32,7 +32,10 @@ const response = () => ({
   selection: { scope: 'floor', identity_requirement: 'address_scope', floor: '2층', unit: null },
   result_status: 'matched',
   location_coverage: 'partial',
-  unresolved_closed_count: 1,
+  open_count: 0,
+  closed_count: 1,
+  other_count: 0,
+  unresolved_count: 1,
   dated_closure_count: 1,
   undated_closure_count: 0,
   current_vacancy: 'not_verified',
@@ -40,26 +43,31 @@ const response = () => ({
 function serve(data: unknown) {
   vi.stubGlobal(
     'fetch',
-    vi
-      .fn()
-      .mockResolvedValue(
-        new Response(JSON.stringify({ data, meta: {}, error: null }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        }),
-      ),
+    vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data, meta: {}, error: null }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    ),
   )
 }
 afterEach(() => vi.unstubAllGlobals())
-it('rejects active records and mismatched floor instead of silently displaying them', async () => {
-  serve({ ...response(), stores: [{ ...row, current_status: 'open' }] })
-  await expect(getLocationHistory(params)).rejects.toThrow()
+it('accepts active records while still rejecting a mismatched floor', async () => {
+  serve({
+    ...response(),
+    open_count: 1,
+    closed_count: 0,
+    dated_closure_count: 0,
+    stores: [{ ...row, current_status: 'open', close_date: null }],
+  })
+  const result = await getLocationHistory(params)
+  expect(result.data.stores[0].store_status).toBe('open')
   serve({ ...response(), selection: { ...response().selection, floor: '3층' } })
   await expect(getLocationHistory(params)).rejects.toThrow()
 })
-it('preserves partial coverage and only closed records', async () => {
+it('preserves partial coverage and closed records', async () => {
   serve(response())
   const result = await getLocationHistory(params)
-  expect(result.data.location?.unresolved_closed_count).toBe(1)
+  expect(result.data.location?.unresolved_count).toBe(1)
   expect(result.data.stores[0].store_status).toBe('closed')
 })
