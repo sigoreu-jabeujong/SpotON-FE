@@ -19,6 +19,7 @@ import Button from '../../common/Button'
 import SubTitle from '../../common/SubTitle'
 import InfoPopover from '../../common/InfoPopover'
 import { MESSAGES } from '../../../constants/messages'
+import { ROUTES } from '../../../constants/routes'
 import AiConditions from './AiConditions'
 import AiSectionsResult, { ReportChecklist } from './AiSectionsResult'
 
@@ -35,7 +36,7 @@ export default function AiSectionsInterpretation({
 }) {
   const { query } = useDiagnosisQuery()
   const page = useLocation()
-  const printing = page.pathname === '/result/report'
+  const printing = page.pathname === ROUTES.report
   const activity = useMarketActivity(params, ACTIVITY_INCLUDE, !printing)
   const reference = useLocationReference(params, !printing)
   const grid = usePopulationReference(params, !printing)
@@ -106,8 +107,10 @@ export default function AiSectionsInterpretation({
       {
         onSuccess: (result) => {
           if (requestController.signal.aborted) return
-          if (reportMatches(result.data, liveBaseline.current)) client.setQueryData(key, result)
-          else setContextChanged(true)
+          if (reportMatches(result.data, liveBaseline.current)) {
+            client.setQueryData(key, result)
+            setRefreshes(0)
+          } else setContextChanged(true)
         },
         onSettled: () => {
           if (controller.current === requestController) controller.current = null
@@ -217,10 +220,18 @@ export default function AiSectionsInterpretation({
                   </p>
                   {error === 'AI_HISTORY_CONTEXT_OUTDATED' && (
                     <Link
-                      to={{ pathname: '/diagnose', search: page.search }}
+                      to={{ pathname: ROUTES.input, search: page.search }}
                       className="inline-flex min-h-11 items-center underline"
                     >
                       주소 확인하기
+                    </Link>
+                  )}
+                  {error === 'AI_CONTEXT_CHANGED' && refreshes >= 1 && (
+                    <Link
+                      to={{ pathname: ROUTES.input, search: page.search }}
+                      className="inline-flex min-h-11 items-center underline"
+                    >
+                      조건 다시 확인하기
                     </Link>
                   )}
                 </div>

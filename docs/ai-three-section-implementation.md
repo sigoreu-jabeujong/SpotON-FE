@@ -8,6 +8,8 @@ BE 계약과 설계는 [AI 해석 API](https://github.com/sigoreu-jabeujong/Spot
 
 필수 한계 안내는 독립 limitations를 검증해 유의점 역할이 실패해도 표시한다. 각 수치는 표시값·기준일·공간·대상·출처·반올림을 함께 보여준다. 행정동 이름 area_label은 서버의 표시 전용 필드이며 모델 입력에 넣지 않는다. 카페 이력 요청의 업종을 음식점으로 대체하지 않는다.
 
-Claude Code 실제 구현 정적 검수는 1차 NEEDS_CHANGES, 2차 PASS였다. 1차 필수 한계 안내 누락은 보완했고, 2차의 배경 조회 시 결과 언마운트/자료 변경 무안내/행정동 이름 권고를 추가 보완했다. 최종 검수 결과는 BE 기록에 남긴다.
+Claude Code 실제 구현 정적 검수는 1차 NEEDS_CHANGES, 2차 PASS, 3차 최종 PASS였다. 1차 필수 한계 안내 누락은 보완했고, 2차의 배경 조회 시 결과 언마운트/자료 변경 무안내/행정동 이름 권고를 추가 보완했다. 3차는 claude-opus-5-5, 도구 없는1turn/185초/exit0/제공 소스 지문 보존이며 원문과 범위는 BE 기록에 남겼다.
+
+최종 검수 이후 Codex가 비차단 권고에 따라 캐시 보관30분을 명시하고 ROUTES 상수를 사용했으며, 정상 응답 시 재조회 횟수 초기화/반복409 시 조건 확인 링크를 추가했다. Claude4차 검수는 수행하지 않았다. FE ESLint와 production v2의 TypeScript/Vite 빌드가 통과했다. 최신 develop의 AI 버튼/점포 호버/README 변경을 rebase로 보존했다.
 
 사용자 지시로 단위/통합 테스트·브라우저·실제 DB/Gemini 호출은 실행하지 않았다. ESLint·TypeScript/Vite와 production v2 빌드만 검사한다. BE 먼저 배포한 뒤 FE main을 공개하며 Render 연결 확인 전에는 배포 완료를 주장하지 않는다.
