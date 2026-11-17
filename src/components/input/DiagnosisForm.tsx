@@ -146,7 +146,7 @@ export default function DiagnosisForm({
             type="submit"
             disabled={loading}
             aria-label={T.searchButton}
-            className="flex size-9 shrink-0 items-center justify-center rounded-full text-gray-900 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:text-gray-600"
+            className="flex size-9 shrink-0 items-center justify-center rounded-full text-gray-900 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:text-gray-600 max-md:size-10"
           >
             <Search className="size-5" aria-hidden="true" />
           </button>

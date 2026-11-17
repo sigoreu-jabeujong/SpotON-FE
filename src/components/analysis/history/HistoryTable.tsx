@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { historyStatusLabel } from '../../../utils/history'
 import { SUB_CATEGORY_LABEL } from '../../../constants/labels'
 import { MESSAGES } from '../../../constants/messages'
+import { useScrollMore } from '../../../hooks/useScrollMore'
 import { useShowMore } from '../../../hooks/useShowMore'
 import type { HistoryStore } from '../../../types/stores'
 import { cn } from '../../../utils/cn'
@@ -22,6 +23,8 @@ type Props = {
 
 /** 과거 점포 이력 표 — 최근 개업 순, 처음 5개 + 더보기 */
 export default function HistoryTable({ stores, asOf }: Props) {
+  // 휴대폰에서 표가 옆으로 밀릴 때 오른쪽 끝을 흐리게 (더 볼 내용이 있다는 표시)
+  const [scroller, more] = useScrollMore<HTMLDivElement>()
   // 표시 순서만 바꾼다 (진단서와 같은 정렬 — 개업일 미확인은 맨 뒤). 캐시 배열은 복사해 정렬
   const sorted = useMemo(() => [...stores], [stores])
   const { visible, shown, total, hasMore, showMore } = useShowMore(sorted)
@@ -32,7 +35,11 @@ export default function HistoryTable({ stores, asOf }: Props) {
         최근 개업 순 · 날짜 미확인 기록은 마지막
       </p>
       {/* 휴대폰: 표를 가로로 밀어 볼 수 있게 (이때 머리글 고정은 끈다). relative는 칸 속 sr-only 글자가 상자 밖 화면 폭을 넓히지 않게. 데스크톱은 그대로 */}
-      <div className="overflow-clip rounded-card border border-gray-300 bg-gray-0 max-md:relative max-md:overflow-x-auto">
+      <div
+        ref={scroller}
+        data-scroll-more={more || undefined}
+        className="overflow-clip rounded-card border border-gray-300 bg-gray-0 data-scroll-more:[mask-image:linear-gradient(to_left,transparent,black_2.5rem)] max-md:relative max-md:overflow-x-auto"
+      >
         <table
           id={TABLE_ID}
           // 숫자 열은 고정폭 숫자, 점포명(행 머리 th)은 보통 숫자 — 상호 속 숫자가 벌어지지 않게

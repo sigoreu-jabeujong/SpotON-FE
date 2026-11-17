@@ -116,7 +116,7 @@ export default function AsOfPicker({ value, onChange, range, status, idPrefix = 
               disabled={disabled || !ok}
               aria-pressed={!!target && value === target}
               onClick={() => target && onChange(target)}
-              className="inline-flex h-8 items-center rounded-full px-3 text-micro font-semibold text-blue-700 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:text-gray-300 aria-pressed:bg-blue-100"
+              className="inline-flex h-8 items-center rounded-full px-3 text-micro font-semibold text-blue-700 hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:text-gray-300 aria-pressed:bg-blue-100 max-md:h-10"
             >
               {q.label}
             </button>
