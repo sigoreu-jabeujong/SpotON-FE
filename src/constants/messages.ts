@@ -105,7 +105,7 @@ export const MESSAGES = {
     addressPlaceholder: '도로명 주소 또는 지번 주소를 입력하세요',
     /** 주소 입력칸 오른쪽 ✕ 버튼 (값이 있을 때만) */
     addressClear: '주소 지우기',
-    addressExample: '예) 서울특별시 마포구 양화로 45 2층',
+    addressExample: '예) 서울 강남구 언주로170길 34',
     /** 층·호수를 함께 쓰면 geocode가 floor_unit으로 읽어 이력의 "같은 자리" 판정에 쓴다 */
     addressFloorHint: '층·호수는 주소 뒤에 적으면 자동 반영해요. 생략하면 기본 주소로 진단해요.',
     searchButton: '주소 검색',
