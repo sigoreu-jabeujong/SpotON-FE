@@ -85,37 +85,44 @@ export default function MetaLine({
   if (sample) parts.push({ key: 'denominator', label: MESSAGES.meta.sample, node: sample })
 
   if (parts.length === 0 && !isDemo) return null
+  const lead = !!label || isDemo
   return (
-    <p
-      className={cn(
-        'flex max-w-[44em] flex-wrap items-baseline gap-y-1 text-micro leading-relaxed text-gray-600',
-        className,
-      )}
-    >
-      {label && <span className="mr-2 font-semibold text-gray-900">{label}</span>}
-      {isDemo && (
-        <Badge tone="orange" className="mr-2 self-center">
-          {MESSAGES.meta.demo}
-        </Badge>
-      )}
-      {parts.map((p, i) => (
-        <span key={p.key}>
-          {/* 항목 사이는 가운뎃점 대신 얇은 세로선 (복사할 때는 공백으로 떨어지게 공백 글자를 함께 둔다) */}
-          {i > 0 && (
-            <>
-              {' '}
-              <span
-                aria-hidden="true"
-                className="mx-2.5 inline-block h-[0.9em] w-px bg-gray-300 align-[-0.1em]"
-              />
-            </>
+    <p className={cn('max-w-[44em] text-micro leading-relaxed text-gray-600', className)}>
+      {/*
+        항목 사이는 가운뎃점 대신 얇은 세로선. 각 항목은 왼쪽 여백(21px) 안에 세로선을 두고, 묶음 전체를 21px 왼쪽으로
+        당겨 잘라 낸다 — 줄이 바뀌어 줄 맨 앞에 온 항목의 세로선은 잘린 칸에 들어가 보이지 않고 항목 사이에만 보인다.
+        (예전 mx-2.5 + 1px 선과 같은 간격이라 한 줄일 때 모양은 같다)
+      */}
+      <span className="block overflow-hidden">
+        <span className="-ml-[21px] flex flex-wrap items-baseline gap-y-1">
+          {lead && (
+            // 이름표·시연 배지 — 바로 뒤 항목과는 예전처럼 8px 간격, 세로선 없음 (-13px = 8px - 21px)
+            <span className="-mr-[13px] flex items-baseline gap-2 pl-[21px]">
+              {label && <span className="font-semibold text-gray-900">{label}</span>}
+              {isDemo && (
+                <Badge tone="orange" className="self-center">
+                  {MESSAGES.meta.demo}
+                </Badge>
+              )}
+            </span>
           )}
-          {/* 이름표와 값 사이에 실제 공백을 둬 읽기·복사 때 붙지 않게 */}
-          {p.label && <span className="font-medium text-gray-900">{p.label}</span>}
-          {p.label && ' '}
-          <span className="tabular-nums">{p.node}</span>
+          {parts.map((p, i) => (
+            <span key={p.key} className="relative pl-[21px]">
+              {!(lead && i === 0) && (
+                <span
+                  aria-hidden="true"
+                  className="absolute top-[0.35em] left-2.5 h-[0.9em] w-px bg-gray-300"
+                />
+              )}
+              {/* 복사할 때 항목이 공백으로 떨어지게 */}{' '}
+              {/* 이름표와 값 사이에 실제 공백을 둬 읽기·복사 때 붙지 않게 */}
+              {p.label && <span className="font-medium text-gray-900">{p.label}</span>}
+              {p.label && ' '}
+              <span className="tabular-nums">{p.node}</span>
+            </span>
+          ))}
         </span>
-      ))}
+      </span>
     </p>
   )
 }
