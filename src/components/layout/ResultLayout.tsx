@@ -55,7 +55,7 @@ function ResultLayoutContent() {
               key={step.step}
               to={{ pathname: step.path, search }}
               aria-current={pathname === step.path ? 'step' : undefined}
-              className="rounded-control px-2 py-2 text-caption text-gray-700 aria-[current=step]:bg-blue-100 aria-[current=step]:font-bold aria-[current=step]:text-blue-700"
+              className="inline-flex min-h-10 items-center rounded-control px-2 py-2 text-caption text-gray-700 aria-[current=step]:bg-blue-100 aria-[current=step]:font-bold aria-[current=step]:text-blue-700"
             >
               {step.step}. {step.label}
             </Link>
