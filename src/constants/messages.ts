@@ -759,6 +759,19 @@ export const MESSAGES = {
   },
   layout: {
     ageNotice: '만 18세 이상 예비창업자를 대상으로 해요.',
+    /** STEP 02·03 본문 맨 아래 다음 단계 카드 */
+    nextStep: {
+      analysis: {
+        title: '다음 단계: 종합 진단 결과',
+        desc: '공식·참고 지표와 AI 해석을 확인해 보세요.',
+        label: 'STEP 03 종합 진단 결과로 이동',
+      },
+      summary: {
+        title: '다음 단계: 결과 저장 및 상담',
+        desc: 'PDF로 저장하고 공공 창업 상담을 연결해 보세요.',
+        label: 'STEP 04 결과 저장 및 상담으로 이동',
+      },
+    },
     baselinePending: '데이터 기준일은 결과를 불러오면 표시돼요.',
     skipToContent: '본문 바로가기',
     logoLabel: 'Spot:ON 처음으로',

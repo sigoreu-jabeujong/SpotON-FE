@@ -7,6 +7,7 @@ import NearbySection from '../components/analysis/NearbySection'
 import Card from '../components/common/Card'
 import SectionErrorBoundary from '../components/common/SectionErrorBoundary'
 import type { AnalysisSectionId } from '../constants/routes'
+import NextStepCard from '../components/layout/NextStepCard'
 
 /** 섹션이 깨져도 머리·앵커(#id)는 남겨 사이드바 이동이 그대로 되게 한다 */
 const keepSection = (id: AnalysisSectionId) => (fallback: ReactNode) => (
@@ -60,6 +61,8 @@ export default function AnalysisPage() {
           <ActivitySection />
         </SectionErrorBoundary>
       </Card>
+      {/* 끝까지 내린 뒤 바로 STEP 03으로 */}
+      <NextStepCard from="analysis" />
     </div>
   )
 }
