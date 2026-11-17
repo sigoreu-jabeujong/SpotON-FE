@@ -16,6 +16,7 @@ import { getCoordinates, useDiagnosisQuery } from '../hooks/useDiagnosisQuery'
 import { useRisk } from '../hooks/useRisk'
 import { V2_API_ENABLED } from '../api/analysisProfile'
 import { queryKeys } from '../api/queryKeys'
+import NextStepCard from '../components/layout/NextStepCard'
 
 const T = MESSAGES.summary
 
@@ -103,6 +104,8 @@ export default function SummaryPage() {
       <SectionErrorBoundary resetKey={search}>
         <SummaryInfoGrid meta={risk.data?.meta} />
       </SectionErrorBoundary>
+      {/* 끝까지 내린 뒤 바로 STEP 04로 */}
+      <NextStepCard from="summary" />
     </div>
   )
 }

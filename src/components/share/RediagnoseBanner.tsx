@@ -1,7 +1,6 @@
-import { ArrowRight } from 'lucide-react'
-import { Link } from 'react-router'
 import { MESSAGES } from '../../constants/messages'
 import { ROUTES } from '../../constants/routes'
+import BannerLink from '../common/BannerLink'
 import RobotArt from '../common/RobotArt'
 
 const T = MESSAGES.share
@@ -12,21 +11,12 @@ const T = MESSAGES.share
  */
 export default function RediagnoseBanner() {
   return (
-    <Link
+    <BannerLink
       to={ROUTES.input}
-      aria-label={T.rediagnoseLabel}
-      className="group flex items-center justify-between gap-4 rounded-card bg-blue-100 px-6 py-5 motion-colors hover:bg-blue-500/10 hover:shadow-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-    >
-      <span className="flex items-center gap-4">
-        <RobotArt className="size-10" />
-        <span>
-          <span className="block text-body font-bold text-gray-900">{T.rediagnoseTitle}</span>
-          <span className="block text-caption text-gray-600">{T.rediagnoseDesc}</span>
-        </span>
-      </span>
-      <span className="flex size-10 shrink-0 arrow-nudge items-center justify-center rounded-full bg-gray-0 text-blue-500 shadow-card">
-        <ArrowRight className="size-5" aria-hidden="true" />
-      </span>
-    </Link>
+      label={T.rediagnoseLabel}
+      art={<RobotArt className="size-10" />}
+      title={T.rediagnoseTitle}
+      desc={T.rediagnoseDesc}
+    />
   )
 }
