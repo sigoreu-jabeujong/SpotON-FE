@@ -30,7 +30,7 @@ function Section({
         <p className="text-body text-gray-600">
           {positive
             ? '현재 자료로 확인할 수 있는 이점이 없어요.'
-            : '현재 비교자료에서 뚜렷한 불리한 신호가 확인되지 않았어요.'}
+            : '현재 자료에서 구체적인 유의점을 정리할 근거가 충분하지 않아요.'}
         </p>
       )}
     </section>
