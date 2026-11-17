@@ -5,6 +5,12 @@
     <!-- 파비콘: 로고 심볼(src/assets/logo.webp)로 만든 정적 파일. 로고가 바뀌면 public/ 아이콘도 다시 만든다 -->
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- PWA: 휴대폰 "홈 화면에 추가"로 설치 (오프라인 캐시 없음 — docs/decisions.md) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Spot:ON" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#3376fd" />
     <title>Spot:ON — 계약 전, 그 자리를 진단하세요</title>
