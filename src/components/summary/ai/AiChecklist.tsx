@@ -27,7 +27,7 @@ export default function AiChecklist({ items }: { items: RiskInterpretation['chec
       <p className="mb-3 flex items-center justify-between gap-2 text-micro text-gray-600">
         <span>{T.checklistHint}</span>
         {/* 체크한 개수는 화면 표시용 (지표 아님) */}
-        <span aria-live="polite" className="font-semibold text-blue-700">
+        <span aria-live="polite" className="shrink-0 font-semibold whitespace-nowrap text-blue-700">
           {T.checklistDone(checked.size, items.length)}
         </span>
       </p>
