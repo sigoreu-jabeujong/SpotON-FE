@@ -1,5 +1,6 @@
 import { CURRENT_STATUS_LABEL, SUB_CATEGORY_LABEL } from '../../../constants/labels'
 import { MESSAGES } from '../../../constants/messages'
+import { useScrollMore } from '../../../hooks/useScrollMore'
 import { useShowMore } from '../../../hooks/useShowMore'
 import type { SnapshotStore, StoreStatus } from '../../../types/stores'
 import { cn } from '../../../utils/cn'
@@ -28,11 +29,17 @@ type Props = {
 
 /** 시점 조회 점포 목록 — API 순서 그대로, 처음 5개 + 더보기 */
 export default function SnapshotTable({ stores, periodLabel, asOf }: Props) {
+  // 휴대폰에서 표가 옆으로 밀릴 때 오른쪽 끝을 흐리게 (더 볼 내용이 있다는 표시)
+  const [scroller, more] = useScrollMore<HTMLDivElement>()
   const { visible, shown, total, hasMore, showMore } = useShowMore(stores)
   return (
     <div>
       {/* 휴대폰: 표를 가로로 밀어 볼 수 있게 (이때 머리글 고정은 끈다). relative는 칸 속 sr-only 글자가 상자 밖 화면 폭을 넓히지 않게. 데스크톱은 그대로 */}
-      <div className="overflow-clip rounded-card border border-gray-300 bg-gray-0 max-md:relative max-md:overflow-x-auto">
+      <div
+        ref={scroller}
+        data-scroll-more={more || undefined}
+        className="overflow-clip rounded-card border border-gray-300 bg-gray-0 data-scroll-more:[mask-image:linear-gradient(to_left,transparent,black_2.5rem)] max-md:relative max-md:overflow-x-auto"
+      >
         <table
           id={TABLE_ID}
           // 숫자 열은 고정폭 숫자, 점포명(행 머리 th)은 보통 숫자 — 상호 속 숫자가 벌어지지 않게
