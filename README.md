@@ -306,7 +306,7 @@ flowchart LR
     FE -- "REST /api, /api/v2" --> BE["SpotON-BE<br/>FastAPI · Render"]
     FE -- "지도 SDK" --> K["카카오맵"]
     BE --> DB[("PostgreSQL<br/>+ PostGIS")]
-    BE --> AI["Gemini<br/>(AI 해석)"]
+    BE --> AI["LLM<br/>(AI 해석)"]
     BE --> P["공공데이터<br/>인허가·상권"]
 ```
 
@@ -320,7 +320,7 @@ flowchart LR
 | FE 품질 | ESLint, Prettier, Vitest, GitHub Actions |
 | BE | Python 3.11, FastAPI, Pydantic, SQLAlchemy, Alembic |
 | DB | PostgreSQL + PostGIS |
-| AI | Google Gemini API (서버에서만 호출) |
+| AI | LLM API — 현재 OpenAI, Google Gemini 호환 유지 (서버에서만 호출) |
 | 배포 | FE: Vercel / BE: Render · Docker |
 
 ## 8. 폴더 구조
@@ -370,7 +370,7 @@ SpotON-FE/
 | R19 | [주소](https://www.data.go.kr/data/15057017/openapi.do) · [좌표](https://www.data.go.kr/data/15056663/openapi.do) API | 행정안전부 |
 | R8 | [카카오 로컬](https://developers.kakao.com/docs/latest/ko/local/dev-guide) · [지도](https://apis.map.kakao.com) | 카카오 |
 | R17 | 창업상담·소상공인 지원기관 링크 | 서울시 자영업지원센터 외 |
-| R18 | AI 해석 문장 구성 | Google Gemini API |
+| R18 | AI 해석 문장 구성 | LLM API (현재 OpenAI) |
 
 ## 10. 팀 소개 · 협업 규칙
 
