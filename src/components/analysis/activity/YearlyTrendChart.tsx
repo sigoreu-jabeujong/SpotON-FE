@@ -68,7 +68,8 @@ export default function YearlyTrendChart({ trend: rawTrend }: Props) {
               domain={[yearTicks[0] - 0.5, yearTicks[yearTicks.length - 1] + 0.5]}
               ticks={yearTicks}
               allowDecimals={false}
-              interval={0}
+              // 좁은 화면에서 끝 연도 글자가 겹치면(예: 2025년·2026년) 처음·끝은 두고 겹친 것만 뺀다 — 넓은 화면은 모두 보임
+              interval="preserveStartEnd"
               tickFormatter={(y: number) => T.trendYear(y)}
               tick={{ fontSize: 12, fill: COLOR.axis }}
               axisLine={{ stroke: COLOR.line }}
